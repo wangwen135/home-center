@@ -1,5 +1,6 @@
 package com.wwh.home.center;
 
+import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
@@ -9,6 +10,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * @date 2022/11/20 21:43
  */
 @SpringBootApplication
+@MapperScan("com.wwh.home.center.dao.mapper")
 public class Application {
 
     public static void main(String[] args) {
