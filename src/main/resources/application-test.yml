@@ -1,0 +1,8 @@
+
+# 服务端口号，默认80
+server:
+  port: 8866
+spring:
+  # 服务名称
+  application:
+    name: home-center
