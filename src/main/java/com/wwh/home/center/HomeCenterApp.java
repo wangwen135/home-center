@@ -11,9 +11,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  */
 @SpringBootApplication
 @MapperScan("com.wwh.home.center.dao.mapper")
-public class Application {
+public class HomeCenterApp {
 
     public static void main(String[] args) {
-        SpringApplication.run(Application.class, args);
+        SpringApplication.run(HomeCenterApp.class, args);
     }
 }

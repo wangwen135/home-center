@@ -1,0 +1,126 @@
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <title>时间日期-信息展示</title>
+
+    <style>
+        body {
+          color: #000000;
+          background-color: #ffffff;
+		  /*
+		  width: 586px;
+		  height: 690px;
+		  
+	      overflow: hidden;
+		  */
+		   width: 100%;
+          height: 100%;
+        }
+
+        .page {
+		  #background-color: aliceblue;
+          width: 100%;
+          height: 100%;
+        }
+
+        .time_container,
+        .date_container {
+          width: 100%;
+          #margin: auto;
+          text-align: center;
+        }
+
+        .time_container {
+          top: 0;
+        }
+
+        .date_container {
+		  top: 20;
+        }
+
+        .time {
+          padding-top: 10px;
+          font-size: 10rem;
+        }
+
+        .date {
+          padding-top: 20px;
+          font-size: 4rem;
+        }
+		.nongli{
+		  padding-top: 20px;
+		  font-size: 4rem;
+		}
+		
+		.split{
+		  width: 100%;
+		  height: 3px;
+		  background-color: #000000
+		}
+		
+		.msg{
+		  padding-top: 20px;
+		  font-size: 3rem;
+		}
+    </style>
+</head>
+
+<body>
+    <div class="page">
+      <div class="time_container">
+          <div class="time" id="time">22:27</div>
+      </div>
+
+      <div class="date_container">
+          <div class="date" id="date">4月28日 星期三</div>
+          
+		  <div class="nongli" id="nongli">农历显示</div>
+		  
+		  <div class="split"/>
+		  
+		  <div class="msg" id="msg">
+
+			王驰东不要哭<br>
+			好好做作业，好好玩
+
+		  </div>
+		  <p>
+		  <div class="test" id="test">获取屏幕信息</div>
+      </div>
+    </div>
+
+
+    <script>
+      function update() {
+        var date = new Date()
+        var utc8DiffMinutes = date.getTimezoneOffset() + 480
+        date.setMinutes(date.getMinutes() + utc8DiffMinutes)
+
+        var timeString = date.getHours() + ':' + ('0' + date.getMinutes()).slice(-2)
+        var dateString = (date.getMonth() + 1) + '月' + date.getDate() + '日'
+        var weekList = ['日', '一', '二', '三', '四', '五', '六']
+        var weekString = '星期' + weekList[date.getDay()]
+
+        document.getElementById("time").innerHTML = timeString
+        document.getElementById("date").innerHTML = dateString + ' ' + weekString
+        
+      }
+
+      update()
+	  
+	  var height = document.body.clientHeight
+	  var width = document.body.clientWidth;
+	  document.getElementById("test").innerHTML = '显示区域 高度：' + height + ' * 宽度：' + width
+      
+	  function ref(){
+		location.reload();
+	  }
+	  
+	  setInterval("ref()",30000)
+	  
+    </script>
+</body>
+</html>

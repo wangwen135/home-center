@@ -28,3 +28,5 @@ logging:
     com.wwh: debug
 
 
+camera-video:
+  base-path: J:\xiaomi_camera_videos
