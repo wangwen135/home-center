@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>视频播放测试</title>
+
+    <link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/bootstrap/icons/bootstrap-icons.css">
+
+    <script src="/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/jquery-3.6.1.min.js"></script>
+
+    <style>
+        #cameraDiv > label {
+            margin-right: 30px;
+        }
+    </style>
+</head>
+<body>
+<div class="container-lg">
+    <h2>摄像头视频查看&下载</h2>
+    <p>如H265格式的的视频无法播放，请换更新的浏览器</p>
+
+    <p class="text-muted">
+        相关的视频文件存储在NAS上<br>
+        <mark>localhost:/volume1/监控</mark>
+        挂载到 localhost的centerOS的
+        <mark>/mnt/监控</mark>
+    </p>
+</div>
+<div class="container ">
+    <h5>选择需要查看的摄像头</h5>
+    <div id="cameraDiv">
+        <input type="radio" class="btn-check" name="brd-camera" id="camera-1" autocomplete="off" value="111111" checked>
+        <label class="btn btn-outline-primary" for="camera-1">摄像头1 <i class="bi bi-camera-video"></i></label>
+
+        <input type="radio" class="btn-check" name="brd-camera" id="camrea-2" autocomplete="off" value="2222222">
+        <label class="btn btn-outline-primary" for="camrea-2">摄像头2 <i class="bi bi-camera-video"></i></label>
+    </div>
+</div>
+
+
+<div class="container border border-primary rounded-3">
+    <h5>日期</h5>
+    <div id="dateDiv">
+        <input type="radio" class="btn-check" name="brd-date" id="2022-1-1" autocomplete="off" checked>
+        <label class="btn btn-outline-primary" for="2022-1-1">20220101</label>
+
+        <input type="radio" class="btn-check" name="brd-date" id="2022-1-2" autocomplete="off">
+        <label class="btn btn-outline-primary" for="2022-1-2">20220102</label>
+    </div>
+    <h5>小时</h5>
+    <div id="hourDiv" class="btn-group" role="group">
+        <input type="radio" class="btn-check" name="brd-hour" id="1" autocomplete="off" checked>
+        <label class="btn btn-outline-primary" for="1">01</label>
+
+        <input type="radio" class="btn-check" name="brd-hour" id="2" autocomplete="off">
+        <label class="btn btn-outline-primary" for="2">02</label>
+
+        <input type="radio" class="btn-check" name="brd-hour" id="3" autocomplete="off">
+        <label class="btn btn-outline-primary" for="3">03</label>
+    </div>
+
+    <h5>分钟</h5>
+    <div id="minuteDiv">
+        <input type="radio" class="btn-check" name="brd-minute" id="m-1" autocomplete="off" checked>
+        <label class="btn btn-outline-primary" for="m-1">01</label>
+
+        <input type="radio" class="btn-check" name="brd-minute" id="m-2" autocomplete="off">
+        <label class="btn btn-outline-primary" for="m-2">02</label>
+
+        <input type="radio" class="btn-check" name="brd-minute" id="m-3" autocomplete="off">
+        <label class="btn btn-outline-primary" for="m-3">03</label>
+    </div>
+</div>
+<br>
+
+<div class="container" style="text-align:center">
+    <div>
+        <button class="btn btn-success" onclick="playPause()"><i class="bi bi-play">播放</i>&nbsp;<i class="bi bi-pause">暂停</i>
+        </button>
+
+        &nbsp;&nbsp;&nbsp;&nbsp;
+
+        <button class="btn btn-primary" onclick="makeBig()"><i class="bi bi-zoom-in">放大</i></button>
+        <button class="btn btn-primary" onclick="makeSmall()"><i class="bi bi-zoom-out">缩小</i></button>
+        <button class="btn btn-secondary" onclick="makeNormal()"><i class="bi bi-fullscreen-exit">普通</i></button>
+
+        &nbsp;&nbsp;播放速度控制:
+        <button class="btn btn-outline-dark" onclick="slowDown()"><i class="bi bi-skip-backward">慢放</i></button>
+        <button class="btn btn-outline-success" onclick="normalSpeed()"><i class="bi bi-skip-end">正常</i></button>
+        <button class="btn btn-outline-primary" onclick="speedUp()"><i class="bi bi-skip-forward">快放</i></button>
+
+        &nbsp;&nbsp;当前播放速度是： &nbsp;&nbsp;
+
+        <button class="btn btn-light" onclick="downloadVideo()"><i class="bi bi-cloud-download">下载视频</i></button>
+    </div>
+
+    <video id="cVideo" width="1080" controls="true"
+           src="">
+        <!--<source src="/camera/getVideo?code=CAMERA_CODE&date=20221105&hour=17&minute=19" type="video/mp4">-->
+        您的浏览器不支持 HTML5 video 标签。
+    </video>
+</div>
+
+
+<script>
+
+    // fetch('/camera/video/minute?code=CAMERA_CODE&date=20221105&hour=17')
+    //     .then(response => response.json()) //定义返回的类型和数据格式
+    //     .then(data => console.log(data)) // 返回的数据
+    $(document).ready(function () {
+        //页面装载后自动加载摄像头列表
+        initCamera();
+    });
+
+    /**
+     * 加载摄像头列表
+     */
+    function initCamera() {
+        $.get("/camera/list", function (result) {
+            let cDiv = $("#cameraDiv");
+            cDiv.empty();
+            $.each(result, function (index, e) {
+                cDiv.append('<input type="radio" class="btn-check" name="brd-camera" id="camera-' + index + '" autocomplete="off" value="' + e.code + '" onclick="onCameraChange()">');
+                cDiv.append('<label class="btn btn-outline-primary" for="camera-' + index + '">' + e.name + ' <i class="bi bi-camera-video"/></label>');
+            });
+            //选中第一个
+            $('#camera-0').attr("checked", 'checked');
+            //添加点击事件
+            // $("#cameraDiv").on("click", "input:radio", onCameraChange);
+            onCameraChange();
+        });
+    }
+
+    /**
+     * 摄像头改变后加载日期列表
+     */
+    function onCameraChange() {
+        let cameraId = $("#cameraDiv > input:radio:checked").val();
+        console.log("选择的摄像头是：" + cameraId);
+
+        let url = "/camera/video/date?code=" + cameraId;
+        $.get(url, function (result) {
+            let dDiv = $("#dateDiv");
+            dDiv.empty();
+            $.each(result, function (index, e) {
+                dDiv.append('<input type="radio" class="btn-check" name="brd-date" id="date-' + index + '" autocomplete="off" value="' + e + '" onclick="onDateChange()">');
+                dDiv.append('<label class="btn btn-outline-primary" for="date-' + index + '">' + e + '</label>');
+            });
+            //选中最后一个
+            $("#dateDiv > input:radio:last").attr("checked", 'checked');
+            //添加点击事件
+            // $("#dateDiv").on("click", "input:radio", onDateChange);
+            onDateChange();
+        });
+    }
+
+    /**
+     * 日期改变后加载小时列表
+     */
+    function onDateChange() {
+        let cameraId = $("#cameraDiv > input:radio:checked").val();
+        let date = $("#dateDiv > input:radio:checked").val();
+        console.log("选择的日期是：" + date);
+
+        let url = "/camera/video/hour?code=" + cameraId + "&date=" + date;
+        $.get(url, function (result) {
+            let hDiv = $("#hourDiv");
+            hDiv.empty();
+            $.each(result, function (index, e) {
+                hDiv.append('<input type="radio" class="btn-check" name="brd-hour" id="hour-' + index + '" autocomplete="off" value="' + e + '" onclick="onHourChange()">');
+                hDiv.append('<label class="btn btn-outline-primary" for="hour-' + index + '">' + e + '</label>');
+            });
+            //选中最后一个
+            $("#hourDiv > input:radio:last").attr("checked", 'checked');
+
+            onHourChange();
+        });
+    }
+
+    /**
+     * 小时改变后加载分钟
+     */
+    function onHourChange() {
+        let cameraId = $("#cameraDiv > input:radio:checked").val();
+        let date = $("#dateDiv > input:radio:checked").val();
+        let hour = $("#hourDiv > input:radio:checked").val();
+
+        console.log("选择的小时是：" + hour);
+
+        let url = "/camera/video/minute?code=" + cameraId + "&date=" + date + "&hour=" + hour;
+        $.get(url, function (result) {
+            let mDiv = $("#minuteDiv");
+            mDiv.empty();
+            $.each(result, function (index, e) {
+                mDiv.append('<input type="radio" class="btn-check" name="brd-minute" id="minute-' + index + '" autocomplete="off" value="' + e + '" onclick="onMinuteChange()">');
+                mDiv.append('<label class="btn btn-outline-primary" for="minute-' + index + '">' + e + '</label>');
+            });
+            //选中最后一个
+            $("#minuteDiv > input:radio:first").attr("checked", 'checked');
+
+            //触发下级方法
+            onMinuteChange();
+        });
+    }
+
+    //首次加载页面不自动播放视频
+    var firstLoad = true;
+
+    /**
+     * 分钟改变后加载视频
+     */
+    function onMinuteChange() {
+        let cameraId = $("#cameraDiv > input:radio:checked").val();
+        let date = $("#dateDiv > input:radio:checked").val();
+        let hour = $("#hourDiv > input:radio:checked").val();
+        let minute = $("#minuteDiv > input:radio:checked").val();
+
+        console.log("选择的分钟是：" + minute);
+        let url = "/camera/getVideo?code=" + cameraId + "&date=" + date + "&hour=" + hour + "&minute=" + minute;
+        console.log("视频路径是：" + url);
+
+        //设置视频路径
+        myVideo.src = url;
+
+        myVideo.load();
+
+        if (firstLoad) {
+            firstLoad = false;
+        } else {
+            myVideo.play();
+        }
+    }
+
+
+    var myVideo = document.getElementById("cVideo");
+
+    function playPause() {
+        if (myVideo.paused)
+            myVideo.play();
+        else
+            myVideo.pause();
+    }
+
+    //增大
+    function makeBig() {
+        myVideo.width = myVideo.width + 100;
+    }
+
+    //缩小
+    function makeSmall() {
+        myVideo.width = myVideo.width - 100;
+    }
+
+    //恢复正常
+    function makeNormal() {
+        myVideo.width = 1080;
+    }
+
+    //快放
+    function speedUp() {
+        myVideo.playbackRate = myVideo.playbackRate + 0.5;
+    }
+
+    //慢放
+    function slowDown() {
+        myVideo.playbackRate = 0.5;
+    }
+
+    //正常速度
+    function normalSpeed() {
+        myVideo.playbackRate = 1;
+    }
+
+    function downloadVideo() {
+        window.location.href = myVideo.src;
+    }
+</script>
+
+</body>
+</html>
