@@ -42,7 +42,7 @@
 </div>
 
 
-<div class="container border border-primary rounded-3">
+<div class="container border border-primary rounded-3" style="padding: 10px;">
     <h5>日期</h5>
     <div id="dateDiv">
         <input type="radio" class="btn-check" name="brd-date" id="2022-1-1" autocomplete="off" checked>
@@ -51,7 +51,7 @@
         <input type="radio" class="btn-check" name="brd-date" id="2022-1-2" autocomplete="off">
         <label class="btn btn-outline-primary" for="2022-1-2">20220102</label>
     </div>
-    <h5>小时</h5>
+    <h5 style="padding-top: 5px;">小时</h5>
     <div id="hourDiv" class="btn-group" role="group">
         <input type="radio" class="btn-check" name="brd-hour" id="1" autocomplete="off" checked>
         <label class="btn btn-outline-primary" for="1">01</label>
@@ -63,7 +63,7 @@
         <label class="btn btn-outline-primary" for="3">03</label>
     </div>
 
-    <h5>分钟</h5>
+    <h5 style="padding-top: 5px;">分钟</h5>
     <div id="minuteDiv">
         <input type="radio" class="btn-check" name="brd-minute" id="m-1" autocomplete="off" checked>
         <label class="btn btn-outline-primary" for="m-1">01</label>
@@ -77,29 +77,37 @@
 </div>
 <br>
 
-<div class="container" style="text-align:center">
-    <div>
-        <button class="btn btn-success" onclick="playPause()"><i class="bi bi-play">播放</i>&nbsp;<i class="bi bi-pause">暂停</i>
-        </button>
-
-        &nbsp;&nbsp;&nbsp;&nbsp;
-
-        <button class="btn btn-primary" onclick="makeBig()"><i class="bi bi-zoom-in">放大</i></button>
-        <button class="btn btn-primary" onclick="makeSmall()"><i class="bi bi-zoom-out">缩小</i></button>
-        <button class="btn btn-secondary" onclick="makeNormal()"><i class="bi bi-fullscreen-exit">普通</i></button>
-
-        &nbsp;&nbsp;播放速度控制:
-        <button class="btn btn-outline-dark" onclick="slowDown()"><i class="bi bi-skip-backward">慢放</i></button>
-        <button class="btn btn-outline-success" onclick="normalSpeed()"><i class="bi bi-skip-end">正常</i></button>
-        <button class="btn btn-outline-primary" onclick="speedUp()"><i class="bi bi-skip-forward">快放</i></button>
-
-        &nbsp;&nbsp;当前播放速度是： &nbsp;&nbsp;
-
-        <button class="btn btn-light" onclick="downloadVideo()"><i class="bi bi-cloud-download">下载视频</i></button>
+<div class="container border" style="text-align:center">
+    <button id="btnPlayPause" class="btn btn-success" onclick="playPause()"><i class="bi bi-play">播放</i></button>
+    <div style="width: 110px; display: inline-block">
+        <div class="input-group input-group-sm">
+            <input id="btnCurrentTime" type="text" class="form-control" onkeyup="value=value.replace(/[^\d.]/g,'')">
+            <button type="submit" class="btn btn-success" onclick="skip()"><i class="bi bi-skip-end-circle"></i>
+            </button>
+        </div>
     </div>
+    &nbsp;&nbsp;&nbsp;&nbsp;
 
-    <video id="cVideo" width="1080" controls="true"
-           src="">
+    <button class="btn btn-primary" onclick="makeBig()"><i class="bi bi-zoom-in">放大</i></button>
+    <button class="btn btn-primary" onclick="makeSmall()"><i class="bi bi-zoom-out">缩小</i></button>
+    <button class="btn btn-secondary" onclick="makeNormal()"><i class="bi bi-fullscreen-exit">普通</i></button>
+
+    <span id="txtVideoWidth" class="badge rounded-pill bg-light text-dark">1080x608</span>
+    &nbsp;&nbsp;
+    <button class="btn btn-outline-dark" onclick="slowDown()"><i class="bi bi-skip-backward">慢放</i></button>
+    <button class="btn btn-outline-success" onclick="normalSpeed()"><i class="bi bi-skip-end">正常</i></button>
+    <button class="btn btn-outline-primary" onclick="speedUp()"><i class="bi bi-skip-forward">快放</i></button>
+
+    <span class="badge rounded-pill bg-light text-dark"><span id="txtVideoRate">1</span>倍速</span>
+
+    &nbsp;&nbsp;
+
+    <button class="btn btn-light" onclick="downloadVideo()"><i class="bi bi-cloud-download">下载视频</i></button>
+</div>
+
+<div class="border" style="text-align:center">
+
+    <video id="cVideo" width="1080" controls="true" src="">
         <!--<source src="/camera/getVideo?code=CAMERA_CODE&date=20221105&hour=17&minute=19" type="video/mp4">-->
         您的浏览器不支持 HTML5 video 标签。
     </video>
@@ -140,7 +148,7 @@
      */
     function onCameraChange() {
         let cameraId = $("#cameraDiv > input:radio:checked").val();
-        console.log("选择的摄像头是：" + cameraId);
+        // console.log("选择的摄像头是：" + cameraId);
 
         let url = "/camera/video/date?code=" + cameraId;
         $.get(url, function (result) {
@@ -164,7 +172,7 @@
     function onDateChange() {
         let cameraId = $("#cameraDiv > input:radio:checked").val();
         let date = $("#dateDiv > input:radio:checked").val();
-        console.log("选择的日期是：" + date);
+        // console.log("选择的日期是：" + date);
 
         let url = "/camera/video/hour?code=" + cameraId + "&date=" + date;
         $.get(url, function (result) {
@@ -189,7 +197,7 @@
         let date = $("#dateDiv > input:radio:checked").val();
         let hour = $("#hourDiv > input:radio:checked").val();
 
-        console.log("选择的小时是：" + hour);
+        // console.log("选择的小时是：" + hour);
 
         let url = "/camera/video/minute?code=" + cameraId + "&date=" + date + "&hour=" + hour;
         $.get(url, function (result) {
@@ -208,7 +216,7 @@
     }
 
     //首次加载页面不自动播放视频
-    var firstLoad = true;
+    let firstLoad = true;
 
     /**
      * 分钟改变后加载视频
@@ -219,14 +227,17 @@
         let hour = $("#hourDiv > input:radio:checked").val();
         let minute = $("#minuteDiv > input:radio:checked").val();
 
-        console.log("选择的分钟是：" + minute);
+        // console.log("选择的分钟是：" + minute);
         let url = "/camera/getVideo?code=" + cameraId + "&date=" + date + "&hour=" + hour + "&minute=" + minute;
-        console.log("视频路径是：" + url);
+        // console.log("视频路径是：" + url);
+
+        let oldRate = myVideo.playbackRate;
 
         //设置视频路径
         myVideo.src = url;
-
         myVideo.load();
+
+        myVideo.playbackRate = oldRate;
 
         if (firstLoad) {
             firstLoad = false;
@@ -235,39 +246,98 @@
         }
     }
 
+    let myVideo = document.getElementById("cVideo");
 
-    var myVideo = document.getElementById("cVideo");
+    myVideo.addEventListener('play', function () {
+        $("#btnPlayPause").html('<i class="bi bi-pause">暂停</i>');
+        $("#btnCurrentTime").val(myVideo.currentTime)
+    })
 
+    myVideo.addEventListener('pause', function () {
+        $("#btnPlayPause").html('<i class="bi bi-play">播放</i>');
+        $("#btnCurrentTime").val(myVideo.currentTime)
+
+    })
+
+    myVideo.addEventListener('ratechange', function () {
+        $("#txtVideoRate").text(myVideo.playbackRate);
+    })
+
+    //视频播放时间更新
+    myVideo.addEventListener('timeupdate', function () {
+        $("#btnCurrentTime").val(myVideo.currentTime)
+    })
+
+
+    // 本视频播放结束，自动播放下一个
+    myVideo.addEventListener('ended', function (e) {
+        console.log('视频播放完了')
+        let mList = $("#minuteDiv  input:radio:checked").nextAll("input:radio");
+        if (mList.length > 0) {
+            mList[0].click();
+        }
+    })
+
+    //播放暂停
     function playPause() {
-        if (myVideo.paused)
+        if (myVideo.paused) {
             myVideo.play();
-        else
+            $("#btnPlayPause").html('<i class="bi bi-pause">暂停</i>');
+            ;
+        } else {
             myVideo.pause();
+            $("#btnPlayPause").html('<i class="bi bi-play">播放</i>');
+        }
+    }
+
+    //跳过一段
+    function skip() {
+        myVideo.currentTime = $("#btnCurrentTime").val();
+    }
+
+    function updateVideoWidthTxt() {
+        let text = myVideo.clientWidth + "x" + myVideo.clientHeight;
+        $("#txtVideoWidth").text(text);
     }
 
     //增大
     function makeBig() {
+        if (myVideo.width >= 10080) {
+            return;
+        }
         myVideo.width = myVideo.width + 100;
+        updateVideoWidthTxt();
     }
 
     //缩小
     function makeSmall() {
+        if (myVideo.width <= 100) {
+            return;
+        }
         myVideo.width = myVideo.width - 100;
+        updateVideoWidthTxt();
     }
 
     //恢复正常
     function makeNormal() {
         myVideo.width = 1080;
+        updateVideoWidthTxt();
     }
 
     //快放
     function speedUp() {
-        myVideo.playbackRate = myVideo.playbackRate + 0.5;
+        if (myVideo.playbackRate >= 16) {
+            return;
+        }
+        myVideo.playbackRate = myVideo.playbackRate + 0.25;
     }
 
     //慢放
     function slowDown() {
-        myVideo.playbackRate = 0.5;
+        if (myVideo.playbackRate <= 0.25) {
+            return;
+        }
+        myVideo.playbackRate = myVideo.playbackRate - 0.25;
     }
 
     //正常速度
@@ -275,6 +345,7 @@
         myVideo.playbackRate = 1;
     }
 
+    //下载视频
     function downloadVideo() {
         window.location.href = myVideo.src;
     }
