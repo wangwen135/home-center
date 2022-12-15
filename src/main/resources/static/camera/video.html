@@ -14,24 +14,65 @@
 
     <style>
         #cameraDiv > label {
-            margin-right: 30px;
+            margin-right: 2rem;
+            border-radius: 1rem 1rem 0rem 0rem;
+            border-bottom: hidden;
+        }
+
+        #dateDiv > label {
+            /*margin-left: 0.34rem;*/
+            width: 8rem;
+        }
+
+        #hourDiv > label {
+            width: 2.7rem;
+            border-radius: 0rem;
+        }
+
+        #minuteDiv > label {
+            width: 2.7rem;
+            border-radius: 0rem;
+            /*padding: 0.35rem 0.68rem;*/
+        }
+
+        #controlBar > div {
+            display: inline-block;
+            margin-right: 24px;
+        }
+
+        .badge-my1 {
+            background-color: #6c757d;
+            border-radius: 5px;
+            padding: 4px;
+            vertical-align: middle;
+            border: 1px solid black;
+            color: white;
+        }
+
+        .font1 {
+            font-size: inherit;
         }
     </style>
 </head>
 <body>
 <div class="container-lg">
     <h2>摄像头视频查看&下载</h2>
-    <p>如H265格式的的视频无法播放，请换更新的浏览器</p>
-
     <p class="text-muted">
         相关的视频文件存储在NAS上<br>
         <mark>localhost:/volume1/监控</mark>
         挂载到 localhost的centerOS的
         <mark>/mnt/监控</mark>
+
     </p>
 </div>
-<div class="container ">
-    <h5>选择需要查看的摄像头</h5>
+<div class="container">
+    <div id="cameraSelectHint">
+        <label class="h5">选择需要查看的摄像头 </label> &nbsp;
+        <label>
+            <i class="bi bi-exclamation-triangle-fill text-warning"></i>
+            如H265格式的的视频无法播放，请换更新的浏览器
+        </label>
+    </div>
     <div id="cameraDiv">
         <input type="radio" class="btn-check" name="brd-camera" id="camera-1" autocomplete="off" value="111111" checked>
         <label class="btn btn-outline-primary" for="camera-1">摄像头1 <i class="bi bi-camera-video"></i></label>
@@ -40,8 +81,6 @@
         <label class="btn btn-outline-primary" for="camrea-2">摄像头2 <i class="bi bi-camera-video"></i></label>
     </div>
 </div>
-
-
 <div class="container border border-primary rounded-3" style="padding: 10px;">
     <h5>日期</h5>
     <div id="dateDiv">
@@ -52,7 +91,8 @@
         <label class="btn btn-outline-primary" for="2022-1-2">20220102</label>
     </div>
     <h5 style="padding-top: 5px;">小时</h5>
-    <div id="hourDiv" class="btn-group" role="group">
+    <!--<div id="hourDiv" class="btn-group" role="group">-->
+    <div id="hourDiv">
         <input type="radio" class="btn-check" name="brd-hour" id="1" autocomplete="off" checked>
         <label class="btn btn-outline-primary" for="1">01</label>
 
@@ -77,30 +117,43 @@
 </div>
 <br>
 
-<div class="container border" style="text-align:center">
-    <button id="btnPlayPause" class="btn btn-success" onclick="playPause()"><i class="bi bi-play">播放</i></button>
-    <div style="width: 110px; display: inline-block">
-        <div class="input-group input-group-sm">
-            <input id="btnCurrentTime" type="text" class="form-control" onkeyup="value=value.replace(/[^\d.]/g,'')">
-            <button type="submit" class="btn btn-success" onclick="skip()"><i class="bi bi-skip-end-circle"></i>
-            </button>
+<div id="controlBar" class="container border" style="text-align:center">
+    <div>
+        <span class="badge-my1"><i id="videoInfo" class="bi bi-film"> 1920x1080</i></span>
+        <!--<span class="badge bg-secondary"><i class="bi bi-film">1920x1080</i></span>-->
+    </div>
+
+    <div>
+        <button id="btnPlayPause" class="btn btn-success" onclick="playPause()"><i class="bi bi-play">播放</i></button>
+        <div style="width: 135px; display: inline-block">
+            <div class="input-group input-group-sm">
+                <!--<input id="btnCurrentTime" type="text" class="form-control" onkeyup="value=value.replace(/[^\d.]/g,'')">-->
+                <input id="btnCurrentTime" type="number" class="form-control" step="0.01" min="0" max="100" value="0"
+                       required="true" title="鼠标滚轮控制逐帧播放效果">
+                <button type="submit" class="btn btn-success" onclick="skip()" title="跳转到指定位置"><i
+                        class="bi bi-skip-end-circle"></i>
+                </button>
+            </div>
         </div>
     </div>
-    &nbsp;&nbsp;&nbsp;&nbsp;
 
-    <button class="btn btn-primary" onclick="makeBig()"><i class="bi bi-zoom-in">放大</i></button>
-    <button class="btn btn-primary" onclick="makeSmall()"><i class="bi bi-zoom-out">缩小</i></button>
-    <button class="btn btn-secondary" onclick="makeNormal()"><i class="bi bi-fullscreen-exit">普通</i></button>
+    <div>
+        <button class="btn btn-primary" onclick="makeBig()"><i class="bi bi-zoom-in">放大</i></button>
+        <button class="btn btn-primary" onclick="makeSmall()"><i class="bi bi-zoom-out">缩小</i></button>
+        <button class="btn btn-secondary" onclick="makeNormal()"><i class="bi bi-fullscreen-exit">普通</i></button>
+        <span class="badge rounded-pill bg-light text-dark font1" style="min-width: 125px">
+            <i id="txtVideoWidth" class="bi bi-aspect-ratio">1080x608</i>
+        </span>
+    </div>
 
-    <span id="txtVideoWidth" class="badge rounded-pill bg-light text-dark">1080x608</span>
-    &nbsp;&nbsp;
-    <button class="btn btn-outline-dark" onclick="slowDown()"><i class="bi bi-skip-backward">慢放</i></button>
-    <button class="btn btn-outline-success" onclick="normalSpeed()"><i class="bi bi-skip-end">正常</i></button>
-    <button class="btn btn-outline-primary" onclick="speedUp()"><i class="bi bi-skip-forward">快放</i></button>
-
-    <span class="badge rounded-pill bg-light text-dark"><span id="txtVideoRate">1</span>倍速</span>
-
-    &nbsp;&nbsp;
+    <div>
+        <button class="btn btn-outline-dark" onclick="slowDown()"><i class="bi bi-skip-backward">慢放</i></button>
+        <button class="btn btn-outline-success" onclick="normalSpeed()"><i class="bi bi-skip-end">正常</i></button>
+        <button class="btn btn-outline-primary" onclick="speedUp()"><i class="bi bi-skip-forward">快放</i></button>
+        <span class="badge rounded-pill bg-light text-dark" style="width: 60px">
+            <span id="txtVideoRate">1</span>倍速
+        </span>
+    </div>
 
     <button class="btn btn-light" onclick="downloadVideo()"><i class="bi bi-cloud-download">下载视频</i></button>
 </div>
@@ -246,7 +299,35 @@
         }
     }
 
-    let myVideo = document.getElementById("cVideo");
+    //chrome 鼠标滚轮控制进度
+    let btnCT = document.getElementById("btnCurrentTime");
+    btnCT.onmousewheel = mousewheel;
+    btnCT.onchange = valueChange;
+
+    function mousewheel(e) {
+        e.preventDefault();//通知浏览器不执行默认的动作
+        let v = parseFloat(this.value);
+        if (e.wheelDelta < 0) { //下
+            if (v <= 0) {
+                return;
+            }
+            v = v - 0.01;
+        } else { //上
+            if (v >= 100) {
+                return;
+            }
+            v = v + 0.01;
+        }
+        let v2 = v.toFixed(2);
+        this.value = v2;
+        myVideo.currentTime = v2;
+    }
+
+    function valueChange() {
+        myVideo.currentTime = this.value;
+    }
+
+    const myVideo = document.getElementById("cVideo");
 
     myVideo.addEventListener('play', function () {
         $("#btnPlayPause").html('<i class="bi bi-pause">暂停</i>');
@@ -256,7 +337,6 @@
     myVideo.addEventListener('pause', function () {
         $("#btnPlayPause").html('<i class="bi bi-play">播放</i>');
         $("#btnCurrentTime").val(myVideo.currentTime)
-
     })
 
     myVideo.addEventListener('ratechange', function () {
@@ -268,10 +348,14 @@
         $("#btnCurrentTime").val(myVideo.currentTime)
     })
 
+    //视频数据已加载
+    myVideo.addEventListener("loadedmetadata", function () {
+        $("#videoInfo").text(" " + myVideo.videoWidth + "x" + myVideo.videoHeight);
+        updateVideoWidthTxt();
+    });
 
     // 本视频播放结束，自动播放下一个
     myVideo.addEventListener('ended', function (e) {
-        console.log('视频播放完了')
         let mList = $("#minuteDiv  input:radio:checked").nextAll("input:radio");
         if (mList.length > 0) {
             mList[0].click();
