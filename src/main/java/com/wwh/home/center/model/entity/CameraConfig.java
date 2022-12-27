@@ -7,7 +7,7 @@ import lombok.Data;
 import java.util.Date;
 
 /**
- * TODO
+ * 摄像头配置
  *
  * @author WWH
  * @version 1.0

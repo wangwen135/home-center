@@ -14,18 +14,14 @@ spring:
     password: 123456
     type: com.alibaba.druid.pool.DruidDataSource
 
+  thymeleaf:
+    cache=false:
 
 mybatis-plus:
   configuration:
     #控制台打印完整带参数SQL语句
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 #  mapper-locations: classpath*:mapper/*Mapper.xml
-
-logging:
-  level:
-    root: info
-    com.wwh: debug
-
 
 camera-video:
   base-path: J:\xiaomi_camera_videos
