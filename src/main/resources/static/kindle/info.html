@@ -5,55 +5,68 @@
     <title>时间日期-信息展示</title>
     <script src="/js/jquery-3.6.1.min.js"></script>
     <style>
+        /*kindle屏幕显示区域 高度：413 宽度：600*/
         body {
             color: #000000;
             background-color: #ffffff;
             /*
             width: 586px;
             height: 690px;
-
             overflow: hidden;
             */
             width: 100%;
             height: 100%;
+            text-align: center;
         }
 
         .page {
             width: 100%;
             height: 100%;
-        }
-
-        .time_container,
-        .date_container {
-            width: 100%;
-            #margin: auto;
             text-align: center;
         }
 
-        .time_container {
-            top: 0;
-        }
-
         .date_container {
-            top: 20px;
-        }
-
-        .time {
-            padding-top: 10px;
-            font-size: 10rem;
+            width: 100%;
+            text-align: left;
         }
 
         .date {
-            padding-top: 20px;
-            font-size: 4rem;
+            /*float: left;*/
+            /*padding-left: 10px;*/
+            font-size: 2.2rem;
         }
 
         .nongli {
-            padding-top: 20px;
-            font-size: 4rem;
+            float: right;
+            padding-right: 20px;
+            font-size: 2.2rem;
         }
 
+        .time_container {
+
+        }
+
+        .weather_container {
+            float: left;
+            /*position: absolute;*/
+            padding-top: 10px;
+            font-size: 1.1rem;
+        }
+
+        .time {
+            padding-top: 5px;
+            font-size: 6.2rem;
+        }
+
+        .weather_tips {
+            text-align: left;
+            font-size: 1.2rem;
+        }
+
+
         .split {
+            margin-top: 2px;
+            margin-bottom: 2px;
             width: 100%;
             height: 3px;
             background-color: #000000
@@ -63,69 +76,92 @@
             padding-top: 20px;
             font-size: 3rem;
         }
+
+        .top5 {
+            padding-top: 5px;
+        }
     </style>
 </head>
 
 <body>
 <div class="page">
+    <div class="date_container">
+        <span class="date" id="date">4月28日 星期三</span>
+        <span class="nongli" id="nongli">农历显示</span>
+    </div>
     <div class="time_container">
+        <div class="weather_container">
+            <div>
+                <img id="icon" width="40" height="40" src="https://dsj-img-pub.nongjiao.com/weatherIcon/18_small.png">
+                <span id="condition">小雨</span>
+            </div>
+            <div class="top5">温度：<span id="temp">13</span> ℃</div>
+            <div class="top5">体感：<span id="realFeel">11</span> ℃</div>
+        </div>
         <div class="time" id="time">22:27</div>
+        <div class="weather_tips" id="weather_tips">天气阴冷，穿暖和点吧！</div>
     </div>
 
-    <div class="date_container">
-        <div class="date" id="date">4月28日 星期三</div>
+    <div class="split"/>
 
-        <div class="nongli" id="nongli">农历显示</div>
-
-        <div class="split"/>
-
-        <div class="msg" id="msg">
-
+    <div class="msg">
+        <p id="msg">
             王驰东不要哭<br>
             好好做作业，好好玩
+        </p>
 
-        </div>
-        <p>
-        <div class="test" id="test">获取屏幕信息</div>
     </div>
 </div>
 
 
 <script>
     function updateTime() {
-        let date = new Date()
-        let timeString = date.getHours() + ':' + ('0' + date.getMinutes()).slice(-2)
+        var date = new Date()
+        var utc8DiffMinutes = date.getTimezoneOffset() + 480
+        date.setMinutes(date.getMinutes() + utc8DiffMinutes)
+        var timeString = date.getHours() + ':' + ('0' + date.getMinutes()).slice(-2)
         document.getElementById("time").innerHTML = timeString
-
-        if (date.getHours() == 0 & date.getMinutes() <= 3) {
-            console.log("更新日期和星期")
+        var h = date.getHours();
+        var m = date.getMinutes();
+        if (h == 0 & m < 3) {
+            console.log("@@ hours=" + h + " minutes=" + m);
+            console.log("更新日期和星期");
             updateDateAndWeek();
-            console.log("更新农历")
+            console.log("更新农历");
             updateNongLi();
+        }
+        if (m == 0 || m == 15 || m == 30 || m == 45) {
+            console.log("## hours=" + h + " minutes=" + m);
+            console.log("更新名言")
+            updateFamous();
+            console.log("更新天气")
+            updateWeather();
         }
     }
 
     updateTime()
 
     function updateDateAndWeek2() {
-        $.get("/kindle/getDateAndWeek", function (result) {
+        $.get("/smartScreen/getDateAndWeek", function (result) {
             console.log(result);
             document.getElementById("date").innerHTML = result;
         });
     }
 
     function updateDateAndWeek() {
-        let date = new Date()
-        let dateString = (date.getMonth() + 1) + '月' + date.getDate() + '日'
-        let weekList = ['日', '一', '二', '三', '四', '五', '六']
-        let weekString = '星期' + weekList[date.getDay()]
+        var date = new Date()
+        var utc8DiffMinutes = date.getTimezoneOffset() + 480
+        date.setMinutes(date.getMinutes() + utc8DiffMinutes)
+        var dateString = (date.getMonth() + 1) + '月' + date.getDate() + '日'
+        var weekList = ['日', '一', '二', '三', '四', '五', '六']
+        var weekString = '星期' + weekList[date.getDay()]
         document.getElementById("date").innerHTML = dateString + ' ' + weekString
     }
 
     updateDateAndWeek();
 
     function updateNongLi() {
-        $.get("/kindle/getNongLiShort", function (result) {
+        $.get("/smartScreen/getNongLiShort", function (result) {
             console.log(result);
             document.getElementById("nongli").innerHTML = result;
         });
@@ -133,23 +169,33 @@
 
     updateNongLi();
 
-    // test =============================
-    function screen() {
-        let height = document.body.clientHeight
-        let width = document.body.clientWidth;
-        document.getElementById("test").innerHTML = '显示区域 高度：' + height + ' * 宽度：' + width
+    function updateFamous() {
+        $.get("/smartScreen/getRandomFamous", function (result) {
+            console.log(result);
+            document.getElementById("msg").innerHTML = result;
+        });
     }
 
-    screen()
+    updateFamous();
 
-    // test =============================
+    function updateWeather() {
+        $.get("/smartScreen/getWeather", function (result) {
+            console.log(result);
+            document.getElementById("icon").src = result.smallIconUrl;
+            document.getElementById("condition").innerHTML = result.condition;
+            document.getElementById("temp").innerHTML = result.temp;
+            document.getElementById("realFeel").innerHTML = result.realFeel;
+            document.getElementById("weather_tips").innerHTML = result.tips;
+        });
+    }
 
+    updateWeather();
 
     function refPreMinute() {
         updateTime();
         //计算定时器，每分钟更新一次
-        let date = new Date()
-        let next = 60 - date.getSeconds() + 1;
+        var date = new Date()
+        var next = 60 - date.getSeconds() + 1;
         console.log("下次更新时间：" + next);
         next = next * 1000;
         setTimeout(refPreMinute, next);

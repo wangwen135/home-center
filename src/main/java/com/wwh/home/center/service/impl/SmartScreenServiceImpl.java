@@ -2,15 +2,11 @@ package com.wwh.home.center.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.iceyyy.nongli.NongLi;
-import com.wwh.home.center.dao.mapper.FamousQuotesMapper;
 import com.wwh.home.center.dao.mapper.PromptMessageMapper;
-import com.wwh.home.center.model.entity.CameraConfig;
 import com.wwh.home.center.model.entity.FamousQuotes;
 import com.wwh.home.center.model.vo.WeatherVo;
 import com.wwh.home.center.service.FamousQuotesService;
-import com.wwh.home.center.service.KindleService;
+import com.wwh.home.center.service.SmartScreenService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
@@ -21,20 +17,13 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Random;
-import java.util.stream.Collectors;
-
 /**
- * kindle 服务
- *
  * @author wangwh
  * @date 2022/12/27
  */
 @Slf4j
 @Service
-public class KindleServiceImpl implements KindleService {
+public class SmartScreenServiceImpl implements SmartScreenService {
 
     // 纬度
     public static String LAT = "28.152314";

@@ -32,8 +32,8 @@ public class CacheConfig {
         // Caffeine配置
         CaffeineCacheManager cacheManager = new CaffeineCacheManager();
         Caffeine<Object, Object> caffeine = Caffeine.newBuilder()
-                // 一次缓存30分钟
-                .expireAfterWrite(30, TimeUnit.MINUTES)
+                // 一次缓存10分钟
+                .expireAfterWrite(10, TimeUnit.MINUTES)
                 // 缓存的最大条数
                 .maximumSize(10000);
         cacheManager.setCaffeine(caffeine);
