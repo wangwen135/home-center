@@ -22,6 +22,7 @@ public class PromptMessage {
     private Date createTime;
     private Date expirationTime;
     private Integer weight;
+    private Boolean showOnly;
     private Boolean deleted;
     private String remark;
 }

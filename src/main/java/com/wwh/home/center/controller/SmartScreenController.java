@@ -1,9 +1,13 @@
 package com.wwh.home.center.controller;
 
+import com.wwh.home.center.model.entity.PromptMessage;
+import com.wwh.home.center.model.vo.PromptMessageVo;
 import com.wwh.home.center.model.vo.WeatherVo;
+import com.wwh.home.center.service.PromptMessageService;
 import com.wwh.home.center.service.SmartScreenService;
 import com.wwh.home.center.util.DateUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,6 +26,9 @@ public class SmartScreenController {
 
     @Autowired
     private SmartScreenService smartScreenService;
+
+    @Autowired
+    private PromptMessageService promptMessageService;
 
     @GetMapping("/test")
     public String test() {
@@ -56,5 +63,16 @@ public class SmartScreenController {
             log.error("获取天气信息异常", e);
             return null;
         }
+    }
+
+    @GetMapping("/getPromptMessage")
+    public PromptMessageVo getPromptMessage() {
+        PromptMessage pm = promptMessageService.getTheBestPromptMessage();
+        if (pm != null) {
+            PromptMessageVo vo = new PromptMessageVo();
+            BeanUtils.copyProperties(pm, vo);
+            return vo;
+        }
+        return null;
     }
 }
