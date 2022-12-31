@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>视频播放测试</title>
+    <title>监控视频播放</title>
 
     <link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="/bootstrap/icons/bootstrap-icons.css">
@@ -14,23 +14,20 @@
 
     <style>
 
-        @media screen and (max-width: 960px) {
+        @media screen and (min-width: 768px) {
+            #cameraDiv > label {
+                margin-right: 2rem;
+            }
+        }
+
+        @media screen and (max-width: 992px) {
+            /*小于992的屏幕，不展示*/
             .nothing {
                 display: none;
             }
         }
 
-        @media screen and (max-width: 768px) {
-            body {
-                background-color: #f8f9fa;
-            }
-
-            #cVideo {
-                width: 100%;
-            }
-        }
-
-        @media screen and (max-width: 412px) {
+        @media screen and (max-width: 420px) {
             #cameraDiv > label {
                 margin-right: 2PX;
             }
@@ -39,12 +36,6 @@
                 display: none;
             }
 
-        }
-
-        @media screen and (min-width: 768px) {
-            #cameraDiv > label {
-                margin-right: 2rem;
-            }
         }
 
         .unimportant {
@@ -98,7 +89,8 @@
         .pd-10 {
             padding: 10px;
         }
-        .a-center{
+
+        .a-center {
             text-align: center;
         }
 
@@ -109,9 +101,11 @@
         .fold-display:not(.collapsed) + span {
             display: none;
         }
+
         .fold-display:not(.collapsed):before {
             content: "\f238";
         }
+
         .fold-display::before {
             content: "\f22c";
         }
@@ -119,7 +113,7 @@
 </head>
 <body>
 <div class="container-lg mg-top6">
-    <p class="h4">摄像头视频查看&下载 <a href="#myCollapse" data-bs-toggle="collapse"><i class="bi bi-info-square"></i></a></p>
+    <p class="h4">摄像头视频查看 <a href="#myCollapse" data-bs-toggle="collapse"><i class="bi bi-info-square"></i></a></p>
     <div class="collapse hide" id="myCollapse">
         <p class="text-muted">
             相关的视频文件存储在NAS上<br>
@@ -147,9 +141,9 @@
         <label class="btn btn-outline-primary" for="camrea-2">摄像头2 <i class="bi bi-camera-video"></i></label>
     </div>
 </div>
-<div class="container-lg border border-primary rounded-3 pd-10" >
+<div id="dateTimeSelectDiv" class="container-lg border border-primary rounded-3 pd-10">
     <div>
-        <a href="#dateDiv" data-bs-toggle="collapse" class="h5 bi fold-display">日期</a>
+        <a id="dateDiv-a" href="#dateDiv" data-bs-toggle="collapse" class="h5 bi fold-display">日期</a>
         <span id="dateSelect" class="datetime-sel">20221218</span>
     </div>
     <div id="dateDiv" class="collapse show hide">
@@ -161,7 +155,7 @@
     </div>
 
     <div class="mg-top6">
-        <a href="#hourDiv" data-bs-toggle="collapse" class="h5 bi fold-display">小时</a>
+        <a id="hourDiv-a" href="#hourDiv" data-bs-toggle="collapse" class="h5 bi fold-display">小时</a>
         <span id="hourSelect" class="datetime-sel">23</span>
     </div>
     <!--<div id="hourDiv" class="btn-group" role="group">-->
@@ -177,7 +171,7 @@
     </div>
 
     <div class="mg-top6">
-        <a href="#minuteDiv" data-bs-toggle="collapse" class="h5 bi fold-display">分钟</a>
+        <a id="minuteDiv-a" href="#minuteDiv" data-bs-toggle="collapse" class="h5 bi fold-display">分钟</a>
         <span id="minuteSelect" class="datetime-sel">38</span>
     </div>
     <div id="minuteDiv" class="collapse show">
@@ -241,10 +235,9 @@
             class="nothing">下载视频</span></i></button>
 </div>
 
-<div class=" a-center">
+<div class="a-center">
 
-    <!--width="100%" class="container-lg"-->
-    <video id="cVideo" width="1080" controls="true" src="" >
+    <video id="cVideo" controls="true" src="">
         <!--<source src="/camera/getVideo?code=CAMERA_CODE&date=20221105&hour=17&minute=19" type="video/mp4">-->
         您的浏览器不支持 HTML5 video 标签。
     </video>
@@ -252,27 +245,50 @@
 
 
 <script>
+
     // fetch('/camera/video/minute?code=CAMERA_CODE&date=20221105&hour=17')
     //     .then(response => response.json()) //定义返回的类型和数据格式
     //     .then(data => console.log(data)) // 返回的数据
+
+    const myVideo = document.getElementById("cVideo");
+    //窗口大小改变监听
+    window.onresize = initVideoWidth;
+
     $(document).ready(function () {
         minScreenFold();
+        initVideoWidth();
         //页面装载后自动加载摄像头列表
         initCamera();
     });
 
     /**
+     * 初始化视频宽度
+     */
+    function initVideoWidth() {
+        /*视频的宽带等于上面div的宽度*/
+        let divWidth = document.querySelector("#dateTimeSelectDiv").clientWidth
+        myVideo.width = divWidth;
+        updateVideoWidthTxt();
+    }
+
+    /**
      * 小屏幕折叠
      */
     function minScreenFold() {
-        if (document.body.clientWidth > 412) {
+        if (document.body.clientWidth > 420) {
             return;
         }
-        let arr = ['#dateDiv', '#hourDiv', '#minuteDiv'];
+        let arr = ['#dateDiv-a', '#hourDiv-a', '#minuteDiv-a'];
+        arr.forEach(function (val, index) {
+            let classList = document.querySelector(val).classList;
+            classList.add('collapsed');
+        });
+
+        arr = ['#dateDiv', '#hourDiv', '#minuteDiv'];
         arr.forEach(function (val, index) {
             let classList = document.querySelector(val).classList;
             classList.remove('show');
-            classList.add('hide');
+            /*classList.add('hide');*/
         });
     }
 
@@ -325,7 +341,7 @@
         let cameraId = $("#cameraDiv > input:radio:checked").val();
         let date = $("#dateDiv > input:radio:checked").val();
 
-        document.querySelector("#dateSelect").innerHTML=date;
+        document.querySelector("#dateSelect").innerHTML = date;
         // console.log("选择的日期是：" + date);
 
         let url = "/camera/video/hour?code=" + cameraId + "&date=" + date;
@@ -351,7 +367,7 @@
         let date = $("#dateDiv > input:radio:checked").val();
         let hour = $("#hourDiv > input:radio:checked").val();
 
-        document.querySelector("#hourSelect").innerHTML=hour;
+        document.querySelector("#hourSelect").innerHTML = hour;
         // console.log("选择的小时是：" + hour);
 
         let url = "/camera/video/minute?code=" + cameraId + "&date=" + date + "&hour=" + hour;
@@ -362,7 +378,7 @@
                 mDiv.append('<input type="radio" class="btn-check" name="brd-minute" id="minute-' + index + '" autocomplete="off" value="' + e + '" onclick="onMinuteChange()">');
                 mDiv.append('<label class="btn btn-outline-primary" for="minute-' + index + '">' + e + '</label>');
             });
-            //选中最后一个
+            //选中第一个
             $("#minuteDiv > input:radio:first").attr("checked", 'checked');
 
             //触发下级方法
@@ -382,7 +398,7 @@
         let hour = $("#hourDiv > input:radio:checked").val();
         let minute = $("#minuteDiv > input:radio:checked").val();
 
-        document.querySelector("#minuteSelect").innerHTML=minute;
+        document.querySelector("#minuteSelect").innerHTML = minute;
         // console.log("选择的分钟是：" + minute);
         let url = "/camera/getVideo?code=" + cameraId + "&date=" + date + "&hour=" + hour + "&minute=" + minute;
         // console.log("视频路径是：" + url);
@@ -430,7 +446,6 @@
         myVideo.currentTime = this.value;
     }
 
-    const myVideo = document.getElementById("cVideo");
 
     myVideo.addEventListener('play', function () {
         $("#btnPlayPause").html('<i class="bi bi-pause"><span class="nothing">暂停</span></i>');
@@ -489,7 +504,6 @@
 
     //增大
     function makeBig() {
-        debugger;
         if (myVideo.clientWidth >= 10080) {
             return;
         }
@@ -499,7 +513,6 @@
 
     //缩小
     function makeSmall() {
-        debugger;
         if (myVideo.clientWidth <= 100) {
             return;
         }
@@ -509,9 +522,7 @@
 
     //恢复正常
     function makeNormal() {
-        debugger;
-        myVideo.width = 1080;
-        updateVideoWidthTxt();
+        initVideoWidth();
     }
 
     //快放
@@ -539,6 +550,7 @@
     function downloadVideo() {
         window.location.href = myVideo.src;
     }
+
 </script>
 
 </body>
