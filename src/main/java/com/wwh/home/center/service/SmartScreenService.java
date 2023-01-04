@@ -1,7 +1,5 @@
 package com.wwh.home.center.service;
 
-import com.wwh.home.center.model.vo.WeatherVo;
-
 /**
  * 智能屏
  *
@@ -12,5 +10,4 @@ public interface SmartScreenService {
 
     String getRandomFamous();
 
-    WeatherVo getWeather();
 }

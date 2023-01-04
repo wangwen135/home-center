@@ -9,13 +9,9 @@
         body {
             color: #000000;
             background-color: #ffffff;
-            /*
-            width: 586px;
-            height: 690px;
-            overflow: hidden;
-            */
             width: 100%;
             height: 100%;
+            margin: 0px;
             text-align: center;
         }
 
@@ -58,7 +54,7 @@
             font-size: 6.2rem;
         }
 
-        .weather_tips {
+        .w_tips {
             text-align: left;
             font-size: 1.2rem;
         }
@@ -72,45 +68,62 @@
             background-color: #000000
         }
 
-        .msg {
+        .famous {
             padding-top: 20px;
             font-size: 3rem;
+            display: flex;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        .msg {
+            padding-top: 20px;
+            font-size: 1.4rem;
         }
 
         .top5 {
             padding-top: 5px;
         }
+
     </style>
 </head>
 
 <body>
 <div class="page">
-    <div class="date_container">
-        <span class="date" id="date">4月28日 星期三</span>
-        <span class="nongli" id="nongli">农历显示</span>
-    </div>
-    <div class="time_container">
-        <div class="weather_container">
-            <div>
-                <img id="icon" width="40" height="40" src="https://dsj-img-pub.nongjiao.com/weatherIcon/18_small.png">
-                <span id="condition">小雨</span>
-            </div>
-            <div class="top5">温度：<span id="temp">13</span> ℃</div>
-            <div class="top5">体感：<span id="realFeel">11</span> ℃</div>
+    <div id="top">
+        <div class="date_container">
+            <span class="date" id="date">4月28日 星期三</span>
+            <span class="nongli" id="nongli">农历初三</span>
         </div>
-        <div class="time" id="time">22:27</div>
-        <div class="weather_tips" id="weather_tips">天气阴冷，穿暖和点吧！</div>
+        <div class="time_container">
+            <div class="weather_container">
+                <div>
+                    <img id="w_icon" width="40" height="40" src="/weather/hefeng/icons/100.svg">
+                    <span id="w_text">晴</span>
+                </div>
+                <div class="top5">温度：<span id="w_temp">16</span> ℃</div>
+                <div class="top5">体感：<span id="w_feelsLike">13</span> ℃</div>
+            </div>
+            <div class="time" id="time">22:27</div>
+            <div class="w_tips" id="w_tips">今天天气很好哦，出去运动吧！</div>
+        </div>
     </div>
 
-    <div class="split"/>
+    <div id="split" class="split"/>
 
-    <div class="msg">
-        <p id="msg">
-            王驰东不要哭<br>
-            好好做作业，好好玩
-        </p>
-
+    <div class="famous">
+        <div id="famous">
+            读书破万卷，<br>
+            下笔如有神。
+        </div>
     </div>
+
+    <div id="msg" class="msg">
+        这是一个测试消息，只使用CSS的情况下<br>
+        如何将页面分成3部分，填充整个页面没有滚动条<br>
+        中间部分高度自动扩充至最大高度，文字居中
+    </div>
+
 </div>
 
 
@@ -172,20 +185,20 @@
     function updateFamous() {
         $.get("/smartScreen/getRandomFamous", function (result) {
             console.log(result);
-            document.getElementById("msg").innerHTML = result;
+            document.getElementById("famous").innerHTML = result;
         });
     }
 
     updateFamous();
 
     function updateWeather() {
-        $.get("/smartScreen/getWeather", function (result) {
+        $.get("/weather/getWeather", function (result) {
             console.log(result);
-            document.getElementById("icon").src = result.smallIconUrl;
-            document.getElementById("condition").innerHTML = result.condition;
-            document.getElementById("temp").innerHTML = result.temp;
-            document.getElementById("realFeel").innerHTML = result.realFeel;
-            document.getElementById("weather_tips").innerHTML = result.tips;
+            document.getElementById("w_icon").src = result.iconUrl;
+            document.getElementById("w_text").innerHTML = result.text;
+            document.getElementById("w_temp").innerHTML = result.temp;
+            document.getElementById("w_feelsLike").innerHTML = result.feelsLike;
+            document.getElementById("w_tips").innerHTML = result.tips;
         });
     }
 

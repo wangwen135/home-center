@@ -21,5 +21,11 @@ mybatis-plus:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 #  mapper-locations: classpath*:mapper/*Mapper.xml
 
+weather:
+  provider: 和风
+  config:
+    hefeng:
+      now-url: https://devapi.qweather.com/v7/weather/now?location=101250111&key=change-me
+
 camera-video:
   base-path: /mnt/监控/xiaomi_camera_videos

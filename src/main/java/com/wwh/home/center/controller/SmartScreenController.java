@@ -2,7 +2,6 @@ package com.wwh.home.center.controller;
 
 import com.wwh.home.center.model.entity.PromptMessage;
 import com.wwh.home.center.model.vo.PromptMessageVo;
-import com.wwh.home.center.model.vo.WeatherVo;
 import com.wwh.home.center.service.PromptMessageService;
 import com.wwh.home.center.service.SmartScreenService;
 import com.wwh.home.center.util.DateUtils;
@@ -55,15 +54,7 @@ public class SmartScreenController {
         return DateUtils.getDateAndWeek();
     }
 
-    @GetMapping("/getWeather")
-    public WeatherVo getWeather() {
-        try {
-            return smartScreenService.getWeather();
-        } catch (Exception e) {
-            log.error("获取天气信息异常", e);
-            return null;
-        }
-    }
+
 
     @GetMapping("/getPromptMessage")
     public PromptMessageVo getPromptMessage() {
