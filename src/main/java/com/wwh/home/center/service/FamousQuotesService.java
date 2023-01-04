@@ -25,9 +25,16 @@ public interface FamousQuotesService {
     List<FamousQuotes> getAllFamous();
 
     /**
-     * 获取一条随机的，通过缓存，30分钟内不会改变
+     * 获取一条随机的，通过缓存，10分钟内不会改变
      *
      * @return
      */
     FamousQuotes getRandomFamousByCache();
+
+    /**
+     * 获取一条固定显示的
+     *
+     * @return
+     */
+    FamousQuotes getFixedDisplayFamous();
 }

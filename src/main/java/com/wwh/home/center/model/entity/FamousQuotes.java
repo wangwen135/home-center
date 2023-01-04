@@ -19,6 +19,7 @@ public class FamousQuotes {
     private Integer id;
     private String famous;
     private Integer weight;
+    private Boolean fixedDisplay;
     private Date createTime;
     private Boolean deleted;
     private String remark;

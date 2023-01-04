@@ -55,7 +55,6 @@ public class SmartScreenController {
     }
 
 
-
     @GetMapping("/getPromptMessage")
     public PromptMessageVo getPromptMessage() {
         PromptMessage pm = promptMessageService.getTheBestPromptMessage();

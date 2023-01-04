@@ -3,8 +3,6 @@
 <head>
     <meta charset="utf-8"/>
     <title>时间日期天气</title>
-    <link rel="stylesheet" href="/css/common.css">
-
     <script src="/js/jquery-3.6.1.min.js"></script>
     <style>
         html {
@@ -25,14 +23,16 @@
         .page {
             width: 100%;
             height: 100%;
-            display: table;
+            flex-direction: column;
+            display: flex;
+            justify-content: space-between;
         }
 
         .top {
             /*padding: 8px;*/
         }
 
-        .date-container {
+        .date_container {
             padding-top: 5px;
             width: 100%;
             text-align: left;
@@ -50,11 +50,11 @@
             font-size: 2.2rem;
         }
 
-        .time-container {
+        .time_container {
 
         }
 
-        .weather-container {
+        .weather_container {
             float: left;
             text-align: left;
             padding-top: 10px;
@@ -67,7 +67,7 @@
             font-size: 6.2rem;
         }
 
-        .w-tips {
+        .w_tips {
             padding-left: 10px;
             text-align: left;
             font-size: 1.2rem;
@@ -81,21 +81,22 @@
             background-color: #000000
         }
 
-        .famous-row {
+        .famous {
+            padding: 6px;
             font-size: 2.6rem;
-            height: 100%;
-            display: table-row;
-            vertical-align: middle;
-        }
-
-        .famous-cell {
-            display: table-cell;
-            vertical-align: middle;
         }
 
         .msg {
-            padding: 5px;
+            padding: 6px;
             font-size: 1.4rem;
+        }
+
+        .top_5 {
+            padding-top: 5px;
+        }
+
+        .align_center {
+            text-align: center;
         }
 
     </style>
@@ -104,36 +105,34 @@
 <body>
 <div class="page">
     <div id="top" class="top">
-        <div class="date-container">
+        <div class="date_container">
             <span class="date" id="date">4月28日 星期三</span>
             <span class="nongli" id="nongli">农历初三</span>
         </div>
-        <div class="time-container">
-            <div class="weather-container">
-                <div class="align-center">
+        <div class="time_container">
+            <div class="weather_container">
+                <div class="align_center">
                     <img id="w_icon" width="40" height="40" src="/weather/hefeng/icons/100.svg">
                     <span id="w_text">晴</span>
                 </div>
-                <div class="top-5">温度：<span id="w_temp">16</span> ℃</div>
-                <div class="top-5">体感：<span id="w_feelsLike">13</span> ℃</div>
+                <div class="top_5">温度：<span id="w_temp">16</span> ℃</div>
+                <div class="top_5">体感：<span id="w_feelsLike">13</span> ℃</div>
             </div>
             <div class="time" id="time">22:27</div>
-            <div class="w-tips" id="w-tips">今天天气很好哦，出去运动吧！</div>
+            <div class="w_tips" id="w_tips">今天天气很好哦，出去运动吧！</div>
         </div>
         <div id="split" class="split"></div>
     </div>
 
-    <div class="famous-row">
-        <div id="famous" class="famous-cell">
-            读书破万卷，<br>
-            下笔如有神。
-        </div>
+    <div id="famous" class="famous">
+        读书破万卷，<br>
+        下笔如有神。
     </div>
 
     <div id="msg" class="msg">
-        这是一个测试消息<br>
-        消息可能会为空<br>
-        消息支持html语法
+        这是一个测试消息，只使用CSS的情况下<br>
+        如何将页面分成3部分，填充整个页面没有滚动条<br>
+        中间部分高度自动扩充至最大高度，文字居中
     </div>
 
 </div>
@@ -208,11 +207,7 @@
     function updatePromptMessage() {
         $.get("/smartScreen/getPromptMessage", function (result) {
             console.log(result);
-            var message = "";
-            if (result != null && result != '') {
-                message = result.message;
-            }
-            document.getElementById("msg").innerHTML = message;
+            document.getElementById("msg").innerHTML = result.message;
         });
     }
 
@@ -225,7 +220,7 @@
             document.getElementById("w_text").innerHTML = result.text;
             document.getElementById("w_temp").innerHTML = result.temp;
             document.getElementById("w_feelsLike").innerHTML = result.feelsLike;
-            document.getElementById("w-tips").innerHTML = result.tips;
+            document.getElementById("w_tips").innerHTML = result.tips;
         });
     }
 

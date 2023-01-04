@@ -56,4 +56,13 @@ public class FamousQuotesServiceImpl implements FamousQuotesService {
     public FamousQuotes getRandomFamousByCache() {
         return getRandomFamous();
     }
+
+    @Override
+    public FamousQuotes getFixedDisplayFamous() {
+        QueryWrapper<FamousQuotes> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().eq(FamousQuotes::getDeleted, false).eq(FamousQuotes::getFixedDisplay, true)
+                .orderByDesc(FamousQuotes::getWeight).orderByDesc(FamousQuotes::getId)
+                .last("limit 1");
+        return famousQuotesMapper.selectOne(queryWrapper);
+    }
 }

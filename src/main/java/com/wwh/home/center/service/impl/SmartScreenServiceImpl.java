@@ -17,7 +17,6 @@ import org.springframework.stereotype.Service;
 public class SmartScreenServiceImpl implements SmartScreenService {
 
 
-
     @Autowired
     private FamousQuotesService famousQuotesService;
 
@@ -26,7 +25,11 @@ public class SmartScreenServiceImpl implements SmartScreenService {
 
     @Override
     public String getRandomFamous() {
-        FamousQuotes fq = famousQuotesService.getRandomFamousByCache();
+        FamousQuotes fq = famousQuotesService.getFixedDisplayFamous();
+        if (fq != null) {
+            return fq.getFamous();
+        }
+        fq = famousQuotesService.getRandomFamousByCache();
         if (fq == null) {
             log.warn("没有有效的名言名句");
             return "";
