@@ -11,10 +11,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
@@ -75,7 +72,7 @@ public class CameraVideoController {
         File baseDir = new File(videoBasePath);
         File videoDir = new File(baseDir, code);
         String[] dayHours = videoDir.list();
-        return Arrays.stream(dayHours).map(ymmddhh -> ymmddhh.substring(0, 8)).distinct().collect(Collectors.toList());
+        return Arrays.stream(dayHours).map(ymmddhh -> ymmddhh.substring(0, 8)).sorted().distinct().collect(Collectors.toList());
     }
 
     /**
@@ -90,7 +87,7 @@ public class CameraVideoController {
         File baseDir = new File(videoBasePath);
         File videoDir = new File(baseDir, code);
         String[] dayHours = videoDir.list((dir, name) -> name.startsWith(date));
-        return Arrays.stream(dayHours).map(x -> x.substring(8)).collect(Collectors.toList());
+        return Arrays.stream(dayHours).map(x -> x.substring(8)).sorted().collect(Collectors.toList());
     }
 
     /**
@@ -107,12 +104,11 @@ public class CameraVideoController {
         File videoDir = new File(baseDir, code);
         File ymdhDir = new File(videoDir, date + hour);
         String[] minutes = ymdhDir.list();
-        return Arrays.stream(minutes).map(x -> x.substring(0, 2)).collect(Collectors.toList());
+        return Arrays.stream(minutes).map(x -> x.substring(0, 2)).sorted().collect(Collectors.toList());
     }
 
-
     /**
-     * 分配获取视频
+     * 获取视频
      *
      * @param code
      * @param date
@@ -120,9 +116,9 @@ public class CameraVideoController {
      * @param minute
      * @return
      */
-    @GetMapping("/getVideo")
-    public ResponseEntity getVideoStream(@RequestParam String code, @RequestParam String date, @RequestParam String hour, @RequestParam String minute) {
-
+    @GetMapping(value = "/video/{code}/{date}-{hour}-{minute}.mp4") //produces = "video/mp4"
+    public ResponseEntity video(@PathVariable String code, @PathVariable String date, @PathVariable String hour, @PathVariable String minute,
+                                @RequestParam(required = false) String op) {
         File baseDir = new File(videoBasePath);
         File videoDir = new File(baseDir, code);
         File ymdhDir = new File(videoDir, date + hour);
@@ -133,15 +129,19 @@ public class CameraVideoController {
         }
         //每分钟只有一个文件
         File file = videoFile[0];
-        String fileName = date + "-" + hour + "#" + minute + ".mp4";
+        String fileName = date + "-" + hour + "-" + minute + ".mp4";
         //这个写法是支持断点续传的
         //Accept-Ranges: bytes
         //Content-Range: bytes 6258688-6792415/6792416
-        return ResponseEntity.ok().contentType(MediaType.APPLICATION_OCTET_STREAM)
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + fileName)
-                .body(new FileSystemResource(file));
-    }
+        if ("download".equals(op)) {
+            return ResponseEntity.ok().contentType(MediaType.APPLICATION_OCTET_STREAM)
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + fileName)
+                    .body(new FileSystemResource(file));
+        } else {
+            return ResponseEntity.ok().contentType(MediaType.valueOf("video/mp4")).body(new FileSystemResource(file));
+        }
 
+    }
 
     //这个写法被淘汰了
     public void getVideoStream2(@RequestParam String code, @RequestParam String date, @RequestParam String hour, @RequestParam String minute, HttpServletResponse response) {

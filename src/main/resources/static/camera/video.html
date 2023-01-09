@@ -388,6 +388,7 @@
 
     //首次加载页面不自动播放视频
     let firstLoad = true;
+    let downloadVideoUrl;
 
     /**
      * 分钟改变后加载视频
@@ -399,9 +400,9 @@
         let minute = $("#minuteDiv > input:radio:checked").val();
 
         document.querySelector("#minuteSelect").innerHTML = minute;
-        // console.log("选择的分钟是：" + minute);
-        let url = "/camera/getVideo?code=" + cameraId + "&date=" + date + "&hour=" + hour + "&minute=" + minute;
-        // console.log("视频路径是：" + url);
+
+        let url = "/camera/video/" + cameraId + "/" + date + "-" + hour + "-" + minute + ".mp4";
+        downloadVideoUrl = url + "?op=download"
 
         let oldRate = myVideo.playbackRate;
 
@@ -548,7 +549,7 @@
 
     //下载视频
     function downloadVideo() {
-        window.location.href = myVideo.src;
+        window.location.href = downloadVideoUrl;
     }
 
 </script>
