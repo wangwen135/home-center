@@ -155,14 +155,17 @@
             console.log("更新农历");
             updateNongLi();
         }
-        if (m == 0 || m == 15 || m == 30 || m == 45) {
+        if (m % 15 == 0) {
+            console.log("## hours=" + h + " minutes=" + m);
+            console.log("更新天气")
+            updateWeather();
+        }
+        if (m % 10 == 0) {
             console.log("## hours=" + h + " minutes=" + m);
             console.log("更新名言")
             updateFamous();
             console.log("更新消息")
             updatePromptMessage();
-            console.log("更新天气")
-            updateWeather();
         }
     }
 
