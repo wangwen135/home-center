@@ -25,7 +25,7 @@
 	</appender> 
    
 	<!-- 开发环境 -->
-    <springProfile name="default | dev">
+    <springProfile name="default | dev | comp">
        	<root level="INFO">
 			<appender-ref ref="STDOUT" />
 			<appender-ref ref="FILE" />

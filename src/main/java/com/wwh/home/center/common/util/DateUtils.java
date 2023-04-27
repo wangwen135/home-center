@@ -1,4 +1,4 @@
-package com.wwh.home.center.util;
+package com.wwh.home.center.common.util;
 
 import com.iceyyy.nongli.NongLi;
 

@@ -4,7 +4,7 @@ import com.wwh.home.center.model.entity.PromptMessage;
 import com.wwh.home.center.model.vo.PromptMessageVo;
 import com.wwh.home.center.service.PromptMessageService;
 import com.wwh.home.center.service.SmartScreenService;
-import com.wwh.home.center.util.DateUtils;
+import com.wwh.home.center.common.util.DateUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;

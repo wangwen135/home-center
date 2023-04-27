@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tuliu.demo.api.dao.mapper.UserInfoMapper">
+  <resultMap id="BaseResultMap" type="com.tuliu.demo.api.model.UserInfo">
+    <id column="user_id" jdbcType="BIGINT" property="userId" />
+    <result column="username" jdbcType="VARCHAR" property="username" />
+    <result column="password" jdbcType="VARCHAR" property="password" />
+    <result column="nickname" jdbcType="VARCHAR" property="nickname" />
+	<result column="gender" jdbcType="TINYINT" property="gender" />
+    <result column="phone" jdbcType="VARCHAR" property="phone" />
+    <result column="locked" jdbcType="BIT" property="locked" />
+    <result column="deleted" jdbcType="BIT" property="deleted" />
+    <result column="create_by" jdbcType="BIGINT" property="createBy" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_by" jdbcType="BIGINT" property="updateBy" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+  </resultMap>
+  
+  <sql id="Base_Column_List">
+    user_id, username, password, nickname, gender, phone, 
+    locked, deleted, create_by, create_time, update_by, update_time
+  </sql>
+  
+  <select id="findUserPage" resultMap="BaseResultMap">
+    SELECT
+       <include refid="Base_Column_List" />
+    FROM user_info
+    <where>
+	      <if test="query.gender != null">
+	        AND gender = #{query.gender,jdbcType=TINYINT}
+	      </if>
+	      <if test="query.username != null and query.username != ''">
+		    AND username LIKE CONCAT('%',#{query.username,jdbcType=VARCHAR},'%')
+		  </if>
+	      <if test="query.locked != null">
+	        AND locked = #{query.locked,jdbcType=BIT}
+	      </if>
+	      <if test="query.createBy != null">
+	        AND create_by = #{query.createBy,jdbcType=BIGINT}
+	      </if>
+	      AND deleted = 0
+    </where>
+    ORDER BY user_id DESC
+  </select>
+
+  <select id="listUser" resultMap="BaseResultMap">
+    SELECT
+       <include refid="Base_Column_List" />
+    FROM user_info
+  	WHERE user_id in
+  	  <foreach collection="list" index="index" item="item" open="("  separator="," close=")">
+        #{item,jdbcType=BIGINT}
+      </foreach>
+  </select>
+  
+  <select id="unionAllTest"  resultMap="BaseResultMap">
+  	SELECT * FROM user_info 
+		UNION ALL
+	SELECT * FROM user_info 
+  </select> 
+  
+</mapper>

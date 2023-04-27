@@ -30,4 +30,4 @@ weather:
       now-url: https://devapi.qweather.com/v7/weather/now?location=101250111&key=change-me
 
 camera-video:
-  base-path: J:\xiaomi_camera_videos
+  base-path: Z:\监控\xiaomi_camera_videos

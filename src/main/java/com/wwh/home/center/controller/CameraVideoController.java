@@ -6,18 +6,22 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.web.WebProperties;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.WebRequest;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.nio.file.NoSuchFileException;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -116,9 +120,52 @@ public class CameraVideoController {
      * @param minute
      * @return
      */
-    @GetMapping(value = "/video/{code}/{date}-{hour}-{minute}.mp4") //produces = "video/mp4"
-    public ResponseEntity video(@PathVariable String code, @PathVariable String date, @PathVariable String hour, @PathVariable String minute,
+    @GetMapping(value = "/video2/{code}/{date}-{hour}-{minute}.mp4", produces = "video/mp4")
+    public ResponseEntity video2(@PathVariable String code, @PathVariable String date, @PathVariable String hour, @PathVariable String minute) {
+        System.out.println("请求进来了");
+
+        //每分钟只有一个文件
+        File file = new File("D:\\temp\\video\\test.mp4");
+
+        //这个写法是支持断点续传的
+        //Accept-Ranges: bytes
+        //Content-Range: bytes 6258688-6792415/6792416
+
+        System.out.println(file.canRead());
+        System.out.println(file.lastModified());
+        System.out.println(file.length());
+
+        return ResponseEntity.ok().cacheControl(org.springframework.http.CacheControl.maxAge(Duration.ofMinutes(5))).eTag("112233445566")
+                .body(new FileSystemResource(file));
+    }
+
+    /**
+     * 获取视频
+     *
+     * @param code
+     * @param date
+     * @param hour
+     * @param minute
+     * @return
+     */
+    @RequestMapping(value = "/video/{code}/{date}-{hour}-{minute}.mp4") //produces = "video/mp4"
+    public ResponseEntity video(WebRequest webRequest, @PathVariable String code, @PathVariable String date, @PathVariable String hour, @PathVariable String minute,
                                 @RequestParam(required = false) String op) {
+        //视频是不会改变的
+
+        System.out.println("If-Unmodified-Since = " + webRequest.getHeader("If-Unmodified-Since"));
+        String rEtag = webRequest.getHeader("If-None-Match");
+        System.out.println("If-None-Match = " + rEtag);
+        String etag = date + hour + minute;
+
+        if (rEtag != null) {
+            rEtag = rEtag.replace("\"", "");
+            if (etag.equals(rEtag)) {
+                System.out.println("直接返回304");
+                return ResponseEntity.status(HttpStatus.NOT_MODIFIED).build();
+            }
+        }
+
         File baseDir = new File(videoBasePath);
         File videoDir = new File(baseDir, code);
         File ymdhDir = new File(videoDir, date + hour);
@@ -138,7 +185,10 @@ public class CameraVideoController {
                     .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + fileName)
                     .body(new FileSystemResource(file));
         } else {
-            return ResponseEntity.ok().contentType(MediaType.valueOf("video/mp4")).body(new FileSystemResource(file));
+            return ResponseEntity.ok().contentType(MediaType.valueOf("video/mp4"))
+                    .cacheControl(org.springframework.http.CacheControl.maxAge(Duration.ofMinutes(5)).noTransform().mustRevalidate().cachePrivate()).eTag(etag)
+                    .lastModified(file.lastModified())
+                    .body(new FileSystemResource(file));
         }
 
     }
