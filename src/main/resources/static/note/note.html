@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>我的笔记</title>
+
+    <link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/bootstrap/icons/bootstrap-icons.css">
+
+    <script src="/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/jquery-3.6.1.min.js"></script>
+
+    <style>
+        .containerx {
+            display: flex;
+            /*flex-wrap: wrap;*/
+            /*justify-content: space-between;*/
+            height: 100vh;
+            width: 100%;
+        }
+
+        .left {
+            /*flex: 0 0 280px;*/
+            flex: 0 0 20%;
+            background-color: #f2f2f2;
+            overflow-y: scroll;
+            padding: 10px;
+        }
+
+        .right {
+            flex: 1;
+            background-color: #fff;
+            padding: 10px;
+        }
+
+        .divider {
+            /*position: absolute;*/
+            /*top: 0;*/
+            /*left: 25%;*/
+            width: 10px;
+            height: 100%;
+            cursor: col-resize;
+            background-color: #ddd;
+        }
+    </style>
+</head>
+<body>
+<div class="containerx">
+    <div class="left">
+        <div>
+            <ul>
+                <li><a href="#section1">Section 1</a></li>
+                <li><a href="#section2">Section 2</a></li>
+                <li><a href="#section3">Section 3</a></li>
+                <li><a href="#section4">Section 4</a></li>
+            </ul>
+        </div>
+    </div>
+    <div class="divider"></div>
+
+    <div class="right">
+        <section id="section1">
+            <h2>Section 1</h2>
+            <p>This is the content for section 1.</p>
+        </section>
+        <section id="section2">
+            <h2>Section 2</h2>
+            <p>This is the content for section 2.</p>
+        </section>
+        <section id="section3">
+            <h2>Section 3</h2>
+            <p>This is the content for section 3.</p>
+        </section>
+        <section id="section4">
+            <h2>Section 4</h2>
+            <p>This is the content for section 4.</p>
+        </section>
+    </div>
+    <!--</div>-->
+
+</div>
+<script>
+    var divider = document.querySelector(".divider");
+    var left = document.querySelector(".left");
+    var right = document.querySelector(".right");
+    var startX;
+    var startWidth;
+
+    divider.addEventListener("mousedown", function (e) {
+        startX = e.clientX;
+
+        // startWidth = parseFloat(getComputedStyle(left, null).getPropertyValue("flex-basis"));
+        startWidth = left.offsetWidth;
+        console.log(startWidth);
+
+        document.documentElement.style.cursor = "col-resize";
+        document.addEventListener("mousemove", mousemove);
+        document.addEventListener("mouseup", mouseup);
+    });
+
+    function mousemove(e) {
+        var delta = e.clientX - startX;
+        var newWidth = startWidth + delta;
+
+        console.log("设置的宽度为：" + newWidth);
+
+        left.style.flexBasis = newWidth + "px";
+        //right.style.flexBasis = "calc(100% - " + newWidth + "%)";
+    }
+
+    function mouseup() {
+        document.documentElement.style.cursor = "initial";
+        document.removeEventListener("mousemove", mousemove);
+        document.removeEventListener("mouseup", mouseup);
+    }
+</script>
+</body>
+</html>
