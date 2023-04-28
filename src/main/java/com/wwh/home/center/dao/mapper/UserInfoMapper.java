@@ -1,6 +1,7 @@
 package com.wwh.home.center.dao.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wwh.home.center.common.model.PageInfo;
 import com.wwh.home.center.model.entity.UserInfo;
 import com.wwh.home.center.model.qo.UserQuery;
@@ -14,16 +15,15 @@ public interface UserInfoMapper extends BaseMapper<UserInfo> {
 
     /**
      * 分页查询
-     * 
+     *
      * @param query
-     * @param page
      * @return
      */
-    List<UserInfo> findUserPage(@Param("query") UserQuery query, @Param("page") PageInfo<?> page);
+    List<UserInfo> findUserPage(Page<?> page, @Param("query") UserQuery query);
 
     /**
      * 查多个用户的信息
-     * 
+     *
      * @param ids
      * @return
      */
@@ -31,9 +31,9 @@ public interface UserInfoMapper extends BaseMapper<UserInfo> {
 
     /**
      * 测试 UNION ALL 的分页
-     * 
+     *
      * @return
      */
-    List<UserInfo> unionAllTest();
+    List<UserInfo> unionAllTest(Page page);
 
 }

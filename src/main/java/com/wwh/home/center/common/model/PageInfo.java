@@ -1,5 +1,6 @@
 package com.wwh.home.center.common.model;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
@@ -7,11 +8,11 @@ import java.io.Serializable;
 import java.util.List;
 
 /**
- * 分页对象
- * 
+ * 分页对象，返回数据用
+ *
+ * @param <T>
  * @author wangwh
  * @date 2021-4-9
- * @param <T>
  */
 @ApiModel("分页对象")
 public class PageInfo<T> implements Serializable {
@@ -21,30 +22,30 @@ public class PageInfo<T> implements Serializable {
     /**
      * 默认页
      */
-    public static final int DEFAULT_PAGE_NUM = 1;
+    public static final long DEFAULT_PAGE_NUM = 1;
 
     /**
      * 默认页大小
      */
-    public static final int DEFAULT_PAGE_SIZE = 20;
+    public static final long DEFAULT_PAGE_SIZE = 20;
 
     /**
      * 页码
      */
     @ApiModelProperty("页码")
-    private int pageNum;
+    private long pageNum;
 
     /**
      * 页大小
      */
     @ApiModelProperty("页大小")
-    private int pageSize;
+    private long pageSize;
 
     /**
      * 总记录数
      */
     @ApiModelProperty("总记录数")
-    private int total;
+    private long total;
 
     /**
      * 结果集
@@ -76,41 +77,52 @@ public class PageInfo<T> implements Serializable {
 
     /**
      * 查询结果的size
-     * 
+     *
      * @return
      */
     @ApiModelProperty("结果集大小")
-    public int getSize() {
+    public int getDataSize() {
         return data == null ? 0 : data.size();
     }
 
     /**
      * 总页数
-     * 
+     *
      * @return
      */
     @ApiModelProperty("总页数")
-    public int getPages() {
+    public long getPages() {
         if (total <= 0) {
             return 0;
         }
         return (total + pageSize - 1) / pageSize;
     }
 
-    public int getTotal() {
+    public long getTotal() {
         return total;
     }
 
-    public void setTotal(int total) {
+    public void setTotal(long total) {
         this.total = total;
     }
 
-    public int getPageNum() {
+    public long getPageNum() {
         return pageNum;
     }
 
-    public int getPageSize() {
+    public long getPageSize() {
         return pageSize;
     }
 
+    /**
+     * =======================================
+     **/
+    /**
+     * 获取MybatisPlus的Page对象
+     *
+     * @return
+     */
+    public Page getMybatisPlusPage() {
+        return new Page(getPageNum(), getPageSize());
+    }
 }

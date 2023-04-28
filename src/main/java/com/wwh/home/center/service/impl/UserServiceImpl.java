@@ -1,5 +1,7 @@
 package com.wwh.home.center.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wwh.home.center.common.model.PageInfo;
 import com.wwh.home.center.dao.mapper.UserInfoMapper;
 import com.wwh.home.center.model.entity.UserInfo;
@@ -11,6 +13,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
 
 
@@ -41,10 +44,9 @@ public class UserServiceImpl implements UserService {
     @Override
     @Cacheable(cacheNames = "getByPhone", key = "#phone")
     public UserInfo getByPhone(String phone) {
-        UserInfo record = new UserInfo();
-        record.setPhone(phone);
-        record.setDeleted(false);
-        List<UserInfo> list = userInfoMapper.select(record);
+        QueryWrapper<UserInfo> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().eq(UserInfo::getPhone, phone).eq(UserInfo::getDeleted, false);
+        List<UserInfo> list = userInfoMapper.selectList(queryWrapper);
         if (list == null || list.isEmpty()) {
             return null;
         }
@@ -58,30 +60,20 @@ public class UserServiceImpl implements UserService {
     @Override
     @Cacheable(cacheNames = "userPhoneCache", key = "#phone")
     public boolean existPhone(String phone) {
-        UserInfo record = new UserInfo();
-        record.setPhone(phone);
-        record.setDeleted(false);
-        return userInfoMapper.selectCount(record) > 0;
+        QueryWrapper<UserInfo> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("phone", phone).eq("deleted", false);
+        return userInfoMapper.selectCount(queryWrapper) > 0;
     }
 
-    /**
-     * 如果是之前老的可以考虑用这种方式<br>
-     * 之前用的 com.tuliu.common.tk.interceptor.PageInterceptor 效率比较低
-     */
-    // @Override
+    //写xml文件的方式
+    @Override
     public PageInfo<UserInfoVo> findUserPage(UserQuery query, PageInfo<UserInfoVo> page) {
-
-        // 开始分页
-        PageHelper.startPage(page.getPageNumber(), page.getPageSize());
-
-        List<UserInfo> list = userInfoMapper.findUserPage(query, page);
+        Page<UserInfo> mPage = new Page(page.getPageNum(), page.getPageSize());
+        List<UserInfo> list = userInfoMapper.findUserPage(mPage, query);
         List<UserInfoVo> voList = convert(list);
         page.setData(voList);
-
         // 总记录数
-        page.setTotalCount((int) ((Page<?>) list).getTotal());
-        // 总页数
-        page.setMaxPageNumber(((Page<?>) list).getPages());
+        page.setTotal(mPage.getTotal());
         return page;
     }
 
@@ -89,33 +81,31 @@ public class UserServiceImpl implements UserService {
      * 如果是全新的可以考虑用这种不用xml文件的写法
      */
     public PageInfo<UserInfoVo> findUserPage2(UserQuery query, PageInfo<UserInfoVo> page) {
-        Example example = new Example(UserInfo.class);
-        Example.Criteria criteria = example.createCriteria();
+        QueryWrapper<UserInfo> queryWrapper = new QueryWrapper<>();
+
         // 注意：条件查询使用的是属性名
         if (query.getGender() != null) {
-            criteria.andEqualTo("gender", query.getGender());
+            queryWrapper.eq("gender", query.getGender());
         }
         if (StringUtils.isNotBlank(query.getUsername())) {
-            criteria.andLike("username", "%" + query.getUsername() + "%");
+            //like（完全模糊，即“like '%val%'”）
+            queryWrapper.like("username", query.getUsername());
         }
         if (query.getLocked() != null) {
-            criteria.andEqualTo("locked", query.getLocked());
+            queryWrapper.eq("locked", query.getLocked());
         }
         if (query.getCreateBy() != null) {
-            criteria.andEqualTo("createBy", query.getCreateBy());
+            queryWrapper.eq("createBy", query.getCreateBy());
         }
-        example.orderBy("userId").desc();
-        // example.setOrderByClause("user_id DESC");
+        queryWrapper.orderByDesc("userId");
 
-        PageHelper.startPage(page.getPageNumber(), page.getPageSize());
-        List<UserInfo> list = userInfoMapper.selectByExample(example);
+        Page p = userInfoMapper.selectPage(page.getMybatisPlusPage(), queryWrapper);
+        List<UserInfo> list = p.getRecords();
+
         List<UserInfoVo> voList = convert(list);
         page.setData(voList);
-
         // 总记录数
-        page.setTotalCount((int) ((Page<?>) list).getTotal());
-        // 总页数
-        page.setMaxPageNumber(((Page<?>) list).getPages());
+        page.setTotal(p.getTotal());
 
         return page;
     }
@@ -145,13 +135,13 @@ public class UserServiceImpl implements UserService {
     @Override
     public PageInfo<UserInfoVo> unionAllTest(int page, int size) {
         // Union All 查询 测试分页插件
-        PageHelper.startPage(page, size);
-        List<UserInfo> list = userInfoMapper.unionAllTest();
+        Page mPage = new Page(page, size);
+        List<UserInfo> list = userInfoMapper.unionAllTest(mPage);
         List<UserInfoVo> voList = convert(list);
 
         PageInfo<UserInfoVo> pageInfo = new PageInfo<UserInfoVo>(page, size);
         pageInfo.setData(voList);
-        pageInfo.setTotalCount((int) ((Page<?>) list).getTotal());
+        pageInfo.setTotal(mPage.getTotal());
         return pageInfo;
     }
 
