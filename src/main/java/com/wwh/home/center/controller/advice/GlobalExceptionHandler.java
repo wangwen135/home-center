@@ -1,6 +1,7 @@
 package com.wwh.home.center.controller.advice;
 
 
+import com.wwh.home.center.common.constant.ResultConstants;
 import com.wwh.home.center.common.exception.ArgumentException;
 import com.wwh.home.center.common.exception.BusinessException;
 import com.wwh.home.center.common.exception.SystemException;
@@ -10,10 +11,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -38,6 +42,34 @@ public class GlobalExceptionHandler {
 
     @Autowired
     private HttpServletRequest request;
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    @ResponseBody
+    public Result<?> handleIllegalArgumentException(IllegalArgumentException e) {
+        logger.info("方法参数错误", e);
+        return Result.error(ResultConstants.ARGUMENT_ERROR_CODE, e.getMessage());
+    }
+
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    @ResponseBody
+    public Result<?> handleHttpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException e) {
+        logger.info("请求方法不支持", e);
+        return Result.badRequest("请求方法不支持");
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    @ResponseBody
+    public Result<?> handleHttpMessageNotReadableException(HttpMessageNotReadableException e) {
+        logger.info("请求内容不可读", e);
+        return Result.badRequest("错误的请求，内容不可读");
+    }
+
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    @ResponseBody
+    public Result<?> handleMissingServletRequestParameterException(MissingServletRequestParameterException e) {
+        logger.info("缺少请求参数", e);
+        return Result.badRequest("缺少请求参数：" + e.getMessage());
+    }
 
     /**
      * 表单绑定到 java bean 出错时抛出
@@ -69,6 +101,16 @@ public class GlobalExceptionHandler {
         return Result.badRequest("参数错误", errors);
     }
 
+    private Map<String, String> getErrorMap(BindingResult bindingResult) {
+        Map<String, String> errors = new HashMap<>();
+        bindingResult.getAllErrors().forEach((error) -> {
+            String fieldName = ((FieldError) error).getField();
+            String errorMessage = error.getDefaultMessage();
+            errors.put(fieldName, errorMessage);
+        });
+        return errors;
+    }
+
     /**
      * 普通参数(非 java bean)校验出错时抛出<br>
      * 使用：@Validated 注解
@@ -82,16 +124,6 @@ public class GlobalExceptionHandler {
     public Result<?> handleConstraintViolationException(ConstraintViolationException ex) {
         logger.warn("普通参数校验异常", ex);
         return Result.badRequest(ex.getMessage(), null);
-    }
-
-    private Map<String, String> getErrorMap(BindingResult bindingResult) {
-        Map<String, String> errors = new HashMap<>();
-        bindingResult.getAllErrors().forEach((error) -> {
-            String fieldName = ((FieldError) error).getField();
-            String errorMessage = error.getDefaultMessage();
-            errors.put(fieldName, errorMessage);
-        });
-        return errors;
     }
 
     /**
@@ -174,7 +206,7 @@ public class GlobalExceptionHandler {
      * @param e
      * @return
      */
-    @ExceptionHandler(value = Exception.class)
+    @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ResponseBody
     public Result<?> handleException(Exception e) {

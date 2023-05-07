@@ -3,6 +3,7 @@ package com.wwh.home.center.controller;
 import com.wwh.home.center.common.constant.RegexpConstants;
 import com.wwh.home.center.common.model.PageInfo;
 import com.wwh.home.center.common.model.Result;
+import com.wwh.home.center.common.util.PageHelper;
 import com.wwh.home.center.model.entity.UserInfo;
 import com.wwh.home.center.model.qo.PageQuery;
 import com.wwh.home.center.model.qo.UserQuery;
@@ -13,10 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
@@ -68,18 +66,28 @@ public class UserCenterController {
         return Result.success(userService.existPhone(phone));
     }
 
-    @ApiOperation("分页查询用户")
-    @GetMapping("/findPage")
+    @ApiOperation("分页查询用户，表单传参")
+    @PostMapping("/findPage")
     public Result<PageInfo<UserInfoVo>> findUserPage(@ApiParam("分页信息") PageQuery page,
                                                      @ApiParam("查询条件") UserQuery query) {
         log.debug("分页查询条件：{}", query);
-        PageInfo<UserInfoVo> pageInfo = page.convert();
+        PageInfo<UserInfoVo> pageInfo = PageHelper.pageQuery2PageInfo(page);
         return Result.success(userService.findUserPage(query, pageInfo));
     }
 
+    @ApiOperation("分页查询用户2，JSON传参")
+    @PostMapping("/findPage2")
+    public Result<PageInfo<UserInfoVo>> findUserPage2(@RequestBody PageQuery<UserQuery> pageQuery) {
+        log.debug("分页查询条件：{}", pageQuery);
+        PageQuery pq = new PageQuery();
+        pq.setCondition(null);
+        PageInfo<UserInfoVo> pageInfo = PageHelper.pageQuery2PageInfo(pageQuery);
+        return Result.success(userService.findUserPage(pageQuery.getCondition(), pageInfo));
+    }
+
     @ApiOperation("分页查询测试")
-    @GetMapping("/unionAllTest")
-    public Result<PageInfo<UserInfoVo>> unionAllTest(@ApiParam("分页信息") PageQuery page) {
+    @PostMapping("/unionAllTest")
+    public Result<PageInfo<UserInfoVo>> unionAllTest(@RequestBody PageQuery page) {
         log.debug("分页查询条件：{}", page);
         return Result.success(userService.unionAllTest(page.getPageNum(), page.getPageSize()));
     }

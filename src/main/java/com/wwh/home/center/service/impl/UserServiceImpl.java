@@ -3,6 +3,7 @@ package com.wwh.home.center.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wwh.home.center.common.model.PageInfo;
+import com.wwh.home.center.common.util.PageHelper;
 import com.wwh.home.center.dao.mapper.UserInfoMapper;
 import com.wwh.home.center.model.entity.UserInfo;
 import com.wwh.home.center.model.qo.UserQuery;
@@ -99,7 +100,7 @@ public class UserServiceImpl implements UserService {
         }
         queryWrapper.orderByDesc("userId");
 
-        Page p = userInfoMapper.selectPage(page.getMybatisPlusPage(), queryWrapper);
+        Page p = userInfoMapper.selectPage(PageHelper.pageInfo2MybatisPlusPage(page), queryWrapper);
         List<UserInfo> list = p.getRecords();
 
         List<UserInfoVo> voList = convert(list);

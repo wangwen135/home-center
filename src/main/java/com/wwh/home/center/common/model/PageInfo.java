@@ -1,6 +1,5 @@
 package com.wwh.home.center.common.model;
 
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
@@ -114,15 +113,5 @@ public class PageInfo<T> implements Serializable {
         return pageSize;
     }
 
-    /**
-     * =======================================
-     **/
-    /**
-     * 获取MybatisPlus的Page对象
-     *
-     * @return
-     */
-    public Page getMybatisPlusPage() {
-        return new Page(getPageNum(), getPageSize());
-    }
+
 }
