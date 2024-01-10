@@ -2,6 +2,7 @@ package com.wwh.home.center.dao.mapper;
 
 import com.wwh.home.center.model.entity.SysRolePermission;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import org.springframework.stereotype.Repository;
 
 /**
  * <p>
@@ -11,6 +12,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  * @author wwh
  * @since 2024-01-08
  */
+@Repository
 public interface SysRolePermissionMapper extends BaseMapper<SysRolePermission> {
 
 }

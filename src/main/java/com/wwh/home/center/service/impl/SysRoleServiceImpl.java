@@ -7,6 +7,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 /**
  * 系统角色服务
  *
@@ -21,6 +23,10 @@ public class SysRoleServiceImpl implements SysRoleService {
 
     @Override
     public SysRole getRoleByUserId(Integer userId) {
+        List<SysRole> list = sysRoleMapper.getRolesByUserId(userId);
+        if (list != null && !list.isEmpty()) {
+            return list.get(0);
+        }
         return null;
     }
 }

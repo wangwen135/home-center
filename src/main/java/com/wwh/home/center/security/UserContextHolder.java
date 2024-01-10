@@ -153,11 +153,22 @@ public class UserContextHolder {
     public static String getRemoteIpAddress() {
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
         if (attributes == null) {
-            log.info("获取IP地址时，无法获取ServletRequestAttributes...");
+            log.info("获取客户端IP地址时，无法获取ServletRequestAttributes...");
+            return "unknown";
+        }
+        //TODO 这个经过NGINX是有问题的
+        HttpServletRequest request = attributes.getRequest();
+        return request.getRemoteAddr();
+    }
+
+    public static String getRemoteBrowserInfo() {
+        ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
+        if (attributes == null) {
+            log.info("获取客户端浏览器信息时，无法获取ServletRequestAttributes...");
             return "unknown";
         }
         HttpServletRequest request = attributes.getRequest();
-        return request.getRemoteAddr();
+        return request.getHeader("user-agent");
     }
 
 }
