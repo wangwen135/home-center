@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<h3>test</h3>
+<textarea id="info" cols="200" rows="20"></textarea>
+
+<script>
+    const sensor = `
+Model Number:                       512GB SSD
+Total NVM Capacity:                 512,110,190,592 [512 GB]
+Temperature:                        39 Celsius
+Percentage Used:                    0%
+Data Units Read:                    2,824,764 [1.44 TB]
+Data Units Written:                 1,839,933 [942 GB]
+Power On Hours:                     223
+`;
+
+    document.getElementById('info').innerText = test(sensor);
+
+    function test(value) {
+        if (value.length > 0) {
+            let nvmedevices = value.matchAll(/^Model.*:\s*([\s\S]*?)(\n^Total.*\[[\s\S]*?\]$|\s{0}$)\n^Temperature:\s*([\d]+)\s*Celsius\n^Percentage.*([\d]+\%)\n^Data Units.*\[([\s\S]*?)\]\n^Data Units.*\[([\s\S]*?)\]\n^Power.*:\s*([\s\S]*?)\n/gm);
+            for (const nvmedevice of nvmedevices) {
+                for (var i = 5; i < 8; i++) {
+                    nvmedevice[i] = nvmedevice[i].replace(/ |,/gm, '');
+                }
+                if (nvmedevice[2].length > 0) {
+                    let nvmecapacity = nvmedevice[2].match(/.*\[([\s\S]*?)\]/);
+                    nvmecapacity = nvmecapacity[1].replace(/ /, '');
+                    value = `${nvmedevice[1]} | 已使用寿命: ${nvmedevice[4]} (累计读取: ${nvmedevice[5]}, 累计写入: ${nvmedevice[6]}) | 容量: ${nvmecapacity} | 已通电: ${nvmedevice[7]}小时 | 温度: ${nvmedevice[3]}°C\n`;
+                } else {
+                    value = `${nvmedevice[1]} | 已使用寿命: ${nvmedevice[4]} (累计读取: ${nvmedevice[5]}, 累计写入: ${nvmedevice[6]}) | 已通电: ${nvmedevice[7]}小时 | 温度: ${nvmedevice[3]}°C\n`;
+                }
+            }
+            return value.replace(/\n/g, '<br>');
+        } else {
+            return `提示: 未安装硬盘或已直通硬盘控制器`;
+        }
+    }
+
+    function test1(value) {
+        debugger;
+        value = value.replace(/Â/g, '');
+        let data = [];
+        let cpus = value.matchAll(/^coretemp-isa-(\d{4})$\n.*?\n((?:Package|Core)[\s\S]*?^\n)+/gm);
+        for (const cpu of cpus) {
+            let cpuNumber = parseInt(cpu[1], 10);
+            data[cpuNumber] = {
+                packages: [],
+                cores: []
+            };
+
+            let packages = cpu[2].matchAll(/^Package id \d+:\s*([^°]+).*$/gm);
+            for (const package of packages) {
+                data[cpuNumber]['packages'].push(package[1]);
+            }
+
+            let cores = cpu[2].matchAll(/^Core \d+:\s*([^°]+).*$/gm);
+            for (const core of cores) {
+                data[cpuNumber]['cores'].push(core[1]);
+            }
+        }
+
+        let output = '';
+        for (const [i, cpu] of data.entries()) {
+            if (cpu.packages.length > 0) {
+                for (const packageTemp of cpu.packages) {
+                    output += `CPU ${i + 1}: ${packageTemp}°C `;
+                }
+            }
+
+            if (cpu.cores.length > 0) {
+                output += '(';
+                for (var j = 1; j < cpu.cores.length;) {
+                    for (const coreTemp of cpu.cores) {
+                        output += `核心 ${j++}: ${coreTemp}°C, `;
+                    }
+                }
+                output = output.slice(0, -2);
+                output += ')';
+            }
+            output += ' | ';
+        }
+
+        let boardTemp = value.match(/^acpitz-acpi-\d+$\n.*?\n^temp1:\s*([^°]+).*$/m);
+        if (boardTemp != null && boardTemp.length > 0) {
+            output += `主板: ${boardTemp[1]}°C | `
+        }
+        output = output.slice(0, -3);
+
+        return output;
+    }
+
+</script>
+</body>
+</html>

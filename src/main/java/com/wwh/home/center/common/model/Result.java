@@ -1,5 +1,6 @@
 package com.wwh.home.center.common.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
@@ -26,23 +27,24 @@ public class Result<T> implements Serializable {
     private String message;
 
     @ApiModelProperty("时间戳")
-    private String timestamp;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private LocalDateTime timestamp;
 
     @ApiModelProperty("数据")
     private T data;
 
     public Result() {
-        timestamp = LocalDateTime.now().toString();
+        timestamp = LocalDateTime.now();
     }
 
     public Result(int code, String message) {
-        timestamp = LocalDateTime.now().toString();
+        timestamp = LocalDateTime.now();
         this.code = code;
         this.message = message;
     }
 
     public Result(int code, String message, T data) {
-        timestamp = LocalDateTime.now().toString();
+        timestamp = LocalDateTime.now();
         this.code = code;
         this.message = message;
         this.data = data;
@@ -112,7 +114,7 @@ public class Result<T> implements Serializable {
         this.data = data;
     }
 
-    public String getTimestamp() {
+    public LocalDateTime getTimestamp() {
         return timestamp;
     }
 }

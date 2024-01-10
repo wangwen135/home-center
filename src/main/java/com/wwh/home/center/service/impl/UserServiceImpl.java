@@ -13,10 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
-
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -35,7 +32,14 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private UserInfoMapper userInfoMapper;
 
-    @Cacheable(cacheNames = "userIdCache", key = "#userId")
+    @Override
+    public List<UserInfo> getUserByNameOrPhone(String identity) {
+        QueryWrapper<UserInfo> queryWrapper = new QueryWrapper<>();
+        queryWrapper.and(w -> w.eq("username", identity).or().eq("phone", identity))
+                .eq("deleted", 0);
+        return userInfoMapper.selectList(queryWrapper);
+    }
+
     @Override
     public UserInfo getById(Long userId) {
         UserInfo user = userInfoMapper.selectById(userId);
@@ -43,7 +47,6 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @Cacheable(cacheNames = "getByPhone", key = "#phone")
     public UserInfo getByPhone(String phone) {
         QueryWrapper<UserInfo> queryWrapper = new QueryWrapper<>();
         queryWrapper.lambda().eq(UserInfo::getPhone, phone).eq(UserInfo::getDeleted, false);
@@ -59,7 +62,6 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @Cacheable(cacheNames = "userPhoneCache", key = "#phone")
     public boolean existPhone(String phone) {
         QueryWrapper<UserInfo> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("phone", phone).eq("deleted", false);

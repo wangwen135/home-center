@@ -10,6 +10,8 @@ import java.util.List;
 
 public interface UserService {
 
+    List<UserInfo> getUserByNameOrPhone(String identity);
+
     UserInfo getById(Long userId);
 
     UserInfo getByPhone(String phone);

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wwh.home.center.dao.mapper.FamousQuotesMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.wwh.home.center.model.entity.FamousQuotes">
+        <id column="id" property="id" />
+        <result column="famous" property="famous" />
+        <result column="weight" property="weight" />
+        <result column="fixed_display" property="fixedDisplay" />
+        <result column="create_time" property="createTime" />
+        <result column="deleted" property="deleted" />
+        <result column="remark" property="remark" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, famous, weight, fixed_display, create_time, deleted, remark
+    </sql>
+
+</mapper>

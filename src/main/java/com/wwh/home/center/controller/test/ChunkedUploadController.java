@@ -1,4 +1,4 @@
-package com.wwh.home.center.controller;
+package com.wwh.home.center.controller.test;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;

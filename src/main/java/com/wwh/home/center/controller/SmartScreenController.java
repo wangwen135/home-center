@@ -5,6 +5,7 @@ import com.wwh.home.center.model.vo.PromptMessageVo;
 import com.wwh.home.center.service.PromptMessageService;
 import com.wwh.home.center.service.SmartScreenService;
 import com.wwh.home.center.common.util.DateUtils;
+import io.swagger.annotations.Api;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @author wangwh
  * @date 2022/12/27
  */
+@Api(tags = "智能屏")
 @Slf4j
 @RestController
 @RequestMapping("/smartScreen")

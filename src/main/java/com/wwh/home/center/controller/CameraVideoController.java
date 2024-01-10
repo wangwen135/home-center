@@ -2,6 +2,7 @@ package com.wwh.home.center.controller;
 
 import com.wwh.home.center.model.entity.CameraConfig;
 import com.wwh.home.center.service.CameraVideoService;
+import io.swagger.annotations.Api;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +35,7 @@ import java.util.stream.Collectors;
  * @author wangwh
  * @date 2022/11/28
  */
+@Api(tags = "摄像头视频")
 @Slf4j
 @RestController
 @RequestMapping("/camera")
