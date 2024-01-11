@@ -21,9 +21,9 @@ public class UsernameBanManager {
     private static final int BAN_TIME_DURATION_MS = 60 * 1000; //1分钟
     private static final long BAN_TIME_MILLISECONDS = 5 * 60 * 1000; // 5分钟
 
-    private Map<String, BanInfo> bannedUsernames = new ConcurrentHashMap<>();
+    private static final Map<String, BanInfo> bannedUsernames = new ConcurrentHashMap<>();
 
-    public boolean isUsernameBanned(String username) {
+    public static boolean isUsernameBanned(String username) {
         BanInfo banInfo = bannedUsernames.get(username);
 
         if (banInfo != null && banInfo.getFailureCount() >= MAX_LOGIN_FAILURE) {
@@ -33,7 +33,7 @@ public class UsernameBanManager {
         }
     }
 
-    public void handleLoginFailure(String username) {
+    public static void handleLoginFailure(String username) {
         BanInfo banInfo = bannedUsernames.get(username);
 
         if (banInfo == null) {

@@ -2,6 +2,7 @@ package com.wwh.home.center.security;
 
 import com.wwh.home.center.security.model.LoggedUserInfo;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
@@ -34,7 +35,18 @@ public class TokenManager {
         return token;
     }
 
+    public static void removeToken(String token) {
+        if (StringUtils.isEmpty(token)) {
+            return;
+        }
+        tokenMap.remove(token);
+        log.debug("移除token：{}", token);
+    }
+
     public static void refreshToken(String token) {
+        if (StringUtils.isEmpty(token)) {
+            return;
+        }
         TokenInfo tokenInfo = tokenMap.get(token);
         if (tokenInfo != null) {
             tokenInfo.setExpirationTime(System.currentTimeMillis() + TOKEN_EXPIRATION_TIME_MS);
@@ -47,6 +59,9 @@ public class TokenManager {
     }
 
     public static LoggedUserInfo getUserInfoFromToken(String token) {
+        if (StringUtils.isEmpty(token)) {
+            return null;
+        }
         TokenInfo tokenInfo = tokenMap.get(token);
         return (tokenInfo != null && tokenInfo.getExpirationTime() > System.currentTimeMillis()) ? tokenInfo.getUserInfo() :
                 null;

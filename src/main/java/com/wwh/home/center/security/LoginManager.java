@@ -2,9 +2,11 @@ package com.wwh.home.center.security;
 
 import com.wwh.home.center.common.enums.SysLogTypeEnum;
 import com.wwh.home.center.common.exception.UnauthorizedException;
+import com.wwh.home.center.common.util.RequestUtil;
 import com.wwh.home.center.model.entity.SysLog;
 import com.wwh.home.center.model.entity.SysRole;
 import com.wwh.home.center.model.entity.UserInfo;
+import com.wwh.home.center.security.model.LoggedUserInfo;
 import com.wwh.home.center.service.SysLogService;
 import com.wwh.home.center.service.SysRoleService;
 import com.wwh.home.center.service.UserService;
@@ -13,17 +15,19 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 /**
- * 安全管理
+ * 登录管理器
  *
  * @author wangwh
  * @date 2024/01/09
  */
 @Slf4j
 @Component
-public class SecurityManager {
+public class LoginManager {
     @Autowired
     private UserService userService;
 
@@ -33,13 +37,6 @@ public class SecurityManager {
     @Autowired
     private SysLogService sysLogService;
 
-    @Autowired
-    private IpBanManager ipBanManager;
-
-    @Autowired
-    private UsernameBanManager usernameBanManager;
-
-
     /**
      * 登录
      *
@@ -47,8 +44,8 @@ public class SecurityManager {
      * @param password
      * @return
      */
-    public UserInfo login(String username, String password) {
-        String ipAddr = UserContextHolder.getRemoteIpAddress();
+    public String login(String username, String password, HttpServletResponse response) {
+        String ipAddr = RequestUtil.getIpAddress();
         // 登录前检查
         preLogin(username, ipAddr);
 
@@ -87,42 +84,77 @@ public class SecurityManager {
         //获取用户的角色和权限
         SysRole sysRole = sysRoleService.getRoleByUserId(user.getId());
 
-        return user;
+        LoggedUserInfo lui = new LoggedUserInfo();
+        lui.setUserInfo(user);
+        lui.setSysRole(sysRole);
+
+        String token = TokenManager.generateToken(lui);
+
+        //写入cookie中
+        Cookie cookie = new Cookie("your_cookie_name", token);
+        //设置HttpOnly标志，无法通过脚本访问，降低XSS攻击风险
+        cookie.setHttpOnly(true);
+        // 设置Cookie的路径
+        cookie.setPath("/");
+        // 不设置Cookie的有效期，使其成为会话Cookie
+        // cookie.setMaxAge(60 * 60);
+        response.addCookie(cookie);
+
+
+        return token;
     }
 
-    public void loginSuccess(UserInfo user, String identity) {
+    public void logout(HttpServletResponse response) {
+        UserContextHolder.isLoggedIn();
+        //移除token
+        String token = UserContextHolder.getToken();
+        TokenManager.removeToken(token);
+
+        //移除cookie
+        // 创建一个同名的 Cookie，并将其有效期设置为 0，即立即过期
+        Cookie cookie = new Cookie("your_cookie_name", null);
+        cookie.setMaxAge(0);
+        cookie.setPath("/"); // 设置Cookie的路径，确保与之前设置的路径一致
+        cookie.setHttpOnly(true); // 设置为HttpOnly
+        // 将新的 Cookie 添加到响应中
+        response.addCookie(cookie);
+
+
+    }
+
+    private void loginSuccess(UserInfo user, String identity) {
         //记录操作日志
-        String ipAddr = UserContextHolder.getRemoteIpAddress();
+        String ipAddr = RequestUtil.getIpAddress();
         SysLog sysLog = new SysLog();
         sysLog.setOperatorId(user.getId());
         sysLog.setOperatorName(user.getUsername());
         sysLog.setLogType(SysLogTypeEnum.LOGIN.toString());
         sysLog.setContent("【" + identity + "】 + 【密码】 登录成功");
         sysLog.setIp(ipAddr);
-        sysLog.setBrowserInfo(UserContextHolder.getRemoteBrowserInfo());
+        sysLog.setBrowserInfo(RequestUtil.getBrowserInfo());
         sysLogService.saveSysLog(sysLog);
     }
 
     public void loginFailed(String username, String ipAddr) {
         //记录失败的IP和用户名
-        ipBanManager.handleLoginFailure(ipAddr);
-        usernameBanManager.handleLoginFailure(username);
+        IpBanManager.handleLoginFailure(ipAddr);
+        UsernameBanManager.handleLoginFailure(username);
     }
 
     private void preLogin(String username, String ipAddr) {
         //检查IP地址
-        if (ipBanManager.isIpBanned(ipAddr)) {
+        if (IpBanManager.isIpBanned(ipAddr)) {
             throw new UnauthorizedException("本IP地址被禁止登录");
         }
 
         //检查用户名
-        if (usernameBanManager.isUsernameBanned(username)) {
+        if (UsernameBanManager.isUsernameBanned(username)) {
             throw new UnauthorizedException("本用户被禁止登录");
         }
     }
 
 
-    public boolean matchPwd(String pwd, UserInfo userInfo) {
+    private boolean matchPwd(String pwd, UserInfo userInfo) {
         String hexPwd = DigestUtils.md5Hex(pwd + userInfo.getSalt());
         return hexPwd.equals(userInfo.getPassword());
     }

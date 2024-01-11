@@ -4,16 +4,17 @@ import com.wwh.home.center.common.exception.UnauthorizedException;
 import com.wwh.home.center.model.entity.SysRole;
 import com.wwh.home.center.model.entity.UserInfo;
 import com.wwh.home.center.security.model.LoggedUserInfo;
-import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 /**
+ * <pre>
  * 线程局部变量保存登录用户信息
+ * 注意：
+ * 只在当前的请求线程中有效
+ * 子线程、线程池请求手动传递用户信息
+ * </pre>
  *
  * @author wangwh
  * @date 2024/01/10
@@ -145,30 +146,5 @@ public class UserContextHolder {
         }
     }
 
-    /**
-     * 获取用户的IP地址
-     *
-     * @return
-     */
-    public static String getRemoteIpAddress() {
-        ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
-        if (attributes == null) {
-            log.info("获取客户端IP地址时，无法获取ServletRequestAttributes...");
-            return "unknown";
-        }
-        //TODO 这个经过NGINX是有问题的
-        HttpServletRequest request = attributes.getRequest();
-        return request.getRemoteAddr();
-    }
-
-    public static String getRemoteBrowserInfo() {
-        ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
-        if (attributes == null) {
-            log.info("获取客户端浏览器信息时，无法获取ServletRequestAttributes...");
-            return "unknown";
-        }
-        HttpServletRequest request = attributes.getRequest();
-        return request.getHeader("user-agent");
-    }
 
 }

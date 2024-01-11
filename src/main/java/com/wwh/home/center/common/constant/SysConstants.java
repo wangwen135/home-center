@@ -8,6 +8,14 @@ package com.wwh.home.center.common.constant;
  */
 public class SysConstants {
 
+    public static final String TOKEN_NAME = "token";
+    public static final String COOKIE_TOKEN_NAME = "wwh_token";
+
+    /**
+     * 超级管理员角色ID
+     */
+    public static final int SUPER_ADMIN_ROLE_ID = 1;
+
     /**
      * 超级管理员用户ID
      */

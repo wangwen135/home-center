@@ -21,9 +21,9 @@ public class IpBanManager {
     private static final int BAN_TIME_DURATION_MS = 60 * 1000; //1分钟
     private static final long BAN_TIME_MILLISECONDS = 5 * 60 * 1000; // 5分钟
 
-    private Map<String, BanInfo> bannedIps = new ConcurrentHashMap<>();
+    private static final Map<String, BanInfo> bannedIps = new ConcurrentHashMap<>();
 
-    public boolean isIpBanned(String ipAddress) {
+    public static boolean isIpBanned(String ipAddress) {
         BanInfo banInfo = bannedIps.get(ipAddress);
 
         if (banInfo != null && banInfo.getFailureCount() >= MAX_LOGIN_FAILURE) {
@@ -33,7 +33,7 @@ public class IpBanManager {
         }
     }
 
-    public void handleLoginFailure(String ipAddress) {
+    public static void handleLoginFailure(String ipAddress) {
         BanInfo banInfo = bannedIps.get(ipAddress);
 
         if (banInfo == null) {

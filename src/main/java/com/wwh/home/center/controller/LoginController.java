@@ -3,6 +3,7 @@ package com.wwh.home.center.controller;
 import com.wwh.home.center.common.constant.SysConstants;
 import com.wwh.home.center.common.model.Result;
 import com.wwh.home.center.model.entity.UserInfo;
+import com.wwh.home.center.security.LoginManager;
 import com.wwh.home.center.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.validation.constraints.NotEmpty;
 import java.util.List;
@@ -32,27 +34,21 @@ import java.util.List;
 public class LoginController {
 
     @Autowired
-    private UserService userService;
+    private LoginManager loginManager;
 
     @ApiOperation("登录")
     @PostMapping("/login")
     public Result<String> login(@RequestParam @NotEmpty(message = "用户名不能为空") @ApiParam("用户名或手机号") String username
             , @RequestParam @NotEmpty(message = "密码不能为空") @ApiParam("密码") String password
-            , HttpServletRequest request) {
+            , HttpServletRequest request, HttpServletResponse response) {
 
-        List<UserInfo> list = userService.getUserByNameOrPhone(username);
-
-
-        return Result.success("登录成功");
+        return Result.success(loginManager.login(username, password, response));
     }
 
     @ApiOperation("退出")
     @PostMapping("/logout")
-    public Result logout(HttpServletRequest request) {
-        HttpSession session = request.getSession();
-        //session.getAttribute(SESSION_USER_KEY);
-
-
+    public Result logout(HttpServletRequest request, HttpServletResponse response) {
+        loginManager.logout(response);
         return Result.success();
     }
 }
