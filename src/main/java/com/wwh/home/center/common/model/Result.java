@@ -74,6 +74,10 @@ public class Result<T> implements Serializable {
         return new Result<>(UNAUTHORIZED_ERROR_CODE, UNAUTHORIZED_ERROR_MSG);
     }
 
+    public static <T> Result<T> unauthorized(String msg) {
+        return new Result<>(UNAUTHORIZED_ERROR_CODE, msg);
+    }
+
     public static <T> Result<T> badRequest(String msg) {
         return new Result<>(BAD_REQUEST_CODE, msg);
     }

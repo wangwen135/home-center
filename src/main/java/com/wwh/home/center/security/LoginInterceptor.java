@@ -28,7 +28,7 @@ import static com.wwh.home.center.common.constant.SysConstants.*;
 @Component
 public class LoginInterceptor implements HandlerInterceptor {
     //白名单
-    private static final List<String> WHITE_LIST = Arrays.asList("/login", "/login.html", "/error");
+    private static final List<String> WHITE_LIST = Arrays.asList("/login", "/login.html", "/favicon.ico", "/error");
 
 
     @Override
@@ -101,10 +101,17 @@ public class LoginInterceptor implements HandlerInterceptor {
 
     private boolean hasPermission(String path, LoggedUserInfo loggedUserInfo) {
         SysRole sysRole = loggedUserInfo.getSysRole();
+        if (sysRole == null) {
+            log.debug("用户{} 没有角色信息", loggedUserInfo.getUserInfo().getId());
+            return false;
+        }
         if (sysRole.getId() == SUPER_ADMIN_ROLE_ID) {
             return true;
         }
         List<String> pList = loggedUserInfo.getPermission();
+        if (pList == null) {
+            return false;
+        }
         return pList.contains(path);
     }
 
@@ -130,7 +137,7 @@ public class LoginInterceptor implements HandlerInterceptor {
             if (COOKIE_TOKEN_NAME.equals(cookie.getName())) {
                 // 获取Cookie的值
                 String cookieValue = cookie.getValue();
-                log.trace("从Cookie中获取到 token = {}", token);
+                log.trace("从Cookie中获取到 token = {}", cookieValue);
                 return cookieValue;
             }
         }

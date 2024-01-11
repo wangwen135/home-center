@@ -2,10 +2,7 @@ package com.wwh.home.center.controller.advice;
 
 
 import com.wwh.home.center.common.constant.ResultConstants;
-import com.wwh.home.center.common.exception.ArgumentException;
-import com.wwh.home.center.common.exception.BusinessException;
-import com.wwh.home.center.common.exception.SystemException;
-import com.wwh.home.center.common.exception.UnauthorizedException;
+import com.wwh.home.center.common.exception.*;
 import com.wwh.home.center.common.model.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
@@ -148,7 +145,7 @@ public class GlobalExceptionHandler {
         log.info("请求：[{}] {} ", request.getMethod(), request.getRequestURI());
 
         log.info("未授权异常：code={} msg={}", ex.getCode(), ex.getMessage());
-        return Result.unauthorized();
+        return Result.error(ex.getCode(), ex.getMessage());
     }
 
     /**
@@ -193,6 +190,20 @@ public class GlobalExceptionHandler {
         log.info("请求：[{}] {} ", request.getMethod(), request.getRequestURI());
 
         log.error("系统异常：code={} msg={}", ex.getCode(), ex.getMessage(), ex);
+        return Result.error(ex.getCode(), ex.getMessage());
+    }
+
+    /**
+     * 基础异常处理
+     *
+     * @param ex
+     * @return
+     */
+    @ExceptionHandler({BaseException.class})
+    @ResponseBody
+    public Result<?> handleBaseException(BaseException ex, HttpServletRequest request) {
+        log.info("请求：[{}] {} ", request.getMethod(), request.getRequestURI());
+        log.error("基础异常：code={} msg={}", ex.getCode(), ex.getMessage(), ex);
         return Result.error(ex.getCode(), ex.getMessage());
     }
 

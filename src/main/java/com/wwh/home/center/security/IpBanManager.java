@@ -57,7 +57,7 @@ public class IpBanManager {
         bannedIps.keySet().forEach(ipAddress -> {
             bannedIps.compute(ipAddress, (key, banInfo) -> {
                 if (banInfo != null && currentTime >= banInfo.getBanEndTime()) {
-                    log.debug("清理过期IP：{}", banInfo.getIpAddress());
+                    log.info("清理过期IP：{}", banInfo.getIpAddress());
                     return null; // 移除过期的封禁记录
                 } else {
                     return banInfo; // 保持不变

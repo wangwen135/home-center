@@ -19,6 +19,8 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
+import static com.wwh.home.center.common.constant.SysConstants.*;
+
 /**
  * 登录管理器
  *
@@ -91,7 +93,7 @@ public class LoginManager {
         String token = TokenManager.generateToken(lui);
 
         //写入cookie中
-        Cookie cookie = new Cookie("your_cookie_name", token);
+        Cookie cookie = new Cookie(COOKIE_TOKEN_NAME, token);
         //设置HttpOnly标志，无法通过脚本访问，降低XSS攻击风险
         cookie.setHttpOnly(true);
         // 设置Cookie的路径
@@ -99,7 +101,6 @@ public class LoginManager {
         // 不设置Cookie的有效期，使其成为会话Cookie
         // cookie.setMaxAge(60 * 60);
         response.addCookie(cookie);
-
 
         return token;
     }
@@ -112,14 +113,12 @@ public class LoginManager {
 
         //移除cookie
         // 创建一个同名的 Cookie，并将其有效期设置为 0，即立即过期
-        Cookie cookie = new Cookie("your_cookie_name", null);
+        Cookie cookie = new Cookie(COOKIE_TOKEN_NAME, null);
         cookie.setMaxAge(0);
         cookie.setPath("/"); // 设置Cookie的路径，确保与之前设置的路径一致
         cookie.setHttpOnly(true); // 设置为HttpOnly
         // 将新的 Cookie 添加到响应中
         response.addCookie(cookie);
-
-
     }
 
     private void loginSuccess(UserInfo user, String identity) {
@@ -144,12 +143,12 @@ public class LoginManager {
     private void preLogin(String username, String ipAddr) {
         //检查IP地址
         if (IpBanManager.isIpBanned(ipAddr)) {
-            throw new UnauthorizedException("本IP地址被禁止登录");
+            throw new UnauthorizedException("IP地址【" + ipAddr + "】已被禁止登录");
         }
 
         //检查用户名
         if (UsernameBanManager.isUsernameBanned(username)) {
-            throw new UnauthorizedException("本用户被禁止登录");
+            throw new UnauthorizedException("用户【" + username + "】已被禁止登录");
         }
     }
 

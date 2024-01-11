@@ -57,7 +57,7 @@ public class UsernameBanManager {
         bannedUsernames.keySet().forEach(ipAddress -> {
             bannedUsernames.compute(ipAddress, (key, banInfo) -> {
                 if (banInfo != null && currentTime >= banInfo.getBanEndTime()) {
-                    log.debug("清理过期用户名：{}", banInfo.getUsername());
+                    log.info("清理过期用户名：{}", banInfo.getUsername());
                     return null;
                 } else {
                     return banInfo;
