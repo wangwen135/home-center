@@ -86,9 +86,7 @@ public class LoginManager {
         //获取用户的角色和权限
         SysRole sysRole = sysRoleService.getRoleByUserId(user.getId());
 
-        LoggedUserInfo lui = new LoggedUserInfo();
-        lui.setUserInfo(user);
-        lui.setSysRole(sysRole);
+        LoggedUserInfo lui = new LoggedUserInfo(user, sysRole, null, null);
 
         String token = TokenManager.generateToken(lui);
 

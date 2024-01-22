@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -27,9 +28,34 @@ import static com.wwh.home.center.common.constant.SysConstants.*;
 @Slf4j
 @Component
 public class LoginInterceptor implements HandlerInterceptor {
+
+    /**
+     * <pre>
+     * ?：匹配一个字符
+     * *：匹配零个或多个字符，但不包括路径分隔符（/）
+     * **：匹配零个或多个目录或文件
+     * </pre>
+     */
+
     //白名单
     private static final List<String> WHITE_LIST = Arrays.asList("/login", "/login.html", "/favicon.ico", "/error");
 
+    private AntPathMatcher antPathMatcher = new AntPathMatcher();
+
+    private boolean match(String path, List<String> matcherList) {
+        if (matcherList == null || matcherList.isEmpty()) {
+            return false;
+        }
+        for (String pattern : matcherList) {
+            if (StringUtils.isBlank(pattern)) {
+                continue;
+            }
+            if (antPathMatcher.match(pattern, path)) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
@@ -44,7 +70,7 @@ public class LoginInterceptor implements HandlerInterceptor {
         System.out.println(handler.getClass());
         System.out.println("================================================");
 
-        if (WHITE_LIST.contains(path)) {
+        if (match(path, WHITE_LIST)) {
             log.trace("在白名单中，允许访问");
             return true;
         }
@@ -105,14 +131,17 @@ public class LoginInterceptor implements HandlerInterceptor {
             log.debug("用户{} 没有角色信息", loggedUserInfo.getUserInfo().getId());
             return false;
         }
+        //超级管理员有全部权限
         if (sysRole.getId() == SUPER_ADMIN_ROLE_ID) {
             return true;
         }
-        List<String> pList = loggedUserInfo.getPermission();
-        if (pList == null) {
-            return false;
+
+        List<String> urls = loggedUserInfo.getPlainUrls();
+        if (urls.contains(path)) {
+            return true;
         }
-        return pList.contains(path);
+        //通配符匹配
+        return match(path, loggedUserInfo.getAntUrls());
     }
 
     private String getTokenFromRequest(HttpServletRequest request) {
@@ -153,6 +182,8 @@ public class LoginInterceptor implements HandlerInterceptor {
 
     @Override
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
+        UserContextHolder.removeUserInfo();
+
         System.out.println("+++++++++++++++++++++++++++++++++++++++++++++++++++++");
         System.out.println(handler);
         System.out.println(handler.getClass());
