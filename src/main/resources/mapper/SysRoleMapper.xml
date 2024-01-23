@@ -20,7 +20,7 @@
     </sql>
 
 
-    <select id="getRolesByUserId" resultType="com.wwh.home.center.model.entity.SysRole">
+    <select id="getRolesByUserId" resultMap="BaseResultMap">
         SELECT
           r.*
         FROM

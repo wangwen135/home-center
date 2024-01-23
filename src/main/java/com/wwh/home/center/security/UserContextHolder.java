@@ -83,7 +83,7 @@ public class UserContextHolder {
     public static List<String> getPermission() {
         LoggedUserInfo lui = getLoggedUserInfo();
         if (lui != null) {
-            return lui.getPermission();
+            return lui.getPermissions();
         }
         return null;
     }

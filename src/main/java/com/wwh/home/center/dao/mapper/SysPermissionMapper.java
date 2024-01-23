@@ -4,6 +4,8 @@ import com.wwh.home.center.model.entity.SysPermission;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 /**
  * <p>
  * 权限表 Mapper 接口
@@ -15,4 +17,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface SysPermissionMapper extends BaseMapper<SysPermission> {
 
+    List<SysPermission> getPermissionByRoleId(Integer roleId);
 }

@@ -4,20 +4,24 @@ import com.wwh.home.center.common.enums.SysLogTypeEnum;
 import com.wwh.home.center.common.exception.UnauthorizedException;
 import com.wwh.home.center.common.util.RequestUtil;
 import com.wwh.home.center.model.entity.SysLog;
+import com.wwh.home.center.model.entity.SysPermission;
 import com.wwh.home.center.model.entity.SysRole;
 import com.wwh.home.center.model.entity.UserInfo;
 import com.wwh.home.center.security.model.LoggedUserInfo;
 import com.wwh.home.center.service.SysLogService;
+import com.wwh.home.center.service.SysPermissionService;
 import com.wwh.home.center.service.SysRoleService;
 import com.wwh.home.center.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.wwh.home.center.common.constant.SysConstants.*;
 
@@ -38,6 +42,9 @@ public class LoginManager {
 
     @Autowired
     private SysLogService sysLogService;
+
+    @Autowired
+    private SysPermissionService sysPermissionService;
 
     /**
      * 登录
@@ -80,13 +87,20 @@ public class LoginManager {
             throw new UnauthorizedException("账号已过期，请联系管理员");
         }
 
-        //
+        //日志
         loginSuccess(user, username);
 
-        //获取用户的角色和权限
+        //获取用户的角色
         SysRole sysRole = sysRoleService.getRoleByUserId(user.getId());
+        if (sysRole == null) {
+            throw new UnauthorizedException("该账号未配置角色，请联系管理员");
+        }
+        //获取权限
+        List<SysPermission> permissionList = sysPermissionService.getPermissionByRoleId(sysRole.getId());
+        List<String> permissionUrls =
+                permissionList.stream().map(SysPermission::getUrls).filter(x -> StringUtils.isNotEmpty(x)).collect(Collectors.toList());
 
-        LoggedUserInfo lui = new LoggedUserInfo(user, sysRole, null, null);
+        LoggedUserInfo lui = new LoggedUserInfo(user, sysRole, permissionUrls, null);
 
         String token = TokenManager.generateToken(lui);
 

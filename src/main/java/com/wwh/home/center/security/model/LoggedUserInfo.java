@@ -2,7 +2,7 @@ package com.wwh.home.center.security.model;
 
 import com.wwh.home.center.model.entity.SysRole;
 import com.wwh.home.center.model.entity.UserInfo;
-import lombok.Data;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,19 +16,19 @@ import java.util.List;
 public class LoggedUserInfo {
     private UserInfo userInfo;
     private SysRole sysRole;
-    private List<String> permission;
+    private List<String> permissions;
 
     private List<String> plainUrls;
     private List<String> antUrls;
 
     private List<String> userSystem;
 
-    public LoggedUserInfo(UserInfo userInfo, SysRole sysRole, List<String> permission, List<String> userSystem) {
+    public LoggedUserInfo(UserInfo userInfo, SysRole sysRole, List<String> permissions, List<String> userSystem) {
         this.userInfo = userInfo;
         this.sysRole = sysRole;
-        this.permission = permission;
+        this.permissions = permissions;
         this.userSystem = userSystem;
-        processPermission(permission);
+        processPermission(permissions);
     }
 
     private void processPermission(List<String> permission) {
@@ -40,6 +40,9 @@ public class LoggedUserInfo {
         }
 
         for (String p : permission) {
+            if (StringUtils.isEmpty(p)) {
+                continue;
+            }
             //分号分隔的多个权限
             String[] parts = p.split(";");
             for (String part : parts) {
@@ -63,8 +66,8 @@ public class LoggedUserInfo {
     }
 
 
-    public List<String> getPermission() {
-        return permission;
+    public List<String> getPermissions() {
+        return permissions;
     }
 
     public List<String> getPlainUrls() {
