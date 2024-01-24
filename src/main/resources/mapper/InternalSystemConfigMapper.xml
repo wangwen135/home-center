@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wwh.home.center.dao.mapper.InternalSystemConfigMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.wwh.home.center.model.entity.InternalSystemConfig">
+        <id column="id" property="id" />
+        <result column="sys_name" property="sysName" />
+        <result column="sys_key" property="sysKey" />
+        <result column="sys_description" property="sysDescription" />
+        <result column="icon" property="icon" />
+        <result column="internet_url" property="internetUrl" />
+        <result column="internal_url" property="internalUrl" />
+        <result column="config" property="config" />
+        <result column="sort" property="sort" />
+        <result column="remark" property="remark" />
+        <result column="disabled" property="disabled" />
+        <result column="deleted" property="deleted" />
+        <result column="create_by" property="createBy" />
+        <result column="create_time" property="createTime" />
+        <result column="update_by" property="updateBy" />
+        <result column="update_time" property="updateTime" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, sys_name, sys_key, sys_description, icon, internet_url, internal_url, config, sort, remark, disabled,
+        deleted, create_by, create_time, update_by, update_time
+    </sql>
+
+</mapper>

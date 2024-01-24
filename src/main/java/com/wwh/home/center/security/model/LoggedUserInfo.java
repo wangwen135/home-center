@@ -83,4 +83,13 @@ public class LoggedUserInfo {
         return userSystem;
     }
 
+
+    public String toSimpleString() {
+        return "LoggedUserInfo{" +
+                "userId=" + userInfo.getId() +
+                "userName=" + userInfo.getUsername() +
+                ", roleId=" + sysRole.getId() +
+                ", roleName=" + sysRole.getName() +
+                '}';
+    }
 }

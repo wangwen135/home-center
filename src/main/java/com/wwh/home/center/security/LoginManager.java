@@ -90,6 +90,10 @@ public class LoginManager {
         //日志
         loginSuccess(user, username);
 
+        //清空用户密码
+        user.setPassword(null);
+        user.setSalt(null);
+
         //获取用户的角色
         SysRole sysRole = sysRoleService.getRoleByUserId(user.getId());
         if (sysRole == null) {
