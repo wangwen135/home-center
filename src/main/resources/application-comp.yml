@@ -56,8 +56,13 @@ spring:
     host: localhost
     port: 6379
 
+  # 设置上传目录
+  servlet:
+    multipart:
+      location: upload-tmp-dir
+
   thymeleaf:
-    cache=false:
+    cache: false
 
 mybatis-plus:
   configuration:
@@ -73,3 +78,9 @@ weather:
 
 camera-video:
   base-path: Z:\监控\xiaomi_camera_videos
+
+
+
+
+image:
+  base-path: Z:\www\images\HC

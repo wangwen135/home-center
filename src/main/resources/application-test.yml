@@ -34,3 +34,7 @@ weather:
 
 camera-video:
   base-path: /mnt/监控/xiaomi_camera_videos
+
+
+iamge:
+  base-path: /www/mnt/images/HC

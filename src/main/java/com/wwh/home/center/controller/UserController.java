@@ -29,9 +29,9 @@ import java.util.List;
  * @date 2024/01/25
  */
 @Slf4j
-@Api(tags = "登录用户信息")
 @Validated
 @RestController
+@Api(tags = "登录用户信息")
 @RequestMapping("/user")
 public class UserController {
 
