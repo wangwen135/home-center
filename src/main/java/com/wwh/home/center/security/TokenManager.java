@@ -1,13 +1,18 @@
 package com.wwh.home.center.security;
 
-import com.wwh.home.center.common.constant.SysConstants;
-import com.wwh.home.center.security.model.LoggedUserInfo;
+import com.wwh.home.center.model.entity.SysRole;
+import com.wwh.home.center.model.vo.TokenVo;
+import com.wwh.home.center.security.model.LoggedUserAllInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
+import java.time.Instant;
+import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -33,17 +38,49 @@ public class TokenManager {
 
     private static final Map<String, TokenInfo> tokenMap = new ConcurrentHashMap<>();
 
-    public static String generateToken(LoggedUserInfo userInfo) {
-        Assert.notNull(userInfo, "用户信息不能为空");
+    /**
+     * 获取全部token信息
+     *
+     * @return
+     */
+    public static List<TokenVo> getAll() {
+        List<TokenVo> list = new ArrayList<>();
+        tokenMap.values().forEach(x -> {
+            TokenVo vo = new TokenVo();
+            vo.setToken("**********" + x.getToken().substring(10));
+            vo.setCreateTime(Instant.ofEpochMilli(x.getCreateTime()).atZone(ZoneId.systemDefault()).toLocalDateTime());
+            vo.setExpirationTime(Instant.ofEpochMilli(x.getExpirationTime()).atZone(ZoneId.systemDefault()).toLocalDateTime());
+            vo.setUserId(x.getUserAllInfo().getUserInfo().getId());
+            vo.setUserName(x.getUserAllInfo().getUserInfo().getUsername());
+            SysRole sysRole = x.getUserAllInfo().getSysRole();
+            vo.setRoleName(sysRole == null ? null : sysRole.getName());
+            list.add(vo);
+        });
+        return list;
+    }
+
+    /**
+     * 生成一个token
+     *
+     * @param userAllInfo
+     * @return
+     */
+    public static String generateToken(LoggedUserAllInfo userAllInfo) {
+        Assert.notNull(userAllInfo, "用户相关信息不能为空");
 
         String token = UUID.randomUUID().toString().replace("-", "");
         long expirationTime = System.currentTimeMillis() + TOKEN_EXPIRATION_TIME_MS;
-        TokenInfo tokenInfo = new TokenInfo(token, userInfo, expirationTime);
+        TokenInfo tokenInfo = new TokenInfo(token, userAllInfo, expirationTime);
         tokenMap.put(token, tokenInfo);
         log.debug("生成新token：{}", token);
         return token;
     }
 
+    /**
+     * 删除token
+     *
+     * @param token
+     */
     public static void removeToken(String token) {
         if (StringUtils.isEmpty(token)) {
             return;
@@ -52,6 +89,11 @@ public class TokenManager {
         log.debug("移除token：{}", token);
     }
 
+    /**
+     * 刷新token过期时间
+     *
+     * @param token
+     */
     public static void refreshToken(String token) {
         if (StringUtils.isEmpty(token)) {
             return;
@@ -62,17 +104,29 @@ public class TokenManager {
         }
     }
 
+    /**
+     * token是否有效
+     *
+     * @param token
+     * @return
+     */
     public static boolean isValidToken(String token) {
         TokenInfo tokenInfo = tokenMap.get(token);
         return tokenInfo != null && tokenInfo.getExpirationTime() > System.currentTimeMillis();
     }
 
-    public static LoggedUserInfo getUserInfoFromToken(String token) {
+    /**
+     * 根据token获取登录用户的全部信息
+     *
+     * @param token
+     * @return
+     */
+    public static LoggedUserAllInfo getUserAllInfoFromToken(String token) {
         if (StringUtils.isEmpty(token)) {
             return null;
         }
         TokenInfo tokenInfo = tokenMap.get(token);
-        return (tokenInfo != null && tokenInfo.getExpirationTime() > System.currentTimeMillis()) ? tokenInfo.getUserInfo() :
+        return (tokenInfo != null && tokenInfo.getExpirationTime() > System.currentTimeMillis()) ? tokenInfo.getUserAllInfo() :
                 null;
     }
 
@@ -101,13 +155,13 @@ public class TokenManager {
 
     private static class TokenInfo {
         private String token;
-        private LoggedUserInfo userInfo;
+        private LoggedUserAllInfo userAllInfo;
         private long createTime;
         private long expirationTime;
 
-        public TokenInfo(String token, LoggedUserInfo userInfo, long expirationTime) {
+        public TokenInfo(String token, LoggedUserAllInfo userAllInfo, long expirationTime) {
             this.token = token;
-            this.userInfo = userInfo;
+            this.userAllInfo = userAllInfo;
             this.expirationTime = expirationTime;
             this.createTime = System.currentTimeMillis();
         }
@@ -116,8 +170,8 @@ public class TokenManager {
             return token;
         }
 
-        public LoggedUserInfo getUserInfo() {
-            return userInfo;
+        public LoggedUserAllInfo getUserAllInfo() {
+            return userAllInfo;
         }
 
         public void setExpirationTime(long expirationTime) {
@@ -136,7 +190,7 @@ public class TokenManager {
         public String toString() {
             return "TokenInfo{" +
                     "token='" + token + '\'' +
-                    ", userInfo=" + userInfo.toSimpleString() +
+                    ", userInfo=" + userAllInfo.toSimpleString() +
                     ", createTime=" + createTime +
                     ", expirationTime=" + expirationTime +
                     '}';

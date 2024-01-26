@@ -19,7 +19,7 @@ import java.util.Date;
 public class UserInfoVo {
 
     @ApiModelProperty("用户id")
-    private Integer userId;
+    private Integer id;
 
     @ApiModelProperty("用户名")
     private String username;

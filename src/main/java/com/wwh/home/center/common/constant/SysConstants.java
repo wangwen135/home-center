@@ -19,7 +19,7 @@ public class SysConstants {
     /**
      * 超级管理员用户ID
      */
-    public static final int SUPER_ADMIN_USER_ID = 1;
+    //public static final int SUPER_ADMIN_USER_ID = 1;
 
     /**
      * 默认编码

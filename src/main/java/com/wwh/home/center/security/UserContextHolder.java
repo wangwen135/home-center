@@ -1,9 +1,11 @@
 package com.wwh.home.center.security;
 
+import com.wwh.home.center.common.constant.SysConstants;
 import com.wwh.home.center.common.exception.UnauthorizedException;
+import com.wwh.home.center.model.entity.SysPermission;
 import com.wwh.home.center.model.entity.SysRole;
 import com.wwh.home.center.model.entity.UserInfo;
-import com.wwh.home.center.security.model.LoggedUserInfo;
+import com.wwh.home.center.security.model.LoggedUserAllInfo;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
@@ -22,10 +24,10 @@ import java.util.List;
 @Slf4j
 public class UserContextHolder {
 
-    private static final ThreadLocal<LocalUser> userHolder = new ThreadLocal<>();
+    private static final ThreadLocal<LocalHolderUser> userHolder = new ThreadLocal<>();
 
-    protected static void setUserInfo(String token, LoggedUserInfo userInfo) {
-        LocalUser u = new LocalUser(token, userInfo);
+    protected static void setUserInfo(String token, LoggedUserAllInfo userInfo) {
+        LocalHolderUser u = new LocalHolderUser(token, userInfo);
         userHolder.set(u);
     }
 
@@ -60,28 +62,38 @@ public class UserContextHolder {
     }
 
     /**
-     * 获取登录用户信息
+     * 获取用户信息
      *
      * @return 可能返回null
      */
     public static UserInfo getUserInfo() {
-        LoggedUserInfo lui = getLoggedUserInfo();
+        LoggedUserAllInfo lui = getLoggedUserAllInfo();
         if (lui != null) {
             return lui.getUserInfo();
         }
         return null;
     }
 
+    /**
+     * 获取角色信息
+     *
+     * @return 可能返回null
+     */
     public static SysRole getSysRole() {
-        LoggedUserInfo lui = getLoggedUserInfo();
+        LoggedUserAllInfo lui = getLoggedUserAllInfo();
         if (lui != null) {
             return lui.getSysRole();
         }
         return null;
     }
 
-    public static List<String> getPermission() {
-        LoggedUserInfo lui = getLoggedUserInfo();
+    /**
+     * 获取权限列表
+     *
+     * @return 可能返回null
+     */
+    public static List<SysPermission> getPermission() {
+        LoggedUserAllInfo lui = getLoggedUserAllInfo();
         if (lui != null) {
             return lui.getPermissions();
         }
@@ -89,12 +101,26 @@ public class UserContextHolder {
     }
 
     /**
+     * 是否是超级管理员
+     *
+     * @return
+     */
+    public static boolean isSuperAdmin() {
+        SysRole role = getSysRole();
+        if (role == null) {
+            return false;
+        }
+        return role.getId() == SysConstants.SUPER_ADMIN_ROLE_ID;
+    }
+
+
+    /**
      * 获取登录用户信息
      *
      * @return 可能返回null
      */
-    public static LoggedUserInfo getLoggedUserInfo() {
-        LocalUser lu = userHolder.get();
+    public static LoggedUserAllInfo getLoggedUserAllInfo() {
+        LocalHolderUser lu = userHolder.get();
         if (lu != null) {
             return lu.getLoggedUserInfo();
         }
@@ -107,7 +133,7 @@ public class UserContextHolder {
      * @return 可能返回null
      */
     public static String getToken() {
-        LocalUser lu = userHolder.get();
+        LocalHolderUser lu = userHolder.get();
         if (lu != null) {
             return lu.getToken();
         }
@@ -128,11 +154,11 @@ public class UserContextHolder {
         return userId;
     }
 
-    private static class LocalUser {
+    private static class LocalHolderUser {
         private String token;
-        private LoggedUserInfo loggedUserInfo;
+        private LoggedUserAllInfo loggedUserInfo;
 
-        public LocalUser(String token, LoggedUserInfo loggedUserInfo) {
+        public LocalHolderUser(String token, LoggedUserAllInfo loggedUserInfo) {
             this.token = token;
             this.loggedUserInfo = loggedUserInfo;
         }
@@ -141,7 +167,7 @@ public class UserContextHolder {
             return token;
         }
 
-        public LoggedUserInfo getLoggedUserInfo() {
+        public LoggedUserAllInfo getLoggedUserInfo() {
             return loggedUserInfo;
         }
     }

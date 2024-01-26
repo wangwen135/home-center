@@ -28,4 +28,16 @@
         deleted, create_by, create_time, update_by, update_time
     </sql>
 
+    <select id="getInternalSystemByUserId" resultMap="BaseResultMap">
+        SELECT
+          sc.*
+        FROM
+          internal_system_config sc
+          JOIN user_internal_system us
+            ON sc.`id` = us.`sys_id`
+        WHERE sc.`deleted` = 0
+          AND us.`deleted` = 0
+          AND us.`user_id` = #{userId}
+        ORDER BY sort,id
+    </select>
 </mapper>

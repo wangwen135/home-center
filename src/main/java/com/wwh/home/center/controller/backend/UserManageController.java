@@ -1,4 +1,4 @@
-package com.wwh.home.center.controller;
+package com.wwh.home.center.controller.backend;
 
 import com.wwh.home.center.common.constant.RegexpConstants;
 import com.wwh.home.center.common.model.PageInfo;
@@ -21,11 +21,11 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 
 @Slf4j
-@Api(tags = "用户接口")
+@Api(tags = "用户管理接口")
 @RestController
-@RequestMapping("/user")
+@RequestMapping("/backend/user")
 @Validated
-public class UserCenterController {
+public class UserManageController {
 
     @Autowired
     private UserService userService;

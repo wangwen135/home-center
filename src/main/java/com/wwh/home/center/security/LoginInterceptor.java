@@ -2,7 +2,7 @@ package com.wwh.home.center.security;
 
 import com.wwh.home.center.common.exception.UnauthorizedException;
 import com.wwh.home.center.model.entity.SysRole;
-import com.wwh.home.center.security.model.LoggedUserInfo;
+import com.wwh.home.center.security.model.LoggedUserAllInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpMethod;
@@ -83,13 +83,13 @@ public class LoginInterceptor implements HandlerInterceptor {
 
         //从请求头，请求参数，cookie 中获取token
         String token = getTokenFromRequest(request);
-        LoggedUserInfo loggedUserInfo = TokenManager.getUserInfoFromToken(token);
+        LoggedUserAllInfo loggedUserAllInfo = TokenManager.getUserAllInfoFromToken(token);
 
         //静态资源
         if (handler instanceof org.springframework.web.servlet.resource.ResourceHttpRequestHandler) {
             log.trace("访问静态资源：[{}]{}", method, path);
             //只有在登录之后才能访问静态资源
-            if (loggedUserInfo == null) {
+            if (loggedUserAllInfo == null) {
                 log.trace("用户未登录，重定向到登录页");
                 response.sendRedirect("/login.html");
                 return false;
@@ -108,24 +108,24 @@ public class LoginInterceptor implements HandlerInterceptor {
         //     return true;
         // }
 
-        if (loggedUserInfo == null) {
+        if (loggedUserAllInfo == null) {
             log.trace("用户未登录，返回未授权");
             throw new UnauthorizedException();
         }
         //设置上下文
-        UserContextHolder.setUserInfo(token, loggedUserInfo);
+        UserContextHolder.setUserInfo(token, loggedUserAllInfo);
         //只有接口请求才刷新token
         TokenManager.refreshToken(token);
 
         //判断接口权限
-        if (!hasPermission(path, loggedUserInfo)) {
-            log.warn("用户：[{}] {} 越权访问：{}", loggedUserInfo.getUserInfo().getId(), loggedUserInfo.getUserInfo().getUsername(), path);
+        if (!hasPermission(path, loggedUserAllInfo)) {
+            log.warn("用户：[{}] {} 越权访问：{}", loggedUserAllInfo.getUserInfo().getId(), loggedUserAllInfo.getUserInfo().getUsername(), path);
             throw new UnauthorizedException("您没有该接口的访问权限");
         }
         return true;
     }
 
-    private boolean hasPermission(String path, LoggedUserInfo loggedUserInfo) {
+    private boolean hasPermission(String path, LoggedUserAllInfo loggedUserInfo) {
         SysRole sysRole = loggedUserInfo.getSysRole();
         if (sysRole == null) {
             log.debug("用户{} 没有角色信息", loggedUserInfo.getUserInfo().getId());

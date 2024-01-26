@@ -12,7 +12,7 @@ import javax.servlet.http.HttpServletResponse;
  * @author wangwh
  * @date 2023/05/15
  */
-@Component
+//@Component
 public class AuthorizationInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)

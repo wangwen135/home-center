@@ -3,25 +3,17 @@ package com.wwh.home.center.security;
 import com.wwh.home.center.common.enums.SysLogTypeEnum;
 import com.wwh.home.center.common.exception.UnauthorizedException;
 import com.wwh.home.center.common.util.RequestUtil;
-import com.wwh.home.center.model.entity.SysLog;
-import com.wwh.home.center.model.entity.SysPermission;
-import com.wwh.home.center.model.entity.SysRole;
-import com.wwh.home.center.model.entity.UserInfo;
-import com.wwh.home.center.security.model.LoggedUserInfo;
-import com.wwh.home.center.service.SysLogService;
-import com.wwh.home.center.service.SysPermissionService;
-import com.wwh.home.center.service.SysRoleService;
-import com.wwh.home.center.service.UserService;
+import com.wwh.home.center.model.entity.*;
+import com.wwh.home.center.security.model.LoggedUserAllInfo;
+import com.wwh.home.center.service.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static com.wwh.home.center.common.constant.SysConstants.*;
 
@@ -45,6 +37,9 @@ public class LoginManager {
 
     @Autowired
     private SysPermissionService sysPermissionService;
+
+    @Autowired
+    private InternalSystemConfigService internalSystemConfigService;
 
     /**
      * 登录
@@ -100,12 +95,11 @@ public class LoginManager {
             throw new UnauthorizedException("该账号未配置角色，请联系管理员");
         }
         //获取权限
-        List<SysPermission> permissionList = sysPermissionService.getPermissionByRoleId(sysRole.getId());
-        List<String> permissionUrls =
-                permissionList.stream().map(SysPermission::getUrls).filter(x -> StringUtils.isNotEmpty(x)).collect(Collectors.toList());
+        List<SysPermission> permissionList = getSysPermissionByRole(sysRole);
+        //获取内部系统权限
+        List<InternalSystemConfig> userSystemList = getInternalSystemConfigs(user, sysRole);
 
-        LoggedUserInfo lui = new LoggedUserInfo(user, sysRole, permissionUrls, null);
-
+        LoggedUserAllInfo lui = new LoggedUserAllInfo(user, sysRole, permissionList, userSystemList);
         String token = TokenManager.generateToken(lui);
 
         //写入cookie中
@@ -119,6 +113,25 @@ public class LoginManager {
         response.addCookie(cookie);
 
         return token;
+    }
+
+    private List<SysPermission> getSysPermissionByRole(SysRole sysRole) {
+        if (sysRole.getId() == SUPER_ADMIN_ROLE_ID) {
+            //超级管理员有全部权限
+            return sysPermissionService.getAll();
+        }
+        return sysPermissionService.getPermissionByRoleId(sysRole.getId());
+    }
+
+    private List<InternalSystemConfig> getInternalSystemConfigs(UserInfo user, SysRole sysRole) {
+        if (sysRole.getId() == SUPER_ADMIN_ROLE_ID) {
+            //超级管理员有全部系统
+            return internalSystemConfigService.getAll();
+        }
+        List<InternalSystemConfig> userSystemList = internalSystemConfigService.getInternalSystemByUserId(user.getId());
+        //不是超级管理员则需要清空备注信息
+        userSystemList.forEach(x -> x.setRemark(null));
+        return userSystemList;
     }
 
     public void logout(HttpServletResponse response) {
