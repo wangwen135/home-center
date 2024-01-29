@@ -5,10 +5,9 @@ import com.wwh.home.center.common.constant.ResultConstants;
 import com.wwh.home.center.common.exception.*;
 import com.wwh.home.center.common.model.Result;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.ui.Model;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -191,6 +190,22 @@ public class GlobalExceptionHandler {
 
         log.error("系统异常：code={} msg={}", ex.getCode(), ex.getMessage(), ex);
         return Result.error(ex.getCode(), ex.getMessage());
+    }
+
+    /**
+     * 资源未找到，返回404页面
+     *
+     * @param ex
+     * @param request
+     * @param model
+     * @return
+     */
+    @ExceptionHandler(ResourceNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public String handleResourceNotFoundException(ResourceNotFoundException ex, HttpServletRequest request, Model model) {
+        log.debug("请求：[{}] {} ", request.getMethod(), request.getRequestURI());
+        log.info("资源未找到：{}", ex.getMessage());
+        return "forward:/error/404.html"; // 返回404视图
     }
 
     /**

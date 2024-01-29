@@ -2,21 +2,26 @@ package com.wwh.home.center.controller.common;
 
 import com.wwh.home.center.common.constant.ResultConstants;
 import com.wwh.home.center.common.exception.ArgumentException;
+import com.wwh.home.center.common.exception.ResourceNotFoundException;
 import com.wwh.home.center.common.model.Result;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -33,6 +38,17 @@ public class ImageController {
 
     @Value("${image.base-path}")
     private String imageBasePath;
+
+    // 支持的图片类型和对应的MediaType
+    private static final Map<String, String> MEDIA_TYPES = new HashMap<>();
+
+    static {
+        MEDIA_TYPES.put("jpg", MediaType.IMAGE_JPEG_VALUE);
+        MEDIA_TYPES.put("jpeg", MediaType.IMAGE_JPEG_VALUE);
+        MEDIA_TYPES.put("png", MediaType.IMAGE_PNG_VALUE);
+        MEDIA_TYPES.put("gif", MediaType.IMAGE_GIF_VALUE);
+        // 添加更多支持的图片类型
+    }
 
     @ApiOperation("上传图片")
     @PostMapping("/upload")
@@ -93,8 +109,7 @@ public class ImageController {
 
     // 判断文件类型是否为图片
     private boolean isImageFile(String fileName) {
-        String[] allowedExtensions = {"jpg", "jpeg", "png", "gif"};
-        for (String extension : allowedExtensions) {
+        for (String extension : MEDIA_TYPES.keySet()) {
             if (fileName.toLowerCase().endsWith("." + extension)) {
                 return true;
             }
@@ -103,24 +118,35 @@ public class ImageController {
     }
 
     @ApiOperation("查看图片")
-    @GetMapping("/view/{imageName}")
-    public ResponseEntity<byte[]> viewImage(@ApiParam("图片路径") @PathVariable String imageName) {
-        try {
-            // 构建文件路径
-            String filePath = imageBasePath + File.separator + imageName;
-            File file = new File(filePath);
+    @GetMapping("/view/**")
+    public ResponseEntity<Resource> viewImage(HttpServletRequest request) {
+        String uri = request.getRequestURI();
+        log.debug("查看图片请求路径是：{}", uri);
+        String imgPath = uri.substring(uri.indexOf("view/") + 5);
 
-            if (!file.exists()) {
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-            }
-
-            // 读取文件内容
-            byte[] fileContent = FileUtils.readFileToByteArray(file);
-
-            return ResponseEntity.ok().body(fileContent);
-        } catch (IOException e) {
-            log.error("返回图片异常", e);
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        if (!isImageFile(imgPath)) {
+            log.debug("请求后缀不合法：{}", imgPath);
+            //return new ResponseEntity<>( HttpStatus.NOT_FOUND);
+            throw new ResourceNotFoundException("请求后缀不合法：" + imgPath);
         }
+
+        // 构建文件路径
+        String filePath = imageBasePath + File.separator + imgPath;
+        File file = new File(filePath);
+
+        if (!file.exists()) {
+            log.debug("文件不存在：{}", filePath);
+            throw new ResourceNotFoundException("文件不存在：" + filePath);
+        }
+
+        // 确定文件扩展名
+        String extension = StringUtils.getFilenameExtension(file.getName()).toLowerCase();
+        // 获取对应的MediaType
+        String mediaType = MEDIA_TYPES.getOrDefault(extension, MediaType.APPLICATION_OCTET_STREAM_VALUE);
+
+        Resource resource = new FileSystemResource(file);
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(mediaType))
+                .lastModified(file.lastModified()).body(resource);
     }
 }
