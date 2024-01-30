@@ -66,10 +66,10 @@ public class LoginInterceptor implements HandlerInterceptor {
 
         log.debug("preHandle 进入拦截器:[{}]{}", method, path);
 
-        System.out.println("================================================");
+        System.out.println("=======================preHandle=========================");
         System.out.println(handler);
         System.out.println(handler.getClass());
-        System.out.println("================================================");
+        System.out.println("=======================preHandle=========================");
 
         if (match(path, WHITE_LIST)) {
             log.trace("在白名单中，允许访问");
@@ -185,10 +185,10 @@ public class LoginInterceptor implements HandlerInterceptor {
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
         UserContextHolder.removeUserInfo();
 
-        System.out.println("+++++++++++++++++++++++++++++++++++++++++++++++++++++");
+        System.out.println("++++++++++++++++++++++++afterCompletion+++++++++++++++++++++++++++++");
         System.out.println(handler);
         System.out.println(handler.getClass());
         System.out.println(ex);
-        System.out.println("+++++++++++++++++++++++++++++++++++++++++++++++++++++");
+        System.out.println("++++++++++++++++++++++++afterCompletion+++++++++++++++++++++++++++++");
     }
 }

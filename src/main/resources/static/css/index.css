@@ -1,0 +1,148 @@
+/*
+ * Globals
+ */
+
+
+/* Custom default button */
+.btn-secondary,
+.btn-secondary:hover,
+.btn-secondary:focus {
+    color: #333;
+    text-shadow: none; /* Prevent inheritance from `body` */
+}
+
+
+/*
+ * Base structure
+ */
+
+body {
+    text-shadow: 0 .05rem .1rem rgba(0, 0, 0, .5);
+    box-shadow: inset 0 0 5rem rgba(0, 0, 0, .5);
+}
+
+.cover-container {
+    max-width: 42em;
+}
+
+
+/*
+ * Header
+ */
+
+.nav-masthead .nav-link {
+    padding: .25rem 0;
+    font-weight: 700;
+    color: rgba(255, 255, 255, .5);
+    background-color: transparent;
+    border-bottom: .25rem solid transparent;
+}
+
+.nav-masthead .nav-link:hover,
+.nav-masthead .nav-link:focus {
+    border-bottom-color: rgba(255, 255, 255, .25);
+}
+
+.nav-masthead .nav-link + .nav-link {
+    margin-left: 1rem;
+}
+
+.nav-masthead .active {
+    color: #fff;
+    border-bottom-color: #fff;
+}
+
+
+/*###########################################################################*/
+
+.sys-lab {
+    /*max-width: 6rem;*/
+    display: inline-block;
+    margin: 0.6rem;
+    transition: color 0.5s ease; /* 设置过渡效果，持续时间和曲线 */
+    position: relative;
+    cursor: pointer;
+}
+
+/*.sys-lab:hover::after {*/
+/*    content: '';*/
+/*    position: absolute;*/
+/*    width: 100%;*/
+/*    height: 2px;*/
+/*    bottom: 0;*/
+/*    left: 0;*/
+/*    background-color: #fd7e14;*/
+/*    transform: scaleX(0); !* 初始不可见 *!*/
+/*    transform-origin: bottom right;*/
+/*    transition: transform 1s ease-out;*/
+/*}*/
+.sys-lab:hover::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 2px;
+    background-color: #3498db;
+    /*transform: scaleX(2); */
+    /*transform-origin: bottom right;*/
+    /*transition: transform 1.3s ease-out;*/
+}
+
+
+.sys-lab:hover {
+    color: #0d6efd;
+    /*cursor: pointer;*/
+    /*border-bottom: 1px solid #dee2e6;*/
+}
+
+.sys-lab:focus {
+    outline: 2px solid blue;
+}
+
+/*点击效果*/
+.sys-lab:active {
+    transform: scale(0.95);
+}
+
+/*小圆点*/
+.status::before {
+    content: '';
+    position: absolute;
+    top: 5px;
+    right: 8px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    /*transform: translateX(-50%);*/
+    background-color: #45a049;
+}
+
+.sys-icon {
+    padding: 0.25rem;
+    background-color: #fff;
+    border: 1px solid #dee2e6;
+    border-radius: 1.25rem;
+    width: 6rem;
+    height: 6rem;
+    object-fit: contain;
+    display: block;
+}
+
+.sys-text {
+    text-shadow: none;
+}
+
+/*.sys-text::after {*/
+/*    content: '';*/
+/*    position: absolute;*/
+/*    width: 100%;*/
+/*    height: 2px;*/
+/*    bottom: 0;*/
+/*    left: 0;*/
+/*    right: 0;*/
+/*    color: #fd7e14;*/
+/*    background-color: #fd7e14; !* 横线颜色 *!*/
+/*    opacity: 1;*/
+/*    transition: opacity 0.5s ease; !* 控制横线消失的过渡效果 *!*/
+/*}*/

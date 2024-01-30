@@ -33,7 +33,7 @@ import java.util.UUID;
 @Slf4j
 @RestController
 @Api(tags = "图片相关")
-@RequestMapping("/common/images")
+@RequestMapping("/common/img")
 public class ImageController {
 
     @Value("${image.base-path}")

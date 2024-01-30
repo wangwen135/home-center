@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="wwh">
     <meta name="author" content="wwh">
-    <title>我的家庭中心</title>
+    <title>Home Center</title>
 
     <!-- Bootstrap core CSS -->
     <link href="/bootstrap/css/bootstrap.min.css" rel="stylesheet">
@@ -25,13 +25,14 @@
         }
     </style>
     <!-- Custom styles for this template -->
-    <link href="/css/cover.css" rel="stylesheet">
+    <link href="/css/index.css" rel="stylesheet">
+    <script src="js/index.js"></script>
 </head>
 
 <body class="d-flex h-100 text-center text-white bg-dark">
 
-<div class="cover-container d-flex w-100 h-100 p-3 mx-auto flex-column">
-    <header class="mb-auto">
+<div class="d-flex w-100 h-100 p-3 mx-auto flex-column">
+    <header class="mb-2">
         <div>
             <h3 class="float-md-start mb-0">Home Center</h3>
             <nav class="nav nav-masthead justify-content-center float-md-end">
@@ -39,21 +40,49 @@
                 <a class="nav-link" href="#">资料</a>
                 <a class="nav-link" href="#">软件</a>
                 <a class="nav-link" href="#">硬件</a>
+                <a class="nav-link" href="#">网盘</a>
+                <a class="nav-link" href="#">笔记</a>
+                <a class="nav-link" href="#">注销</a>
             </nav>
         </div>
     </header>
 
+    <div class="mb-auto flex-row">
+        <div class="sys-lab status">
+            <img src="/common/img/view/icon/pve.png" alt="..." class="sys-icon">
+            <span class="sys-text">PVE 1</span>
+        </div>
+        <div class="sys-lab">
+            <img src="/common/img/view/icon/pve.png" alt="..." class="sys-icon">
+            <span class="sys-text">PVE 2</span>
+        </div>
+        <div class="sys-lab status">
+            <img src="/common/img/view/icon/vaultwarden.png" alt="..." class="sys-icon">
+            <span class="sys-text">vaultwarden</span>
+        </div>
+        <div class="sys-lab">
+            <img src="/common/img/view/icon/Lsky.png" alt="..." class="sys-icon">
+            <span class="sys-text">图床</span>
+        </div>
+        <div class="sys-lab">
+            <img src="/common/img/view/icon/shell.png" alt="..." class="sys-icon">
+            <span class="sys-text">shell</span>
+        </div>
+    </div>
+
     <main class="px-3">
-        <h1>Cover your page.</h1>
+        <h2>Cover your page.</h2>
         <p class="lead">Cover is a one-page template for building simple and beautiful home pages. Download, edit the
             text, and add your own fullscreen background photo to make it your own.</p>
         <p class="lead">
             <a href="#" class="btn btn-lg btn-secondary fw-bold border-white bg-white">Learn more</a>
+
+            <a href="#" class="btn btn-lg btn-secondary fw-bold border-white bg-white">Learn more</a>
         </p>
     </main>
 
-    <footer class="mt-auto text-white-50">
-        <p>Cover template for <a href="https://getbootstrap.com/" class="text-white">Bootstrap</a>, by <a
+    <footer class="mt-auto text-white-50 ">
+        <p class="mb-0">Cover template for <a href="https://getbootstrap.com/" class="text-white">Bootstrap</a>, by <a
                 href="https://twitter.com/mdo" class="text-white">@mdo</a>.</p>
     </footer>
 </div>
