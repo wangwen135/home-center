@@ -1,7 +1,12 @@
-/*
- * Globals
- */
+:root {
+    /*--bs-bg-opacity: 0.8;*/
+    /*--bs-dark-rgb: 33, 37, 41;*/
+}
 
+.bg-dark {
+    --bs-bg-opacity: 0.8;
+    background-color: rgba(var(--bs-dark-rgb), var(--bs-bg-opacity)) !important;
+}
 
 /* Custom default button */
 .btn-secondary,
@@ -11,7 +16,6 @@
     text-shadow: none; /* Prevent inheritance from `body` */
 }
 
-
 /*
  * Base structure
  */
@@ -19,17 +23,38 @@
 body {
     text-shadow: 0 .05rem .1rem rgba(0, 0, 0, .5);
     box-shadow: inset 0 0 5rem rgba(0, 0, 0, .5);
+    /*背景图片*/
+    background-image: url('https://img.wangwen135.top:23456/wallpaper/universe24.jpg');
 }
+
+/* 当屏幕尺寸小于这个尺寸时应用样式 */
+/* 上面的都会匹配，但是会使用最后匹配的一个*/
+@media screen and (max-width: 4096px) {
+    body {
+        background-image: url('https://img.wangwen135.top:23456/wallpaper/universe24-4096.jpg');
+    }
+}
+
+@media screen and (max-width: 2560px) {
+    body {
+        background-image: url('https://img.wangwen135.top:23456/wallpaper/universe24-2560.jpg');
+    }
+}
+
+@media screen and (max-width: 1920px) {
+    body {
+        background-image: url('https://img.wangwen135.top:23456/wallpaper/universe24-1920.jpg');
+    }
+}
+
 
 .cover-container {
     max-width: 42em;
 }
 
-
 /*
  * Header
  */
-
 .nav-masthead .nav-link {
     padding: .25rem 0;
     font-weight: 700;
@@ -52,52 +77,123 @@ body {
     border-bottom-color: #fff;
 }
 
+/*################### 背景效果 ###################*/
+.parallax-container {
+    position: fixed;
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+    top: 0;
+    left: 0;
+    z-index: -101;
+}
 
-/*###########################################################################*/
+.parallax-image {
+    z-index: -100;
+    position: absolute;
+    top: 0;
+    left: 0;
+    animation: parallaxRotate 1800s linear infinite; /* 调整动画时长和缓动函数 */
+}
 
+/*@keyframes parallaxScroll {
+    0% {
+        transform: translateY(0%);
+    }
+    50% {
+        transform: translateY(-68%);
+    }
+    100% {
+        transform: translateY(0%);
+    }
+}*/
+
+@keyframes parallaxRotate {
+    0% {
+        transform: translate(0%, 0%) rotate(0deg);
+    }
+    20% {
+        transform: translate(-50%, -50%) rotate(0deg);
+    }
+    30% {
+        transform: translate(-50%, -50%) rotate(90deg);
+    }
+    40% {
+        transform: translate(-50%, -50%) rotate(180deg);
+    }
+    50% {
+        transform: translate(-50%, -50%) rotate(270deg);
+    }
+    60% {
+        transform: translate(-50%, -50%) rotate(180deg);
+    }
+    70% {
+        transform: translate(-50%, -50%) rotate(90deg);
+    }
+    80% {
+        transform: translate(-50%, -50%) rotate(0deg);
+    }
+    100% {
+        transform: translate(0%, 0%) rotate(0deg);
+    }
+}
+
+/*###################################### 系统块效果 #####################################*/
+/*系统展示块*/
 .sys-lab {
     /*max-width: 6rem;*/
     display: inline-block;
     margin: 0.6rem;
-    transition: color 0.5s ease; /* 设置过渡效果，持续时间和曲线 */
+    transition: color 0.3s ease, transform 0.1s ease-in-out;
     position: relative;
     cursor: pointer;
-}
+    /*transition: box-shadow 0.3s ease-in-out;*/
+    border-top-left-radius: 1.25rem;
+    border-top-right-radius: 1.25rem;
 
-/*.sys-lab:hover::after {*/
-/*    content: '';*/
-/*    position: absolute;*/
-/*    width: 100%;*/
-/*    height: 2px;*/
-/*    bottom: 0;*/
-/*    left: 0;*/
-/*    background-color: #fd7e14;*/
-/*    transform: scaleX(0); !* 初始不可见 *!*/
-/*    transform-origin: bottom right;*/
-/*    transition: transform 1s ease-out;*/
-/*}*/
-.sys-lab:hover::after {
-    content: '';
-    position: absolute;
-    left: 0;
-    bottom: 0;
-    width: 100%;
-    height: 2px;
-    background-color: #3498db;
-    /*transform: scaleX(2); */
-    /*transform-origin: bottom right;*/
-    /*transition: transform 1.3s ease-out;*/
 }
-
 
 .sys-lab:hover {
     color: #0d6efd;
-    /*cursor: pointer;*/
+    /*transform: scale(1.1);*/
+    /*transform: rotate(10deg);*/
+    /*box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.3);*/
     /*border-bottom: 1px solid #dee2e6;*/
 }
 
+/*底部的动画横条*/
+.sys-lab::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    width: 0%;
+    height: 2px;
+    background-color: rgba(182, 216, 234, 0.07);
+    /*transform: scaleX(2); */
+    /*transform-origin: bottom right;*/
+    /*transition: transform 1.3s ease-out;*/
+    transition: all 0.3s ease-out;
+}
+
+/*从中间开始向两边展开并改变颜色*/
+.sys-lab:hover::after {
+    left: 0;
+    width: 100%;
+    background-color: #0d6efd;
+}
+
+/*选中效果*/
+.sys-lab[data-select="true"]::after {
+    left: 0;
+    width: 100%;
+    background-color: #f8a62d;
+}
+
+/*获得焦点*/
 .sys-lab:focus {
-    outline: 2px solid blue;
+    color: #0d6efd;
+    outline: 1px solid #ffffff;
 }
 
 /*点击效果*/
@@ -106,7 +202,7 @@ body {
 }
 
 /*小圆点*/
-.status::before {
+.status-dot::before {
     content: '';
     position: absolute;
     top: 5px;
@@ -118,6 +214,20 @@ body {
     background-color: #45a049;
 }
 
+/* 根据状态设置颜色 */
+.status-dot[data-status="online"]::before {
+    background-color: #4CAF50; /* 绿色，表示在线 */
+}
+
+.status-dot[data-status="offline"]::before {
+    background-color: #888888; /* 灰色，表示离线 */
+}
+
+.status-dot[data-status="other"]::before {
+    background-color: #FFC107; /* 其他颜色，表示其他状态 */
+}
+
+/*系统图片*/
 .sys-icon {
     padding: 0.25rem;
     background-color: #fff;
@@ -127,8 +237,15 @@ body {
     height: 6rem;
     object-fit: contain;
     display: block;
+    transition: transform 0.3s ease-in-out;
 }
 
+.sys-lab:hover .sys-icon {
+    /*transform: scale(0.95);*/
+    box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.3);
+}
+
+/*系统说明文字*/
 .sys-text {
     text-shadow: none;
 }
