@@ -3,10 +3,10 @@
     /*--bs-dark-rgb: 33, 37, 41;*/
 }
 
-.bg-dark {
-    --bs-bg-opacity: 0.8;
-    background-color: rgba(var(--bs-dark-rgb), var(--bs-bg-opacity)) !important;
-}
+/*.bg-dark {*/
+/*    --bs-bg-opacity: 0.8;*/
+/*    background-color: rgba(var(--bs-dark-rgb), var(--bs-bg-opacity)) !important;*/
+/*}*/
 
 /* Custom default button */
 .btn-secondary,
@@ -24,11 +24,13 @@ body {
     text-shadow: 0 .05rem .1rem rgba(0, 0, 0, .5);
     box-shadow: inset 0 0 5rem rgba(0, 0, 0, .5);
     /*背景图片*/
-    background-image: url('https://img.wangwen135.top:23456/wallpaper/universe24.jpg');
+    /*background-image: url('https://img.wangwen135.top:23456/wallpaper/universe24.jpg');*/
+    background: black;
 }
 
 /* 当屏幕尺寸小于这个尺寸时应用样式 */
 /* 上面的都会匹配，但是会使用最后匹配的一个*/
+/*
 @media screen and (max-width: 4096px) {
     body {
         background-image: url('https://img.wangwen135.top:23456/wallpaper/universe24-4096.jpg');
@@ -46,6 +48,7 @@ body {
         background-image: url('https://img.wangwen135.top:23456/wallpaper/universe24-1920.jpg');
     }
 }
+*/
 
 
 .cover-container {
@@ -93,7 +96,7 @@ body {
     position: absolute;
     top: 0;
     left: 0;
-    animation: parallaxRotate 1800s linear infinite; /* 调整动画时长和缓动函数 */
+    animation: parallaxRotate 30s linear infinite; /* 调整动画时长和缓动函数 */
 }
 
 /*@keyframes parallaxScroll {
@@ -115,22 +118,19 @@ body {
     20% {
         transform: translate(-50%, -50%) rotate(0deg);
     }
-    30% {
+    35% {
         transform: translate(-50%, -50%) rotate(90deg);
-    }
-    40% {
-        transform: translate(-50%, -50%) rotate(180deg);
     }
     50% {
-        transform: translate(-50%, -50%) rotate(270deg);
-    }
-    60% {
         transform: translate(-50%, -50%) rotate(180deg);
     }
-    70% {
-        transform: translate(-50%, -50%) rotate(90deg);
+    65% {
+        transform: translate(-50%, -50%) rotate(270deg);
     }
     80% {
+        transform: translate(-50%, -50%) rotate(360deg);
+    }
+    80.00001% {
         transform: translate(-50%, -50%) rotate(0deg);
     }
     100% {
