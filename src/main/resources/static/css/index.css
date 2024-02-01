@@ -55,9 +55,26 @@ body {
     max-width: 42em;
 }
 
-/*
- * Header
- */
+
+/*Header*/
+.header {
+    display: flex;
+    justify-content: space-between;
+}
+
+.avatar-container {
+    margin-left: 2rem
+}
+
+.avatar-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    /* border: 1px solid #fff; */
+    cursor: pointer;
+}
+
+/*导航*/
 .nav-masthead .nav-link {
     padding: .25rem 0;
     font-weight: 700;
