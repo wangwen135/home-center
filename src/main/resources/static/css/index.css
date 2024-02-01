@@ -96,45 +96,30 @@ body {
     position: absolute;
     top: 0;
     left: 0;
-    animation: parallaxRotate 30s linear infinite; /* 调整动画时长和缓动函数 */
+    animation: parallaxRotate 720s linear infinite;
+    /*animation: parallaxRotate 600s ease infinite;*/
 }
-
-/*@keyframes parallaxScroll {
-    0% {
-        transform: translateY(0%);
-    }
-    50% {
-        transform: translateY(-68%);
-    }
-    100% {
-        transform: translateY(0%);
-    }
-}*/
 
 @keyframes parallaxRotate {
     0% {
-        transform: translate(0%, 0%) rotate(0deg);
+        transform: translate(0%, 0%) rotate(0deg) scale(0.4);
+        opacity: 0.2;
     }
-    20% {
-        transform: translate(-50%, -50%) rotate(0deg);
-    }
-    35% {
-        transform: translate(-50%, -50%) rotate(90deg);
+    25% {
+        transform: translate(-50%, -50%) rotate(90deg) scale(1);
+        opacity: 1;
     }
     50% {
-        transform: translate(-50%, -50%) rotate(180deg);
+        transform: translate(-50%, -50%) rotate(180deg) scale(0.6);
+        opacity: 0.8;
     }
-    65% {
-        transform: translate(-50%, -50%) rotate(270deg);
-    }
-    80% {
-        transform: translate(-50%, -50%) rotate(360deg);
-    }
-    80.00001% {
-        transform: translate(-50%, -50%) rotate(0deg);
+    75% {
+        transform: translate(-50%, -50%) rotate(270deg) scale(1);
+        opacity: 1;
     }
     100% {
-        transform: translate(0%, 0%) rotate(0deg);
+        transform: translate(0%, 0%) rotate(360deg) scale(0.4);
+        opacity: 0.2;
     }
 }
 
@@ -148,8 +133,8 @@ body {
     position: relative;
     cursor: pointer;
     /*transition: box-shadow 0.3s ease-in-out;*/
-    border-top-left-radius: 1.25rem;
-    border-top-right-radius: 1.25rem;
+    /*border-top-left-radius: 1.25rem;*/
+    /*border-top-right-radius: 1.25rem;*/
 
 }
 
@@ -157,6 +142,7 @@ body {
     color: #0d6efd;
     /*transform: scale(1.1);*/
     /*transform: rotate(10deg);*/
+    transform: translateY(-2px);
     /*box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.3);*/
     /*border-bottom: 1px solid #dee2e6;*/
 }
@@ -193,7 +179,9 @@ body {
 /*获得焦点*/
 .sys-lab:focus {
     color: #0d6efd;
-    outline: 1px solid #ffffff;
+    /*outline: 1px solid #ffffff;*/
+    border-bottom: 1px solid #ffffff;
+    transform: translateY(-2px);
 }
 
 /*点击效果*/

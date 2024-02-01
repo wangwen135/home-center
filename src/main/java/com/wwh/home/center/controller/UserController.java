@@ -79,7 +79,7 @@ public class UserController {
 
     @ApiOperation("获取用户的内部系统信息")
     @GetMapping("/internalSystem")
-    public Result getInternalSystem() {
+    public Result<List<InternalSystemConfigVo>> getInternalSystem() {
         UserContextHolder.isLoggedIn();
         List<InternalSystemConfig> list = UserContextHolder.getLoggedUserAllInfo().getUserSystem();
         if (list == null || list.isEmpty()) {
