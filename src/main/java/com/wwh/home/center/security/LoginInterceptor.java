@@ -38,8 +38,8 @@ public class LoginInterceptor implements HandlerInterceptor {
      */
 
     //白名单
-    private static final List<String> WHITE_LIST = Arrays.asList("/login", "/login.html", "/favicon.ico", "/error",
-            "/test/**");
+    private static final List<String> WHITE_LIST = Arrays.asList("/login", "logout", "/login.html", "/favicon.ico",
+            "/error", "/test/**");
 
     private AntPathMatcher antPathMatcher = new AntPathMatcher();
 

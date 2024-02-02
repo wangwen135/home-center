@@ -13,13 +13,10 @@
     <link href="/css/index.css" rel="stylesheet">
     <script src="js/index.js"></script>
     <script src="js/main.js"></script>
+    <script src="bootstrap/js/bootstrap.bundle.js"></script>
 </head>
 
 <body class="d-flex h-100 text-center text-white ">
-<div class="parallax-container">
-    <img class="parallax-image" src="https://img.wangwen135.top:23456/wallpaper/universe57-square.jpg">
-</div>
-
 <div class="d-flex w-100 h-100 p-3 mx-auto flex-column">
     <header class="mb-2 header">
         <h3 class="float-md-start mb-0">Home Center</h3>
@@ -37,15 +34,33 @@
         </nav>
 
         <div class="avatar-container">
-            <img class="avatar-icon" src="https://img.wangwen135.top:23456/test.jpg" alt="头像">
-            <span>🤪张三疯㊙</span>
+            <a href="profile.html" target="_blank" class="text-decoration-none">
+                <img class="avatar-icon" src="bootstrap/icons/person-gear.svg" alt="头像">
+            </a>
+            <div class="dropdown d-inline-block">
+                <button class="btn btn-dark dropdown-toggle py-1" type="button" data-bs-toggle="dropdown"
+                        aria-expanded="false">
+                    张三疯
+                </button>
+                <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuLink">
+                    <li><span class="dropdown-item-text">角色：<span class="text-primary">管理员</span></span></li>
+                    <li><a class="dropdown-item" href="profile.html" target="_blank">个人信息</a></li>
+                    <li><a class="dropdown-item" href="#">Another action</a></li>
+                    <li><a class="dropdown-item" href="#">管理后台</a></li>
+                    <li>
+                        <hr class="dropdown-divider">
+                    </li>
+                    <li><a class="dropdown-item" href="/logout">退出</a></li>
+
+                </ul>
+            </div>
         </div>
 
     </header>
 
     <div class="mb-auto flex-row">
 
-        <div class="sys-lab status-dot" tabindex="0" data-status="online" data-select="true">
+        <div class="sys-lab status-dot" tabindex="0" data-status="online" data-select="true" onclick="test()">
             <img src="/common/img/view/icon/pve.png" alt="..." class="sys-icon">
             <span class="sys-text">PVE 1</span>
         </div>
@@ -99,6 +114,8 @@
     </footer>
 </div>
 
-
+<div class="parallax-container">
+    <img class="parallax-image" src="https://img.wangwen135.top:23456/wallpaper/universe57-square.jpg">
+</div>
 </body>
 </html>
