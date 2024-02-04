@@ -46,12 +46,183 @@ function request(url, options) {
 
 // 弹出错误提示信息
 function showError(error) {
-    // 使用 Toast 或其他方式弹出错误提示信息
-    // 例如：
-    // Toast.error(message);
     console.error(error);
-    alert(error.message);
+    //showToastSimple(error.message);
+    //alert(error.message);
+    showModalMessage("错误信息", error.message, MsgTypes.DANGER);
 }
+
+/*########################## 提示框 ##########################*/
+/**
+ * 消息类型
+ * @type {{DANGER: string, SUCCESS: string, INFO: string, NONE: string, WARNING: string}}
+ */
+const MsgTypes = {
+    SUCCESS: "success",
+    WARNING: "warning",
+    DANGER: "danger",
+    INFO: "info",
+    NONE: "none"
+};
+
+/**
+ * 创建消息类型对应的样式
+ * @param type
+ * @returns {{icon: string, titleStyle: string}}
+ */
+function createMsgStyle(type) {
+    // 样式：
+    let icon, titleStyle;
+    switch (type) {
+        case MsgTypes.SUCCESS:
+            icon = "<i class='bi bi-check-circle'></i>";
+            titleStyle = "text-success";
+            break;
+        case MsgTypes.WARNING:
+            icon = "<i class='bi bi-exclamation-circle'></i>";
+            titleStyle = "text-warning";
+            break;
+        case MsgTypes.DANGER:
+            icon = "<i class='bi bi-x-circle'></i>";
+            titleStyle = "text-danger";
+            break;
+        case MsgTypes.INFO:
+            icon = "<i class='bi bi-info-circle'></i>";
+            titleStyle = "text-info";
+            break;
+        default:
+            icon = "";
+            titleStyle = "";
+            break;
+    }
+    return {
+        icon: icon,
+        titleStyle: titleStyle
+    }
+}
+
+/**
+ * 弹出模态消息框
+ * @param title 标题
+ * @param message 消息内容
+ * @param type 消息类型 @see MsgTypes
+ */
+function showModalMessage(title, message, type = MsgTypes.INFO) {
+    // 样式：
+    const style = createMsgStyle(type);
+
+    let modal = document.createElement('div');
+    modal.className = 'modal fade text-black';
+    modal.tabIndex = -1;
+    modal.innerHTML = `
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header py-2">
+          <h6 class="modal-title ${style.titleStyle}">${style.icon} ${title}</h6>
+          <button type="button" class="btn-close btn-sm" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          ${message}
+        </div>
+      </div>
+    </div>
+  `;
+
+    // 将 Modal 元素添加到 body 中
+    document.body.appendChild(modal);
+
+    // 初始化 Bootstrap Modal
+    var modalInstance = new bootstrap.Modal(modal);
+
+    // 显示 Modal
+    modalInstance.show();
+
+    // 监听 Modal 关闭事件，确保在关闭后移除 Modal 元素
+    modal.addEventListener('hidden.bs.modal', function () {
+        document.body.removeChild(modal);
+    });
+}
+
+/**
+ * 创建Toast容器，如果已经存在就使用现有的
+ * @returns {HTMLElement}
+ */
+function createToastContainer() {
+    let toastContainer = document.getElementById("toast-container");
+    if (!toastContainer) {
+        toastContainer = document.createElement('div');
+        toastContainer.className = 'toast-container position-fixed bottom-0 end-0 p-3 text-black';
+        toastContainer.id = "toast-container";
+        document.body.appendChild(toastContainer);
+    }
+    return toastContainer;
+}
+
+function showToast(message, title = '提示', smallTitle = '', type = MsgTypes.NONE) {
+    let toastContainer = createToastContainer();
+    // 样式
+    const style = createMsgStyle(type);
+
+    // 创建 Toast 元素
+    var toastElement = document.createElement('div');
+    toastElement.className = 'toast';
+    toastElement.innerHTML = `
+    <div class="toast-header">
+      <strong class="me-auto ${style.titleStyle}">${style.icon} ${title}</strong>
+      <small>${smallTitle}</small>
+      <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+    </div>
+    <div class="toast-body">
+      ${message}
+    </div>
+  `;
+
+    toastContainer.appendChild(toastElement);
+
+    // 初始化 Bootstrap Toast
+    var toast = new bootstrap.Toast(toastElement);
+
+    // 显示 Toast
+    toast.show();
+
+    // 监听 Toast 隐藏事件，确保在隐藏后移除 Toast 元素
+    toastElement.addEventListener('hidden.bs.toast', function () {
+        toastContainer.removeChild(toastElement);
+    });
+}
+
+function showToastSimple(message, type = MsgTypes.NONE) {
+    let toastContainer = createToastContainer();
+    // 样式
+    const style = createMsgStyle(type);
+
+    // 创建 Toast 元素
+    var toastElement = document.createElement('div');
+    toastElement.className = 'toast';
+    toastElement.innerHTML = `
+      <div class="d-flex">
+        <div class="toast-body ${style.titleStyle}">
+          ${style.icon} ${message}
+        </div>
+        <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+  `;
+
+    toastContainer.appendChild(toastElement);
+
+    // 初始化 Bootstrap Toast
+    var toast = new bootstrap.Toast(toastElement);
+
+    // 显示 Toast
+    toast.show();
+
+    // 监听 Toast 隐藏事件，确保在隐藏后移除 Toast 元素
+    toastElement.addEventListener('hidden.bs.toast', function () {
+        toastContainer.removeChild(toastElement);
+    });
+}
+
+/*################ 下面是测试用的 ####################*/
 
 function fetchRequest(url, options) {
     // 设置默认的请求选项

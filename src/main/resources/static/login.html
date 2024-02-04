@@ -19,6 +19,15 @@
             margin: 0;
         }
 
+        header {
+            opacity: 0.5;
+        }
+
+        footer {
+            font-size: small;
+            color: rgba(0, 0, 0, 0.5);
+        }
+
         .login-container {
             background-color: #1e1e1e; /* 登录框背景色 */
             padding: 6px 36px 16px 36px;
@@ -67,22 +76,15 @@
             background-color: #45a049; /* 鼠标悬停时的按钮颜色 */
         }
 
-        .header {
-            opacity: 0.5;
-        }
 
-        .footer {
-            font-size: small;
-            color: rgba(0, 0, 0, 0.5);
-        }
     </style>
 </head>
 
 <body>
-<div>
-    <h3 class="header">Home Center</h3>
-</div>
-<div class="login-container">
+<header>
+    <h3>Home Center</h3>
+</header>
+<main class="login-container">
     <h3>用户登录</h3>
     <br>
     <form onsubmit="return login()">
@@ -98,13 +100,13 @@
             <button type="submit">登 &nbsp;&nbsp; 录</button>
         </div>
     </form>
-</div>
-<div>
-    <p class="footer">
+</main>
+<footer>
+    <p>
         个人学习测试用
         <a href="mailto:example@example.com">Email</a>
     </p>
-</div>
+</footer>
 
 <script>
     function login() {
