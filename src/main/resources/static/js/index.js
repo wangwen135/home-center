@@ -4,23 +4,26 @@ window.onload = function () {
 }
 
 function loadUserInfo() {
+    getRequest('/user/info', data => {
+        showModalMessage("接收到数据", JSON.stringify(data))
 
-    request('/user/info1')
-        .then(data => {
-            console.log('Data received:', data);
-            alert("这个触发了：" + JSON.stringify(data));
-        });
+        document.getElementById("userName").textContent = data.username;
 
+    });
 }
 
 function test() {
-    request('/user/role')
-        .then(data => {
-            console.log('接收到数据:', data);
+    getRequest('/user/role', data => {
+        console.log('接收到数据:', data);
+        showModalMessage("接收到数据", JSON.stringify(data))
+    });
 
-            showModalMessage("接收到数据", JSON.stringify(data))
-            // alert("222 触发了：" + JSON.stringify(data));
-        });
+    /* .then(data => {
+         console.log('接收到数据:', data);
+
+         showModalMessage("接收到数据", JSON.stringify(data))
+         // alert("222 触发了：" + JSON.stringify(data));
+     });*/
 }
 
 function test2() {
@@ -28,5 +31,5 @@ function test2() {
         .then(data => {
             console.log('接收到数据:', data);
             alert("222 触发了：" + JSON.stringify(data));
-        });
+        }).catch();
 }

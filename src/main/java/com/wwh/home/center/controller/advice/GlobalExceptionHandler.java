@@ -133,7 +133,7 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * 请求未授权
+     * 未登录
      *
      * @param ex
      * @return
@@ -143,7 +143,22 @@ public class GlobalExceptionHandler {
     public Result<?> handleUnauthorizedException(UnauthorizedException ex, HttpServletRequest request) {
         log.info("请求：[{}] {} ", request.getMethod(), request.getRequestURI());
 
-        log.info("未授权异常：code={} msg={}", ex.getCode(), ex.getMessage());
+        log.info("未登录异常：code={} msg={}", ex.getCode(), ex.getMessage());
+        return Result.error(ex.getCode(), ex.getMessage());
+    }
+
+    /**
+     * 请求未授权
+     *
+     * @param ex
+     * @return
+     */
+    @ExceptionHandler({ForbiddenException.class})
+    @ResponseBody
+    public Result<?> handleForbiddenException(ForbiddenException ex, HttpServletRequest request) {
+        log.warn("请求：[{}] {} ", request.getMethod(), request.getRequestURI());
+
+        log.warn("未授权异常：code={} msg={}", ex.getCode(), ex.getMessage());
         return Result.error(ex.getCode(), ex.getMessage());
     }
 

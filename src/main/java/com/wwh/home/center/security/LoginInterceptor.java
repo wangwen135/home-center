@@ -1,20 +1,20 @@
 package com.wwh.home.center.security;
 
+import com.wwh.home.center.common.exception.ForbiddenException;
 import com.wwh.home.center.common.exception.UnauthorizedException;
+import com.wwh.home.center.common.util.PathMatchUtils;
 import com.wwh.home.center.model.entity.SysRole;
 import com.wwh.home.center.security.model.LoggedUserAllInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
-import org.springframework.util.AntPathMatcher;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import java.util.Arrays;
 import java.util.List;
 
@@ -30,51 +30,28 @@ import static com.wwh.home.center.common.constant.SysConstants.*;
 public class LoginInterceptor implements HandlerInterceptor {
 
     /**
+     * 白名单
      * <pre>
      * ?：匹配一个字符
      * *：匹配零个或多个字符，但不包括路径分隔符（/）
      * **：匹配零个或多个目录或文件
      * </pre>
      */
-
-    //白名单
-    private static final List<String> WHITE_LIST = Arrays.asList("/login", "logout", "/login.html", "/favicon.ico",
+    private static final List<String> WHITE_LIST = Arrays.asList("/login", "/logout", "/login.html", "/favicon.ico",
             "/error", "/test/**");
-
-    private AntPathMatcher antPathMatcher = new AntPathMatcher();
-
-    private boolean match(String path, List<String> matcherList) {
-        if (matcherList == null || matcherList.isEmpty()) {
-            return false;
-        }
-        for (String pattern : matcherList) {
-            if (StringUtils.isBlank(pattern)) {
-                continue;
-            }
-            if (antPathMatcher.match(pattern, path)) {
-                return true;
-            }
-        }
-        return false;
-    }
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
             throws Exception {
         String method = request.getMethod();
         String path = request.getRequestURI();
-
-        log.debug("preHandle 进入拦截器:[{}]{}", method, path);
-
+        log.debug("preHandle 进入登录拦截器:[{}]{}", method, path);
+/*
         System.out.println("=======================preHandle=========================");
         System.out.println(handler);
         System.out.println(handler.getClass());
         System.out.println("=======================preHandle=========================");
-
-        if (match(path, WHITE_LIST)) {
-            log.trace("在白名单中，允许访问");
-            return true;
-        }
+*/
 
         //options请求直接放行
         if (HttpMethod.OPTIONS.matches(method)) {
@@ -85,6 +62,16 @@ public class LoginInterceptor implements HandlerInterceptor {
         //从请求头，请求参数，cookie 中获取token
         String token = getTokenFromRequest(request);
         LoggedUserAllInfo loggedUserAllInfo = TokenManager.getUserAllInfoFromToken(token);
+
+        //设置上下文
+        if (loggedUserAllInfo != null) {
+            UserContextHolder.setUserInfo(token, loggedUserAllInfo);
+        }
+
+        if (PathMatchUtils.matchList(path, WHITE_LIST)) {
+            log.trace("在白名单中，允许访问");
+            return true;
+        }
 
         //静态资源
         if (handler instanceof org.springframework.web.servlet.resource.ResourceHttpRequestHandler) {
@@ -108,20 +95,22 @@ public class LoginInterceptor implements HandlerInterceptor {
         // if (handler instanceof org.springframework.web.method.HandlerMethod) {
         //     return true;
         // }
-
-        if (loggedUserAllInfo == null) {
-            log.trace("用户未登录，返回未授权");
-            throw new UnauthorizedException();
+        if (token == null) {
+            log.trace("token为空，重新登录");
+            throw new UnauthorizedException("token为空，请先登录系统");
         }
-        //设置上下文
-        UserContextHolder.setUserInfo(token, loggedUserAllInfo);
-        //只有接口请求才刷新token
+        if (loggedUserAllInfo == null) {
+            log.trace("用户为空，重新登录");
+            throw new UnauthorizedException("token已过期，请重新登录系统");
+        }
+
+        //接口请求刷新token
         TokenManager.refreshToken(token);
 
         //判断接口权限
         if (!hasPermission(path, loggedUserAllInfo)) {
             log.warn("用户：[{}] {} 越权访问：{}", loggedUserAllInfo.getUserInfo().getId(), loggedUserAllInfo.getUserInfo().getUsername(), path);
-            throw new UnauthorizedException("您没有该接口的访问权限");
+            throw new ForbiddenException("您没有该接口的访问权限");
         }
         return true;
     }
@@ -142,7 +131,7 @@ public class LoginInterceptor implements HandlerInterceptor {
             return true;
         }
         //通配符匹配
-        return match(path, loggedUserInfo.getAntUrls());
+        return PathMatchUtils.matchList(path, loggedUserInfo.getAntUrls());
     }
 
     private String getTokenFromRequest(HttpServletRequest request) {
@@ -184,11 +173,12 @@ public class LoginInterceptor implements HandlerInterceptor {
     @Override
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
         UserContextHolder.removeUserInfo();
-
+/*
         System.out.println("++++++++++++++++++++++++afterCompletion+++++++++++++++++++++++++++++");
         System.out.println(handler);
         System.out.println(handler.getClass());
         System.out.println(ex);
         System.out.println("++++++++++++++++++++++++afterCompletion+++++++++++++++++++++++++++++");
+*/
     }
 }

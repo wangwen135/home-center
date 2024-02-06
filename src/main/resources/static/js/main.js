@@ -1,5 +1,20 @@
-// 封装一个全局发送请求的函数
-function request(url, options) {
+/*
+ * 全局发送请求的函数封装
+*/
+
+function getRequest(url, callback) {
+    return request(url, null, callback);
+}
+
+function postRequest(url, param, callback) {
+    const options = {
+        method: 'POST',
+        body: param
+    }
+    return request(url, options, callback);
+}
+
+function request(url, options, callback) {
     // 默认参数
     const defaultOptions = {
         method: 'GET',
@@ -16,40 +31,60 @@ function request(url, options) {
     }
 
     // 发送请求
-    return fetch(url, opts)
+    const rpPromise = fetch(url, opts)
         .then(response => {
             // 如果响应状态码不是200，则抛出错误
             if (response.status !== 200) {
-                throw new Error(`Error Response Code : ${response.status}`);
+                const e = new Error(`Error Response Code : ${response.status}`);
+                e.code = response.status;
+                throw e;
+            }
+            //重定向问题
+            if (response.redirected == true) {
+                const e = new Error(`重定向 : ${response.url}`);
+                e.code = 302;
+                throw e;
             }
             return response.json();
         })
         .then(data => {
             // 处理不同状态码
-            switch (data.code) {
-                case 200:
-                    // 返回 data
-                    return data.data;
-                case 401:
-                    // 跳转到登录界面
-                    location.href = '/login.html';
-                    throw new Error("请重新登录");
-                default:
-                    // 弹出错误提示信息
-                    throw new Error(data.message);
+            if (data.code == 200) {
+                return data.data;
+            } else {
+                const e = new Error(data.message);
+                e.code = data.code;
+                throw e;
             }
-        }).catch(error => {
-            showError(error);
+        });
+
+    if (typeof callback === 'undefined' || typeof callback !== 'function') {
+        //没有回调函数，返回
+        return rpPromise.catch(error => {
+            handleError(error);
             throw error;
         });
+    }
+    rpPromise.then(data => {
+        //执行回调函数
+        callback(data);
+    }).catch(error => {
+        handleError(error);
+    });
 }
 
 // 弹出错误提示信息
-function showError(error) {
-    console.error(error);
-    //showToastSimple(error.message);
-    //alert(error.message);
-    showModalMessage("错误信息", error.message, MsgTypes.DANGER);
+function handleError(error) {
+    console.debug(error);
+
+    if (error.code == 401) {
+        showConfirm("请重新登录", error.message, MsgTypes.INFO, function () {
+            location.href = '/login.html';
+        });
+    } else {
+        const code = error.code === undefined ? '' : error.code;
+        showModalMessage("错误信息：" + code, error.message, MsgTypes.DANGER);
+    }
 }
 
 /*########################## 提示框 ##########################*/
@@ -62,6 +97,7 @@ const MsgTypes = {
     WARNING: "warning",
     DANGER: "danger",
     INFO: "info",
+    QUESTION: "question",
     NONE: "none"
 };
 
@@ -89,6 +125,10 @@ function createMsgStyle(type) {
         case MsgTypes.INFO:
             icon = "<i class='bi bi-info-circle'></i>";
             titleStyle = "text-info";
+            break;
+        case MsgTypes.QUESTION:
+            icon = "<i class='bi bi-question-circle'></i>";
+            titleStyle = "text-dark";
             break;
         default:
             icon = "";
@@ -121,7 +161,7 @@ function showModalMessage(title, message, type = MsgTypes.INFO) {
           <h6 class="modal-title ${style.titleStyle}">${style.icon} ${title}</h6>
           <button type="button" class="btn-close btn-sm" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
-        <div class="modal-body">
+        <div class="modal-body text-break">
           ${message}
         </div>
       </div>
@@ -144,6 +184,84 @@ function showModalMessage(title, message, type = MsgTypes.INFO) {
 }
 
 /**
+ * 弹出确认框
+ * @param title 标题
+ * @param message 内容
+ * @param type 类型
+ * @param callbackTrue 确认回调函数
+ * @param callbackFalse 取消回调函数
+ */
+function showConfirm(title, message, type = MsgTypes.QUESTION, callbackTrue, callbackFalse) {
+    // 样式：
+    const style = createMsgStyle(type);
+
+    let modal = document.createElement('div');
+    modal.className = 'modal fade text-black';
+    modal.tabIndex = -1;
+    //设置data-bs-backdrop属性为static
+    modal.dataset.bsBackdrop = 'static';
+    //设置data-bs-keyboard属性为false
+    modal.dataset.bsKeyboard = 'false';
+
+    modal.innerHTML = `
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header py-2">
+          <h6 class="modal-title ${style.titleStyle}">${style.icon} ${title}</h6>
+          <button type="button" class="btn-close btn-sm cancel-button" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body text-break">
+          ${message}
+        </div>
+        <div class="modal-footer py-2">
+          <button type="button" class="btn btn-primary confirm-button" data-bs-dismiss="modal">确  定</button>
+          <button type="button" class="btn btn-secondary cancel-button" data-bs-dismiss="modal">取  消</button>
+        </div>
+      </div>
+    </div>
+  `;
+
+    // 将 Modal 元素添加到 body 中
+    document.body.appendChild(modal);
+
+    // 初始化 Bootstrap Modal
+    var modalInstance = new bootstrap.Modal(modal);
+
+    // 显示 Modal
+    modalInstance.show();
+
+    // 为“确定”按钮添加事件监听器
+    if (typeof callbackTrue === 'undefined') {
+
+    } else if (typeof callbackTrue !== 'function') {
+        console.error('true callback is not a function');
+    } else {
+        modal.querySelector('.confirm-button').addEventListener('click', function () {
+            callbackTrue();
+        });
+    }
+
+    //为“取消”按钮添加事件监听
+    if (typeof callbackFalse === 'undefined') {
+
+    } else if (typeof callbackFalse !== 'function') {
+        console.error('false callback is not a function');
+    } else {
+        modal.querySelectorAll('.cancel-button').forEach(function (button) {
+            button.addEventListener('click', function () {
+                callbackFalse();
+            });
+        });
+    }
+
+
+    // 监听 Modal 关闭事件，确保在关闭后移除 Modal 元素
+    modal.addEventListener('hidden.bs.modal', function () {
+        document.body.removeChild(modal);
+    });
+}
+
+/**
  * 创建Toast容器，如果已经存在就使用现有的
  * @returns {HTMLElement}
  */
@@ -158,6 +276,13 @@ function createToastContainer() {
     return toastContainer;
 }
 
+/**
+ * 弹出吐司框
+ * @param message 消息内容
+ * @param title 标题
+ * @param smallTitle 副标题
+ * @param type 类型
+ */
 function showToast(message, title = '提示', smallTitle = '', type = MsgTypes.NONE) {
     let toastContainer = createToastContainer();
     // 样式
@@ -191,6 +316,11 @@ function showToast(message, title = '提示', smallTitle = '', type = MsgTypes.N
     });
 }
 
+/**
+ * 弹出简单吐司框
+ * @param message 消息内容
+ * @param type 消息类型
+ */
 function showToastSimple(message, type = MsgTypes.NONE) {
     let toastContainer = createToastContainer();
     // 样式

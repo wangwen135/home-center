@@ -37,6 +37,12 @@ public class ResultConstants {
     public static final String ARGUMENT_ERROR_MSG = "参数错误";
 
     /**
+     * 请求被禁止
+     */
+    public static final int FORBIDDEN_ERROR_CODE = 403;
+    public static final String FORBIDDEN_ERROR_MSG = "请求被禁止";
+
+    /**
      * 记录不存在
      */
     public static final int RECORD_NOT_EXIST_CODE = 404;

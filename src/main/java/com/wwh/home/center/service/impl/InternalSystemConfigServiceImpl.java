@@ -44,9 +44,7 @@ public class InternalSystemConfigServiceImpl implements InternalSystemConfigServ
     @Override
     public List<InternalSystemConfig> getInternalSystemByLoginUser() {
         Integer userId = UserContextHolder.getUserId();
-        if (userId == null) {
-            throw new UnauthorizedException("用户未登录");
-        }
+
         List<InternalSystemConfig> list = getInternalSystemByUserId(userId);
         if (UserContextHolder.isSuperAdmin()) {
             return list;

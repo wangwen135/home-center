@@ -4,8 +4,7 @@ import static com.wwh.home.center.common.constant.ResultConstants.UNAUTHORIZED_E
 import static com.wwh.home.center.common.constant.ResultConstants.UNAUTHORIZED_ERROR_MSG;
 
 /**
- * 权限异常<br>
- * 用于未授权访问系统资源的异常
+ * 未登录异常
  *
  * @author wangwh
  * @date 2023/04/27

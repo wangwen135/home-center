@@ -135,11 +135,6 @@ public class LoginManager {
     }
 
     public void logout(HttpServletResponse response) {
-        UserContextHolder.isLoggedIn();
-        //移除token
-        String token = UserContextHolder.getToken();
-        TokenManager.removeToken(token);
-
         //移除cookie
         // 创建一个同名的 Cookie，并将其有效期设置为 0，即立即过期
         Cookie cookie = new Cookie(COOKIE_TOKEN_NAME, null);
@@ -148,6 +143,11 @@ public class LoginManager {
         cookie.setHttpOnly(true); // 设置为HttpOnly
         // 将新的 Cookie 添加到响应中
         response.addCookie(cookie);
+
+        //移除token
+        UserContextHolder.isLoggedIn();
+        String token = UserContextHolder.getToken();
+        TokenManager.removeToken(token);
     }
 
     private void loginSuccess(UserInfo user, String identity) {

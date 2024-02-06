@@ -40,9 +40,9 @@
                 <img class="avatar-icon" src="bootstrap/icons/person-gear.svg" alt="头像">
             </a>
             <div class="dropdown d-inline-block">
-                <button class="btn btn-dark dropdown-toggle py-1" type="button" data-bs-toggle="dropdown"
+                <button id="userName" class="btn btn-dark dropdown-toggle py-1" type="button" data-bs-toggle="dropdown"
                         aria-expanded="false">
-                    张三疯
+                    user name
                 </button>
                 <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuLink">
                     <li><span class="dropdown-item-text">角色：<span class="text-primary">管理员</span></span></li>
@@ -70,7 +70,8 @@
             <img src="/common/img/view/icon/pve.png" alt="..." class="sys-icon">
             <span class="sys-text">PVE 2</span>
         </div>
-        <div class="sys-lab status-dot" tabindex="0" data-status="offline">
+        <div class="sys-lab status-dot" tabindex="0" data-status="offline"
+             onclick="showConfirm('这个是标题','这个是内容.....这是一个确认框')">
             <img src="/common/img/view/icon/vaultwarden.png" alt="..." class="sys-icon">
             <span class="sys-text">vaultwarden</span>
         </div>

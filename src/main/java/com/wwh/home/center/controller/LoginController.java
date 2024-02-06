@@ -1,5 +1,6 @@
 package com.wwh.home.center.controller;
 
+import com.wwh.home.center.common.exception.UnauthorizedException;
 import com.wwh.home.center.common.model.Result;
 import com.wwh.home.center.security.LoginManager;
 import io.swagger.annotations.Api;
@@ -45,7 +46,11 @@ public class LoginController {
     @ApiOperation("退出")
     @GetMapping("/logout")
     public Result logout(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        loginManager.logout(response);
+        try {
+            loginManager.logout(response);
+        } catch (UnauthorizedException e) {
+            log.debug("用户没有登录");
+        }
         response.sendRedirect("/login.html");
         return Result.success();
     }
