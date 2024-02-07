@@ -26,6 +26,11 @@ public class SysConstants {
      */
     public static final String DEFAULT_CHARACTER_ENCODING = "UTF-8";
 
+    /**
+     * 图片前缀
+     */
+    public static final String IMAGE_URL_PREFIX = "/common/img/view/";
+
     private SysConstants() {
 
     }

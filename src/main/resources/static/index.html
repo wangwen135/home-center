@@ -15,6 +15,7 @@
     <script src="js/index.js"></script>
     <script src="js/main.js"></script>
     <link rel="stylesheet" href="bootstrap/icons/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="css/common.css">
 
 </head>
 
@@ -37,7 +38,7 @@
 
         <div class="avatar-container">
             <a href="profile.html" target="_blank" class="text-decoration-none">
-                <img class="avatar-icon" src="bootstrap/icons/person-gear.svg" alt="头像">
+                <img id="avatar" class="avatar-icon" src="bootstrap/icons/person-gear.svg" alt="头像">
             </a>
             <div class="dropdown d-inline-block">
                 <button id="userName" class="btn btn-dark dropdown-toggle py-1" type="button" data-bs-toggle="dropdown"
@@ -45,10 +46,12 @@
                     user name
                 </button>
                 <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuLink">
-                    <li><span class="dropdown-item-text">角色：<span class="text-primary">管理员</span></span></li>
+                    <li><span class="dropdown-item-text">角色：
+                        <span id="roleName" class="text-primary">管理员</span>
+                    </span></li>
                     <li><a class="dropdown-item" href="profile.html" target="_blank">个人信息</a></li>
                     <li><a class="dropdown-item" href="#">Another action</a></li>
-                    <li><a class="dropdown-item" href="#">管理后台</a></li>
+                    <li><a class="dropdown-item" href="admin.html">管理后台</a></li>
                     <li>
                         <hr class="dropdown-divider">
                     </li>
@@ -60,54 +63,34 @@
 
     </header>
 
-    <div class="mb-auto flex-row">
-
-        <div class="sys-lab status-dot" tabindex="0" data-status="online" data-select="true" onclick="test()">
-            <img src="/common/img/view/icon/pve.png" alt="..." class="sys-icon">
-            <span class="sys-text">PVE 1</span>
-        </div>
-        <div class="sys-lab status-dot" tabindex="0" data-status="other" onclick="test2()">
-            <img src="/common/img/view/icon/pve.png" alt="..." class="sys-icon">
-            <span class="sys-text">PVE 2</span>
-        </div>
-        <div class="sys-lab status-dot" tabindex="0" data-status="offline"
-             onclick="showConfirm('这个是标题','这个是内容.....这是一个确认框')">
-            <img src="/common/img/view/icon/vaultwarden.png" alt="..." class="sys-icon">
-            <span class="sys-text">vaultwarden</span>
-        </div>
-        <div class="sys-lab status-dot" tabindex="0" data-status="online">
-            <img src="/common/img/view/icon/Lsky.png" alt="..." class="sys-icon">
-            <span class="sys-text">图床</span>
-        </div>
-        <div class="sys-lab status-dot" tabindex="0" data-status="online">
-            <img src="/common/img/view/icon/shell.png" alt="..." class="sys-icon">
-            <span class="sys-text">shell</span>
-        </div>
-        <div class="sys-lab status-dot" tabindex="0" data-status="online">
-            <img src="/common/img/view/icon/router.png" alt="..." class="sys-icon">
-            <span class="sys-text">客厅路由器</span>
-        </div>
-        <div class="sys-lab status-dot" tabindex="0" data-status="online">
-            <img src="/common/img/view/icon/router.png" alt="..." class="sys-icon">
-            <span class="sys-text">路由器2</span>
-        </div>
-        <div class="sys-lab status-dot" tabindex="0" data-status="online">
-            <img src="/common/img/view/icon/LibreSpeed.png" alt="..." class="sys-icon">
-            <span class="sys-text">LibreSpeed</span>
-        </div>
+    <div id="systemLabContainer" class="mb-auto flex-row">
+        <!--
+                <div class="sys-lab status-dot" tabindex="0" data-status="online" data-select="true">
+                    <img src="/common/img/view/icon/pve.png" alt="..." class="sys-icon">
+                    <span class="sys-text">PVE 1</span>
+                </div>
+         -->
 
     </div>
 
     <main class="px-3">
-        <h2>Cover your page.</h2>
-        <p class="lead">Cover is a one-page template for building simple and beautiful home pages. Download, edit
-            the
-            text, and add your own fullscreen background photo to make it your own.</p>
-        <p class="lead">
-            <a href="#" class="btn btn-lg btn-secondary fw-bold border-white bg-white">Learn more</a>
-
-            <a href="#" class="btn btn-lg btn-secondary fw-bold border-white bg-white">Learn more</a>
+        <h3>系统名称</h3>
+        <p class="lead">系统说明信息：xxxx</p>
+        <p>
+            <code>这个地方是其他的说明信息，比如用户名，密码，注意事项等</code>
         </p>
+        <div class="lead d-flex justify-content-center m-2">
+            <div class="w-25">
+                <a href="#" class="btn text-success fw-bold bg-white"><i class="bi bi-arrow-right-circle"></i>
+                    内网地址访问</a>
+                <span class="d-block text-break">http://localhost:5822</span>
+            </div>
+            <span class="bg-light w-3 mx-3"></span>
+            <div class="w-25">
+                <a href="#" class="btn text-primary fw-bold bg-white"><i class="bi bi-globe"></i> 公网地址访问</a>
+                <span class="d-block text-break">https://exchange.wangwen135.top:8443</span>
+            </div>
+        </div>
     </main>
 
     <footer class="mt-auto text-white-50 ">

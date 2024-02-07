@@ -1,6 +1,7 @@
 package com.wwh.home.center.controller;
 
 import com.wwh.home.center.common.model.Result;
+import com.wwh.home.center.common.util.ImgUtils;
 import com.wwh.home.center.model.entity.InternalSystemConfig;
 import com.wwh.home.center.model.entity.SysPermission;
 import com.wwh.home.center.model.entity.SysRole;
@@ -42,6 +43,7 @@ public class UserController {
         UserInfo userInfo = UserContextHolder.getUserInfo();
         UserInfoVo vo = new UserInfoVo();
         BeanUtils.copyProperties(userInfo, vo);
+        vo.setAvatar(ImgUtils.formatImagePath(vo.getAvatar()));
         return Result.success(vo);
     }
 
@@ -89,6 +91,7 @@ public class UserController {
         list.forEach(x -> {
             InternalSystemConfigVo vo = new InternalSystemConfigVo();
             BeanUtils.copyProperties(x, vo);
+            vo.setIcon(ImgUtils.formatImagePath(vo.getIcon()));
             resultList.add(vo);
         });
         return Result.success(resultList);

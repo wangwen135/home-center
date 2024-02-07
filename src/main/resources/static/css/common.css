@@ -2,6 +2,9 @@
 * 公共的样式定义
 */
 
+/**
+ * top
+ */
 .top-5 {
     padding-top: 5px;
 }
@@ -26,6 +29,44 @@
     padding-top: 10px;
 }
 
+/**
+ * 宽度
+ */
+.w-1 {
+    width: 1px;
+}
+
+.w-2 {
+    width: 2px;
+}
+
+.w-3 {
+    width: 3px;
+}
+
+.w-4 {
+    width: 4px;
+}
+
+.w-5 {
+    width: 5px;
+}
+
+.w-6 {
+    width: 6px;
+}
+
+.w-7 {
+    width: 7px;
+}
+
+.w-8 {
+    width: 8px;
+}
+
+.w-9 {
+    width: 9px;
+}
 
 .align-center {
     text-align: center;
@@ -37,10 +78,12 @@
     font-size: 1.5rem;
     /*display: block;*/
 }
-.title{
+
+.title {
     font-weight: bold;
     /*display: block;*/
 }
+
 .i {
     font-style: italic;
 }

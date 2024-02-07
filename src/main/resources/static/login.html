@@ -133,9 +133,8 @@
                 if (result.code == 200) {
                     console.log("获取到token：" + result.data)
                     // 登录成功，存储 token 到本地存储
-                    localStorage.setItem('token', result.data);
+                    sessionStorage.setItem('token', result.data);
 
-                    // 跳转到首页或其他目标页面
                     window.location.href = '/index.html';
                 } else {
                     alert(result.message);

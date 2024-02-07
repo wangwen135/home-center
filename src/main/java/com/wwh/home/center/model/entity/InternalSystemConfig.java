@@ -42,6 +42,9 @@ public class InternalSystemConfig implements Serializable {
     @ApiModelProperty("系统描述")
     private String sysDescription;
 
+    @ApiModelProperty("系统状态")
+    private String sysStatus;
+
     @ApiModelProperty("系统图标")
     private String icon;
 
