@@ -269,3 +269,52 @@ body {
 /*    opacity: 1;*/
 /*    transition: opacity 0.5s ease; !* 控制横线消失的过渡效果 *!*/
 /*}*/
+
+/*系统说明*/
+.sys-desc-container {
+    --bs-bg-opacity: 0.8;
+    background-color: rgba(var(--bs-dark-rgb), var(--bs-bg-opacity)) !important;
+    max-width: 960px;
+    position: relative;
+    padding: 1rem 1rem 0rem 1rem;
+    border-radius: 0.5rem;
+    display: none;
+}
+
+/*系统说明图片*/
+.sys-desc-icon {
+    padding: 0.25rem;
+    background-color: #fff;
+    border: 1px solid #dee2e6;
+    border-radius: 1.25rem;
+    width: 6rem;
+    height: 6rem;
+    object-fit: contain;
+    /*display: block;*/
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+}
+
+/*系统说明关闭按钮*/
+.sys-desc-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 4px;
+    background-color: #0c63e4;
+    margin-left: auto;
+    margin-right: auto;
+    animation: width-to-zero 20s linear forwards; /* 2秒内完成，线性过渡 */
+}
+
+@keyframes width-to-zero {
+    to {
+        width: 0;
+        background-color: red;
+    }
+}

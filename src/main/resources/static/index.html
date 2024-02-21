@@ -74,29 +74,43 @@
     </div>
 
     <main class="px-3">
-        <h3>系统名称</h3>
-        <p class="lead">系统说明信息：xxxx</p>
-        <p>
-            <code>这个地方是其他的说明信息，比如用户名，密码，注意事项等</code>
-        </p>
-        <div class="lead d-flex justify-content-center m-2">
-            <div class="w-25">
-                <a href="#" class="btn text-success fw-bold bg-white"><i class="bi bi-arrow-right-circle"></i>
-                    内网地址访问</a>
-                <span class="d-block text-break">http://localhost:5822</span>
+        <div id="sysDescContainer" class="mx-auto shadow sys-desc-container">
+            <img src="/common/img/view/icon/pve.png" alt="..." class="sys-desc-icon">
+
+            <button type="button" class="btn-close btn-close-white sys-desc-close" aria-label="Close"
+                    onclick="closeSysDesc()"></button>
+            <h3 id="sysName">系统名称</h3>
+            <p id="sysDesc" class="lead">系统说明A系统说明</p>
+            <p>
+                <code id="sysRemark">这个地方是其他的说明信息，比如用户名，密码，注意事项等</code>
+            </p>
+
+            <div class="lead d-flex justify-content-center m-3">
+                <div class="w-100">
+                    <a id="sysInternalAddr-A" href="#" target="_blank" class="btn text-success fw-bold bg-white"><i
+                            class="bi bi-arrow-right-circle"></i>
+                        内网地址访问</a>
+                    <span id="sysInternalAddr" class="d-block text-break">http://localhost:5822</span>
+                </div>
+                <span class="bg-light w-3 mx-3"></span>
+                <div class="w-100">
+                    <a id="sysInternetAddr-A" href="#" target="_blank" class="btn text-primary fw-bold bg-white"><i
+                            class="bi bi-globe"></i> 公网地址访问</a>
+                    <span id="sysInternetAddr" class="d-block text-break">https://exchange.wangwen135.top:8443</span>
+                </div>
             </div>
-            <span class="bg-light w-3 mx-3"></span>
-            <div class="w-25">
-                <a href="#" class="btn text-primary fw-bold bg-white"><i class="bi bi-globe"></i> 公网地址访问</a>
-                <span class="d-block text-break">https://exchange.wangwen135.top:8443</span>
-            </div>
+
+            <div class="progress-bar"></div>
+
         </div>
     </main>
 
     <footer class="mt-auto text-white-50 ">
-        <p class="mb-0">Cover template for <a href="https://getbootstrap.com/" class="text-white">Bootstrap</a>, by
-            <a
-                    href="https://twitter.com/mdo" class="text-white">@mdo</a>.</p>
+        <p class="mb-0">
+            <!--由
+            <a href="https://wangwen135.top/" class="text-white">王某某</a>
+            创建于2024年-->
+        </p>
     </footer>
 </div>
 

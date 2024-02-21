@@ -7,6 +7,8 @@ function init() {
     loadUserInfo();
     loadRoleInfo();
     loadSystemLab();
+
+    initProgressBar();
 }
 
 function loadUserInfo() {
@@ -64,13 +66,18 @@ function loadSystemLab() {
             labDiv.addEventListener("click", function () {
                 sysLabClick(s);
             });
+            labDiv.addEventListener("contextmenu", function (event) {
+                sysLabRightClick(s);
+                // 阻止默认的右键菜单行为
+                event.preventDefault();
+            });
         });
 
     });
 }
 
 function sysLabClick(sysInfo) {
-    showToast(sysInfo.sysDescription, sysInfo.sysName);
+
     const hostname = window.location.hostname;
     let url = sysInfo.internetUrl;
     if (hostname === 'localhost' || hostname === '127.0.0.1') {
@@ -78,7 +85,41 @@ function sysLabClick(sysInfo) {
         url = sysInfo.internalUrl;
     }
     window.open(url, url);
+}
 
+function sysLabRightClick(sysInfo) {
+
+    const container = document.getElementById("sysDescContainer");
+    container.style.display = "none";
+
+    document.getElementById("sysName").textContent = sysInfo.sysName;
+    document.getElementById("sysDesc").textContent = sysInfo.sysDescription;
+    document.getElementById("sysRemark").textContent = sysInfo.remark;
+    document.getElementById("sysInternalAddr-A").href = sysInfo.internalUrl;
+    document.getElementById("sysInternalAddr").textContent = sysInfo.internalUrl;
+    document.getElementById("sysInternetAddr-A").href = sysInfo.internetUrl;
+    document.getElementById("sysInternetAddr").textContent = sysInfo.internetUrl;
+
+    // 通过读取元素的offsetWidth属性来强制DOM更新。可以确保类移除后DOM能够立即反映出来。
+    // 然后动画就会重新开始
+    container.offsetWidth;
+
+    container.style.display = "block";
+}
+
+function closeSysDesc() {
+    document.getElementById("sysDescContainer").style.display = "none";
+}
+
+function initProgressBar() {
+    const animatedElement = document.querySelector('.progress-bar');
+    // 其父元素就是容器
+    const parentElement = animatedElement.parentElement;
+    // 添加动画结束事件监听器
+    animatedElement.addEventListener('animationend', function () {
+        // 动画结束后，设置父元素的样式使其消失
+        // parentElement.style.display = 'none';
+    });
 }
 
 function test2() {
