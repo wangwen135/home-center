@@ -283,14 +283,12 @@ body {
 
 /*系统说明图片*/
 .sys-desc-icon {
-    padding: 0.25rem;
     background-color: #fff;
-    border: 1px solid #dee2e6;
-    border-radius: 1.25rem;
-    width: 6rem;
-    height: 6rem;
+    /*border: 1px solid #dee2e6;*/
+    border-radius: 0.25rem;
+    width: 2rem;
+    height: 2rem;
     object-fit: contain;
-    /*display: block;*/
     position: absolute;
     top: 1rem;
     left: 1rem;

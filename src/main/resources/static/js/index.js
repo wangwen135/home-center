@@ -77,21 +77,36 @@ function loadSystemLab() {
 }
 
 function sysLabClick(sysInfo) {
-
     const hostname = window.location.hostname;
     let url = sysInfo.internetUrl;
-    if (hostname === 'localhost' || hostname === '127.0.0.1') {
+    if (isPrivateIP(hostname)) {
         //内网地址
         url = sysInfo.internalUrl;
     }
     window.open(url, url);
 }
 
+function isPrivateIP(ipAddress) {
+    if (ipAddress === 'localhost' || ipAddress === '127.0.0.1') {
+        return true;
+    }
+
+    // 使用正则表达式匹配内网IP地址段
+    const privateIPPatterns = [
+        /^10\.\d{1,3}\.\d{1,3}\.\d{1,3}$/, // 10.0.0.0 - 10.255.255.255
+        /^172\.(1[6-9]|2\d|3[0-1])\.\d{1,3}\.\d{1,3}$/, // 172.16.0.0 - 172.31.255.255
+        /^192\.168\.\d{1,3}\.\d{1,3}$/, // localhost - localhost
+    ];
+    // 检查ipAddress是否与上述任意一个模式匹配
+    return privateIPPatterns.some(pattern => pattern.test(ipAddress));
+}
+
+
 function sysLabRightClick(sysInfo) {
 
     const container = document.getElementById("sysDescContainer");
     container.style.display = "none";
-
+    document.getElementById("sysIcon").src = sysInfo.icon;
     document.getElementById("sysName").textContent = sysInfo.sysName;
     document.getElementById("sysDesc").textContent = sysInfo.sysDescription;
     document.getElementById("sysRemark").textContent = sysInfo.remark;
@@ -118,14 +133,6 @@ function initProgressBar() {
     // 添加动画结束事件监听器
     animatedElement.addEventListener('animationend', function () {
         // 动画结束后，设置父元素的样式使其消失
-        // parentElement.style.display = 'none';
+        parentElement.style.display = 'none';
     });
-}
-
-function test2() {
-    request('/user/role2')
-        .then(data => {
-            console.log('接收到数据:', data);
-            alert("222 触发了：" + JSON.stringify(data));
-        }).catch();
 }
