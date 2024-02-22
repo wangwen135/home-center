@@ -22,23 +22,23 @@
     <div id="menu" class="note-menu">
         <div class="tree">
             <ul>
-                <li data-type="dir">
-                    <label>文件夹1</label>
+                <li>
+                    <label data-type="DIR">根目录1</label>
                     <ul>
                         <li>
-                            <label>新建markdown文件.md</label>
+                            <label data-type="md" data-favorite="true" data-asterisk="true">新建markdown文件.md</label>
                         </li>
-                        <li data-type="dir">
-                            <label>目录</label>
+                        <li>
+                            <label data-type="DIR">目录</label>
                             <ul>
                                 <li>
-                                    <label>文件xxx1</label>
+                                    <label data-type="md">文件xxx1.md</label>
                                 </li>
                                 <li>
-                                    <label>文件xxx2</label>
+                                    <label data-asterisk="true">这是一个很长很长的文件名，它的长度超过了菜单的宽度，测试展示效果</label>
                                 </li>
-                                <li data-type="dir">
-                                    <label>临时文件夹</label>
+                                <li>
+                                    <label data-type="DIR">临时文件夹</label>
                                     <ul>
                                         <li><label>临时文件1.txt</label></li>
                                         <li><label>临时文件2.txt</label></li>
@@ -47,7 +47,7 @@
                             </ul>
                         </li>
                         <li>
-                            <label>文件2</label>
+                            <label data-asterisk="true">文件2</label>
                         </li>
                     </ul>
                 </li>

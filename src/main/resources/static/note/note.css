@@ -35,10 +35,76 @@
 
 }
 
-.tree li > label {
-    cursor: pointer;
+.tree ul {
+    list-style: none;
+    padding-left: 0.75rem;
+    border-left: 1px solid transparent;
 }
 
-.tree li.closed > ul {
+.tree li {
+    user-select: none;
+}
+
+
+.tree li > label {
+    cursor: pointer;
+    width: 100%;
+}
+
+.tree li > label:hover {
+    background-color: #bfe2e9;
+}
+
+/*label选中样式*/
+.tree li > label[data-select="true"] {
+    background-color: #9cc2f1;
+    border-left: #0000ff36 1px solid;
+}
+
+/*选中的下级出现一个竖线*/
+.tree li > label[data-select="true"] + ul {
+    border-left: #0000ff36 1px solid;
+}
+
+
+/*默认样式*/
+.tree li > label::before {
+    content: "# ";
+    color: #29292d;
+}
+
+/*文件夹样式*/
+.tree li > label[data-type="DIR"]::before {
+    content: "O ";
+    color: blue;
+}
+
+/*文件样式*/
+/*.tree li > label:not([data-type="DIR"])::before {
+    content: "# ";
+    color: #00ff66;
+}*/
+
+.tree li > label[data-type="md"]::before {
+    content: "M ";
+    color: #00ff66;
+}
+
+/*加星号的*/
+.tree li > label[data-asterisk="true"]::after {
+    content: " *";
+    color: green;
+}
+
+/*收藏的*/
+.tree li > label[data-favorite="true"]::after {
+    content: " ✓";
+    color: green;
+}
+
+/**
+ * 隐藏下级
+ */
+.tree li > label.closed + ul {
     display: none;
 }

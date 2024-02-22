@@ -37,3 +37,6 @@ camera-video:
 
 image:
   base-path: V:\www\images\HC
+
+notes:
+  base-path: V:\www\notes

@@ -20,16 +20,28 @@ function menuInit() {
 
 function labelClick(event) {
     event.preventDefault();
-    console.log('lable 被点击', event.target);
-    console.log(event.target.textContent)
-    const li = event.target.parentNode;
 
-    if (li.dataset.type == "dir") {
-        li.classList.toggle('closed');
+    const lb = event.target;
+
+    if (lb.dataset.type == "DIR") {
+        /*lb.classList.toggle('closed');*/
+        if (lb.classList.contains("closed")) {
+            lb.classList.remove('closed');
+        } else if (lb.dataset.select == "true") {
+            lb.classList.add("closed");
+        }
+
     }
 
-    // console.log("点击了：" + folder);
-    // folder.classList.toggle('closed');
+    // 取消其他的选中
+    document.querySelectorAll(".tree li >label[data-select='true']").forEach(l => {
+        l.dataset.select = "false";
+    });
+    lb.dataset.select = "true";
+
+    //加载文件
+    console.log('lable 被点击', event.target);
+    console.log(event.target.textContent)
 }
 
 let startX;

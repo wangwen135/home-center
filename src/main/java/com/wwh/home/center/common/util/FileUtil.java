@@ -18,7 +18,7 @@ public class FileUtil {
         // 检查是否存在点并且点不在文件名的开头或结尾
         if (lastDotIndex > 0 && lastDotIndex < fileName.length() - 1) {
             // 通过截取字符串获取文件后缀名
-            return fileName.substring(lastDotIndex + 1);
+            return fileName.substring(lastDotIndex + 1).toLowerCase();
         } else {
             return "";
         }
