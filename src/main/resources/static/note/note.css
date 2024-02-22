@@ -1,0 +1,44 @@
+/*############# 主体样式 #############*/
+
+.note-container {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    height: 100vh;
+}
+
+
+.note-menu {
+    width: 280px;
+    background-color: #f2f2f2;
+    padding-top: 10px;
+    overflow: auto;
+}
+
+.note-content {
+    flex-grow: 1;
+    background-color: #9cd4e7;
+    padding: 10px;
+    overflow: auto;
+}
+
+.note-divider {
+    width: 5px;
+    cursor: col-resize;
+    background-color: #ddd;
+    user-select: none;
+
+}
+
+/*############# 菜单树 #############*/
+.tree {
+
+}
+
+.tree li > label {
+    cursor: pointer;
+}
+
+.tree li.closed > ul {
+    display: none;
+}

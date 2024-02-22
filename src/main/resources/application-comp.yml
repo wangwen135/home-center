@@ -80,7 +80,8 @@ camera-video:
   base-path: Z:\监控\xiaomi_camera_videos
 
 
-
-
 image:
   base-path: Z:\www\images\HC
+
+notes:
+  base-path: Z:\www\notes
