@@ -20,6 +20,20 @@
 <div class="note-container">
 
     <div id="menu" class="note-menu">
+        <div class="pb-1">
+            <button class="btn btn-outline-secondary btn-ssm" type="button">
+                <i class="bi bi-arrow-bar-left"></i>
+            </button>
+            <button class="btn btn-outline-secondary btn-ssm" type="button">
+                <i class="bi bi-arrow-clockwise"></i>
+            </button>
+        </div>
+        <div class="input-group input-group-sm mb-2">
+            <button class="btn btn-outline-secondary btn-sm" type="button">范围</button>
+            <input type="text" class="form-control" placeholder="搜索...">
+            <button class="btn btn-outline-secondary btn-sm"><i class="bi bi-sort-down"></i>
+            </button>
+        </div>
         <div class="tree">
             <ul>
                 <li>
@@ -40,8 +54,8 @@
                                 <li>
                                     <label data-type="DIR">临时文件夹</label>
                                     <ul>
-                                        <li><label>临时文件1.txt</label></li>
-                                        <li><label>临时文件2.txt</label></li>
+                                        <li><label data-type="txt">临时文件1.txt</label></li>
+                                        <li><label data-type="json">临时文件2.json</label></li>
                                     </ul>
                                 </li>
                             </ul>
@@ -51,12 +65,13 @@
                         </li>
                     </ul>
                 </li>
-                <!-- <li data-type="dir">新建文件夹2
-                     <ul>
-                         <li>文件3</li>
-                         <li>文件4</li>
-                     </ul>
-                 </li>-->
+                <li>
+                    <label data-type="DIR">新建文件夹2</label>
+                    <ul>
+                        <li><label data-type="pdf">文件3.pdf</label></li>
+                        <li><label data-type="java">userService.java</label></li>
+                    </ul>
+                </li>
             </ul>
         </div>
     </div>
@@ -67,6 +82,9 @@
 
     <div id="content" class="note-content">
         这个是内容部分
+        <br>
+        测试图标
+        <i class="bi bi-folder"></i>
     </div>
 
 </div>

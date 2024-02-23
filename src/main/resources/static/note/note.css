@@ -11,8 +11,10 @@
 .note-menu {
     width: 280px;
     background-color: #f2f2f2;
-    padding-top: 10px;
-    overflow: auto;
+    padding: 0px 2px 2px 2px;
+    /*overflow: auto;*/
+    display: flex;
+    flex-direction: column;
 }
 
 .note-content {
@@ -32,27 +34,49 @@
 
 /*############# 菜单树 #############*/
 .tree {
+    flex-grow: 1;
+    max-height: 100%;
+    overflow-y: scroll;
+    border: 1px solid;
+    border-radius: 0.2rem;
+}
 
+.tree::-webkit-scrollbar {
+    width: 6px;;
+}
+
+.tree::-webkit-scrollbar-thumb {
+    border-radius: 5px;
+    box-shadow: inset 0 0 2px;
+    /*background-color: red;*/
 }
 
 .tree ul {
     list-style: none;
-    padding-left: 0.75rem;
+    padding-left: 0.5rem;
     border-left: 1px solid transparent;
+
+}
+
+/**
+ * 隐藏下级
+ */
+.tree li > label.closed + ul {
+    display: none;
 }
 
 .tree li {
     user-select: none;
 }
 
-
 .tree li > label {
     cursor: pointer;
     width: 100%;
+    /*transition: background-color 0.3s;*/
 }
 
 .tree li > label:hover {
-    background-color: #bfe2e9;
+    background-color: #cfdadc;
 }
 
 /*label选中样式*/
@@ -68,43 +92,72 @@
 
 
 /*默认样式*/
+.tree li > label::before,
+.tree li > label::after {
+    /*bootstrap-icons*/
+    display: inline-block;
+    font-family: bootstrap-icons !important;
+    font-style: normal;
+    font-weight: normal !important;
+    font-variant: normal;
+    text-transform: none;
+    line-height: 1;
+    vertical-align: -.125em;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
 .tree li > label::before {
-    content: "# ";
+    content: "\F373";
     color: #29292d;
+    padding-left: 1px;
+    padding-right: 2px;
 }
 
 /*文件夹样式*/
-.tree li > label[data-type="DIR"]::before {
-    content: "O ";
-    color: blue;
+.tree li > label[data-type="DIR"].closed::before {
+    /*content: url("../bootstrap/icons/folder.svg");*/
+    content: "\f3d9";
+    color: black;
 }
 
-/*文件样式*/
-/*.tree li > label:not([data-type="DIR"])::before {
-    content: "# ";
-    color: #00ff66;
-}*/
+/*打开的文件夹*/
+.tree li > label[data-type="DIR"]::before {
+    content: "\f3d8";
+    color: orange;
+}
 
+/*下面是各个文件类型的图标*/
 .tree li > label[data-type="md"]::before {
-    content: "M ";
-    color: #00ff66;
+    content: "\F750";
+}
+
+.tree li > label[data-type="java"]::before {
+    content: "\F74A";
+}
+
+.tree li > label[data-type="json"]::before {
+    content: "\F791";
+}
+
+.tree li > label[data-type="txt"]::before {
+    content: "\F766";
+}
+
+.tree li > label[data-type="pdf"]::before {
+    content: "\F756";
 }
 
 /*加星号的*/
 .tree li > label[data-asterisk="true"]::after {
-    content: " *";
-    color: green;
+    content: "\F586";
+    color: #ffaa00;
 }
 
 /*收藏的*/
 .tree li > label[data-favorite="true"]::after {
-    content: " ✓";
-    color: green;
+    content: "\F19B";
+    color: #dc3545;
 }
 
-/**
- * 隐藏下级
- */
-.tree li > label.closed + ul {
-    display: none;
-}
+/*############# markdown #############*/

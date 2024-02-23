@@ -155,3 +155,9 @@
 .f-26 {
     font-size: 2.6rem;
 }
+
+.btn-ssm {
+    padding: 0px 1px 0px 1px;
+    font-size: 0.5rem;
+    border-radius: 0.2rem;
+}
