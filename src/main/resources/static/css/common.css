@@ -3,31 +3,87 @@
 */
 
 /**
+ * padding
+ */
+.p-1px {
+    padding: 1px;
+}
+
+.p-2px {
+    padding: 2px;
+}
+
+.p-3px {
+    padding: 3px;
+}
+
+.p-4px {
+    padding: 4px;
+}
+
+.p-5px {
+    padding: 5px;
+}
+
+.p-6px {
+    padding: 6px;
+}
+
+
+/**
  * top
  */
-.top-5 {
+.pt-1px {
+    padding-top: 1px;
+}
+
+.pt-2px {
+    padding-top: 2px;
+}
+
+.pt-3px {
+    padding-top: 3px;
+}
+
+.pt-4px {
+    padding-top: 4px;
+}
+
+.pt-5px {
     padding-top: 5px;
 }
 
-.top-6 {
+.pt-6px {
     padding-top: 6px;
 }
 
-.top-7 {
-    padding-top: 7px;
+/**
+ * bottom
+ */
+.pb-1px {
+    padding-bottom: 1px;
 }
 
-.top-8 {
-    padding-top: 8px;
+.pb-2px {
+    padding-bottom: 2px;
 }
 
-.top-9 {
-    padding-top: 9px;
+.pb-3px {
+    padding-bottom: 3px;
 }
 
-.top-10 {
-    padding-top: 10px;
+.pb-4px {
+    padding-bottom: 4px;
 }
+
+.pb-5px {
+    padding-bottom: 5px;
+}
+
+.pb-6px {
+    padding-bottom: 6px;
+}
+
 
 /**
  * 宽度
@@ -67,6 +123,7 @@
 .w-9 {
     width: 9px;
 }
+
 
 .align-center {
     text-align: center;
@@ -156,8 +213,48 @@
     font-size: 2.6rem;
 }
 
-.btn-ssm {
-    padding: 0px 1px 0px 1px;
-    font-size: 0.5rem;
+/*更小尺寸的按钮*/
+
+.btn-xs {
+    padding: 0.15rem 0.4rem;
+    font-size: 0.875rem;
     border-radius: 0.2rem;
+}
+
+.btn-xxs {
+    padding: 0.05rem 0.3rem;
+    font-size: 0.75rem;
+    border-radius: 0.2rem;
+}
+
+.btn-xxxs {
+    padding: 0px 1px 0px 1px;
+    font-size: 0.55rem;
+    border-radius: 0.2rem;
+}
+
+/*自定义的按钮样式*/
+.btn-control {
+    color: #000;
+    background-color: transparent;
+    border-color: transparent;
+}
+
+.btn-control:hover {
+    color: #000;
+    background-color: #d8d8d8;
+    /*border-color: #d5d5d5;*/
+}
+
+.btn-control:active {
+    color: #000;
+    background-color: #cdcdcd;
+    /*border-color: #bababa;*/
+}
+
+.btn-control:focus {
+    color: #000;
+    background-color: #cdcdcd;
+    border-color: #bababa;
+    box-shadow: 0 0 0 0rem rgba(130, 138, 145, 0.5);
 }

@@ -14,77 +14,189 @@
     <script src="../bootstrap/js/bootstrap.bundle.js"></script>
     <script src="../js/main.js"></script>
     <script src="note.js"></script>
+    <script src="../js/showdown/showdown.js"></script>
+    <link rel="stylesheet" href="../css/github-markdown/github-markdown.css">
 
 </head>
 <body>
 <div class="note-container">
 
-    <div id="menu" class="note-menu">
-        <div class="pb-1">
-            <button class="btn btn-outline-secondary btn-ssm" type="button">
-                <i class="bi bi-arrow-bar-left"></i>
+    <!--最左边的控制按钮-->
+    <div id="control" class="note-control">
+        <button class="btn btn-secondary p-0" type="button">
+            <i class="bi bi-arrow-bar-left"></i>
+        </button>
+
+        <button class="btn btn-control p-0" type="button">
+            <i class="bi bi-arrow-clockwise"></i>
+        </button>
+
+        <button class="btn btn-control p-0" type="button">
+            <i class="bi bi-calendar-week"></i>
+        </button>
+
+        <button class="btn btn-control p-0" type="button">
+            <i class="bi bi-terminal"></i>
+        </button>
+
+        <div class="mb-auto"></div>
+
+        <button class="btn btn-control p-0" type="button">
+            <i class="bi bi-question-circle"></i>
+        </button>
+        <button class="btn btn-control p-0" type="button">
+            <i class="bi bi-gear"></i>
+        </button>
+    </div>
+
+    <!--左边的列表区域-->
+    <div id="noteList" class="note-list">
+        <div class="menu-switch">
+            <button class="btn btn-control " type="button">
+                <i class="bi bi-folder"></i>
             </button>
-            <button class="btn btn-outline-secondary btn-ssm" type="button">
-                <i class="bi bi-arrow-clockwise"></i>
+            <button class="btn btn-control " type="button">
+                <i class="bi bi-search"></i>
+            </button>
+            <button class="btn btn-control " type="button">
+                <i class="bi bi-file-earmark-text"></i>
+            </button>
+            <button class="btn btn-control " type="button">
+                <i class="bi bi-bookmark-star"></i>
             </button>
         </div>
-        <div class="input-group input-group-sm mb-2">
+
+        <div class="input-group input-group-sm my-2 d-none">
             <button class="btn btn-outline-secondary btn-sm" type="button">范围</button>
             <input type="text" class="form-control" placeholder="搜索...">
             <button class="btn btn-outline-secondary btn-sm"><i class="bi bi-sort-down"></i>
             </button>
         </div>
-        <div class="tree">
-            <ul>
-                <li>
-                    <label data-type="DIR">根目录1</label>
-                    <ul>
-                        <li>
-                            <label data-type="md" data-favorite="true" data-asterisk="true">新建markdown文件.md</label>
-                        </li>
-                        <li>
-                            <label data-type="DIR">目录</label>
-                            <ul>
-                                <li>
-                                    <label data-type="md">文件xxx1.md</label>
-                                </li>
-                                <li>
-                                    <label data-asterisk="true">这是一个很长很长的文件名，它的长度超过了菜单的宽度，测试展示效果</label>
-                                </li>
-                                <li>
-                                    <label data-type="DIR">临时文件夹</label>
-                                    <ul>
-                                        <li><label data-type="txt">临时文件1.txt</label></li>
-                                        <li><label data-type="json">临时文件2.json</label></li>
-                                    </ul>
-                                </li>
-                            </ul>
-                        </li>
-                        <li>
-                            <label data-asterisk="true">文件2</label>
-                        </li>
-                    </ul>
-                </li>
-                <li>
-                    <label data-type="DIR">新建文件夹2</label>
-                    <ul>
-                        <li><label data-type="pdf">文件3.pdf</label></li>
-                        <li><label data-type="java">userService.java</label></li>
-                    </ul>
-                </li>
-            </ul>
+        <div class="tab-file-list">
+            <div class="file-list-ctrl">
+                <!--新建文件-->
+                <button class="btn btn-control " type="button">
+                    <i class="bi bi-file-earmark-plus"></i>
+                </button>
+                <!--新建文件夹-->
+                <button class="btn btn-control " type="button">
+                    <i class="bi bi-folder-plus"></i>
+                </button>
+                <!--排序-->
+                <button class="btn btn-control " type="button">
+                    <i class="bi bi-sort-down-alt"></i>
+                </button>
+                <!--展开-折叠-->
+                <button class="btn btn-control " type="button">
+                    <i class="bi bi-chevron-expand"></i>
+                    <!--                    <i class="bi bi-chevron-contract"></i>-->
+                </button>
+            </div>
+            <div class="tree">
+                <ul>
+                    <li>
+                        <label data-type="DIR">根目录1</label>
+                        <ul>
+                            <li>
+                                <label data-type="md" data-favorite="true" data-asterisk="true">新建markdown文件.md</label>
+                            </li>
+                            <li>
+                                <label data-type="DIR">目录</label>
+                                <ul>
+                                    <li>
+                                        <label data-type="md" data-favorite="true">文件xxx1.md</label>
+                                    </li>
+                                    <li>
+                                        <label data-asterisk="true">这是一个很长很长的文件名它的长度超过了菜单的宽度测试展示效果</label>
+                                    </li>
+                                    <li>
+                                        <label data-type="DIR">临时文件夹</label>
+                                        <ul>
+                                            <li><label data-type="txt">临时文件1.txt</label></li>
+                                            <li><label data-type="json">临时文件2.json</label></li>
+                                            <li>
+                                                <label data-type="DIR">临时文件夹</label>
+                                                <ul>
+                                                    <li><label data-type="txt">临时文件1.txt</label></li>
+                                                    <li><label data-type="json">临时文件2.json</label></li>
+                                                </ul>
+                                            </li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li>
+                                <label data-asterisk="true" data-type="doc">文件2.doc</label>
+                            </li>
+                        </ul>
+                    </li>
+                    <li>
+                        <label data-type="DIR">新建文件夹2</label>
+                        <ul>
+                            <li><label data-type="pdf" data-asterisk="true">文件3.pdf</label></li>
+                            <li><label data-type="java">userService.java</label></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <label data-type="DIR">新建文件夹2</label>
+                        <ul>
+                            <li><label data-type="pdf">文件3.pdf</label></li>
+                            <li><label data-type="java">userService.java</label></li>
+                            <li>
+                                <label data-type="DIR">新建文件夹2</label>
+                                <ul>
+                                    <li><label data-type="pdf">文件3.pdf</label></li>
+                                    <li><label data-type="java">userService.java</label></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
         </div>
     </div>
 
     <div id="divider" class="note-divider">
-
+        <!--左边的列表区域和内容区域的分割线-->
     </div>
 
     <div id="content" class="note-content">
-        这个是内容部分
-        <br>
-        测试图标
-        <i class="bi bi-folder"></i>
+        <div class="page">
+            <div class="note-title">
+                <h1>
+                    Markdown编辑器
+                </h1>
+
+            </div>
+            <div class="toolbar">
+                <div>
+                    <button class="btn btn-secondary btn-sm">B</button>
+                    <button class="btn btn-secondary btn-sm">I</button>
+                    <button class="btn btn-secondary btn-sm">U</button>
+                    <button class="btn btn-secondary btn-sm">S</button>
+                    <button class="btn btn-secondary btn-sm">H</button>
+                    <button id="t-table" class="btn btn-secondary btn-sm">T</button>
+                </div>
+                <div>
+                    <button class="btn btn-secondary btn-sm">↑</button>
+                    <button class="btn btn-secondary btn-sm">↓</button>
+                    <button class="btn btn-secondary btn-sm">←</button>
+                    <button class="btn btn-secondary btn-sm">→</button>
+                    <button id="edit-preview-model" class="btn btn-secondary btn-sm">预览</button>
+                    <button id="light-dark" class="btn btn-secondary btn-sm">深色模式</button>
+                    <button id="setting" class="btn btn-secondary btn-sm">...</button>
+                </div>
+            </div>
+
+            <div id="editor-wrapper" class="editor-wrapper">
+                <textarea id="editor" class="editor-textarea"></textarea>
+                <div id="editorDivider" class="editor-divider"></div>
+                <div id="preview" class="editor-preview ">
+                    <div id="markdownContent" class="markdown_content markdown-body"></div>
+                </div>
+            </div>
+        </div>
+
     </div>
 
 </div>
