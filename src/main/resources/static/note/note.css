@@ -9,7 +9,9 @@
 }
 
 .note-control {
-    width: 32px;
+    width: 30px;
+    flex-grow: 0;
+    flex-shrink: 0;
     background-color: #F6F6F6;
     padding: 2px;
     display: flex;
@@ -32,11 +34,13 @@
     cursor: col-resize;
     background-color: #ddd;
     user-select: none;
-
+    flex-grow: 0;
+    flex-shrink: 0;
 }
 
 .note-content {
     flex-grow: 1;
+    flex-shrink: 1;
     background-color: #ffffff;
     /*padding: 10px;*/
     /*overflow: auto;*/

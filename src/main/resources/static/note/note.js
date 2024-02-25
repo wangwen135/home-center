@@ -224,6 +224,23 @@ function labelClick(event) {
     console.log(event.target.textContent)
 }
 
+function showOrHideNoteList() {
+    const noteList = document.querySelector("#noteList");
+    const divider = document.querySelector("#divider");
+
+    // btnNoteListToggle
+    // 图标样式
+    // 事件注册 怎么统一
+
+    let d = 'none';
+    if (noteList.style.display == 'none') {
+        d = '';
+    }
+    noteList.style.display = d;
+    divider.style.display = d;
+}
+
+
 let startX;
 let startWidth;
 
@@ -246,7 +263,7 @@ function mousemove(e) {
     const newWidth = startWidth + delta;
 
     // if (newWidth >= 100 && newWidth <= 680) {
-    if (newWidth >= 0 && newWidth <= 2680) {
+    if (newWidth >= 10 && newWidth <= 2680) {
         document.documentElement.style.cursor = "col-resize";
         document.querySelector("#noteList").style.width = newWidth + "px";
     } else {
