@@ -9,14 +9,14 @@
 
     <link rel="stylesheet" href="../bootstrap/css/bootstrap.css">
     <link rel="stylesheet" href="../bootstrap/icons/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="../css/common.css">
-    <link rel="stylesheet" href="note.css">
     <script src="../bootstrap/js/bootstrap.bundle.js"></script>
-    <script src="../js/main.js"></script>
-    <script src="note.js"></script>
     <script src="../js/showdown/showdown.js"></script>
     <link rel="stylesheet" href="../css/github-markdown/github-markdown.css">
 
+    <link rel="stylesheet" href="../css/common.css">
+    <script src="../js/main.js"></script>
+    <script src="note.js"></script>
+    <link rel="stylesheet" href="note.css">
 </head>
 <body>
 <div class="note-container">
@@ -161,39 +161,47 @@
     </div>
 
     <div id="content" class="note-content">
-        <div class="page">
-            <div class="note-title">
-                <h1>
-                    Markdown编辑器
-                </h1>
+        <div class="note-title-area">
 
+            <div class="note-title" contenteditable="true" placeholder="请输入标题">这是一个动态的标题</div>
+
+            <div class="note-title-toolbar">
+                <button id="btnToggleFavorite" class="btn btn-control btn-sm" type="button">
+                    <i class="bi bi-bookmark-heart"></i>
+                </button>
+                <button id="btnToggleAsterisk" class="btn btn-control btn-sm" type="button">
+                    <i class="bi bi-star-fill"></i>
+                </button>
+                <i class="mx-3"></i>
+                <button class="btn btn-secondary btn-sm">↑↓</button>
+
+                <button id="btnEditOrPreview" class="btn btn-secondary btn-sm">
+                    <i class="bi bi-pencil-square"></i>
+                    预览
+                </button>
+
+                <button id="setting" class="btn btn-secondary btn-sm">...</button>
             </div>
-            <div class="toolbar">
-                <div>
-                    <button class="btn btn-secondary btn-sm">B</button>
-                    <button class="btn btn-secondary btn-sm">I</button>
-                    <button class="btn btn-secondary btn-sm">U</button>
-                    <button class="btn btn-secondary btn-sm">S</button>
-                    <button class="btn btn-secondary btn-sm">H</button>
-                    <button id="t-table" class="btn btn-secondary btn-sm">T</button>
-                </div>
-                <div>
-                    <button class="btn btn-secondary btn-sm">↑</button>
-                    <button class="btn btn-secondary btn-sm">↓</button>
-                    <button class="btn btn-secondary btn-sm">←</button>
-                    <button class="btn btn-secondary btn-sm">→</button>
-                    <button id="edit-preview-model" class="btn btn-secondary btn-sm">预览</button>
-                    <button id="light-dark" class="btn btn-secondary btn-sm">深色模式</button>
-                    <button id="setting" class="btn btn-secondary btn-sm">...</button>
-                </div>
+        </div>
+        <div class="editor-toolbar">
+            <div>
+                <button class="btn btn-secondary btn-sm">B</button>
+                <button class="btn btn-secondary btn-sm">I</button>
+                <button class="btn btn-secondary btn-sm">U</button>
+                <button class="btn btn-secondary btn-sm">S</button>
+                <button class="btn btn-secondary btn-sm">H</button>
+                <button id="t-table" class="btn btn-secondary btn-sm">T</button>
             </div>
 
-            <div id="editor-wrapper" class="editor-wrapper">
+        </div>
+
+        <div class="editor-viewer">
+            <div id="editorWrapper" class="editor-wrapper">
                 <textarea id="editor" class="editor-textarea"></textarea>
-                <div id="editorDivider" class="editor-divider"></div>
-                <div id="preview" class="editor-preview ">
-                    <div id="markdownContent" class="markdown_content markdown-body"></div>
-                </div>
+            </div>
+            <div id="editorDivider" class="editor-divider"></div>
+            <div id="preview" class="viewer-wrapper">
+                <div id="markdownContent" class="markdown-body markdown_content"></div>
             </div>
         </div>
 

@@ -13,8 +13,6 @@ function init() {
 // 编辑器初始化
 let converter;
 let editor, content, preview;
-// *** 模式切换 ***
-let isEditMode = true;
 
 function markdownInit() {
 
@@ -58,15 +56,8 @@ function markdownInit() {
     }
 
     // *** 模式切换 ***
+    toggleEditOrPreview();
 
-    const editPreviewModelBtn = document.getElementById('edit-preview-model');
-    editPreviewModelBtn.onclick = function () {
-        if (isEditMode) {
-            previewModel();
-        } else {
-            editModel();
-        }
-    }
     markdownLoad();
 
     // 输入内容实时渲染
@@ -164,22 +155,27 @@ function wrapText(strStart, strEnd) {
     render();
 }
 
-// 编辑模式
-function editModel() {
-    editor.style.display = '';
-    divider.style.display = '';
-    document.getElementById('edit-preview-model').innerText = "预览";
-    isEditMode = true;
+/**
+ * 切换编辑或预览模式
+ */
+function toggleEditOrPreview() {
+    const editorWrapper = document.getElementById("editorWrapper");
+    const editorDivider = document.getElementById("editorDivider");
+    const btnEditOrPreview = document.getElementById('btnEditOrPreview');
+
+    btnEditOrPreview.onclick = function () {
+        if (editorWrapper.style.display == 'none') {
+            editorWrapper.style.display = '';
+            editorDivider.style.display = '';
+            btnEditOrPreview.innerText = "预览";
+        } else {
+            editorWrapper.style.display = 'none';
+            editorDivider.style.display = 'none';
+            btnEditOrPreview.innerText = "编辑";
+        }
+    }
 }
 
-// 预览模式
-function previewModel() {
-    editor.style.display = 'none';
-    document.getElementById("editorDivider").style.display = 'none';
-    preview.style.display = '';
-    document.getElementById('edit-preview-model').innerText = "编辑";
-    isEditMode = false;
-}
 
 // ===========================================================
 
