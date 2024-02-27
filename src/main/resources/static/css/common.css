@@ -214,11 +214,18 @@
 }
 
 /*更小尺寸的按钮*/
+.btn-p-sm {
+    padding: 0.25rem 0.5rem !important;
+}
 
 .btn-xs {
     padding: 0.15rem 0.4rem;
     font-size: 0.875rem;
     border-radius: 0.2rem;
+}
+
+.btn-p-xs {
+    padding: 0.15rem 0.4rem !important;
 }
 
 .btn-xxs {
@@ -227,10 +234,18 @@
     border-radius: 0.2rem;
 }
 
+.btn-p-xxs {
+    padding: 0.05rem 0.3rem !important;
+}
+
 .btn-xxxs {
     padding: 0px 1px 0px 1px;
     font-size: 0.55rem;
     border-radius: 0.2rem;
+}
+
+.btn-p-xxxs {
+    padding: 0px 1px 0px 1px !important;
 }
 
 /*自定义的按钮样式*/
@@ -257,4 +272,17 @@
     background-color: #cdcdcd;
     border-color: #bababa;
     box-shadow: 0 0 0 0rem rgba(130, 138, 145, 0.5);
+}
+
+
+.ts {
+    transition: transform 0.3s ease-in-out;
+}
+
+.rotate-90 {
+    transform: rotate(90deg);
+}
+
+.rotate-180 {
+    transform: rotate(180deg);
 }

@@ -14,13 +14,18 @@
     flex-shrink: 0;
     background-color: #F6F6F6;
     padding: 2px;
+
     display: flex;
     flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
     border-right: 1px solid;
     border-color: rgba(0, 0, 0, 0.3);
 }
 
 .note-list {
+    flex-shrink: 0;
     width: 280px;
     background-color: #F6F6F6;
     /*padding: 0px 2px 2px 2px;*/
@@ -53,6 +58,7 @@
 /*############# 控制按钮 #############*/
 .note-control button {
     margin: 2px 2px 6px 2px;
+    padding: 2px 5px;
 }
 
 /*############# 菜单切换 #############*/
@@ -62,6 +68,7 @@
     padding: 2px;
     border-bottom: 1px solid;
     border-color: rgba(0, 0, 0, 0.3);
+    overflow: hidden;
 }
 
 .menu-switch > button {
@@ -116,7 +123,7 @@
     /*border-left: 1px solid transparent;*/
     border-left: 1px solid #eae9e9;
     overflow: hidden;
-    transition: all 0.5s ease;
+    transition: all 0.3s ease;
 }
 
 /*树下的第一个ul*/
@@ -194,7 +201,7 @@
     color: #29292d;
 
     padding-right: 2px;
-    transition: all 0.5s ease;
+    transition: all 0.3s ease;
 
 }
 
@@ -302,8 +309,6 @@
 }
 
 /*标题*/
-
-
 .note-title {
     min-width: 20rem;
     margin: 0;
@@ -328,8 +333,9 @@
     justify-content: center;
     align-items: center;
 }
+
 .note-title-toolbar button {
-    margin-left: 2px;
+    margin-left: 3px;
 }
 
 /*工具栏*/
@@ -405,7 +411,7 @@
 
     border: 1px solid #eee;
 
-    padding: 10px;
+    padding: 16px 10px 10px 10px;
 
     overflow-y: scroll;
     overflow-x: auto;

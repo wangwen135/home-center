@@ -23,28 +23,28 @@
 
     <!--最左边的控制按钮-->
     <div id="control" class="note-control">
-        <button id="btnNoteListToggle" class="btn btn-secondary p-0" type="button" onclick="showOrHideNoteList()">
-            <i class="bi bi-arrow-bar-left"></i>
+        <button id="btnToggleNoteList" class="btn btn-control" type="button">
+            <i class="bi bi-chevron-bar-left ts d-inline-block"></i>
         </button>
 
-        <button class="btn btn-control p-0" type="button">
+        <button class="btn btn-control" type="button">
             <i class="bi bi-arrow-clockwise"></i>
         </button>
 
-        <button class="btn btn-control p-0" type="button">
+        <button class="btn btn-control" type="button">
             <i class="bi bi-calendar-week"></i>
         </button>
 
-        <button class="btn btn-control p-0" type="button">
+        <button class="btn btn-control" type="button">
             <i class="bi bi-terminal"></i>
         </button>
 
         <div class="mb-auto"></div>
 
-        <button class="btn btn-control p-0" type="button">
+        <button class="btn btn-control" type="button">
             <i class="bi bi-question-circle"></i>
         </button>
-        <button class="btn btn-control p-0" type="button">
+        <button class="btn btn-control " type="button">
             <i class="bi bi-gear"></i>
         </button>
     </div>
@@ -166,31 +166,53 @@
             <div class="note-title" contenteditable="true" placeholder="请输入标题">这是一个动态的标题</div>
 
             <div class="note-title-toolbar">
-                <button id="btnToggleFavorite" class="btn btn-control btn-sm" type="button">
+                <!--收藏-->
+                <button id="btnToggleFavorite" class="btn btn-control btn-p-xxs" type="button">
                     <i class="bi bi-bookmark-heart"></i>
                 </button>
-                <button id="btnToggleAsterisk" class="btn btn-control btn-sm" type="button">
+                <!--加星-->
+                <button id="btnToggleAsterisk" class="btn btn-control btn-p-xxs" type="button">
                     <i class="bi bi-star-fill"></i>
                 </button>
-                <i class="mx-3"></i>
-                <button class="btn btn-secondary btn-sm">↑↓</button>
 
-                <button id="btnEditOrPreview" class="btn btn-secondary btn-sm">
-                    <i class="bi bi-pencil-square"></i>
+                <button id="btnEditOrPreview" class="btn btn-control btn-p-xxs mx-4">
+                    <i class="bi bi-eye"></i>
                     预览
                 </button>
 
-                <button id="setting" class="btn btn-secondary btn-sm">...</button>
+                <!--折叠编辑工具栏-->
+                <button id="btnToggleEditorToolbar" class="btn btn-control btn-p-xxs">
+                    <i class="bi bi-chevron-bar-up ts d-inline-block"></i>
+                </button>
+
+                <button id="setting" class="btn btn-control btn-p-xxs rounded-circle">
+                    <i class="bi bi-three-dots-vertical ts d-inline-block"></i>
+                </button>
             </div>
         </div>
-        <div class="editor-toolbar">
+        <div id="editorToolbar" class="editor-toolbar">
             <div>
-                <button class="btn btn-secondary btn-sm">B</button>
-                <button class="btn btn-secondary btn-sm">I</button>
-                <button class="btn btn-secondary btn-sm">U</button>
-                <button class="btn btn-secondary btn-sm">S</button>
+                <!--粗体-->
+                <button id="tb-bold" class="btn btn-control btn-p-sm">
+                    <i class="bi bi-type-bold"></i>
+                </button>
+                <!--斜体-->
+                <button id="tb-italic" class="btn btn-control btn-p-sm">
+                    <i class="bi bi-type-italic"></i>
+                </button>
+                <!--下划线-->
+                <button id="tb-underline" class="btn btn-control btn-p-sm">
+                    <i class="bi bi-type-underline"></i>
+                </button>
+                <!--删除线-->
+                <button id="tb-strikethrough" class="btn btn-control btn-p-sm">
+                    <i class="bi bi-type-strikethrough"></i>
+                </button>
                 <button class="btn btn-secondary btn-sm">H</button>
-                <button id="t-table" class="btn btn-secondary btn-sm">T</button>
+                <!--表格-->
+                <button id="tb-table" class="btn btn-control btn-p-sm">
+                    <i class="bi bi-table"></i>
+                </button>
             </div>
 
         </div>

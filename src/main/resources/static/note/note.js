@@ -6,178 +6,303 @@ window.onload = function () {
 }
 
 function init() {
-
+    // 菜单展示和隐藏按钮
+    showOrHideNoteList();
 }
 
-// ===========================================================
-// 编辑器初始化
-let converter;
-let editor, content, preview;
+// =====================================================================================
+// =====================================================================================
+// =====================================================================================
 
+/**
+ * Markdown编辑器初始化
+ */
 function markdownInit() {
-
-    converter = new showdown.Converter();
+    const converter = new showdown.Converter();
     // converter.setOption('moreStyling', 'true');
     converter.setFlavor('github');
 
+    const editorWrapper = document.getElementById('editorWrapper');
+    const editor = document.getElementById('editor');
+    const editorDivider = document.getElementById('editorDivider')
+    const preview = document.getElementById('preview');
+    const content = document.getElementById('markdownContent');
 
-    editor = document.getElementById('editor');
-    preview = document.getElementById('preview');
-    content = document.getElementById('markdownContent');
-
-    // 滚动同步 (开关控制)
-    editor.addEventListener('scroll', () => {
-        const height = editor.scrollHeight;
-        const top = editor.scrollTop;
-        const pHeight = preview.scrollHeight;
-
-        //直接滚动到底部？
-
-        //窗口百分比同步
-        preview.scrollTop = pHeight * top / height;
-
-    });
-
-    // 中间部分
-    document.getElementById('editorDivider').onclick = function () {
-        if (preview.style.display != 'none') {
-            preview.style.display = 'none';
-        } else {
-            preview.style.display = '';
-        }
-    };
-
-    // 工具栏位
-    document.getElementById("t-table").onclick = function () {
-        insertText("| header1 | header2 |\n" +
-            "|---|---|\n" +
-            "| row1-1 | row1-2 |\n" +
-            "| row2-1 | row2-2 |");
-    }
-
-    // *** 模式切换 ***
-    toggleEditOrPreview();
-
-    markdownLoad();
-
-    // 输入内容实时渲染
-    editor.addEventListener('propertychange', render);
-    editor.addEventListener('input', render);
-
-    // 键盘监听
-    editor.addEventListener('keydown', editorKeyBoardAction);
-}
-
-
-function markdownLoad() {
-    //颜色模式
-    if (localStorage.lightDark == 'dark') {
-        darkModel();
-    }
-    //编辑内容
-    if (localStorage.editContents != null) {
-        editor.value = localStorage.editContents;
-        render();
-    }
-}
-
-/**
- * 渲染内容
- */
-function render() {
-    const text = editor.value;
-    localStorage.editContents = text;
-    content.innerHTML = converter.makeHtml(text);
-}
-
-
-/**
- * 插入内容
- * @param str
- */
-function insertText(str) {
-    const start = editor.selectionStart;
-    const end = editor.selectionEnd;
-    const oldValue = editor.value;
-    editor.value = oldValue.substring(0, start) + str + oldValue.substring(end);
-    editor.selectionStart = editor.selectionEnd = start + str.length;
-
-    render();
-}
-
-function editorKeyBoardAction(event) {
-    const key = event.key;
-    const ctrl = event.ctrlKey;
-    const shift = event.shiftKey;
-    // console.log(key);
-    // console.log(ctrl);
-    // console.log(shift);
-
-    // tab按键变成4个空格 (开关控制)
-    if (key == 'Tab') {
-        event.preventDefault();
-        insertText("    ");
-    } else if (ctrl && key == 'b') { //加粗
-        wrapText("**", "**");
-    } else if (ctrl && key == 'i') { //斜体
-        wrapText("*", "*");
-    } else if (ctrl && key == 'u') {// 下划线
-        event.preventDefault();
-        wrapText("<u>", "</u>");
-    } else if (ctrl && shift && (key == 's') || key == 'S') { //删除线
-        wrapText("~~", "~~");
-    } else if (ctrl && key == 't') {
-        event.preventDefault();
-        insertText("| header1 | header2 |\n" +
-            "|---|---|\n" +
-            "| row1-1 | row1-2 |\n" +
-            "| row2-1 | row2-2 |");
-    } else if (ctrl && key == 's') {
-        event.preventDefault();
-        console.log("保存文档");
-    }
-
-}
-
-/**
- * 包围内容
- * @param strStart
- * @param strEnd
- */
-function wrapText(strStart, strEnd) {
-    const start = editor.selectionStart;
-    const end = editor.selectionEnd;
-    const oldValue = editor.value;
-    const selectedText = oldValue.substring(start, end);
-    editor.value = oldValue.substring(0, start) + strStart + selectedText + strEnd + oldValue.substring(end);
-    editor.selectionStart = editor.selectionEnd = start + strStart.length + selectedText.length + strEnd.length;
-
-    render();
-}
-
-/**
- * 切换编辑或预览模式
- */
-function toggleEditOrPreview() {
-    const editorWrapper = document.getElementById("editorWrapper");
-    const editorDivider = document.getElementById("editorDivider");
+    //编辑器工具栏控制
+    const btnToggleEditorToolbar = document.getElementById("btnToggleEditorToolbar");
+    const editorToolbar = document.getElementById("editorToolbar");
+    // 编辑/预览 按钮
     const btnEditOrPreview = document.getElementById('btnEditOrPreview');
 
-    btnEditOrPreview.onclick = function () {
-        if (editorWrapper.style.display == 'none') {
-            editorWrapper.style.display = '';
-            editorDivider.style.display = '';
-            btnEditOrPreview.innerText = "预览";
-        } else {
-            editorWrapper.style.display = 'none';
-            editorDivider.style.display = 'none';
-            btnEditOrPreview.innerText = "编辑";
+    //编辑器控制
+    editorCtrl();
+    //滚动控制
+    scrollCtrl();
+    // 点击中间隐藏预览
+    hiddenPreviewCtrl();
+    // 展示或隐藏编辑器的工具栏
+    toggleEditorToolbar();
+    // 工具栏按钮绑定事件
+    editorToolbarBtnBind();
+
+    // 切换编辑和查看模式
+    toggleEditOrPreview();
+
+    //加载上一次配置
+    loadLastConf();
+
+    //加载之前的Md文档内容
+    markdownLoad();
+
+    /**
+     * 给工具栏的按钮绑定事件
+     */
+    function editorToolbarBtnBind() {
+        // 工具栏位
+        document.getElementById("tb-bold").onclick = boldAction;
+        document.getElementById("tb-italic").onclick = italicAction;
+        document.getElementById("tb-underline").onclick = underlineAction;
+        document.getElementById("tb-strikethrough").onclick = strikethroughAction;
+        document.getElementById("tb-table").onclick = tableAction;
+    }
+
+    /**
+     * 切换编辑或预览模式
+     */
+    function toggleEditOrPreview() {
+        btnEditOrPreview.onclick = function () {
+            if (editorWrapper.style.display == 'none') {
+                // 切换回编辑模式，打开工具栏
+                tryShowEditorToolbar()
+
+                editorWrapper.style.display = '';
+                editorDivider.style.display = '';
+
+                // 修改图标
+                btnEditOrPreview.querySelector("i").className = "bi bi-eye";
+                // 更改按钮文本
+                btnEditOrPreview.childNodes[2].textContent = " 预览 ";
+
+            } else {
+                // 预览模式下隐藏编辑工具栏
+                hiddenEditorToolbar()
+
+                editorWrapper.style.display = 'none';
+                editorDivider.style.display = 'none';
+
+                // 修改图标
+                btnEditOrPreview.querySelector("i").className = "bi bi-pencil-square";
+                // 更改按钮文本
+                btnEditOrPreview.childNodes[2].textContent = " 编辑 ";
+            }
         }
     }
+
+    /**
+     * 切换编辑工具条
+     */
+    function toggleEditorToolbar() {
+
+        btnToggleEditorToolbar.onclick = function () {
+            if (editorToolbar.style.display == 'none') {
+                localStorage.styleHiddenEditorToolbar = 'false';
+                tryShowEditorToolbar();
+            } else {
+                localStorage.styleHiddenEditorToolbar = 'true';
+                hiddenEditorToolbar()
+            }
+        }
+    }
+
+    function hiddenEditorToolbar() {
+        if (editorToolbar.style.display == 'none') {
+            return;
+        }
+        editorToolbar.style.display = 'none';
+        btnToggleEditorToolbar.children[0].classList.add("rotate-180");
+    }
+
+    function tryShowEditorToolbar() {
+        if (editorToolbar.style.display != 'none') {
+            return;
+        }
+        if (localStorage.styleHiddenEditorToolbar == 'true') {
+            return;
+        }
+        editorToolbar.style.display = '';
+        btnToggleEditorToolbar.children[0].classList.remove("rotate-180");
+    }
+
+
+    /**
+     * 加载上一次的配置
+     */
+    function loadLastConf() {
+        // 从本地存储中获得上一次工具栏的状态
+        if (localStorage.styleHiddenEditorToolbar == 'true') {
+            hiddenEditorToolbar();
+        }
+
+
+        //颜色模式
+        if (localStorage.lightDark == 'dark') {
+            darkModel();
+        }
+    }
+
+
+    //两个窗口滚动条同步
+    function scrollCtrl() {
+        editor.addEventListener('scroll', () => {
+            // 滚动同步 (开关控制)
+            if (localStorage.synchronizeScroller == 'false') {
+                return;
+            }
+            const height = editor.scrollHeight;
+            const top = editor.scrollTop;
+            const pHeight = preview.scrollHeight;
+            //窗口百分比同步
+            preview.scrollTop = pHeight * top / height;
+
+        });
+    }
+
+    //点击中间隐藏预览
+    function hiddenPreviewCtrl() {
+        editorDivider.onclick = function () {
+            if (preview.style.display != 'none') {
+                preview.style.display = 'none';
+            } else {
+                preview.style.display = '';
+            }
+        };
+    }
+
+
+    function markdownLoad() {
+
+        //编辑内容
+        if (localStorage.editContents != null) {
+            editor.value = localStorage.editContents;
+            render();
+        }
+    }
+
+    function editorCtrl() {
+        // 输入内容实时渲染
+        editor.addEventListener('propertychange', render);
+        editor.addEventListener('input', render);
+
+        // 键盘监听
+        editor.addEventListener('keydown', editorKeyBoardAction);
+    }
+
+    /**
+     * 渲染内容
+     */
+    function render() {
+        const text = editor.value;
+        localStorage.editContents = text;
+        content.innerHTML = converter.makeHtml(text);
+    }
+
+
+    function editorKeyBoardAction(event) {
+        const key = event.key;
+        const ctrl = event.ctrlKey;
+        const shift = event.shiftKey;
+        // console.log(key);
+        // console.log(ctrl);
+        // console.log(shift);
+
+        // tab按键变成4个空格 (开关控制)
+        if (key == 'Tab') {
+            event.preventDefault();
+            insertText("    ");
+        } else if (ctrl && key == 'b') { //加粗
+            boldAction();
+        } else if (ctrl && key == 'i') { //斜体
+            italicAction();
+        } else if (ctrl && key == 'u') {// 下划线
+            event.preventDefault();
+            underlineAction()
+        } else if (ctrl && shift && (key == 's') || key == 'S') { //删除线
+            strikethroughAction();
+        } else if (ctrl && key == 't') {
+            event.preventDefault();
+            tableAction();
+        } else if (ctrl && key == 's') {
+            event.preventDefault();
+            saveDoc();
+        }
+    }
+
+    function saveDoc() {
+        showToastSimple("保存文档", MsgTypes.SUCCESS)
+    }
+
+    //删除线
+    function strikethroughAction() {
+        wrapText("~~", "~~");
+    }
+
+    //下划线
+    function underlineAction() {
+        wrapText("<u>", "</u>");
+    }
+
+    function italicAction() {//斜体
+        wrapText("*", "*");
+    }
+
+    function boldAction() {
+        wrapText("**", "**");
+    }
+
+    function tableAction() {
+        insertText("| header1 | header2 |\n" +
+            "|---|---|\n" +
+            "| row1-1 | row1-2 |\n" +
+            "| row2-1 | row2-2 |");
+    }
+
+    /**
+     * 插入内容
+     * @param str
+     */
+    function insertText(str) {
+        const start = editor.selectionStart;
+        const end = editor.selectionEnd;
+        const oldValue = editor.value;
+        editor.value = oldValue.substring(0, start) + str + oldValue.substring(end);
+        editor.selectionStart = editor.selectionEnd = start + str.length;
+
+        render();
+    }
+
+    /**
+     * 包围内容
+     * @param strStart
+     * @param strEnd
+     */
+    function wrapText(strStart, strEnd) {
+        const start = editor.selectionStart;
+        const end = editor.selectionEnd;
+        const oldValue = editor.value;
+        const selectedText = oldValue.substring(start, end);
+        editor.value = oldValue.substring(0, start) + strStart + selectedText + strEnd + oldValue.substring(end);
+        editor.selectionStart = editor.selectionEnd = start + strStart.length + selectedText.length + strEnd.length;
+
+        render();
+    }
+
+
 }
 
 
-// ===========================================================
+// =====================================================================================
+// =====================================================================================
+// =====================================================================================
 
 
 /*
@@ -220,27 +345,30 @@ function labelClick(event) {
     console.log(event.target.textContent)
 }
 
+/**
+ * 展示或隐藏文件列表
+ */
 function showOrHideNoteList() {
-    const noteList = document.querySelector("#noteList");
-    const divider = document.querySelector("#divider");
+    const btn = document.getElementById("btnToggleNoteList");
+    const noteList = document.getElementById("noteList");
+    const divider = document.getElementById("divider");
 
-    // btnNoteListToggle
-    // 图标样式
-    // 事件注册 怎么统一
-
-    let d = 'none';
-    if (noteList.style.display == 'none') {
-        d = '';
+    btn.onclick = function () {
+        if (noteList.style.display == 'none') {
+            noteList.style.display = '';
+            divider.style.display = '';
+            btn.children[0].classList.remove("rotate-180");
+        } else {
+            noteList.style.display = 'none';
+            divider.style.display = 'none';
+            btn.children[0].classList.add("rotate-180");
+        }
     }
-    noteList.style.display = d;
-    divider.style.display = d;
 }
 
-
-let startX;
-let startWidth;
-
 function dragControl() {
+    let startX;
+    let startWidth;
     const noteList = document.querySelector("#noteList");
     const divider = document.querySelector("#divider");
     const content = document.querySelector("#content");
@@ -252,24 +380,25 @@ function dragControl() {
         document.addEventListener("mousemove", mousemove);
         document.addEventListener("mouseup", mouseup);
     });
-}
 
-function mousemove(e) {
-    const delta = e.clientX - startX;
-    const newWidth = startWidth + delta;
+    function mousemove(e) {
+        const delta = e.clientX - startX;
+        const newWidth = startWidth + delta;
 
-    // if (newWidth >= 100 && newWidth <= 680) {
-    if (newWidth >= 10 && newWidth <= 2680) {
-        document.documentElement.style.cursor = "col-resize";
-        document.querySelector("#noteList").style.width = newWidth + "px";
-    } else {
-        document.documentElement.style.cursor = "not-allowed";
+        // 小于窗口的一半
+        if (newWidth >= 120 && newWidth <= document.body.clientWidth / 2) {
+            document.documentElement.style.cursor = "col-resize";
+            noteList.style.width = newWidth + "px";
+        } else {
+            document.documentElement.style.cursor = "not-allowed";
+        }
+    }
+
+    function mouseup() {
+        document.documentElement.style.cursor = "initial";
+        document.removeEventListener("mousemove", mousemove);
+        document.removeEventListener("mouseup", mouseup);
     }
 }
 
-function mouseup() {
-    document.documentElement.style.cursor = "initial";
-    document.removeEventListener("mousemove", mousemove);
-    document.removeEventListener("mouseup", mouseup);
-}
 
