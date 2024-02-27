@@ -43,6 +43,10 @@
     flex-shrink: 0;
 }
 
+.note-divider:hover {
+    background-color: #a7a9ac;
+}
+
 .note-content {
     flex-grow: 1;
     flex-shrink: 1;

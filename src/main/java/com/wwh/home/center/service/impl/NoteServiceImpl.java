@@ -35,6 +35,36 @@ public class NoteServiceImpl implements NoteService {
         return noteDir;
     }
 
+    private int count = 0;
+
+    @Override
+    public List<NotePathVo> listAll() {
+        File baseDir = getNoteDir();
+        count = 0;
+        System.out.println("开始递归文件....");
+        List<NotePathVo> list = recursiveListFile("/", baseDir);
+        System.out.println("文件递归结束....");
+        System.out.println("文件+目录 总共：" + count);
+        return list;
+    }
+
+
+    private List<NotePathVo> recursiveListFile(String parentPath, File dir) {
+        List<NotePathVo> list = new ArrayList<>();
+        File[] filesAndDirs = dir.listFiles();
+        for (File fileOrDir : filesAndDirs) {
+            NotePathVo pathVo = buildNotePathVo(parentPath, fileOrDir);
+            list.add(pathVo);
+
+            System.out.print("v");
+            count++;
+
+            if (fileOrDir.isDirectory()) {
+                pathVo.setChildren(recursiveListFile(pathVo.getFullPath(), fileOrDir));
+            }
+        }
+        return list;
+    }
 
     @Override
     public List<NotePathVo> list(String path) {
@@ -54,22 +84,23 @@ public class NoteServiceImpl implements NoteService {
 
         File[] filesAndDirs = dir.listFiles();
         for (File fileOrDir : filesAndDirs) {
-
-            NotePathVo vo = new NotePathVo();
-            String fileName = fileOrDir.getName();
-            vo.setName(fileName);
-            vo.setParentPath(path);
-            list.add(vo);
-            if (fileOrDir.isFile()) {
-                vo.setDir(false);
-                vo.setFileType(FileUtil.getFileExtension(fileName));
-
-            } else if (fileOrDir.isDirectory()) {
-                vo.setDir(true);
-                vo.setFileType("DIR");
-            }
+            list.add(buildNotePathVo(path, fileOrDir));
         }
-
         return list;
+    }
+
+    private NotePathVo buildNotePathVo(String parentPath, File fileOrDir) {
+        NotePathVo vo = new NotePathVo();
+        String fileName = fileOrDir.getName();
+        vo.setName(fileName);
+        vo.setParentPath(parentPath);
+        if (fileOrDir.isFile()) {
+            vo.setDir(false);
+            vo.setFileType(FileUtil.getFileExtension(fileName));
+        } else if (fileOrDir.isDirectory()) {
+            vo.setDir(true);
+            vo.setFileType("DIR");
+        }
+        return vo;
     }
 }

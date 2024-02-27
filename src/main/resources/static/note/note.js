@@ -1,14 +1,8 @@
 window.onload = function () {
-    init();
-    dragControl();
-    menuInit();
+    noteListInit();
     markdownInit();
 }
 
-function init() {
-    // 菜单展示和隐藏按钮
-    showOrHideNoteList();
-}
 
 // =====================================================================================
 // =====================================================================================
@@ -304,19 +298,80 @@ function markdownInit() {
 // =====================================================================================
 // =====================================================================================
 
-
-/*
- * 菜单初始化
- *
+/**
+ * 笔记列表初始化
  */
-function menuInit() {
-    const allLabels = document.querySelectorAll(".tree li > label");
+function noteListInit() {
 
-    allLabels.forEach((li) => {
-        console.log("给【" + li.textContent + "】添加点击事件")
-        li.addEventListener('click', labelClick);
-    });
+    //控件初始化
+    noteListDisplayCtrl();
 
+    // 基本事件处理
+    noteListTreeEventHandle();
+
+    menuDataInit();
+
+    /*
+     * 菜单初始化
+     *
+     */
+    function menuDataInit() {
+        const noteListTree = document.getElementById("noteListTree");
+        noteListTree.innerHTML = '';
+
+        getRequest("/note/listAll", receive);
+
+        function receive(data) {
+            recursive(data, noteListTree);
+        }
+
+        function recursive(data, parent) {
+            if (!Array.isArray(data)) {
+                return;
+            }
+            const ul = document.createElement('ul');
+            data.forEach(item => {
+                const li = document.createElement('li');
+                const label = document.createElement('label');
+                label.textContent = item.name;
+                label.setAttribute('data-type', item.fileType);
+                // if (item.favorite) {
+                //     label.setAttribute('data-favorite', 'true');
+                // }
+                // if (item.asterisk) {
+                //     label.setAttribute('data-asterisk', 'true');
+                // }
+                li.appendChild(label);
+                if (item.children && item.children.length > 0) {
+                    recursive(item.children, li);
+                }
+                ul.appendChild(li);
+            });
+            parent.appendChild(ul);
+        }
+    }
+
+
+}
+
+
+/**
+ * 笔记列表树事件处理
+ */
+function noteListTreeEventHandle() {
+    const noteListTree = document.getElementById("noteListTree");
+    noteListTree.onclick = function (event) {
+        if (event.target.tagName === 'LABEL') {
+            labelClick(event);
+        }
+    }
+    noteListTree.addEventListener("contextmenu", labelRightClick);
+}
+
+function labelRightClick(event) {
+    // 阻止默认的右键菜单行为
+    event.preventDefault();
+    showToast("鼠标右键触发");
 }
 
 function labelClick(event) {
@@ -346,14 +401,24 @@ function labelClick(event) {
 }
 
 /**
- * 展示或隐藏文件列表
+ * 笔记列表展示控制
  */
-function showOrHideNoteList() {
+function noteListDisplayCtrl() {
     const btn = document.getElementById("btnToggleNoteList");
     const noteList = document.getElementById("noteList");
     const divider = document.getElementById("divider");
 
-    btn.onclick = function () {
+    btn.onclick = toggleNoteList;
+
+    // 拖拽
+    dragControl();
+    // 双击还原
+    divider.ondblclick = resetNoteListWidth;
+
+    /**
+     * 展示或隐藏文件列表
+     */
+    function toggleNoteList() {
         if (noteList.style.display == 'none') {
             noteList.style.display = '';
             divider.style.display = '';
@@ -364,41 +429,49 @@ function showOrHideNoteList() {
             btn.children[0].classList.add("rotate-180");
         }
     }
-}
 
-function dragControl() {
-    let startX;
-    let startWidth;
-    const noteList = document.querySelector("#noteList");
-    const divider = document.querySelector("#divider");
-    const content = document.querySelector("#content");
+    function resetNoteListWidth() {
+        noteList.style.width = '280px';
+    }
 
-    divider.addEventListener("mousedown", function (e) {
-        startX = e.clientX;
-        startWidth = noteList.clientWidth;
-        document.documentElement.style.cursor = "col-resize";
-        document.addEventListener("mousemove", mousemove);
-        document.addEventListener("mouseup", mouseup);
-    });
+    /**
+     * 拖拽方式调整文件列表宽度
+     */
+    function dragControl() {
+        let startX;
+        let startWidth;
 
-    function mousemove(e) {
-        const delta = e.clientX - startX;
-        const newWidth = startWidth + delta;
-
-        // 小于窗口的一半
-        if (newWidth >= 120 && newWidth <= document.body.clientWidth / 2) {
+        divider.addEventListener("mousedown", function (e) {
+            startX = e.clientX;
+            startWidth = noteList.clientWidth;
             document.documentElement.style.cursor = "col-resize";
-            noteList.style.width = newWidth + "px";
-        } else {
-            document.documentElement.style.cursor = "not-allowed";
+            document.addEventListener("mousemove", mousemove);
+            document.addEventListener("mouseup", mouseup);
+        });
+
+        function mousemove(e) {
+            const delta = e.clientX - startX;
+            const newWidth = startWidth + delta;
+
+            // 小于窗口的一半
+            if (newWidth >= 120 && newWidth <= document.body.clientWidth / 2) {
+                document.documentElement.style.cursor = "col-resize";
+                noteList.style.width = newWidth + "px";
+            } else {
+                document.documentElement.style.cursor = "not-allowed";
+            }
+        }
+
+        function mouseup() {
+            document.documentElement.style.cursor = "initial";
+            document.removeEventListener("mousemove", mousemove);
+            document.removeEventListener("mouseup", mouseup);
         }
     }
 
-    function mouseup() {
-        document.documentElement.style.cursor = "initial";
-        document.removeEventListener("mousemove", mousemove);
-        document.removeEventListener("mouseup", mouseup);
-    }
 }
+
+
+
 
 

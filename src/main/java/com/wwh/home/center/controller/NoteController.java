@@ -32,7 +32,13 @@ public class NoteController {
     @Autowired
     private NoteService noteService;
 
-    @ApiOperation("获取路径信息")
+    @ApiOperation("获取全部的笔记列表")
+    @GetMapping("/listAll")
+    public Result<List<NotePathVo>> listAll() {
+        return Result.success(noteService.listAll());
+    }
+
+    @ApiOperation("获取指定路径下的笔记列表")
     @GetMapping("/list")
     public Result<List<NotePathVo>> list(@RequestParam(required = false) @ApiParam("子路径") String path) {
         return Result.success(noteService.list(path));

@@ -11,5 +11,8 @@ import java.util.List;
  * @date 2024/02/22
  */
 public interface NoteService {
+
+    List<NotePathVo> listAll();
+
     List<NotePathVo> list(String path);
 }

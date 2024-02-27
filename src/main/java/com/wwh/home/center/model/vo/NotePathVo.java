@@ -4,7 +4,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
-import java.io.File;
+import java.util.List;
 
 /**
  * 笔记路径对象
@@ -26,6 +26,9 @@ public class NotePathVo {
 
     @ApiModelProperty("文件类型")
     private String fileType;
+
+    @ApiModelProperty("下级")
+    private List<NotePathVo> children;
 
     @ApiModelProperty("全路径")
     public String getFullPath() {
