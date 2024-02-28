@@ -88,6 +88,9 @@ function markdownInit() {
                 btnEditOrPreview.querySelector("i").className = "bi bi-pencil-square";
                 // 更改按钮文本
                 btnEditOrPreview.childNodes[2].textContent = " 编辑 ";
+
+                /*预览区域总是需要显示*/
+                preview.style.display = '';
             }
         }
     }

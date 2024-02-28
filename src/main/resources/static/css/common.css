@@ -261,7 +261,8 @@
     /*border-color: #d5d5d5;*/
 }
 
-.btn-control:active {
+.btn-control:active,
+.btn-control[data-select="true"] {
     color: #000;
     background-color: #cdcdcd;
     /*border-color: #bababa;*/

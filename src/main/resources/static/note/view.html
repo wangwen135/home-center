@@ -52,10 +52,10 @@
     <!--左边的列表区域-->
     <div id="noteList" class="note-list">
         <div class="menu-switch">
-            <button class="btn btn-control " type="button">
+            <button class="btn btn-control" type="button" data-select="true">
                 <i class="bi bi-folder"></i>
             </button>
-            <button class="btn btn-control " type="button">
+            <button class="btn btn-control" type="button">
                 <i class="bi bi-search"></i>
             </button>
             <button class="btn btn-control " type="button">
@@ -75,19 +75,19 @@
         <div class="tab-file-list">
             <div class="file-list-ctrl">
                 <!--新建文件-->
-                <button class="btn btn-control " type="button">
+                <button class="btn btn-control btn-p-xs" type="button">
                     <i class="bi bi-file-earmark-plus"></i>
                 </button>
                 <!--新建文件夹-->
-                <button class="btn btn-control " type="button">
+                <button class="btn btn-control btn-p-xs" type="button">
                     <i class="bi bi-folder-plus"></i>
                 </button>
                 <!--排序-->
-                <button class="btn btn-control " type="button">
+                <button class="btn btn-control btn-p-xs" type="button">
                     <i class="bi bi-sort-down-alt"></i>
                 </button>
                 <!--展开-折叠-->
-                <button class="btn btn-control " type="button">
+                <button class="btn btn-control btn-p-xs" type="button">
                     <i class="bi bi-chevron-expand"></i>
                     <!--                    <i class="bi bi-chevron-contract"></i>-->
                 </button>
@@ -157,32 +157,32 @@
                     <span>/2022-12-09_备份/硬件与软件/阿里云</span>
                 </div>
                 <div class="file-info-time">
-                    <span>创建时间：2022-12-2 13:23:32</span><br>
-                    <span>修改时间：2022-12-2 13:23:32</span>
+                    <span>创建：2022-12-2 13:23:32</span><br>
+                    <span>修改：2024-2-22 16:37:45</span>
                 </div>
             </div>
 
             <div class="note-title-toolbar">
                 <!--收藏-->
-                <button id="btnToggleFavorite" class="btn btn-control btn-p-xxs" type="button">
+                <button id="btnToggleFavorite" class="btn btn-control btn-p-xs" type="button">
                     <i class="bi bi-bookmark-heart"></i>
                 </button>
                 <!--加星-->
-                <button id="btnToggleAsterisk" class="btn btn-control btn-p-xxs" type="button">
+                <button id="btnToggleAsterisk" class="btn btn-control btn-p-xs" type="button">
                     <i class="bi bi-star-fill"></i>
                 </button>
 
-                <button id="btnEditOrPreview" class="btn btn-control btn-p-xxs mx-3">
+                <button id="btnEditOrPreview" class="btn btn-control btn-p-xs mx-3">
                     <i class="bi bi-eye"></i>
                     预览
                 </button>
 
                 <!--折叠编辑工具栏-->
-                <button id="btnToggleEditorToolbar" class="btn btn-control btn-p-xxs">
+                <button id="btnToggleEditorToolbar" class="btn btn-control btn-p-xs">
                     <i class="bi bi-chevron-bar-up ts d-inline-block"></i>
                 </button>
 
-                <button id="setting" class="btn btn-control btn-p-xxs rounded-circle">
+                <button id="setting" class="btn btn-control btn-p-xs rounded-circle">
                     <i class="bi bi-three-dots-vertical ts d-inline-block"></i>
                 </button>
             </div>
@@ -294,16 +294,14 @@
                 <button id="tb-link" class="btn btn-control btn-p-sm">
                     <i class="bi bi-link-45deg"></i>
                 </button>
-                <!--代码块-->
-                <button id="tb-code" class="btn btn-control btn-p-sm">
-                    <i class="bi bi-code-square"></i>
-                </button>
                 <!--内嵌代码-->
                 <button class="btn btn-control btn-p-sm">
                     <i class="bi bi-code"></i>
                 </button>
-
-
+                <!--代码块-->
+                <button id="tb-code" class="btn btn-control btn-p-sm">
+                    <i class="bi bi-code-square"></i>
+                </button>
             </div>
 
         </div>

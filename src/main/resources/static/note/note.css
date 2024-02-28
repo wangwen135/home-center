@@ -1,17 +1,27 @@
 /*############# 主体样式 #############*/
-/*定义滚动条高宽及背景 高宽分别对应横竖滚动条的尺寸*/
+/*设置滚动条宽度和背景颜色*/
 ::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+    width: 8px; /*横向滚动条*/
+    height: 8px; /*纵向滚动条*/
     background-color: #F5F5F5;
 }
 
-/*定义滑块 内阴影+圆角*/
-::-webkit-scrollbar-thumb {
-    border-radius: 0px;
-    -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, .3);
-    background-color: rgba(224, 224, 224, 0.61);
+/* 设置滚动轨迹的样式 */
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
 }
+
+/* 设置滚动滑块的样式 */
+::-webkit-scrollbar-thumb {
+    background: #bababa;
+}
+
+/* 当鼠标悬停在滚动滑块上时的样式 */
+::-webkit-scrollbar-thumb:hover {
+    background: #868686;
+}
+
+/* ======================= 框架样式 ======================= */
 
 .note-container {
     margin: 0;
@@ -21,7 +31,7 @@
 }
 
 .note-control {
-    width: 30px;
+    width: 39px;
     flex-grow: 0;
     flex-shrink: 0;
     background-color: #F6F6F6;
@@ -39,7 +49,7 @@
 .note-list {
     flex-shrink: 0;
     width: 280px;
-    background-color: #F6F6F6;
+    background-color: rgba(246, 246, 246, 0.12);
     /*padding: 0px 2px 2px 2px;*/
     /*overflow: auto;*/
     display: flex;
@@ -72,9 +82,11 @@
 }
 
 /*############# 控制按钮 #############*/
+
 .note-control button {
+    /*宽度计算好是39*/
     margin: 2px 2px 6px 2px;
-    padding: 2px 5px;
+    padding: 2px 6px;
 }
 
 /*############# 菜单切换 #############*/
@@ -91,7 +103,7 @@
 
 .menu-switch > button {
     margin: 1px;
-    padding: 2px 5px;
+    padding: 4px 8px;
 }
 
 /*############# 文件列表 #############*/
@@ -104,13 +116,14 @@
 
 .file-list-ctrl {
     display: flex;
-    justify-content: center;
+    justify-content: space-evenly;
     flex-shrink: 0;
+    margin: 2px;
 }
 
-.file-list-ctrl > button {
+/*.file-list-ctrl > button {
     padding: 2px 4px;
-}
+}*/
 
 /*############# 菜单树 #############*/
 .tree {
@@ -289,8 +302,8 @@
 .note-title-area {
     flex-shrink: 0;
 
-    padding: 2px 10px;
-    margin-bottom: 1px;
+    padding: 2px 8px 2px 0px;
+    margin-bottom: 6px;
 
     /*border-bottom: 1px solid;*/
     /*border-color: rgba(0, 0, 0, 0.3);*/
@@ -305,11 +318,11 @@
     min-width: 20rem;
     max-width: 50%;
     margin-right: 1rem;
-    padding: 2px;
+    padding: 1px 8px;
     border: none;
     border-bottom: 1px solid #8e8d8d;
     outline: none;
-    font-size: 1.25rem;
+    font-size: 1.5rem;
     white-space: nowrap;
     overflow: hidden;
 
@@ -327,16 +340,16 @@
     color: #c5c3c3;
     display: flex;
     align-items: center;
-    /*margin-left: auto;*/
+    margin-left: auto;
     margin-right: 1rem;
 }
 
 .file-info-path {
-    font-size: 0.9rem;
+    /*font-size: 0.9rem;*/
 }
 
 .file-info-time {
-    font-size: 0.5rem;
+    font-size: 0.8rem;
     margin-left: 1.5rem;
     line-height: 1.2;
 }
@@ -360,7 +373,6 @@
     flex-direction: row;
     justify-content: space-between;
     flex-wrap: nowrap;
-    margin: 2px;
 
 }
 
@@ -391,7 +403,7 @@
 .editor-textarea {
     resize: none;
     font-family: Consolas, Courier;
-    font-size: 14px;
+    font-size: 16px;
 
     padding: 10px;
     overflow-y: scroll;
@@ -399,17 +411,19 @@
     white-space: nowrap;
     width: 100%;
     height: 100%;
+
+    outline: none;
+    border: 2px solid #bcbcbc;
 }
 
 .editor-textarea:focus {
-    /*border: 1px solid black;*/
-    /*outline: none;*/
+    border: 2px solid #5d5d5d;
 }
 
 .editor-divider {
     flex-shrink: 0;
     flex-grow: 0;
-    width: 5px;
+    width: 6px;
     background: #eee;
     cursor: pointer;
 }
