@@ -334,7 +334,9 @@ function noteListInit() {
                 const li = document.createElement('li');
                 const label = document.createElement('label');
                 label.textContent = item.name;
-                label.setAttribute('data-type', item.fileType);
+                // label.setAttribute('data-type', item.fileType);
+                label.dataset.type = item.fileType;
+                label.dataset.fullPath = item.fullPath;
                 // if (item.favorite) {
                 //     label.setAttribute('data-favorite', 'true');
                 // }
@@ -398,6 +400,17 @@ function labelClick(event) {
     //加载文件
     console.log('lable 被点击', event.target);
     console.log(event.target.textContent)
+
+    if (lb.dataset.type == "md") {
+        const path = lb.dataset.fullPath;
+        getRequest("/note/getNote?path=" + path, data => {
+            const editor = document.getElementById("editor");
+            editor.value = data.content;
+            document.getElementById("noteTitle").textContent = data.name;
+            editor.dispatchEvent(new Event('input'));
+        });
+    }
+
 }
 
 /**

@@ -1,15 +1,20 @@
 package com.wwh.home.center.service.impl;
 
+import com.wwh.home.center.common.constant.SysConstants;
 import com.wwh.home.center.common.exception.BusinessException;
 import com.wwh.home.center.common.util.FileUtil;
+import com.wwh.home.center.model.vo.NoteFileVo;
 import com.wwh.home.center.model.vo.NotePathVo;
 import com.wwh.home.center.security.UserContextHolder;
 import com.wwh.home.center.service.NoteService;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,6 +24,7 @@ import java.util.List;
  * @author wangwh
  * @date 2024/02/22
  */
+@Slf4j
 @Service
 public class NoteServiceImpl implements NoteService {
 
@@ -37,14 +43,53 @@ public class NoteServiceImpl implements NoteService {
 
     private int count = 0;
 
+
+    @Override
+    public NoteFileVo getNote(String path) {
+        if (StringUtils.isBlank(path)) {
+            throw new BusinessException("文件路径不能为空");
+        }
+        File file = new File(getNoteDir(), path);
+
+        if (!file.exists()) {
+            throw new BusinessException("文件【" + path + "】不存在");
+        }
+        if (file.isDirectory()) {
+            throw new BusinessException("【" + path + "】是一个目录");
+        }
+
+        try {
+            NoteFileVo vo = new NoteFileVo();
+            String content = FileUtils.readFileToString(file, SysConstants.DEFAULT_CHARSET);
+            vo.setContent(content);
+            String name = file.getName();
+            vo.setName(name);
+            vo.setParentPath(path.substring(0, path.length() - name.length()));
+
+            vo.setFileType(FileUtil.getFileExtension(name));
+//            vo.setFavorite(true);
+            vo.setAsterisk(true);
+            //vo.setCreateTime(file.);
+
+            return vo;
+        } catch (IOException e) {
+            log.error("读取文件异常", e);
+            throw new BusinessException("读取文件异常");
+        }
+    }
+
     @Override
     public List<NotePathVo> listAll() {
         File baseDir = getNoteDir();
         count = 0;
+
+        long t1 = System.currentTimeMillis();
+
         System.out.println("开始递归文件....");
-        List<NotePathVo> list = recursiveListFile("/", baseDir);
+        List<NotePathVo> list = recursiveListFile("", baseDir);
         System.out.println("文件递归结束....");
         System.out.println("文件+目录 总共：" + count);
+        System.out.println("耗时：" + (System.currentTimeMillis() - t1));
         return list;
     }
 
@@ -56,7 +101,6 @@ public class NoteServiceImpl implements NoteService {
             NotePathVo pathVo = buildNotePathVo(parentPath, fileOrDir);
             list.add(pathVo);
 
-            System.out.print("v");
             count++;
 
             if (fileOrDir.isDirectory()) {
@@ -88,6 +132,7 @@ public class NoteServiceImpl implements NoteService {
         }
         return list;
     }
+
 
     private NotePathVo buildNotePathVo(String parentPath, File fileOrDir) {
         NotePathVo vo = new NotePathVo();

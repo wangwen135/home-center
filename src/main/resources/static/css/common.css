@@ -88,39 +88,39 @@
 /**
  * 宽度
  */
-.w-1 {
+.w-1px {
     width: 1px;
 }
 
-.w-2 {
+.w-2px {
     width: 2px;
 }
 
-.w-3 {
+.w-3px {
     width: 3px;
 }
 
-.w-4 {
+.w-4px {
     width: 4px;
 }
 
-.w-5 {
+.w-5px {
     width: 5px;
 }
 
-.w-6 {
+.w-6px {
     width: 6px;
 }
 
-.w-7 {
+.w-7px {
     width: 7px;
 }
 
-.w-8 {
+.w-8px {
     width: 8px;
 }
 
-.w-9 {
+.w-9px {
     width: 9px;
 }
 
@@ -274,15 +274,37 @@
     box-shadow: 0 0 0 0rem rgba(130, 138, 145, 0.5);
 }
 
-
+/*默认动画效果*/
 .ts {
     transition: transform 0.3s ease-in-out;
 }
 
+/*选中角度*/
 .rotate-90 {
     transform: rotate(90deg);
 }
 
 .rotate-180 {
     transform: rotate(180deg);
+}
+
+/*最小宽度*/
+.min-w-1rem {
+    min-width: 1rem;
+}
+
+.min-w-2rem {
+    min-width: 2rem;
+}
+
+.min-w-3rem {
+    min-width: 3rem;
+}
+
+.min-w-4rem {
+    min-width: 4rem;
+}
+
+.min-w-5rem {
+    min-width: 5rem;
 }

@@ -1,6 +1,7 @@
 package com.wwh.home.center.controller;
 
 import com.wwh.home.center.common.model.Result;
+import com.wwh.home.center.model.vo.NoteFileVo;
 import com.wwh.home.center.model.vo.NotePathVo;
 import com.wwh.home.center.service.NoteService;
 import io.swagger.annotations.Api;
@@ -42,6 +43,13 @@ public class NoteController {
     @GetMapping("/list")
     public Result<List<NotePathVo>> list(@RequestParam(required = false) @ApiParam("子路径") String path) {
         return Result.success(noteService.list(path));
+    }
+
+
+    @ApiOperation("获取笔记文件")
+    @GetMapping("/getNote")
+    public Result<NoteFileVo> getNote(@RequestParam @ApiParam(value = "笔记路径", required = true) String path) {
+        return Result.success(noteService.getNote(path));
     }
 
     //创建目录

@@ -1,5 +1,6 @@
 package com.wwh.home.center.service;
 
+import com.wwh.home.center.model.vo.NoteFileVo;
 import com.wwh.home.center.model.vo.NotePathVo;
 
 import java.util.List;
@@ -15,4 +16,6 @@ public interface NoteService {
     List<NotePathVo> listAll();
 
     List<NotePathVo> list(String path);
+
+    NoteFileVo getNote(String path);
 }

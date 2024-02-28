@@ -137,20 +137,6 @@
                             <li><label data-type="java">userService.java</label></li>
                         </ul>
                     </li>
-                    <li>
-                        <label data-type="DIR">新建文件夹2</label>
-                        <ul>
-                            <li><label data-type="pdf">文件3.pdf</label></li>
-                            <li><label data-type="java">userService.java</label></li>
-                            <li>
-                                <label data-type="DIR">新建文件夹2</label>
-                                <ul>
-                                    <li><label data-type="pdf">文件3.pdf</label></li>
-                                    <li><label data-type="java">userService.java</label></li>
-                                </ul>
-                            </li>
-                        </ul>
-                    </li>
                 </ul>
             </div>
         </div>
@@ -163,7 +149,18 @@
     <div id="content" class="note-content">
         <div class="note-title-area">
 
-            <div class="note-title" contenteditable="true" placeholder="请输入标题">这是一个动态的标题</div>
+            <div id="noteTitle" class="note-title" contenteditable="true" placeholder="请输入标题">动态文章标题.md</div>
+
+            <div class="file-info-area">
+                <div class="file-info-path">
+                    <i class="bi bi-folder-symlink"></i>
+                    <span>/2022-12-09_备份/硬件与软件/阿里云</span>
+                </div>
+                <div class="file-info-time">
+                    <span>创建时间：2022-12-2 13:23:32</span><br>
+                    <span>修改时间：2022-12-2 13:23:32</span>
+                </div>
+            </div>
 
             <div class="note-title-toolbar">
                 <!--收藏-->
@@ -175,7 +172,7 @@
                     <i class="bi bi-star-fill"></i>
                 </button>
 
-                <button id="btnEditOrPreview" class="btn btn-control btn-p-xxs mx-4">
+                <button id="btnEditOrPreview" class="btn btn-control btn-p-xxs mx-3">
                     <i class="bi bi-eye"></i>
                     预览
                 </button>
@@ -191,28 +188,122 @@
             </div>
         </div>
         <div id="editorToolbar" class="editor-toolbar">
-            <div>
+            <div class="text-nowrap">
                 <!--粗体-->
-                <button id="tb-bold" class="btn btn-control btn-p-sm">
+                <button id="tb-bold" class="btn btn-control btn-p-sm" title="加粗 ctrl+b">
                     <i class="bi bi-type-bold"></i>
                 </button>
                 <!--斜体-->
-                <button id="tb-italic" class="btn btn-control btn-p-sm">
+                <button id="tb-italic" class="btn btn-control btn-p-sm" title="斜体 ctrl+i">
                     <i class="bi bi-type-italic"></i>
                 </button>
                 <!--下划线-->
-                <button id="tb-underline" class="btn btn-control btn-p-sm">
+                <button id="tb-underline" class="btn btn-control btn-p-sm" title="下划线 ctrl+u">
                     <i class="bi bi-type-underline"></i>
                 </button>
                 <!--删除线-->
-                <button id="tb-strikethrough" class="btn btn-control btn-p-sm">
+                <button id="tb-strikethrough" class="btn btn-control btn-p-sm" title="删除线 ctrl+shift+s">
                     <i class="bi bi-type-strikethrough"></i>
                 </button>
-                <button class="btn btn-secondary btn-sm">H</button>
+
+                <!--分隔-->
+                <span class="text-black-50">|</span>
+
+                <!--标题 需要弹出下拉框-->
+                <div class="dropdown d-inline-block">
+                    <button id="tb-headline" class="btn btn-control btn-p-sm dropdown-toggle" data-bs-toggle="dropdown"
+                            aria-expanded="false" title="标题 ctrl+[1~6]">
+                        <i class="bi bi-type-h1"></i>
+                    </button>
+                    <ul class="dropdown-menu min-w-2rem">
+                        <li>
+                            <button class="btn btn-control btn-p-sm dropdown-item">
+                                <i class="bi bi-type-h1"></i> 一级标题
+                            </button>
+                        </li>
+                        <li>
+                            <button class="btn btn-control btn-p-sm dropdown-item">
+                                <i class="bi bi-type-h2"></i> 二级标题
+                            </button>
+                        </li>
+                        <li>
+                            <button class="btn btn-control btn-p-sm dropdown-item">
+                                <i class="bi bi-type-h3"></i> 三级标题
+                            </button>
+                        </li>
+                        <li>
+                            <button class="btn btn-control btn-p-sm dropdown-item">
+                                <i class="bi bi-type-h4"></i> 四级标题
+                            </button>
+                        </li>
+                        <li>
+                            <button class="btn btn-control btn-p-sm dropdown-item">
+                                <i class="bi bi-type-h5"></i> 五级标题
+                            </button>
+                        </li>
+                        <li>
+                            <button class="btn btn-control btn-p-sm dropdown-item">
+                                <i class="bi bi-type-h6"></i> 六级标题
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+
+                <!--分隔-->
+                <span class="text-black-50">|</span>
+
+                <!--水平分割线-->
+                <button class="btn btn-control btn-p-sm">
+                    <i class="bi bi-dash-lg"></i>
+                    <!--<i class="bi bi-hr"></i>-->
+                </button>
+                <!--引用-->
+                <button class="btn btn-control btn-p-sm">
+                    <!--<i class="bi bi-quote"></i>-->
+                    <i class="bi bi-blockquote-left"></i>
+                </button>
+                <!--无序列表-->
+                <button class="btn btn-control btn-p-sm">
+                    <i class="bi bi-list-ul"></i>
+                </button>
+                <!--有序列表-->
+                <button class="btn btn-control btn-p-sm">
+                    <i class="bi bi-list-ol"></i>
+                </button>
+                <!--未勾选-->
+                <button class="btn btn-control btn-p-sm">
+                    <i class="bi bi-square"></i>
+                </button>
+                <!--已经勾选-->
+                <button class="btn btn-control btn-p-sm">
+                    <i class="bi bi-check-square"></i>
+                </button>
+
+                <!--分隔-->
+                <span class="text-black-50">|</span>
+
                 <!--表格-->
                 <button id="tb-table" class="btn btn-control btn-p-sm">
                     <i class="bi bi-table"></i>
                 </button>
+                <!--图片-->
+                <button id="tb-image" class="btn btn-control btn-p-sm">
+                    <i class="bi bi-image"></i>
+                </button>
+                <!--链接-->
+                <button id="tb-link" class="btn btn-control btn-p-sm">
+                    <i class="bi bi-link-45deg"></i>
+                </button>
+                <!--代码块-->
+                <button id="tb-code" class="btn btn-control btn-p-sm">
+                    <i class="bi bi-code-square"></i>
+                </button>
+                <!--内嵌代码-->
+                <button class="btn btn-control btn-p-sm">
+                    <i class="bi bi-code"></i>
+                </button>
+
+
             </div>
 
         </div>
