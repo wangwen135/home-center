@@ -366,14 +366,30 @@
 }
 
 /*工具栏*/
-.editor-toolbar {
-    padding-left: 10px;
-    padding-right: 10px;
+.toolbar-container {
+    padding-left: 6px;
+    padding-right: 6px;
     display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    flex-wrap: nowrap;
+    /*flex-direction: row;*/
+    /*justify-content: space-between;*/
+    /*flex-wrap: nowrap;*/
 
+}
+
+/*编辑器工具栏*/
+.editor-toolbar {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    white-space: nowrap;
+}
+
+/*预览查看工具栏*/
+.preview-toolbar {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    white-space: nowrap;
 }
 
 /*编辑器和查看器*/
@@ -436,14 +452,10 @@
 .viewer-wrapper {
     flex-grow: 1;
     flex-shrink: 1;
-
     border: 1px solid #eee;
-
-    padding: 16px 10px 10px 10px;
-
+    /*padding: 16px 10px 10px 10px;*/
     overflow-y: scroll;
     overflow-x: auto;
-
     width: 100%;
 }
 
@@ -451,6 +463,6 @@
 .markdown_content {
     margin-left: auto;
     margin-right: auto;
-    max-width: 1280px;
-
+    max-width: 1020px;
+    padding: 1rem;
 }

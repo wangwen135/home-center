@@ -20,11 +20,13 @@ function markdownInit() {
     const editor = document.getElementById('editor');
     const editorDivider = document.getElementById('editorDivider')
     const preview = document.getElementById('preview');
-    const content = document.getElementById('markdownContent');
+    const markdownContent = document.getElementById('markdownContent');
 
     //编辑器工具栏控制
-    const btnToggleEditorToolbar = document.getElementById("btnToggleEditorToolbar");
+    const btnToggleToolbar = document.getElementById("btnToggleToolbar");
+    const toolbarContainer = document.getElementById("toolbarContainer");
     const editorToolbar = document.getElementById("editorToolbar");
+    const previewToolbar = document.getElementById("previewToolbar");
     // 编辑/预览 按钮
     const btnEditOrPreview = document.getElementById('btnEditOrPreview');
 
@@ -35,9 +37,11 @@ function markdownInit() {
     // 点击中间隐藏预览
     hiddenPreviewCtrl();
     // 展示或隐藏编辑器的工具栏
-    toggleEditorToolbar();
+    toggleToolbar();
+
     // 工具栏按钮绑定事件
     editorToolbarBtnBind();
+    previewToolbarBtnBind();
 
     // 切换编辑和查看模式
     toggleEditOrPreview();
@@ -49,7 +53,47 @@ function markdownInit() {
     markdownLoad();
 
     /**
-     * 给工具栏的按钮绑定事件
+     * 预览工具栏的按钮绑定事件
+     */
+    function previewToolbarBtnBind() {
+
+        const small = document.getElementById("p-tb-small");
+        small.onclick = function (event) {
+            clearSelection();
+            small.dataset.select = 'true';
+            markdownContent.style.maxWidth = '680px';
+        }
+
+        const middle = document.getElementById("p-tb-middle");
+        middle.onclick = function (event) {
+            clearSelection();
+            middle.dataset.select = 'true';
+            markdownContent.style.maxWidth = '1020px';
+        }
+
+        const large = document.getElementById("p-tb-large");
+        large.onclick = function (event) {
+            clearSelection();
+            large.dataset.select = 'true';
+            markdownContent.style.maxWidth = '1360px';
+        }
+
+        const auto = document.getElementById("p-tb-auto");
+        auto.onclick = function (event) {
+            clearSelection();
+            auto.dataset.select = 'true';
+            markdownContent.style.maxWidth = '100%';
+        }
+
+        function clearSelection() {
+            previewToolbar.querySelectorAll("[data-select='true']").forEach(i => {
+                i.dataset.select = '';
+            });
+        }
+    }
+
+    /**
+     * 编辑工具栏的按钮绑定事件
      */
     function editorToolbarBtnBind() {
         // 工具栏位
@@ -66,8 +110,8 @@ function markdownInit() {
     function toggleEditOrPreview() {
         btnEditOrPreview.onclick = function () {
             if (editorWrapper.style.display == 'none') {
-                // 切换回编辑模式，打开工具栏
-                tryShowEditorToolbar()
+                // 编辑模式工具栏
+                switchEditorToolbar();
 
                 editorWrapper.style.display = '';
                 editorDivider.style.display = '';
@@ -78,8 +122,8 @@ function markdownInit() {
                 btnEditOrPreview.childNodes[2].textContent = " 预览 ";
 
             } else {
-                // 预览模式下隐藏编辑工具栏
-                hiddenEditorToolbar()
+                // 预览模式工具栏
+                switchPreviewToolbar();
 
                 editorWrapper.style.display = 'none';
                 editorDivider.style.display = 'none';
@@ -95,39 +139,40 @@ function markdownInit() {
         }
     }
 
-    /**
-     * 切换编辑工具条
-     */
-    function toggleEditorToolbar() {
+    function switchEditorToolbar() {
+        editorToolbar.classList.remove("d-none");
+        previewToolbar.classList.add("d-none");
+    }
 
-        btnToggleEditorToolbar.onclick = function () {
-            if (editorToolbar.style.display == 'none') {
-                localStorage.styleHiddenEditorToolbar = 'false';
-                tryShowEditorToolbar();
+    function switchPreviewToolbar() {
+        editorToolbar.classList.add("d-none");
+        previewToolbar.classList.remove("d-none");
+    }
+
+    /**
+     * 切换工具条
+     */
+    function toggleToolbar() {
+
+        btnToggleToolbar.onclick = function () {
+            if (toolbarContainer.style.display == 'none') {
+                /*展示工具栏*/
+                localStorage.styleHiddenToolbar = 'false';
+                toolbarContainer.style.display = '';
+                btnToggleToolbar.children[0].classList.remove("rotate-180");
             } else {
-                localStorage.styleHiddenEditorToolbar = 'true';
-                hiddenEditorToolbar()
+                localStorage.styleHiddenToolbar = 'true';
+                hiddenToolbar()
             }
         }
     }
 
-    function hiddenEditorToolbar() {
-        if (editorToolbar.style.display == 'none') {
+    function hiddenToolbar() {
+        if (toolbarContainer.style.display == 'none') {
             return;
         }
-        editorToolbar.style.display = 'none';
-        btnToggleEditorToolbar.children[0].classList.add("rotate-180");
-    }
-
-    function tryShowEditorToolbar() {
-        if (editorToolbar.style.display != 'none') {
-            return;
-        }
-        if (localStorage.styleHiddenEditorToolbar == 'true') {
-            return;
-        }
-        editorToolbar.style.display = '';
-        btnToggleEditorToolbar.children[0].classList.remove("rotate-180");
+        toolbarContainer.style.display = 'none';
+        btnToggleToolbar.children[0].classList.add("rotate-180");
     }
 
 
@@ -136,14 +181,13 @@ function markdownInit() {
      */
     function loadLastConf() {
         // 从本地存储中获得上一次工具栏的状态
-        if (localStorage.styleHiddenEditorToolbar == 'true') {
-            hiddenEditorToolbar();
+        if (localStorage.styleHiddenToolbar == 'true') {
+            hiddenToolbar();
         }
-
 
         //颜色模式
         if (localStorage.lightDark == 'dark') {
-            darkModel();
+            // darkModel();
         }
     }
 
@@ -200,7 +244,7 @@ function markdownInit() {
     function render() {
         const text = editor.value;
         localStorage.editContents = text;
-        content.innerHTML = converter.makeHtml(text);
+        markdownContent.innerHTML = converter.makeHtml(text);
     }
 
 
@@ -438,11 +482,13 @@ function noteListDisplayCtrl() {
         if (noteList.style.display == 'none') {
             noteList.style.display = '';
             divider.style.display = '';
-            btn.children[0].classList.remove("rotate-180");
+            //btn.children[0].classList.remove("rotate-180");
+            btn.style.color = '';
         } else {
             noteList.style.display = 'none';
             divider.style.display = 'none';
-            btn.children[0].classList.add("rotate-180");
+            // btn.children[0].classList.add("rotate-180");
+            btn.style.color = 'blue';
         }
     }
 

@@ -1,5 +1,16 @@
 package com.wwh.home.center.common.util;
 
+import lombok.Data;
+
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.nio.file.attribute.FileTime;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 /**
  * 文件工具类
  *
@@ -21,6 +32,32 @@ public class FileUtil {
             return fileName.substring(lastDotIndex + 1).toLowerCase();
         } else {
             return "";
+        }
+    }
+
+    @Data
+    public class FileTimeInfo {
+        private Long creationTime;
+        private Long lastModifiedTime;
+    }
+
+    public static FileTimeInfo getFileTimeInfo(File file) {
+        //FileTimeInfo fti = new FileTimeInfo();
+        return null;
+    }
+
+
+    public static void main(String[] args) {
+        Path path = Paths.get("D:\\temp\\ShutdownTest.jar");
+        try {
+            BasicFileAttributes attrs = Files.readAttributes(path, BasicFileAttributes.class);
+            FileTime creationTime = attrs.creationTime();
+            FileTime lastModifiedTime = attrs.lastModifiedTime();
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            System.out.println("创建时间：" + sdf.format(new Date(creationTime.toMillis())));
+            System.out.println("修改时间：" + sdf.format(new Date(lastModifiedTime.toMillis())));
+        } catch (Exception e) {
+            System.err.println("Error reading file attributes: " + e.getMessage());
         }
     }
 }

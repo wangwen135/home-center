@@ -69,6 +69,9 @@ public class NoteServiceImpl implements NoteService {
             vo.setFileType(FileUtil.getFileExtension(name));
 //            vo.setFavorite(true);
             vo.setAsterisk(true);
+
+            file.lastModified();
+
             //vo.setCreateTime(file.);
 
             return vo;

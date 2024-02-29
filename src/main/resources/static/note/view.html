@@ -24,7 +24,8 @@
     <!--最左边的控制按钮-->
     <div id="control" class="note-control">
         <button id="btnToggleNoteList" class="btn btn-control" type="button">
-            <i class="bi bi-chevron-bar-left ts d-inline-block"></i>
+            <!--<i class="bi bi-chevron-bar-left ts d-inline-block"></i>-->
+            <i class="bi bi-layout-sidebar"></i>
         </button>
 
         <button class="btn btn-control" type="button">
@@ -178,8 +179,10 @@
                 </button>
 
                 <!--折叠编辑工具栏-->
-                <button id="btnToggleEditorToolbar" class="btn btn-control btn-p-xs">
-                    <i class="bi bi-chevron-bar-up ts d-inline-block"></i>
+                <button id="btnToggleToolbar" class="btn btn-control btn-p-xs">
+                    <!--<i class="bi bi-chevron-bar-up ts d-inline-block"></i>-->
+                    <!--<i class="bi bi-caret-up ts d-inline-block"></i>-->
+                    <i class="bi bi-caret-up-square ts d-inline-block"></i>
                 </button>
 
                 <button id="setting" class="btn btn-control btn-p-xs rounded-circle">
@@ -187,8 +190,9 @@
                 </button>
             </div>
         </div>
-        <div id="editorToolbar" class="editor-toolbar">
-            <div class="text-nowrap">
+        <div id="toolbarContainer" class="toolbar-container">
+            <!--编辑工具栏-->
+            <div id="editorToolbar" class="editor-toolbar">
                 <!--粗体-->
                 <button id="tb-bold" class="btn btn-control btn-p-sm" title="加粗 ctrl+b">
                     <i class="bi bi-type-bold"></i>
@@ -207,7 +211,7 @@
                 </button>
 
                 <!--分隔-->
-                <span class="text-black-50">|</span>
+                <span class="text-black-50 mx-1">|</span>
 
                 <!--标题 需要弹出下拉框-->
                 <div class="dropdown d-inline-block">
@@ -250,7 +254,7 @@
                 </div>
 
                 <!--分隔-->
-                <span class="text-black-50">|</span>
+                <span class="text-black-50 mx-1">|</span>
 
                 <!--水平分割线-->
                 <button class="btn btn-control btn-p-sm">
@@ -280,7 +284,7 @@
                 </button>
 
                 <!--分隔-->
-                <span class="text-black-50">|</span>
+                <span class="text-black-50 mx-1">|</span>
 
                 <!--表格-->
                 <button id="tb-table" class="btn btn-control btn-p-sm">
@@ -302,8 +306,29 @@
                 <button id="tb-code" class="btn btn-control btn-p-sm">
                     <i class="bi bi-code-square"></i>
                 </button>
+
+                <!--同步滚动按钮-->
+                <!--这个按钮在最右边-->
+                <button class="btn btn-control btn-p-sm ms-auto" data-select="true">
+                    <i class="bi bi-arrows-vertical"></i>
+                </button>
             </div>
 
+            <!--预览工具栏-->
+            <div id="previewToolbar" class="preview-toolbar d-none">
+                <button id="p-tb-small" class="btn btn-control btn-p-sm">
+                    <span class="letter-icon">S</span>
+                </button>
+                <button id="p-tb-middle" class="btn btn-control btn-p-sm" data-select="true">
+                    <span class="letter-icon">M</span>
+                </button>
+                <button id="p-tb-large" class="btn btn-control btn-p-sm">
+                    <span class="letter-icon">L</span>
+                </button>
+                <button id="p-tb-auto" class="btn btn-control btn-p-sm">
+                    <span class="letter-icon">AUTO</span>
+                </button>
+            </div>
         </div>
 
         <div class="editor-viewer">
