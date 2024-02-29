@@ -1,6 +1,7 @@
 package com.wwh.home.center.common.util;
 
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -17,6 +18,7 @@ import java.util.Date;
  * @author wangwh
  * @date 2024/02/22
  */
+@Slf4j
 public class FileUtil {
     public static String getFileExtension(String fileName) {
         if (fileName == null || fileName.isEmpty()) {
@@ -36,14 +38,29 @@ public class FileUtil {
     }
 
     @Data
-    public class FileTimeInfo {
-        private Long creationTime;
-        private Long lastModifiedTime;
+    public static class FileTimeInfo {
+        private Date creationTime;
+        private Date lastModifiedTime;
     }
 
     public static FileTimeInfo getFileTimeInfo(File file) {
-        //FileTimeInfo fti = new FileTimeInfo();
-        return null;
+        if (file == null) {
+            return null;
+        }
+        FileTimeInfo fti = new FileTimeInfo();
+        try {
+            BasicFileAttributes attrs = Files.readAttributes(file.toPath(), BasicFileAttributes.class);
+            FileTime creationTime = attrs.creationTime();
+            FileTime lastModifiedTime = attrs.lastModifiedTime();
+
+            fti.setCreationTime(new Date(creationTime.toMillis()));
+            fti.setLastModifiedTime(new Date(lastModifiedTime.toMillis()));
+
+        } catch (Exception e) {
+            log.error("Error reading file[{}] attributes", file.getPath(), e);
+        }
+
+        return fti;
     }
 
 

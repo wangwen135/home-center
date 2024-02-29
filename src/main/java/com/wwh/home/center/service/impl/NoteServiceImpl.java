@@ -67,12 +67,13 @@ public class NoteServiceImpl implements NoteService {
             vo.setParentPath(path.substring(0, path.length() - name.length()));
 
             vo.setFileType(FileUtil.getFileExtension(name));
-//            vo.setFavorite(true);
+
+            FileUtil.FileTimeInfo fti = FileUtil.getFileTimeInfo(file);
+            vo.setCreateTime(fti.getCreationTime());
+            vo.setUpdateTime(fti.getLastModifiedTime());
+
+            vo.setFavorite(false);
             vo.setAsterisk(true);
-
-            file.lastModified();
-
-            //vo.setCreateTime(file.);
 
             return vo;
         } catch (IOException e) {

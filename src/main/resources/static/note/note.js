@@ -353,17 +353,132 @@ function noteListInit() {
     //控件初始化
     noteListDisplayCtrl();
 
+
+    /**
+     * 笔记列表展示控制
+     */
+    function noteListDisplayCtrl() {
+        const btn = document.getElementById("btnToggleNoteList");
+        const noteList = document.getElementById("noteList");
+        const divider = document.getElementById("divider");
+
+        btn.onclick = toggleNoteList;
+
+        // 拖拽
+        dragControl();
+        // 双击还原
+        divider.ondblclick = resetNoteListWidth;
+
+        /**
+         * 展示或隐藏文件列表
+         */
+        function toggleNoteList() {
+            if (noteList.style.display == 'none') {
+                noteList.style.display = '';
+                divider.style.display = '';
+                //btn.children[0].classList.remove("rotate-180");
+                btn.style.color = '';
+            } else {
+                noteList.style.display = 'none';
+                divider.style.display = 'none';
+                // btn.children[0].classList.add("rotate-180");
+                btn.style.color = 'blue';
+            }
+        }
+
+        function resetNoteListWidth() {
+            noteList.style.width = '280px';
+        }
+
+        /**
+         * 拖拽方式调整文件列表宽度
+         */
+        function dragControl() {
+            let startX;
+            let startWidth;
+
+            divider.addEventListener("mousedown", function (e) {
+                startX = e.clientX;
+                startWidth = noteList.clientWidth;
+                document.documentElement.style.cursor = "col-resize";
+                document.addEventListener("mousemove", mousemove);
+                document.addEventListener("mouseup", mouseup);
+            });
+
+            function mousemove(e) {
+                const delta = e.clientX - startX;
+                const newWidth = startWidth + delta;
+
+                // 小于窗口的一半
+                if (newWidth >= 120 && newWidth <= document.body.clientWidth / 2) {
+                    document.documentElement.style.cursor = "col-resize";
+                    noteList.style.width = newWidth + "px";
+                } else {
+                    document.documentElement.style.cursor = "not-allowed";
+                }
+            }
+
+            function mouseup() {
+                document.documentElement.style.cursor = "initial";
+                document.removeEventListener("mousemove", mousemove);
+                document.removeEventListener("mouseup", mouseup);
+            }
+        }
+
+    }
+
+
+    noteListTreeInit();
+
+
+}
+
+/**
+ * 文件列表树初始化
+ */
+function noteListTreeInit() {
+    const noteListTree = document.getElementById("noteListTree");
+
     // 基本事件处理
     noteListTreeEventHandle();
 
-    menuDataInit();
+    //数据初始化
+    treeDataInit();
+
+    //控制按钮初始化
+    ctrlBtnInit();
+
+    function ctrlBtnInit() {
+        const expand = document.getElementById("nlt-expand");
+        expand.onclick = function () {
+            if (expand.dataset.status == 'expand') {
+                collapseAll()
+                expand.dataset.status = 'collapse';
+                expand.dataset.displayChild = '1';
+            } else {
+                expandAll()
+                expand.dataset.status = 'expand';
+                expand.dataset.displayChild = '2';
+            }
+        }
+    }
+
+    function expandAll() {
+        noteListTree.querySelectorAll("[data-type='DIR'].closed").forEach(d => {
+            d.classList.remove("closed");
+        });
+    }
+
+    function collapseAll() {
+        noteListTree.querySelectorAll("[data-type='DIR']:not(.closed)").forEach(d => {
+            d.classList.add("closed");
+        });
+    }
 
     /*
-     * 菜单初始化
-     *
-     */
-    function menuDataInit() {
-        const noteListTree = document.getElementById("noteListTree");
+    * 菜单初始化
+    */
+    function treeDataInit() {
         noteListTree.innerHTML = '';
 
         getRequest("/note/listAll", receive);
@@ -379,18 +494,17 @@ function noteListInit() {
             const ul = document.createElement('ul');
             data.forEach(item => {
                 const li = document.createElement('li');
-                const label = document.createElement('label');
-                label.textContent = item.name;
-                // label.setAttribute('data-type', item.fileType);
-                label.dataset.type = item.fileType;
-                label.dataset.fullPath = item.fullPath;
-                // if (item.favorite) {
-                //     label.setAttribute('data-favorite', 'true');
-                // }
-                // if (item.asterisk) {
-                //     label.setAttribute('data-asterisk', 'true');
-                // }
-                li.appendChild(label);
+                const a = document.createElement('a');
+                a.textContent = item.name;
+                a.dataset.type = item.fileType;
+                a.dataset.fullPath = item.fullPath;
+                if (item.favorite) {
+                    a.dataset.favorite = 'true';
+                }
+                if (item.asterisk) {
+                    a.asterisk = 'true';
+                }
+                li.appendChild(a);
                 if (item.children && item.children.length > 0) {
                     recursive(item.children, li);
                 }
@@ -400,138 +514,96 @@ function noteListInit() {
         }
     }
 
-
-}
-
-
-/**
- * 笔记列表树事件处理
- */
-function noteListTreeEventHandle() {
-    const noteListTree = document.getElementById("noteListTree");
-    noteListTree.onclick = function (event) {
-        if (event.target.tagName === 'LABEL') {
-            labelClick(event);
-        }
-    }
-    noteListTree.addEventListener("contextmenu", labelRightClick);
-}
-
-function labelRightClick(event) {
-    // 阻止默认的右键菜单行为
-    event.preventDefault();
-    showToast("鼠标右键触发");
-}
-
-function labelClick(event) {
-    event.preventDefault();
-
-    const lb = event.target;
-
-    if (lb.dataset.type == "DIR") {
-        /*lb.classList.toggle('closed');*/
-        if (lb.classList.contains("closed")) {
-            lb.classList.remove('closed');
-        } else if (lb.dataset.select == "true") {
-            lb.classList.add("closed");
-        }
-
-    }
-
-    // 取消其他的选中
-    document.querySelectorAll(".tree li >label[data-select='true']").forEach(l => {
-        l.dataset.select = "false";
-    });
-    lb.dataset.select = "true";
-
-    //加载文件
-    console.log('lable 被点击', event.target);
-    console.log(event.target.textContent)
-
-    if (lb.dataset.type == "md") {
-        const path = lb.dataset.fullPath;
-        getRequest("/note/getNote?path=" + path, data => {
-            const editor = document.getElementById("editor");
-            editor.value = data.content;
-            document.getElementById("noteTitle").textContent = data.name;
-            editor.dispatchEvent(new Event('input'));
-        });
-    }
-
-}
-
-/**
- * 笔记列表展示控制
- */
-function noteListDisplayCtrl() {
-    const btn = document.getElementById("btnToggleNoteList");
-    const noteList = document.getElementById("noteList");
-    const divider = document.getElementById("divider");
-
-    btn.onclick = toggleNoteList;
-
-    // 拖拽
-    dragControl();
-    // 双击还原
-    divider.ondblclick = resetNoteListWidth;
-
     /**
-     * 展示或隐藏文件列表
+     * 笔记列表树事件处理
      */
-    function toggleNoteList() {
-        if (noteList.style.display == 'none') {
-            noteList.style.display = '';
-            divider.style.display = '';
-            //btn.children[0].classList.remove("rotate-180");
-            btn.style.color = '';
-        } else {
-            noteList.style.display = 'none';
-            divider.style.display = 'none';
-            // btn.children[0].classList.add("rotate-180");
-            btn.style.color = 'blue';
+    function noteListTreeEventHandle() {
+        noteListTree.onclick = function (event) {
+            if (event.target.tagName === 'A') {
+                labelClick(event);
+            }
         }
-    }
-
-    function resetNoteListWidth() {
-        noteList.style.width = '280px';
+        noteListTree.removeEventListener("contextmenu", labelRightClick);
+        noteListTree.addEventListener("contextmenu", labelRightClick);
     }
 
     /**
-     * 拖拽方式调整文件列表宽度
+     * 鼠标右键
+     * @param event
      */
-    function dragControl() {
-        let startX;
-        let startWidth;
+    function labelRightClick(event) {
+        // 阻止默认的右键菜单行为
+        event.preventDefault();
+        showToast("鼠标右键触发");
+    }
 
-        divider.addEventListener("mousedown", function (e) {
-            startX = e.clientX;
-            startWidth = noteList.clientWidth;
-            document.documentElement.style.cursor = "col-resize";
-            document.addEventListener("mousemove", mousemove);
-            document.addEventListener("mouseup", mouseup);
-        });
+    /**
+     * 列表被点击
+     * @param event
+     */
+    function labelClick(event) {
+        event.preventDefault();
 
-        function mousemove(e) {
-            const delta = e.clientX - startX;
-            const newWidth = startWidth + delta;
+        const lb = event.target;
 
-            // 小于窗口的一半
-            if (newWidth >= 120 && newWidth <= document.body.clientWidth / 2) {
-                document.documentElement.style.cursor = "col-resize";
-                noteList.style.width = newWidth + "px";
-            } else {
-                document.documentElement.style.cursor = "not-allowed";
+        if (lb.dataset.type == "DIR") {
+            /*lb.classList.toggle('closed');*/
+            if (lb.classList.contains("closed")) {
+                lb.classList.remove('closed');
+            } else if (lb.dataset.select == "true") {
+                lb.classList.add("closed");
             }
         }
 
-        function mouseup() {
-            document.documentElement.style.cursor = "initial";
-            document.removeEventListener("mousemove", mousemove);
-            document.removeEventListener("mouseup", mouseup);
+        // 取消其他的选中
+        noteListTree.querySelectorAll("[data-select='true']").forEach(l => {
+            l.dataset.select = "false";
+        });
+        lb.dataset.select = "true";
+
+        //加载文件
+        console.log('lable 被点击', event.target);
+        console.log(event.target.textContent)
+
+        const fileType = lb.dataset.type;
+        if (fileType == "md") {
+            const path = lb.dataset.fullPath;
+            getRequest("/note/getNote?path=" + path, data => {
+                const editor = document.getElementById("editor");
+                editor.value = data.content;
+                // 这里先用事件通知的方式使其正常渲染
+                editor.dispatchEvent(new Event('input'));
+
+                document.getElementById("noteTitle").textContent = data.name;
+                document.getElementById("filePath").textContent = data.parentPath;
+                document.getElementById("createTime").textContent = data.createTime;
+                document.getElementById("updateTime").textContent = data.updateTime;
+            });
+        } else {
+            showToast("暂时不支持直接打开【" + fileType + "】类型的文件");
         }
+
     }
+}
+
+function noteListSearchInit() {
 
 }
+
+function noteListLatest() {
+
+}
+
+function noteListFavorite() {
+
+}
+
+function noteListAsterisk() {
+
+}
+
+
+
 
 
 

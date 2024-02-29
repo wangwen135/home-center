@@ -156,7 +156,7 @@
 /**
  * 隐藏下级
  */
-.tree li > label.closed + ul {
+.tree li > a.closed + ul {
     display: none;
     /*height: 0px;*/
 }
@@ -167,7 +167,7 @@
     flex-direction: column;
 }
 
-.tree li > label {
+.tree li > a {
     cursor: pointer;
     width: 100%;
     white-space: nowrap;
@@ -181,27 +181,30 @@
     display: flex;
     align-items: center;
 
+    color: inherit; /* 继承父元素的文字颜色 */
+    text-decoration: none; /* 去除下划线 */
+    background-color: transparent; /* 背景透明 */
 }
 
-.tree li > label:hover {
+.tree li > a:hover {
     background-color: #ececec;
 }
 
 /*label选中样式*/
-.tree li > label[data-select="true"] {
+.tree li > a[data-select="true"] {
     background-color: #cdcdcd;
     /*border-left: #0000ff36 1px solid;*/
 }
 
 /*选中的下级ul出现一个竖线*/
-.tree li > label[data-select="true"] + ul {
+.tree li > a[data-select="true"] + ul {
     border-left: 1px solid #d5d5d5;
 }
 
 
 /*图标默认样式*/
-.tree li > label::before,
-.tree li > label::after {
+.tree li > a::before,
+.tree li > a::after {
     /*bootstrap-icons*/
     display: inline-block;
     font-family: bootstrap-icons !important;
@@ -216,7 +219,7 @@
 
 }
 
-.tree li > label::before {
+.tree li > a::before {
     content: "\F373";
     color: #29292d;
 
@@ -226,12 +229,12 @@
 }
 
 /*文件夹样式*/
-.tree li > label[data-type="DIR"] {
+.tree li > a[data-type="DIR"] {
     padding-left: 0.14rem;
 }
 
 /*文件夹收起样式*/
-.tree li > label[data-type="DIR"].closed::before {
+.tree li > a[data-type="DIR"].closed::before {
     /*content: url("../bootstrap/icons/folder.svg");*/
     /*content: "\f3d9";*/
     /*color: black;*/
@@ -239,7 +242,7 @@
 }
 
 /*打开的文件夹*/
-.tree li > label[data-type="DIR"]::before {
+.tree li > a[data-type="DIR"]::before {
     font-size: small;
 
     content: "\F282"; /*向下的箭头*/
@@ -251,33 +254,33 @@
 
 /*下面是各个文件类型的图标*/
 
-.tree li > label[data-type="md"]::before {
+.tree li > a[data-type="md"]::before {
     content: "\F750";
 }
 
-.tree li > label[data-type="java"]::before {
+.tree li > a[data-type="java"]::before {
     content: "\F74A";
 }
 
-.tree li > label[data-type="json"]::before {
+.tree li > a[data-type="json"]::before {
     content: "\F791";
 }
 
-.tree li > label[data-type="txt"]::before {
+.tree li > a[data-type="txt"]::before {
     content: "\F766";
 }
 
-.tree li > label[data-type="pdf"]::before {
+.tree li > a[data-type="pdf"]::before {
     content: "\F756";
 }
 
 /*#### 标题后面的图标 ####*/
-.tree li > label::after {
+.tree li > a::after {
     margin-left: auto;
 }
 
-/*加星号的*/
-.tree li > label[data-asterisk="true"]::after {
+/*标星的*/
+.tree li > a[data-asterisk="true"]::after {
     content: "\F586";
     color: #ffaa00;
     margin-left: auto;
@@ -285,16 +288,19 @@
 
 
 /*收藏的*/
-.tree li > label[data-favorite="true"]::after {
+.tree li > a[data-favorite="true"]::after {
     content: "\F19B";
     color: #dc3545;
 
 }
 
-.tree li > label[data-favorite="true"][data-asterisk="true"]::after {
+/** 标星 + 收藏 **/
+.tree li > a[data-favorite="true"][data-asterisk="true"]::after {
     content: "\F19B \F586";
     color: #dc3545;
 }
+
+/*##########################################################*/
 
 /*############# markdown #############*/
 

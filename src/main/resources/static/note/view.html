@@ -88,38 +88,39 @@
                     <i class="bi bi-sort-down-alt"></i>
                 </button>
                 <!--展开-折叠-->
-                <button class="btn btn-control btn-p-xs" type="button">
+                <button id="nlt-expand" class="btn btn-control btn-p-xs switch-child" type="button"
+                        data-display-child="1" data-status="expand">
                     <i class="bi bi-chevron-expand"></i>
-                    <!--                    <i class="bi bi-chevron-contract"></i>-->
+                    <i class="bi bi-chevron-contract"></i>
                 </button>
             </div>
             <div id="noteListTree" class="tree">
                 <ul>
                     <li>
-                        <label data-type="DIR">根目录1</label>
+                        <a data-type="DIR">根目录1</a>
                         <ul>
                             <li>
-                                <label data-type="md" data-favorite="true" data-asterisk="true">新建markdown文件.md</label>
+                                <a data-type="md" data-favorite="true" data-asterisk="true">新建markdown文件.md</a>
                             </li>
                             <li>
-                                <label data-type="DIR">目录</label>
+                                <a data-type="DIR">目录</a>
                                 <ul>
                                     <li>
-                                        <label data-type="md" data-favorite="true">文件xxx1.md</label>
+                                        <a data-type="md" data-favorite="true">文件xxx1.md</a>
                                     </li>
                                     <li>
-                                        <label data-asterisk="true">这是一个很长很长的文件名它的长度超过了菜单的宽度测试展示效果</label>
+                                        <a data-asterisk="true">这是一个很长很长的文件名它的长度超过了菜单的宽度测试展示效果</a>
                                     </li>
                                     <li>
-                                        <label data-type="DIR">临时文件夹</label>
+                                        <a data-type="DIR">临时文件夹</a>
                                         <ul>
-                                            <li><label data-type="txt">临时文件1.txt</label></li>
-                                            <li><label data-type="json">临时文件2.json</label></li>
+                                            <li><a data-type="txt">临时文件1.txt</a></li>
+                                            <li><a data-type="json">临时文件2.json</a></li>
                                             <li>
-                                                <label data-type="DIR">临时文件夹</label>
+                                                <a data-type="DIR">临时文件夹</a>
                                                 <ul>
-                                                    <li><label data-type="txt">临时文件1.txt</label></li>
-                                                    <li><label data-type="json">临时文件2.json</label></li>
+                                                    <li><a data-type="txt">临时文件1.txt</a></li>
+                                                    <li><a data-type="json">临时文件2.json</a></li>
                                                 </ul>
                                             </li>
                                         </ul>
@@ -127,15 +128,15 @@
                                 </ul>
                             </li>
                             <li>
-                                <label data-asterisk="true" data-type="doc">文件2.doc</label>
+                                <a data-asterisk="true" data-type="doc">文件2.doc</a>
                             </li>
                         </ul>
                     </li>
                     <li>
-                        <label data-type="DIR">新建文件夹2</label>
+                        <a data-type="DIR">新建文件夹2</a>
                         <ul>
-                            <li><label data-type="pdf" data-asterisk="true">文件3.pdf</label></li>
-                            <li><label data-type="java">userService.java</label></li>
+                            <li><a data-type="pdf" data-asterisk="true">文件3.pdf</a></li>
+                            <li><a data-type="java">userService.java</a></li>
                         </ul>
                     </li>
                 </ul>
@@ -150,16 +151,16 @@
     <div id="content" class="note-content">
         <div class="note-title-area">
 
-            <div id="noteTitle" class="note-title" contenteditable="true" placeholder="请输入标题">动态文章标题.md</div>
+            <div id="noteTitle" class="note-title" contenteditable="true" placeholder="请输入标题"></div>
 
             <div class="file-info-area">
                 <div class="file-info-path">
                     <i class="bi bi-folder-symlink"></i>
-                    <span>/2022-12-09_备份/硬件与软件/阿里云</span>
+                    <span id="filePath"></span>
                 </div>
                 <div class="file-info-time">
-                    <span>创建：2022-12-2 13:23:32</span><br>
-                    <span>修改：2024-2-22 16:37:45</span>
+                    创建：<span id="createTime"></span><br>
+                    修改：<span id="updateTime"></span>
                 </div>
             </div>
 

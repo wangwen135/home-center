@@ -6,6 +6,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.Date;
 
 /**
  * 笔记对象
@@ -23,7 +24,7 @@ public class NoteFileVo {
     @ApiModelProperty("名称")
     private String name;
 
-    @ApiModelProperty("比较内容")
+    @ApiModelProperty("文件内容")
     private String content;
 
     @ApiModelProperty("文件类型")
@@ -31,20 +32,20 @@ public class NoteFileVo {
 
     //其他特性
 
-    @ApiModelProperty("喜欢的")
+    @ApiModelProperty("收藏")
     private boolean favorite;
 
-    @ApiModelProperty("标星星")
+    @ApiModelProperty("标星")
     private boolean asterisk;
 
 
     @ApiModelProperty("创建时间")
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-    private LocalDateTime createTime;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date createTime;
 
 
     @ApiModelProperty("修改时间")
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-    private LocalDateTime updateTime;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date updateTime;
 
 }

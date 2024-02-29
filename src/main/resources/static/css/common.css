@@ -289,7 +289,7 @@
     transition: transform 0.3s ease-in-out;
 }
 
-/*选中角度*/
+/*旋转角度*/
 .rotate-90 {
     transform: rotate(90deg);
 }
@@ -297,6 +297,45 @@
 .rotate-180 {
     transform: rotate(180deg);
 }
+
+/*根据属性展示指定的子类*/
+/**
+ * 父元素设置该样式，然后设置 data-display-child='1' 属性
+ * 数字表示要展示第几个子元素
+ * 其他子元素会被设置为不显示
+ */
+.switch-child {
+
+}
+
+.switch-child > * {
+    display: none;
+}
+
+.switch-child[data-display-child="1"] > *:nth-child(1) {
+    display: unset;
+}
+
+.switch-child[data-display-child="2"] > *:nth-child(2) {
+    display: unset;
+}
+
+.switch-child[data-display-child="3"] > *:nth-child(3) {
+    display: unset;
+}
+
+.switch-child[data-display-child="4"] > *:nth-child(4) {
+    display: unset;
+}
+
+.switch-child[data-display-child="5"] > *:nth-child(5) {
+    display: unset;
+}
+
+.switch-child[data-display-child="6"] > *:nth-child(6) {
+    display: unset;
+}
+
 
 /*最小宽度*/
 .min-w-1rem {
