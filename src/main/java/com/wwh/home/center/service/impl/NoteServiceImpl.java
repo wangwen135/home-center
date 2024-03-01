@@ -83,6 +83,36 @@ public class NoteServiceImpl implements NoteService {
     }
 
     @Override
+    public NoteFileVo saveNote(NoteFileVo fileVo) {
+        log.info("保存文档：{}{}", fileVo.getParentPath(), fileVo.getName());
+
+        String name = fileVo.getName();
+        if (StringUtils.isBlank(name)) {
+            throw new BusinessException("文件名称不能为空");
+        }
+        try {
+            File dir = getNoteDir();
+            String path = fileVo.getParentPath();
+            if (StringUtils.isNotBlank(path)) {
+                dir = new File(dir, path);
+                dir.mkdirs();
+            }
+            File file = new File(dir, name);
+
+            FileUtils.write(file, fileVo.getContent(), SysConstants.DEFAULT_CHARSET);
+
+            FileUtil.FileTimeInfo fti = FileUtil.getFileTimeInfo(file);
+            fileVo.setCreateTime(fti.getCreationTime());
+            fileVo.setUpdateTime(fti.getLastModifiedTime());
+            return fileVo;
+
+        } catch (IOException e) {
+            log.error("写入文件异常", e);
+            throw new BusinessException("保存文件异常");
+        }
+    }
+
+    @Override
     public List<NotePathVo> listAll() {
         File baseDir = getNoteDir();
         count = 0;

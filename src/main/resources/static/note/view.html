@@ -19,76 +19,83 @@
     <link rel="stylesheet" href="note.css">
 </head>
 <body>
-<div class="note-container">
+<div class="frame-container">
 
     <!--最左边的控制按钮-->
-    <div id="control" class="note-control">
-        <button id="btnToggleNoteList" class="btn btn-control" type="button">
+    <div class="note-control">
+        <button id="btnToggleNoteList" class="btn btn-control btn-p-sm" type="button">
+            <!--收列表栏-->
             <!--<i class="bi bi-chevron-bar-left ts d-inline-block"></i>-->
             <i class="bi bi-layout-sidebar"></i>
+
         </button>
 
-        <button class="btn btn-control" type="button">
+        <button class="btn btn-control btn-p-sm" type="button" data-select="true">
+            <i class="bi bi-folder"></i>
+        </button>
+        <button class="btn btn-control btn-p-sm" type="button">
+            <i class="bi bi-search"></i>
+        </button>
+        <button class="btn btn-control btn-p-sm" type="button">
+            <i class="bi bi-file-earmark-text"></i>
+        </button>
+        <button class="btn btn-control btn-p-sm" type="button">
+            <i class="bi bi-bookmark-star"></i>
+        </button>
+
+
+        <button class="btn btn-control btn-p-sm" type="button">
             <i class="bi bi-arrow-clockwise"></i>
         </button>
 
-        <button class="btn btn-control" type="button">
+        <button class="btn btn-control btn-p-sm" type="button">
             <i class="bi bi-calendar-week"></i>
         </button>
 
-        <button class="btn btn-control" type="button">
+        <button class="btn btn-control btn-p-sm" type="button">
             <i class="bi bi-terminal"></i>
         </button>
 
-        <div class="mb-auto"></div>
+        <!--<div class="mb-auto"></div>-->
 
-        <button class="btn btn-control" type="button">
+        <button class="btn btn-control btn-p-sm mt-auto" type="button">
             <i class="bi bi-question-circle"></i>
         </button>
-        <button class="btn btn-control " type="button">
+        <button class="btn btn-control btn-p-sm" type="button">
             <i class="bi bi-gear"></i>
         </button>
     </div>
 
     <!--左边的列表区域-->
     <div id="noteList" class="note-list">
-        <div class="menu-switch">
-            <button class="btn btn-control" type="button" data-select="true">
-                <i class="bi bi-folder"></i>
-            </button>
-            <button class="btn btn-control" type="button">
-                <i class="bi bi-search"></i>
-            </button>
-            <button class="btn btn-control " type="button">
-                <i class="bi bi-file-earmark-text"></i>
-            </button>
-            <button class="btn btn-control " type="button">
-                <i class="bi bi-bookmark-star"></i>
-            </button>
+
+        <div class="d-none">
+            <!--其他的功能tab-->
+            <div class="input-group input-group-sm my-2">
+                <button class="btn btn-outline-secondary btn-sm" type="button">范围</button>
+                <input type="text" class="form-control" placeholder="搜索...">
+                <button class="btn btn-outline-secondary btn-sm"><i class="bi bi-sort-down"></i>
+                </button>
+            </div>
         </div>
 
-        <div class="input-group input-group-sm my-2 d-none">
-            <button class="btn btn-outline-secondary btn-sm" type="button">范围</button>
-            <input type="text" class="form-control" placeholder="搜索...">
-            <button class="btn btn-outline-secondary btn-sm"><i class="bi bi-sort-down"></i>
-            </button>
-        </div>
         <div class="tab-file-list">
+            <!--列表树Tab-->
             <div class="file-list-ctrl">
                 <!--新建文件-->
-                <button class="btn btn-control btn-p-xs" type="button">
+                <button class="btn btn-control btn-p-sm" type="button">
                     <i class="bi bi-file-earmark-plus"></i>
                 </button>
                 <!--新建文件夹-->
-                <button class="btn btn-control btn-p-xs" type="button">
+                <button class="btn btn-control btn-p-sm" type="button">
                     <i class="bi bi-folder-plus"></i>
                 </button>
                 <!--排序-->
-                <button class="btn btn-control btn-p-xs" type="button">
+                <button class="btn btn-control btn-p-sm" type="button">
                     <i class="bi bi-sort-down-alt"></i>
                 </button>
                 <!--展开-折叠-->
-                <button id="nlt-expand" class="btn btn-control btn-p-xs switch-child" type="button"
+                <button id="nlt-expand" class="btn btn-control btn-p-sm switch-child" type="button"
                         data-display-child="1" data-status="expand">
                     <i class="bi bi-chevron-expand"></i>
                     <i class="bi bi-chevron-contract"></i>
@@ -142,13 +149,18 @@
                 </ul>
             </div>
         </div>
+        <div>
+            <span>文件夹：14</span>
+            <span>文件：864</span>
+            <span>MD:849</span>
+        </div>
     </div>
 
     <div id="divider" class="note-divider">
         <!--左边的列表区域和内容区域的分割线-->
     </div>
 
-    <div id="content" class="note-content">
+    <div class="note-content-container">
         <div class="note-title-area">
 
             <div id="noteTitle" class="note-title" contenteditable="true" placeholder="请输入标题"></div>
@@ -166,27 +178,26 @@
 
             <div class="note-title-toolbar">
                 <!--收藏-->
-                <button id="btnToggleFavorite" class="btn btn-control btn-p-xs" type="button">
+                <button id="btnToggleFavorite" class="btn btn-control btn-p-sm" type="button">
                     <i class="bi bi-bookmark-heart"></i>
                 </button>
                 <!--加星-->
-                <button id="btnToggleAsterisk" class="btn btn-control btn-p-xs" type="button">
+                <button id="btnToggleAsterisk" class="btn btn-control btn-p-sm" type="button">
                     <i class="bi bi-star-fill"></i>
                 </button>
 
-                <button id="btnEditOrPreview" class="btn btn-control btn-p-xs mx-3">
-                    <i class="bi bi-eye"></i>
-                    预览
+                <button id="btnEditOrPreview" class="btn btn-control btn-p-sm mx-3">
+                    <i class="bi bi-filetype-md"></i> 预览
                 </button>
 
                 <!--折叠编辑工具栏-->
-                <button id="btnToggleToolbar" class="btn btn-control btn-p-xs">
+                <button id="btnToggleToolbar" class="btn btn-control btn-p-sm">
                     <!--<i class="bi bi-chevron-bar-up ts d-inline-block"></i>-->
                     <!--<i class="bi bi-caret-up ts d-inline-block"></i>-->
                     <i class="bi bi-caret-up-square ts d-inline-block"></i>
                 </button>
 
-                <button id="setting" class="btn btn-control btn-p-xs rounded-circle">
+                <button id="setting" class="btn btn-control btn-p-sm rounded-circle">
                     <i class="bi bi-three-dots-vertical ts d-inline-block"></i>
                 </button>
             </div>
@@ -335,10 +346,20 @@
         <div class="editor-viewer">
             <div id="editorWrapper" class="editor-wrapper">
                 <textarea id="editor" class="editor-textarea"></textarea>
+                <div>
+                    <span>字符：12332</span>
+                    <span>行数：233</span>
+
+                    <span>光标： 32行 45列</span>
+                </div>
             </div>
             <div id="editorDivider" class="editor-divider"></div>
             <div id="preview" class="viewer-wrapper">
                 <div id="markdownContent" class="markdown-body markdown_content"></div>
+                <div>
+                    <span>标题：223</span>
+                    <span>段落：32223</span>
+                </div>
             </div>
         </div>
 

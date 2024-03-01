@@ -27,7 +27,7 @@ function request(url, options, callback) {
     const opts = Object.assign({}, defaultOptions, options);
     // 如果body是一个对象，转换为JSON字符串
     if (opts.body && typeof opts.body === 'object') {
-        opts.body = JSON.stringify(mergedOptions.body);
+        opts.body = JSON.stringify(opts.body);
     }
 
     // 发送请求
@@ -289,7 +289,7 @@ function showToast(message, title = '提示', smallTitle = '', type = MsgTypes.N
     const style = createMsgStyle(type);
 
     // 创建 Toast 元素
-    var toastElement = document.createElement('div');
+    const toastElement = document.createElement('div');
     toastElement.className = 'toast';
     toastElement.innerHTML = `
     <div class="toast-header">
@@ -305,7 +305,7 @@ function showToast(message, title = '提示', smallTitle = '', type = MsgTypes.N
     toastContainer.appendChild(toastElement);
 
     // 初始化 Bootstrap Toast
-    var toast = new bootstrap.Toast(toastElement);
+    const toast = new bootstrap.Toast(toastElement);
 
     // 显示 Toast
     toast.show();
@@ -327,7 +327,7 @@ function showToastSimple(message, type = MsgTypes.NONE) {
     const style = createMsgStyle(type);
 
     // 创建 Toast 元素
-    var toastElement = document.createElement('div');
+    const toastElement = document.createElement('div');
     toastElement.className = 'toast';
     toastElement.innerHTML = `
       <div class="d-flex">
@@ -341,7 +341,7 @@ function showToastSimple(message, type = MsgTypes.NONE) {
     toastContainer.appendChild(toastElement);
 
     // 初始化 Bootstrap Toast
-    var toast = new bootstrap.Toast(toastElement);
+    const toast = new bootstrap.Toast(toastElement);
 
     // 显示 Toast
     toast.show();

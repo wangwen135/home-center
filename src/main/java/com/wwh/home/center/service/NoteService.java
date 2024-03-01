@@ -18,4 +18,6 @@ public interface NoteService {
     List<NotePathVo> list(String path);
 
     NoteFileVo getNote(String path);
+
+    NoteFileVo saveNote(NoteFileVo fileVo);
 }

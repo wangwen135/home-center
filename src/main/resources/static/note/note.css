@@ -23,7 +23,7 @@
 
 /* ======================= 框架样式 ======================= */
 
-.note-container {
+.frame-container {
     margin: 0;
     padding: 0;
     display: flex;
@@ -31,7 +31,6 @@
 }
 
 .note-control {
-    width: 39px;
     flex-grow: 0;
     flex-shrink: 0;
     background-color: #F6F6F6;
@@ -69,7 +68,7 @@
     background-color: #a7a9ac;
 }
 
-.note-content {
+.note-content-container {
     flex-grow: 1;
     flex-shrink: 1;
     display: flex;
@@ -84,27 +83,11 @@
 /*############# 控制按钮 #############*/
 
 .note-control button {
-    /*宽度计算好是39*/
     margin: 2px 2px 6px 2px;
-    padding: 2px 6px;
 }
 
 /*############# 菜单切换 #############*/
-.menu-switch {
-    display: flex;
-    flex-direction: row;
-    padding: 2px;
-    border-bottom: 1px solid;
-    border-color: rgba(0, 0, 0, 0.3);
-    overflow: hidden;
-    flex-shrink: 0;
 
-}
-
-.menu-switch > button {
-    margin: 1px;
-    padding: 4px 8px;
-}
 
 /*############# 文件列表 #############*/
 .tab-file-list {
@@ -118,7 +101,8 @@
     display: flex;
     justify-content: space-evenly;
     flex-shrink: 0;
-    margin: 2px;
+    padding: 2px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.3);
 }
 
 /*.file-list-ctrl > button {
@@ -131,6 +115,7 @@
     max-height: 100%;
     overflow-y: scroll;
 
+    padding: 2px;
     /*border: 1px solid;*/
     /*border-radius: 0.2rem;*/
 }
@@ -308,7 +293,7 @@
 .note-title-area {
     flex-shrink: 0;
 
-    padding: 2px 8px 2px 0px;
+    padding: 2px 6px 0px 6px;
     margin-bottom: 6px;
 
     /*border-bottom: 1px solid;*/
@@ -324,9 +309,9 @@
     min-width: 20rem;
     max-width: 50%;
     margin-right: 1rem;
-    padding: 1px 8px;
+    padding: 1px;
     border: none;
-    border-bottom: 1px solid #8e8d8d;
+    border-bottom: 1px solid #e9e9e9;
     outline: none;
     font-size: 1.5rem;
     white-space: nowrap;
@@ -351,7 +336,7 @@
 }
 
 .file-info-path {
-    /*font-size: 0.9rem;*/
+    font-size: 0.9rem;
 }
 
 .file-info-time {

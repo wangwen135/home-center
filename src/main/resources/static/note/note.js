@@ -117,7 +117,7 @@ function markdownInit() {
                 editorDivider.style.display = '';
 
                 // 修改图标
-                btnEditOrPreview.querySelector("i").className = "bi bi-eye";
+                btnEditOrPreview.querySelector("i").className = "bi bi-filetype-md";
                 // 更改按钮文本
                 btnEditOrPreview.childNodes[2].textContent = " 预览 ";
 
@@ -279,7 +279,20 @@ function markdownInit() {
     }
 
     function saveDoc() {
-        showToastSimple("保存文档", MsgTypes.SUCCESS)
+
+        const content = editor.value;
+        const name = document.getElementById("noteTitle").textContent;
+        const parentPath = document.getElementById("filePath").textContent;
+
+        postRequest("/note/save", {
+            name: name,
+            parentPath: parentPath,
+            content: content
+        }).then(data => {
+            // 更新文档日期
+            showToastSimple("文档成功", MsgTypes.SUCCESS)
+        });
+
     }
 
     //删除线

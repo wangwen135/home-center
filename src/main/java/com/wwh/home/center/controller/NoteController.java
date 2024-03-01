@@ -10,10 +10,7 @@ import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -57,6 +54,10 @@ public class NoteController {
     //创建文件
 
     //保存文件
-
+    @ApiOperation("保存文件")
+    @PostMapping("/save")
+    public Result<NoteFileVo> saveNote(@RequestBody @ApiParam NoteFileVo fileVo) {
+        return Result.success(noteService.saveNote(fileVo));
+    }
 
 }
