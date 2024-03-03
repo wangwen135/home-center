@@ -252,27 +252,37 @@
 .btn-control {
     color: #000;
     background-color: transparent;
-    border-color: transparent;
+    border: 1px solid transparent;
+    margin: 1px;
 }
 
 .btn-control:hover {
-    color: #000;
+    /*color: #000;*/
     background-color: #d8d8d8;
     /*border-color: #d5d5d5;*/
 }
 
-.btn-control:active,
-.btn-control[data-select="true"] {
-    color: #000;
+.btn-control:active {
+    /*color: blue;*/
     background-color: #cdcdcd;
     /*border-color: #bababa;*/
+
+    border-color: #bababa;
+    box-shadow: 0 0 1px 1px rgba(130, 138, 145, 0.5);
+}
+
+.btn-control[data-select="true"] {
+    color: blue;
+    /*background-color: #d8d8d8;*/
+    /*border-color: #bababa;*/
+    /*box-shadow: 0 0 1px 1px rgba(130, 138, 145, 0.5);*/
 }
 
 .btn-control:focus {
-    color: #000;
-    background-color: #cdcdcd;
-    border-color: #bababa;
-    box-shadow: 0 0 0 0rem rgba(130, 138, 145, 0.5);
+    /*color: #000;*/
+    background-color: #e0dfdf;
+    /*border-color: #bababa;*/
+    box-shadow: 0 0 0px 0px rgba(130, 138, 145, 0.5);
 }
 
 /*字母按钮样式*/
@@ -296,6 +306,10 @@
 
 .rotate-180 {
     transform: rotate(180deg);
+}
+
+.rotate-270 {
+    transform: rotate(270deg);
 }
 
 /*根据属性展示指定的子类*/

@@ -1,6 +1,9 @@
+let mdNote;
+
 window.onload = function () {
     noteListInit();
-    markdownInit();
+    mdNote = new MarkdownNote();
+    mdNote.init();
 }
 
 
@@ -11,11 +14,18 @@ window.onload = function () {
 /**
  * Markdown编辑器初始化
  */
-function markdownInit() {
+function MarkdownNote() {
     const converter = new showdown.Converter();
     // converter.setOption('moreStyling', 'true');
     converter.setFlavor('github');
 
+    //标题/路径 修改时间等
+    const noteTitle = document.getElementById("noteTitle");
+    const filePath = document.getElementById("filePath");
+    const createTime = document.getElementById("createTime");
+    const updateTime = document.getElementById("updateTime");
+
+    // 编辑和预览区域
     const editorWrapper = document.getElementById('editorWrapper');
     const editor = document.getElementById('editor');
     const editorDivider = document.getElementById('editorDivider')
@@ -30,27 +40,50 @@ function markdownInit() {
     // 编辑/预览 按钮
     const btnEditOrPreview = document.getElementById('btnEditOrPreview');
 
-    //编辑器控制
-    editorCtrl();
-    //滚动控制
-    scrollCtrl();
-    // 点击中间隐藏预览
-    hiddenPreviewCtrl();
-    // 展示或隐藏编辑器的工具栏
-    toggleToolbar();
+    this.init = function () {
+        //编辑器控制
+        editorCtrl();
+        //滚动控制
+        scrollCtrl();
+        // 点击中间隐藏预览
+        hiddenPreviewCtrl();
+        // 展示或隐藏编辑器的工具栏
+        toggleToolbar();
 
-    // 工具栏按钮绑定事件
-    editorToolbarBtnBind();
-    previewToolbarBtnBind();
+        // 工具栏按钮绑定事件
+        editorToolbarBtnBind();
+        previewToolbarBtnBind();
 
-    // 切换编辑和查看模式
-    toggleEditOrPreview();
+        // 切换编辑和查看模式
+        toggleEditOrPreview();
 
-    //加载上一次配置
-    loadLastConf();
+        //加载上一次配置
+        loadLastConf();
 
-    //加载之前的Md文档内容
-    markdownLoad();
+        //加载之前的Md文档内容
+        markdownLoad();
+
+    }
+
+    this.openFile = function (path) {
+        if (path == null || path == '') {
+            showToastSimple("要打开的文件路径不能为空", MsgTypes.WARNING);
+            return;
+        }
+        getRequest("/note/getNote?path=" + path, data => {
+            editor.value = data.content;
+
+            noteTitle.textContent = data.name;
+            filePath.textContent = data.parentPath;
+            createTime.textContent = data.createTime;
+            updateTime.textContent = data.updateTime;
+            // 收藏和标星
+
+            //记录最后打开的文件名
+            localStorage.openFilePath = path;
+            render();
+        });
+    }
 
     /**
      * 预览工具栏的按钮绑定事件
@@ -206,6 +239,21 @@ function markdownInit() {
             preview.scrollTop = pHeight * top / height;
 
         });
+
+        const btnSyncScroll = document.getElementById("tb-syncScroll");
+        if (localStorage.synchronizeScroller == 'false') {
+            btnSyncScroll.dataset.select = 'false';
+        }
+        btnSyncScroll.onclick = function () {
+            if (localStorage.synchronizeScroller == 'false') {
+                localStorage.synchronizeScroller = 'true';
+                btnSyncScroll.dataset.select = 'true';
+            } else {
+                localStorage.synchronizeScroller = 'false';
+                btnSyncScroll.dataset.select = 'false';
+            }
+        }
+
     }
 
     //点击中间隐藏预览
@@ -222,8 +270,13 @@ function markdownInit() {
 
     function markdownLoad() {
 
-        //编辑内容
-        if (localStorage.editContents != null) {
+        if (localStorage.openFilePath != null) {
+            debugger;
+            //打开上次的文件
+            this.openFile(localStorage.openFilePath);
+
+        } else if (localStorage.editContents != null) {
+            //上次编辑的内容
             editor.value = localStorage.editContents;
             render();
         }
@@ -247,6 +300,7 @@ function markdownInit() {
         markdownContent.innerHTML = converter.makeHtml(text);
     }
 
+    this.renderMd = render;
 
     function editorKeyBoardAction(event) {
         const key = event.key;
@@ -290,7 +344,7 @@ function markdownInit() {
             content: content
         }).then(data => {
             // 更新文档日期
-            showToastSimple("文档成功", MsgTypes.SUCCESS)
+            showToastSimple("保存成功", MsgTypes.SUCCESS)
         });
 
     }
@@ -443,7 +497,21 @@ function noteListInit() {
 
     noteListTreeInit();
 
+}
 
+/**
+ * 统计文件数量
+ */
+function listFootBarRefresh() {
+    const noteListTree = document.getElementById("noteListTree");
+
+    const listStatisticFolder = document.getElementById("listStatisticFolder");
+    const listStatisticFiles = document.getElementById("listStatisticFiles");
+    const lestStatisticMd = document.getElementById("lestStatisticMd");
+
+    listStatisticFolder.textContent = noteListTree.querySelectorAll('[data-type="DIR"]').length + "";
+    listStatisticFiles.textContent = noteListTree.querySelectorAll('[data-type]:not([data-type="DIR"])').length + "";
+    lestStatisticMd.textContent = noteListTree.querySelectorAll('[data-type="md"]').length + "";
 }
 
 /**
@@ -498,6 +566,9 @@ function noteListTreeInit() {
 
         function receive(data) {
             recursive(data, noteListTree);
+
+            /*统计文件数量*/
+            listFootBarRefresh();
         }
 
         function recursive(data, parent) {
@@ -522,6 +593,10 @@ function noteListTreeInit() {
                     recursive(item.children, li);
                 }
                 ul.appendChild(li);
+            });
+            //全部折叠
+            ul.querySelectorAll("[data-type='DIR']").forEach(i => {
+                i.classList.add("closed");
             });
             parent.appendChild(ul);
         }
@@ -581,17 +656,9 @@ function noteListTreeInit() {
         const fileType = lb.dataset.type;
         if (fileType == "md") {
             const path = lb.dataset.fullPath;
-            getRequest("/note/getNote?path=" + path, data => {
-                const editor = document.getElementById("editor");
-                editor.value = data.content;
-                // 这里先用事件通知的方式使其正常渲染
-                editor.dispatchEvent(new Event('input'));
+            mdNote.openFile(path);
+        } else if (fileType == 'DIR') {
 
-                document.getElementById("noteTitle").textContent = data.name;
-                document.getElementById("filePath").textContent = data.parentPath;
-                document.getElementById("createTime").textContent = data.createTime;
-                document.getElementById("updateTime").textContent = data.updateTime;
-            });
         } else {
             showToast("暂时不支持直接打开【" + fileType + "】类型的文件");
         }

@@ -8,7 +8,7 @@
 
 /* 设置滚动轨迹的样式 */
 ::-webkit-scrollbar-track {
-    background: #f1f1f1;
+    background: #fdfdfd;
 }
 
 /* 设置滚动滑块的样式 */
@@ -34,7 +34,7 @@
     flex-grow: 0;
     flex-shrink: 0;
     background-color: #F6F6F6;
-    padding: 2px;
+    padding: 2px 2px 0px 2px;
 
     display: flex;
     flex-direction: column;
@@ -177,7 +177,7 @@
 
 /*label选中样式*/
 .tree li > a[data-select="true"] {
-    background-color: #cdcdcd;
+    background-color: #e0dfdf;
     /*border-left: #0000ff36 1px solid;*/
 }
 
@@ -393,9 +393,6 @@
     justify-content: center;
     align-items: stretch;
     width: 100%;
-
-    padding: 2px 5px 5px 5px;
-
     overflow: hidden;
 }
 
@@ -404,6 +401,8 @@
     flex-grow: 1;
     flex-shrink: 1;
     width: 100%;
+    display: flex;
+    flex-direction: column;
 }
 
 /*文本编辑部分*/
@@ -420,11 +419,11 @@
     height: 100%;
 
     outline: none;
-    border: 2px solid #bcbcbc;
+    border: 1px solid #eee;
 }
 
 .editor-textarea:focus {
-    border: 2px solid #5d5d5d;
+    border: 1px solid #5d5d5d;
 }
 
 .editor-divider {
@@ -443,17 +442,42 @@
 .viewer-wrapper {
     flex-grow: 1;
     flex-shrink: 1;
+    width: 100%;
+
+    display: flex;
+    flex-direction: column;
+}
+
+
+.markdown-scrollbar {
     border: 1px solid #eee;
     /*padding: 16px 10px 10px 10px;*/
     overflow-y: scroll;
     overflow-x: auto;
     width: 100%;
+    height: 100%;
 }
-
 
 .markdown_content {
     margin-left: auto;
     margin-right: auto;
     max-width: 1020px;
     padding: 1rem;
+}
+
+
+/*底部栏 样式*/
+
+.foot-bar-container {
+    flex-grow: 0;
+    flex-shrink: 0;
+    display: flex;
+    justify-content: space-around;
+    font-size: 0.8rem;
+    color: rgba(0, 0, 0, 0.65);
+    background: #f6f6f6;
+    white-space: nowrap;
+    overflow: hidden;
+    padding: 2px;
+    border: 1px solid #ddd;
 }

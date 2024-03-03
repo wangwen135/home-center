@@ -64,6 +64,11 @@
         <button class="btn btn-control btn-p-sm" type="button">
             <i class="bi bi-gear"></i>
         </button>
+
+        <button id="btnToggleFootBar" class="btn btn-control btn-p-sm pb-0 mb-0" type="button"
+                style="padding-bottom: 0px !important;">
+            <i class="bi bi-layout-sidebar d-inline-block rotate-270"></i>
+        </button>
     </div>
 
     <!--左边的列表区域-->
@@ -149,10 +154,23 @@
                 </ul>
             </div>
         </div>
-        <div>
-            <span>文件夹：14</span>
-            <span>文件：864</span>
-            <span>MD:849</span>
+
+        <!--底部栏-->
+        <div id="listFootBar" class="foot-bar-container">
+            <span title="文件夹">
+                <i class="bi bi-folder"></i>
+                <span id="listStatisticFolder">0</span>
+            </span>
+
+            <span title="总文件">
+                <i class="bi bi-files"></i>
+                <span id="listStatisticFiles">0</span>
+            </span>
+
+            <span title="Markdown文件">
+                <i class="bi bi-filetype-md"></i>
+                <span id="lestStatisticMd">0</span>
+            </span>
         </div>
     </div>
 
@@ -321,7 +339,7 @@
 
                 <!--同步滚动按钮-->
                 <!--这个按钮在最右边-->
-                <button class="btn btn-control btn-p-sm ms-auto" data-select="true">
+                <button id="tb-syncScroll" class="btn btn-control btn-p-sm ms-auto" data-select="true">
                     <i class="bi bi-arrows-vertical"></i>
                 </button>
             </div>
@@ -346,19 +364,21 @@
         <div class="editor-viewer">
             <div id="editorWrapper" class="editor-wrapper">
                 <textarea id="editor" class="editor-textarea"></textarea>
-                <div>
-                    <span>字符：12332</span>
-                    <span>行数：233</span>
-
-                    <span>光标： 32行 45列</span>
+                <div id="editorFootBar" class="foot-bar-container">
+                    <span>字符：<span id="editorStatisticChars">0</span></span>
+                    <span>行数：<span id="editorStatisticRows">0</span></span>
+                    <span>光标： <span id="editorCursorRow">0</span> 行 <span id="editorCursorCol">0</span> 列</span>
                 </div>
             </div>
             <div id="editorDivider" class="editor-divider"></div>
             <div id="preview" class="viewer-wrapper">
-                <div id="markdownContent" class="markdown-body markdown_content"></div>
-                <div>
-                    <span>标题：223</span>
-                    <span>段落：32223</span>
+                <div class="markdown-scrollbar">
+                    <div id="markdownContent" class="markdown-body markdown_content"></div>
+                </div>
+                <div id="previewFootBar" class="foot-bar-container">
+                    <span>标题：<span id="previewStatisticHeadline">0</span></span>
+                    <span>段落：<span id="previewStatisticParagraph">0</span></span>
+                    <span>图片：<span id="previewStatisticImage">0</span></span>
                 </div>
             </div>
         </div>
