@@ -17,6 +17,7 @@
     <script src="../js/main.js"></script>
     <script src="note.js"></script>
     <link rel="stylesheet" href="note.css">
+    <script src="MarkdownNote.js"></script>
 </head>
 <body>
 <div class="frame-container">
@@ -66,7 +67,7 @@
         </button>
 
         <button id="btnToggleFootBar" class="btn btn-control btn-p-sm pb-0 mb-0" type="button"
-                style="padding-bottom: 0px !important;">
+                style="padding-bottom: 0px !important;" data-select="true">
             <i class="bi bi-layout-sidebar d-inline-block rotate-270"></i>
         </button>
     </div>
@@ -378,6 +379,7 @@
                 <div id="previewFootBar" class="foot-bar-container">
                     <span>标题：<span id="previewStatisticHeadline">0</span></span>
                     <span>段落：<span id="previewStatisticParagraph">0</span></span>
+                    <span>代码块：<span id="previewStatisticCode">0</span></span>
                     <span>图片：<span id="previewStatisticImage">0</span></span>
                 </div>
             </div>
