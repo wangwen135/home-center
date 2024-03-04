@@ -261,7 +261,12 @@ function MarkdownNote() {
         editor.addEventListener('input', render);
 
         // 键盘监听
-        editor.addEventListener('keydown', editorKeyBoardAction);
+        editor.addEventListener('keydown', editorKeyboardAction);
+
+        //刷新光标位置记录等
+        editor.addEventListener('keyup', editorFootBarRefresh);
+        editor.addEventListener('mouseup', editorFootBarRefresh);
+
     }
 
     /**
@@ -270,12 +275,15 @@ function MarkdownNote() {
     function render() {
         const text = editor.value;
         markdownContent.innerHTML = converter.makeHtml(text);
-        footBarRefresh();
+        previewFootBarRefresh();
+
+        /*editorFootBarRefresh();*/
     }
 
     this.renderMd = render;
 
-    function footBarRefresh() {
+
+    function previewFootBarRefresh() {
         document.getElementById('previewStatisticHeadline').textContent
             = markdownContent.querySelectorAll('h1, h2, h3, h4, h5, h6').length + '';
         document.getElementById('previewStatisticParagraph').textContent
@@ -288,7 +296,22 @@ function MarkdownNote() {
             = markdownContent.querySelectorAll('img').length + '';
     }
 
-    function editorKeyBoardAction(event) {
+    function editorFootBarRefresh() {
+        const value = editor.value;
+        document.getElementById('editorStatisticChars').textContent = value.length + '';
+        const rows = value.split('\n').length;
+        document.getElementById('editorStatisticRows').textContent = rows + '';
+
+        const cursorPos = editor.selectionStart;
+        // 计算光标所在的行和列
+        const cursorRow = value.substring(0, cursorPos).split('\n').length;
+        const cursorCol = cursorPos - value.lastIndexOf('\n', cursorPos - 1) - 1;
+
+        document.getElementById('editorCursorRow').textContent = cursorRow + '';
+        document.getElementById('editorCursorCol').textContent = cursorCol + '';
+    }
+
+    function editorKeyboardAction(event) {
         const key = event.key;
         const ctrl = event.ctrlKey;
         const shift = event.shiftKey;

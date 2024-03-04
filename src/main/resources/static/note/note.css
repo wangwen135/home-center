@@ -34,7 +34,7 @@
     flex-grow: 0;
     flex-shrink: 0;
     background-color: #F6F6F6;
-    padding: 2px 2px 0px 2px;
+    padding-top: 2px;
 
     display: flex;
     flex-direction: column;
@@ -480,4 +480,5 @@
     overflow: hidden;
     padding: 2px;
     border: 1px solid #ddd;
+    width: 100%;
 }

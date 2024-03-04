@@ -1,11 +1,13 @@
+let noteTree;
 let mdNote;
+
 
 window.onload = function () {
     frameworkInit();
     noteListInit();
     mdNote = new MarkdownNote();
     mdNote.init();
-    openLastFile();
+    // openLastFile();
 }
 
 function frameworkInit() {
@@ -24,8 +26,9 @@ function openLastFile() {
 
     if (localStorage.lastOpenFilePath != null) {
         //打开上次的文件
-        mdNote.openFile(localStorage.lastOpenFilePath);
-
+        const path = localStorage.lastOpenFilePath;
+        mdNote.openFile(path);
+        noteTree.selectPath(path);
     }
 }
 
@@ -119,45 +122,65 @@ function noteListWidthCtrl() {
 
 }
 
+
 /**
  * 笔记列表初始化
  */
 function noteListInit() {
-
-
-    noteListTreeInit();
+    //初始化树
+    noteTree = new NoteListTree();
+    noteTree.init();
 
 }
 
-/**
- * 统计文件数量
- */
-function listFootBarRefresh() {
-    const noteListTree = document.getElementById("noteListTree");
-
-    const listStatisticFolder = document.getElementById("listStatisticFolder");
-    const listStatisticFiles = document.getElementById("listStatisticFiles");
-    const lestStatisticMd = document.getElementById("lestStatisticMd");
-
-    listStatisticFolder.textContent = noteListTree.querySelectorAll('[data-type="DIR"]').length + "";
-    listStatisticFiles.textContent = noteListTree.querySelectorAll('[data-type]:not([data-type="DIR"])').length + "";
-    lestStatisticMd.textContent = noteListTree.querySelectorAll('[data-type="md"]').length + "";
-}
 
 /**
  * 文件列表树初始化
  */
-function noteListTreeInit() {
+function NoteListTree() {
     const noteListTree = document.getElementById("noteListTree");
 
-    // 基本事件处理
-    noteListTreeEventHandle();
 
-    //数据初始化
-    treeDataInit();
+    this.init = function () {
+        //控制按钮初始化
+        ctrlBtnInit();
 
-    //控制按钮初始化
-    ctrlBtnInit();
+        // 基本事件处理
+        noteListTreeEventHandle();
+
+        //数据初始化
+        treeDataInit();
+    }
+
+    this.selectPath = function (path) {
+        if (path == null || path == '') {
+            return;
+        }
+        let target = noteListTree.querySelector("[data-full-path='" + path + "']")
+
+        if (target == null) {
+            console.log("目标不存在", path);
+            return;
+        }
+
+        // 取消其他的选中
+        noteListTree.querySelectorAll("[data-select='true']").forEach(l => {
+            l.dataset.select = "false";
+        });
+        //选中当前的
+        target.dataset.select = "true";
+
+        getAncestorsUntil(target, noteListTree).forEach(i => {
+            console.log(i);
+            // 获取元素下的第一个A标签
+            const a = i.querySelector('a')
+            console.log(a);
+            a.classList.remove("closed");
+        });
+
+        //滚动到窗口的可见区域
+        scrollElementIntoView(noteListTree, target);
+    }
 
     function ctrlBtnInit() {
         const expand = document.getElementById("nlt-expand");
@@ -199,6 +222,8 @@ function noteListTreeInit() {
 
             /*统计文件数量*/
             listFootBarRefresh();
+
+            openLastFile();
         }
 
         function recursive(data, parent) {
@@ -294,6 +319,20 @@ function noteListTreeInit() {
         }
 
     }
+
+    /**
+     * 统计文件数量
+     */
+    function listFootBarRefresh() {
+
+        const listStatisticFolder = document.getElementById("listStatisticFolder");
+        const listStatisticFiles = document.getElementById("listStatisticFiles");
+        const lestStatisticMd = document.getElementById("lestStatisticMd");
+
+        listStatisticFolder.textContent = noteListTree.querySelectorAll('[data-type="DIR"]').length + "";
+        listStatisticFiles.textContent = noteListTree.querySelectorAll('[data-type]:not([data-type="DIR"])').length + "";
+        lestStatisticMd.textContent = noteListTree.querySelectorAll('[data-type="md"]').length + "";
+    }
 }
 
 function noteListSearchInit() {
@@ -313,9 +352,49 @@ function noteListAsterisk() {
 }
 
 
+// ###############################################################
+// ##################            工具方法         ##################
+// ###############################################################
+/**
+ * 获取祖先元素，直到为某个元素为止
+ * @param element
+ * @param untilElement
+ * @returns {[]|*[]}
+ */
+function getAncestorsUntil(element, untilElement) {
+    let currentElement = element.parentElement;
+    const ancestors = [];
+    while (currentElement !== untilElement && currentElement !== document) {
+        ancestors.push(currentElement);
+        currentElement = currentElement.parentElement; // 或者使用 currentElement.parentNode
+    }
+    // 如果直到文档根元素都没有找到 untilElement，则返回空数组
+    if (currentElement !== untilElement) {
+        return [];
+    }
+    // 否则，返回包含所有祖先元素的数组
+    return ancestors;
+}
 
+/**
+ * 滚动元素到窗口的可见区域
+ * @param container
+ * @param element
+ */
+function scrollElementIntoView(container, element) {
+    // 检查容器是否有滚动条
+    if (container.scrollHeight > container.clientHeight) {
+        // 获取选中元素到容器顶部的距离
+        const elementTop = element.offsetTop;
+        // 获取容器的当前滚动位置
+        const containerScrollTop = container.scrollTop;
+        // 计算选中元素到容器顶部的相对位置
+        const elementPosition = elementTop - containerScrollTop;
 
-
-
-
-
+        // 检查元素是否在可见范围内
+        if (elementPosition < 0 || elementPosition > container.clientHeight) {
+            // 元素不在可见范围内，我们需要滚动容器
+            container.scrollTop = elementTop;
+        }
+    }
+}
