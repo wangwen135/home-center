@@ -360,8 +360,8 @@
 .note-title-input span {
     display: inline-block;
     outline: none;
-    width: 100%;
-    height: 100%;
+    /*width: 100%;*/
+    /*height: 100%;*/
 
     /*为了保证高度，样式同文本框*/
     border: none;

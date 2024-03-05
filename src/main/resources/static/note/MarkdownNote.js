@@ -369,47 +369,101 @@ function MarkdownNote() {
         noteTitleSpan.textContent = noteTitle.value;
     }
 
+
+    function checkInvalidFileName(text) {
+        // Windows文件名中禁止的字符正则表达式
+        const invalidCharsRegex = /[<>\/\\|:\?\*\"\x00-\x1F]/;
+        return invalidCharsRegex.test(text);
+    }
+
+    function replaceInvalidFileName(text) {
+        const invalidCharsRegex = /[<>\/\\|:\?\*\"\x00-\x1F]+/g;
+        return text.replace(invalidCharsRegex, '');
+    }
+
     function noteTitleCtrl() {
         //禁止输入特殊字符
-        noteTitle.onkeypress = forbiddenChars;
+        noteTitle.onkeypress = handleKeyPress;
+        //粘贴时过滤特殊字符
+        noteTitle.onpaste = handlePaste;
+        //拖拽时过滤特殊字符
+        noteTitle.ondrop = handleDrop;
+
+        //标题修改同步，这个是为了宽度自动填充
         noteTitle.addEventListener("input", titleChangeSync)
 
-        function forbiddenChars(event) {
-            debugger
+        //提示信息
+        const tooltip = new bootstrap.Tooltip(noteTitle, {
+            title: '文件名中禁止出现: <>:"/\\|?*或控制字符',
+            placement: 'bottom',
+            trigger: 'manual'
+        });
+
+        function showTips(content) {
+            //alert("文件名中禁止包含以下字符: < > : \" / \\ | ? * 或控制字符");
+            debugger;
+            const defaultTitle = '文件名中禁止出现: <>:"/\\|?*或控制字符';
+
+            /*if (content == null || content == '') {
+                tooltip.setContent(defaultTitle);
+            } else {
+                tooltip.setContent(content);
+            }*/
+            tooltip.hide();
+            tooltip.show();
+            setTimeout(() => {
+                tooltip.hide();
+            }, 1500);
+        }
+
+        function handleKeyPress(e) {
 
             // 获取用户输入的内容
-            const inputText = event.key;
-            console.log(event);
-            console.log(inputText)
+            const char = e.key;
+            console.log(char)
             // 检查输入内容中是否包含禁止字符
-            const forbiddenChars = /[<>:"\/\\|?*\x00-\x1F]/; // Windows 文件名中禁止的字符正则表达式
-
-            if (forbiddenChars.test(inputText)) {
-                // 如果输入内容包含禁止字符，则阻止默认行为
-                event.preventDefault();
-                // 提示用户输入内容包含禁止字符
-                //alert("文件名中禁止包含以下字符: < > : \" / \\ | ? * 或控制字符");
+            if (checkInvalidFileName(char)) {
+                console.log("禁止输入：", char);
+                e.preventDefault();
+                showTips("文件名中禁止包含：" + char);
+            } else {
+                console.log("允许输入：", char);
             }
         }
 
-        // 过滤文件名中不允许的字符
-        function filterInvalidFileNameChars(str) {
-            // 正则表达式，匹配不允许的文件名字符
-            const invalidCharsRegex = /[<>\/\\|:\?\*\"]+/g;
-            // 使用replace函数替换掉所有不允许的字符
-            return str.replace(invalidCharsRegex, '');
+        // 处理粘贴事件
+        function handlePaste(e) {
+            // 获取用户粘贴的内容
+            let text = e.clipboardData.getData('text/plain');
+            if (checkInvalidFileName(text)) {
+                // 阻止默认的粘贴行为
+                e.preventDefault();
+
+                text = replaceInvalidFileName(text);
+
+                //将过滤后的文本插入到输入框中
+                document.execCommand('insertText', false, text);
+                showTips();
+            }
+
         }
 
-        function handleInput(e) {
-            // 获取输入的当前值
-            const currentValue = e.target.textContent;
-            // 过滤掉不允许的文件名字符
-            const filteredValue = filterInvalidFileNameChars(currentValue);
-            // 如果过滤后的值与当前值不同，更新输入框的值
-            if (filteredValue !== currentValue) {
-                e.target.textContent = filteredValue;
+        //处理拖拽事件
+        function handleDrop(e) {
+            // 获取拖拽的文本数据
+            let text = e.dataTransfer.getData('text/plain');
+            console.log(text);
+            if (checkInvalidFileName(text)) {
+                e.preventDefault();
+
+                text = replaceInvalidFileName(text);
+                //将过滤后的文本插入到输入框中
+                e.target.focus();
+                document.execCommand('insertText', false, text);
+                showTips();
             }
         }
+
     }
 
 
