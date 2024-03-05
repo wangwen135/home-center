@@ -29,6 +29,9 @@ function MarkdownNote() {
 
     this.init = function () {
 
+        //笔记标题控制
+        noteTitleCtrl();
+
         //编辑器控制
         editorCtrl();
         //滚动控制
@@ -60,7 +63,7 @@ function MarkdownNote() {
         getRequest("/note/getNote?path=" + path, data => {
             editor.value = data.content;
 
-            noteTitle.textContent = data.name;
+            noteTitle.value = data.name;
             filePath.textContent = data.parentPath;
             createTime.textContent = data.createTime;
             updateTime.textContent = data.updateTime;
@@ -344,8 +347,8 @@ function MarkdownNote() {
     function saveDoc() {
 
         const content = editor.value;
-        const name = document.getElementById("noteTitle").textContent;
-        const parentPath = document.getElementById("filePath").textContent;
+        const name = noteTitle.value;
+        const parentPath = filePath.textContent;
 
         postRequest("/note/save", {
             name: name,
@@ -353,10 +356,62 @@ function MarkdownNote() {
             content: content
         }).then(data => {
             // 更新文档日期
-            showToastSimple("保存成功", MsgTypes.SUCCESS)
+            showToastSimple("保存成功", MsgTypes.SUCCESS, Position.TopCenter);
         });
 
     }
+
+    /**
+     * 标题改变同步
+     */
+    function titleChangeSync() {
+        const noteTitleSpan = document.getElementById("noteTileSpan");
+        noteTitleSpan.textContent = noteTitle.value;
+    }
+
+    function noteTitleCtrl() {
+        //禁止输入特殊字符
+        noteTitle.onkeypress = forbiddenChars;
+        noteTitle.addEventListener("input", titleChangeSync)
+
+        function forbiddenChars(event) {
+            debugger
+
+            // 获取用户输入的内容
+            const inputText = event.key;
+            console.log(event);
+            console.log(inputText)
+            // 检查输入内容中是否包含禁止字符
+            const forbiddenChars = /[<>:"\/\\|?*\x00-\x1F]/; // Windows 文件名中禁止的字符正则表达式
+
+            if (forbiddenChars.test(inputText)) {
+                // 如果输入内容包含禁止字符，则阻止默认行为
+                event.preventDefault();
+                // 提示用户输入内容包含禁止字符
+                //alert("文件名中禁止包含以下字符: < > : \" / \\ | ? * 或控制字符");
+            }
+        }
+
+        // 过滤文件名中不允许的字符
+        function filterInvalidFileNameChars(str) {
+            // 正则表达式，匹配不允许的文件名字符
+            const invalidCharsRegex = /[<>\/\\|:\?\*\"]+/g;
+            // 使用replace函数替换掉所有不允许的字符
+            return str.replace(invalidCharsRegex, '');
+        }
+
+        function handleInput(e) {
+            // 获取输入的当前值
+            const currentValue = e.target.textContent;
+            // 过滤掉不允许的文件名字符
+            const filteredValue = filterInvalidFileNameChars(currentValue);
+            // 如果过滤后的值与当前值不同，更新输入框的值
+            if (filteredValue !== currentValue) {
+                e.target.textContent = filteredValue;
+            }
+        }
+    }
+
 
     //删除线
     function strikethroughAction() {

@@ -185,8 +185,12 @@
     <div class="note-content-container">
         <div class="note-title-area">
 
-            <div id="noteTitle" class="note-title" contenteditable="true" placeholder="请输入标题"></div>
-
+            <!--<div id="noteTitle" class="note-title" contenteditable="true" placeholder="请输入标题"></div>-->
+            <div class="note-title-input">
+                <span>|</span>
+                <input id="noteTitle" type="text">
+                <span id="noteTileSpan"></span>
+            </div>
             <div class="file-info-area">
                 <div class="file-info-path">
                     <i class="bi bi-folder-symlink"></i>

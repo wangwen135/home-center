@@ -378,23 +378,29 @@ function getAncestorsUntil(element, untilElement) {
 
 /**
  * 滚动元素到窗口的可见区域
- * @param container
+ * @param container position属性为relative, absolute, fixed或sticky
  * @param element
  */
 function scrollElementIntoView(container, element) {
-    // 检查容器是否有滚动条
-    if (container.scrollHeight > container.clientHeight) {
-        // 获取选中元素到容器顶部的距离
-        const elementTop = element.offsetTop;
-        // 获取容器的当前滚动位置
-        const containerScrollTop = container.scrollTop;
-        // 计算选中元素到容器顶部的相对位置
-        const elementPosition = elementTop - containerScrollTop;
+    // 获取选中元素到容器顶部的距离
+    const elementTop = element.offsetTop;
+    // 获取选中元素的尺寸
+    const elementHeight = element.offsetHeight;
+    // 获取容器的尺寸
+    const containerHeight = container.offsetHeight;
+    // 获取容器的当前滚动位置
+    const containerScrollTop = container.scrollTop;
+    // 计算元素底部到容器顶部的距离
+    const elementBottom = elementTop + elementHeight;
 
-        // 检查元素是否在可见范围内
-        if (elementPosition < 0 || elementPosition > container.clientHeight) {
-            // 元素不在可见范围内，我们需要滚动容器
-            container.scrollTop = elementTop;
-        }
+
+    // 检查元素是否在容器的可见范围内
+    if (elementTop < containerScrollTop) {
+        // 元素在容器上方
+        container.scrollTop = elementTop;
+    } else if (elementBottom > containerScrollTop + containerHeight) {
+        // 元素在容器下方
+        container.scrollTop = elementBottom - containerHeight;
     }
+    // 如果元素已经在可见范围内，则不需要滚动
 }
