@@ -372,3 +372,31 @@
 .min-w-5rem {
     min-width: 5rem;
 }
+
+/*最大宽度*/
+.max-w-300px {
+    max-width: 300px;
+}
+
+.max-w-400px {
+    max-width: 400px;
+}
+
+.max-w-500px {
+    max-width: 500px;
+}
+
+.max-w-600px {
+    max-width: 600px;
+}
+
+
+/*tooltips样式*/
+.note-title-tooltips {
+
+}
+
+/*增加最大宽度*/
+.note-title-tooltips .tooltip-inner {
+    max-width: 300px;
+}

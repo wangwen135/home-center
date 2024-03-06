@@ -394,40 +394,46 @@ function MarkdownNote() {
 
         //提示信息
         const tooltip = new bootstrap.Tooltip(noteTitle, {
-            title: '文件名中禁止出现: <>:"/\\|?*或控制字符',
+            title: '文件名中禁止出现 < > : " / \\ | ? * 或控制字符',
             placement: 'bottom',
-            trigger: 'manual'
+            trigger: 'manual',
+            customClass: 'note-title-tooltips'
         });
 
+        //保留提示状态
+        let tipsShow = false;
+        let timerId;
+
         function showTips(content) {
-            //alert("文件名中禁止包含以下字符: < > : \" / \\ | ? * 或控制字符");
             debugger;
-            const defaultTitle = '文件名中禁止出现: <>:"/\\|?*或控制字符';
+            const defaultTitle = '文件名中禁止出现 < > : " / \\ | ? * 或控制字符';
 
             /*if (content == null || content == '') {
                 tooltip.setContent(defaultTitle);
             } else {
                 tooltip.setContent(content);
             }*/
-            tooltip.hide();
+            if (tipsShow) {
+                // 取消定时器
+                clearTimeout(timerId);
+            }
+
+            // tooltip.hide();
             tooltip.show();
-            setTimeout(() => {
+            tipsShow = true;
+            timerId = setTimeout(() => {
                 tooltip.hide();
-            }, 1500);
+                tipsShow = false;
+            }, 3000);
         }
 
         function handleKeyPress(e) {
-
             // 获取用户输入的内容
             const char = e.key;
-            console.log(char)
             // 检查输入内容中是否包含禁止字符
             if (checkInvalidFileName(char)) {
-                console.log("禁止输入：", char);
                 e.preventDefault();
                 showTips("文件名中禁止包含：" + char);
-            } else {
-                console.log("允许输入：", char);
             }
         }
 
@@ -452,7 +458,6 @@ function MarkdownNote() {
         function handleDrop(e) {
             // 获取拖拽的文本数据
             let text = e.dataTransfer.getData('text/plain');
-            console.log(text);
             if (checkInvalidFileName(text)) {
                 e.preventDefault();
 

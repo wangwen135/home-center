@@ -374,6 +374,53 @@ function showToastSimple(message, type = MsgTypes.NONE, position = Position.Bott
     showToast(message, null, null, type, position);
 }
 
+/**
+ * 展示工具提示
+ * @param element 提示元素
+ * @param content 提示内容
+ * @param placement 位置，默认底部：auto top right bottom left
+ * @param timeout 消失时间，默认3秒
+ */
+function showTooltips(element, content, placement = 'bottom', timeout = 3000) {
+    const tooltip = new bootstrap.Tooltip(element, {
+        title: content,
+        placement: placement,
+        trigger: 'manual',
+        customClass: 'note-title-tooltips',
+        html: true
+    });
+    tooltip.show();
+    setTimeout(() => {
+        // tooltip.hide();
+        // 销毁
+        tooltip.dispose();
+    }, timeout);
+}
+
+/**
+ * 显示pop提示，指定时间后自动消失
+ * @param element 提示元素
+ * @param content 提示内容
+ * @param title 提示标题
+ * @param placement 位置，默认右侧：auto top right bottom left
+ * @param timeout 消失时间，默认3秒
+ */
+function showPopover(element, content, title = '', placement = 'right', timeout = 3000) {
+    const popover = new bootstrap.Popover(element, {
+        title: title,
+        content: content,
+        placement: placement,
+        trigger: 'manual',
+        html: true
+    });
+    popover.show()
+    setTimeout(() => {
+        //popover.hide();
+        // 销毁 直接隐藏没有动画
+        popover.dispose();
+    }, timeout);
+}
+
 
 /*################ 下面是测试用的 ####################*/
 

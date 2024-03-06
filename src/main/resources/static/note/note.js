@@ -8,6 +8,19 @@ window.onload = function () {
     mdNote = new MarkdownNote();
     mdNote.init();
     // openLastFile();
+    initBootstrap();
+}
+
+function initBootstrap() {
+    // 初始化Tooltips
+    document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(t => {
+        new bootstrap.Tooltip(t, {
+            delay: {"show": 1000, "hide": 100},
+            customClass: 'note-title-tooltips',
+            html: true
+        });
+
+    })
 }
 
 function frameworkInit() {
