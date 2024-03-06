@@ -49,9 +49,25 @@ public class NoteController {
         return Result.success(noteService.getNote(path));
     }
 
-    //创建目录
+    @ApiOperation("创建目录")
+    @PostMapping("/createDir")
+    public Result<NotePathVo> createDir(@RequestParam @ApiParam(value = "路径", required = true) String path,
+                                        @RequestParam(required = false) @ApiParam("目录名称") String name) {
+        return Result.success(noteService.createDir(path, name));
+    }
+
+    @ApiOperation("创建文件")
+    @PostMapping("/createFile")
+    public Result<NotePathVo> createFile(@RequestParam @ApiParam(value = "路径", required = true) String path,
+                                         @RequestParam(required = false) @ApiParam("文件名称") String name) {
+        return Result.success(noteService.createFile(path, name));
+    }
+
+    //修改目录名称
 
     //创建文件
+
+    //修改文件名
 
     //保存文件
     @ApiOperation("保存文件")

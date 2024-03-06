@@ -20,4 +20,9 @@ public interface NoteService {
     NoteFileVo getNote(String path);
 
     NoteFileVo saveNote(NoteFileVo fileVo);
+
+    NotePathVo createDir(String path, String name);
+
+    NotePathVo createFile(String path, String name);
 }
+

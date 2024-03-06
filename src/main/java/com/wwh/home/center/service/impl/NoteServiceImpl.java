@@ -113,6 +113,61 @@ public class NoteServiceImpl implements NoteService {
     }
 
     @Override
+    public NotePathVo createDir(String path, String name) {
+
+        File pathDir = getPathDir(path);
+
+        if (StringUtils.isBlank(name)) {
+            name = "新建文件夹";
+        }
+        name = name.trim();
+
+        name = FileUtil.calcValidDirName(pathDir, name);
+
+        File createDir = new File(pathDir, name);
+        createDir.mkdir();
+
+        return buildNotePathVo(path, createDir);
+    }
+
+    private File getPathDir(String path) {
+        if (StringUtils.isBlank(path)) {
+            throw new BusinessException("路径不能为空");
+        }
+        File pathDir = new File(getNoteDir(), path);
+
+        if (!pathDir.exists()) {
+            //创建目录
+            pathDir.mkdirs();
+        } else if (pathDir.isFile()) {
+            throw new BusinessException(path + " 是一个文件");
+        }
+        return pathDir;
+    }
+
+    @Override
+    public NotePathVo createFile(String path, String name) {
+        File pathDir = getPathDir(path);
+
+        if (StringUtils.isBlank(name)) {
+            name = "新建文件.md";
+        }
+        name = name.trim();
+
+        name = FileUtil.calcValidFileName(pathDir, name);
+
+        File createFile = new File(pathDir, name);
+
+        try {
+            createFile.createNewFile();
+        } catch (IOException e) {
+            log.error("创建文件异常", e);
+            throw new BusinessException("创建文件异常");
+        }
+        return buildNotePathVo(path, createFile);
+    }
+
+    @Override
     public List<NotePathVo> listAll() {
         File baseDir = getNoteDir();
         count = 0;

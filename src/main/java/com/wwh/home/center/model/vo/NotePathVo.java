@@ -32,7 +32,9 @@ public class NotePathVo {
 
     @ApiModelProperty("全路径")
     public String getFullPath() {
-        //return parentPath + File.separator + name;
+        if (parentPath.endsWith("/")) {
+            return parentPath + name;
+        }
         return parentPath + "/" + name;
     }
 }

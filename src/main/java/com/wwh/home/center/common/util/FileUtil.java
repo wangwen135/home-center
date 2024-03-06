@@ -11,6 +11,9 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileTime;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * 文件工具类
@@ -20,6 +23,62 @@ import java.util.Date;
  */
 @Slf4j
 public class FileUtil {
+
+
+    /**
+     * 计算有效的文件名称
+     *
+     * @param path
+     * @param name
+     * @return
+     */
+    public static String calcValidFileName(File path, String name) {
+        String[] names = path.list();
+        if (names.length == 0) {
+            return name;
+        }
+        Set<String> nameSet = Stream.of(names).collect(Collectors.toSet());
+        String namePart, suffix;
+        int lastDotIndex = name.lastIndexOf('.');
+        if (lastDotIndex == -1) {
+            namePart = name;
+            suffix = "";
+        } else {
+            namePart = name.substring(0, lastDotIndex);
+            suffix = name.substring(lastDotIndex);
+        }
+
+        String newName = name;
+        int count = 1;
+        while (nameSet.contains(newName)) {
+            newName = namePart + count + suffix;
+            count++;
+        }
+        return newName;
+    }
+
+    /**
+     * 计算有效的目录名称
+     *
+     * @param path
+     * @param name
+     * @return
+     */
+    public static String calcValidDirName(File path, String name) {
+        String[] names = path.list();
+        if (names.length == 0) {
+            return name;
+        }
+        Set<String> nameSet = Stream.of(names).collect(Collectors.toSet());
+        String newName = name;
+        int suffix = 1;
+        while (nameSet.contains(newName)) {
+            newName = name + suffix;
+            suffix++;
+        }
+        return newName;
+    }
+
     public static String getFileExtension(String fileName) {
         if (fileName == null || fileName.isEmpty()) {
             return "";
@@ -43,6 +102,12 @@ public class FileUtil {
         private Date lastModifiedTime;
     }
 
+    /**
+     * 获取文件时间信息
+     *
+     * @param file
+     * @return
+     */
     public static FileTimeInfo getFileTimeInfo(File file) {
         if (file == null) {
             return null;
@@ -64,7 +129,7 @@ public class FileUtil {
     }
 
 
-    public static void main(String[] args) {
+    public static void main1(String[] args) {
         Path path = Paths.get("D:\\temp\\ShutdownTest.jar");
         try {
             BasicFileAttributes attrs = Files.readAttributes(path, BasicFileAttributes.class);

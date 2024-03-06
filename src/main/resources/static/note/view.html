@@ -92,20 +92,24 @@
             <!--列表树Tab-->
             <div class="file-list-ctrl">
                 <!--新建文件-->
-                <button class="btn btn-control btn-p-sm" type="button">
+                <button id="tltb-newFile" class="btn btn-control btn-p-sm" type="button" data-bs-toggle="tooltip"
+                        data-bs-placement="bottom" title="新建文件">
                     <i class="bi bi-file-earmark-plus"></i>
                 </button>
                 <!--新建文件夹-->
-                <button class="btn btn-control btn-p-sm" type="button">
+                <button id="tltb-newFolder" class="btn btn-control btn-p-sm" type="button" data-bs-toggle="tooltip"
+                        data-bs-placement="bottom" title="新建文件夹">
                     <i class="bi bi-folder-plus"></i>
                 </button>
                 <!--排序-->
-                <button class="btn btn-control btn-p-sm" type="button">
+                <button id="tltb-sort" class="btn btn-control btn-p-sm" type="button" data-bs-toggle="tooltip"
+                        data-bs-placement="bottom" title="排序">
                     <i class="bi bi-sort-down-alt"></i>
                 </button>
                 <!--展开-折叠-->
-                <button id="nlt-expand" class="btn btn-control btn-p-sm switch-child" type="button"
-                        data-display-child="1" data-status="collapse">
+                <button id="tltb-expand" class="btn btn-control btn-p-sm switch-child" type="button"
+                        data-display-child="1" data-status="collapse" data-bs-toggle="tooltip"
+                        data-bs-placement="bottom" data-bs-title="全部展开">
                     <i class="bi bi-chevron-expand"></i>
                     <i class="bi bi-chevron-contract"></i>
                 </button>
@@ -256,12 +260,14 @@
                 <span class="text-black-50 mx-1">|</span>
 
                 <!--标题 需要弹出下拉框-->
-                <div class="dropdown d-inline-block" data-bs-toggle="tooltip"
-                     data-bs-placement="right" title="标题<br><b> Ctrl+[1~6]</b>">
-                    <button id="tb-headline" class="btn btn-control btn-p-sm dropdown-toggle" data-bs-toggle="dropdown"
-                            aria-expanded="false">
+                <div class="dropdown d-inline-block" data-bs-toggle="tooltip" data-bs-placement="left"
+                     title="标题<br><b> Ctrl+[1~6]</b>">
+
+                    <button id="tb-headline" class="btn btn-control btn-p-sm dropdown-toggle"
+                            data-bs-toggle="dropdown" aria-expanded="false">
                         <i class="bi bi-type-h1"></i>
                     </button>
+
                     <ul class="dropdown-menu min-w-2rem">
                         <li>
                             <button class="btn btn-control btn-p-sm dropdown-item">

@@ -17,6 +17,7 @@ function initBootstrap() {
         new bootstrap.Tooltip(t, {
             delay: {"show": 1000, "hide": 100},
             customClass: 'note-title-tooltips',
+            trigger: 'hover',
             html: true
         });
 
@@ -151,6 +152,9 @@ function noteListInit() {
  * 文件列表树初始化
  */
 function NoteListTree() {
+    //当前选中的路径
+    let currentSelectPath;
+
     const noteListTree = document.getElementById("noteListTree");
 
 
@@ -196,16 +200,33 @@ function NoteListTree() {
     }
 
     function ctrlBtnInit() {
-        const expand = document.getElementById("nlt-expand");
-        expand.onclick = function () {
-            if (expand.dataset.status == 'expand') {
+        const btnNewFile = document.getElementById("tltb-newFile");
+        btnNewFile.onclick = function () {
+
+        }
+
+
+        const btnExpand = document.getElementById("tltb-expand");
+
+        btnExpand.onclick = function () {
+            const tooltip = bootstrap.Tooltip.getInstance('#tltb-expand')
+            tooltip.hide();
+
+            if (btnExpand.dataset.status == 'expand') {
                 collapseAll()
-                expand.dataset.status = 'collapse';
-                expand.dataset.displayChild = '1';
+                btnExpand.dataset.status = 'collapse';
+                btnExpand.dataset.displayChild = '1';
+
+                btnExpand.dataset.bsTitle = '全部展开';
+                tooltip._config.title = '全部展开'
+
             } else {
                 expandAll()
-                expand.dataset.status = 'expand';
-                expand.dataset.displayChild = '2';
+                btnExpand.dataset.status = 'expand';
+                btnExpand.dataset.displayChild = '2';
+
+                btnExpand.dataset.bsTitle = '全部折叠';
+                tooltip._config.title = '全部折叠'
             }
         }
     }
@@ -316,6 +337,9 @@ function NoteListTree() {
             l.dataset.select = "false";
         });
         lb.dataset.select = "true";
+
+        //需要判断文件和目录
+        currentSelectPath = lb.dataset.fullPath;
 
         //加载文件
         console.log('lable 被点击', event.target);
