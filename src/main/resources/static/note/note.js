@@ -152,11 +152,22 @@ function noteListInit() {
  * 文件列表树初始化
  */
 function NoteListTree() {
-    //当前选中的路径
-    let currentSelectPath;
+    //当前选中的
+    let currentSelectElement = null;
+    let currentSelectPath = null;
+    let currentSelectFile = null;
 
     const noteListTree = document.getElementById("noteListTree");
 
+    this.getCurrentSelectElement = function () {
+        return currentSelectElement;
+    }
+    this.getCurrentSelectPath = function () {
+        return currentSelectPath;
+    }
+    this.getCurrentSelectFile = function () {
+        return currentSelectFile;
+    }
 
     this.init = function () {
         //控制按钮初始化
@@ -176,35 +187,40 @@ function NoteListTree() {
         let target = noteListTree.querySelector("[data-full-path='" + path + "']")
 
         if (target == null) {
-            console.log("目标不存在", path);
             return;
         }
 
-        // 取消其他的选中
+        /*// 取消其他的选中
         noteListTree.querySelectorAll("[data-select='true']").forEach(l => {
             l.dataset.select = "false";
         });
         //选中当前的
-        target.dataset.select = "true";
+        target.dataset.select = "true";*/
 
+        //展开全部上级
         getAncestorsUntil(target, noteListTree).forEach(i => {
-            console.log(i);
             // 获取元素下的第一个A标签
             const a = i.querySelector('a')
-            console.log(a);
             a.classList.remove("closed");
         });
 
         //滚动到窗口的可见区域
         scrollElementIntoView(noteListTree, target);
+
+        //点击
+        target.click();
     }
 
     function ctrlBtnInit() {
         const btnNewFile = document.getElementById("tltb-newFile");
         btnNewFile.onclick = function () {
-
+            const path = noteTree.getCurrentSelectPath();
+            postRequest()
         }
-
+        const btnNewFolder = document.getElementById("tltb-newFolder");
+        btnNewFolder.onclick = function () {
+            const path = noteTree.getCurrentSelectPath();
+        }
 
         const btnExpand = document.getElementById("tltb-expand");
 
@@ -322,7 +338,7 @@ function NoteListTree() {
         event.preventDefault();
 
         const lb = event.target;
-
+        currentSelectElement = lb;
         if (lb.dataset.type == "DIR") {
             /*lb.classList.toggle('closed');*/
             if (lb.classList.contains("closed")) {
@@ -330,6 +346,11 @@ function NoteListTree() {
             } else if (lb.dataset.select == "true") {
                 lb.classList.add("closed");
             }
+            currentSelectPath = lb.dataset.fullPath;
+            currentSelectFile = null;
+        } else {
+            currentSelectFile = lb.dataset.fullPath;
+            currentSelectPath = currentSelectFile.substring(0, currentSelectFile.lastIndexOf("/"));
         }
 
         // 取消其他的选中
@@ -337,9 +358,6 @@ function NoteListTree() {
             l.dataset.select = "false";
         });
         lb.dataset.select = "true";
-
-        //需要判断文件和目录
-        currentSelectPath = lb.dataset.fullPath;
 
         //加载文件
         console.log('lable 被点击', event.target);

@@ -14,19 +14,23 @@ function postRequest(url, param, callback) {
     return request(url, options, callback);
 }
 
-function request(url, options, callback) {
+function request(url, options, callback,errorCallback) {
     // 默认参数
     const defaultOptions = {
         method: 'GET',
         headers: {
-            'Content-Type': 'application/json',
+            'Content-Type': 'application/json'
         },
     };
 
     // 合并参数
     const opts = Object.assign({}, defaultOptions, options);
-    // 如果body是一个对象，转换为JSON字符串
-    if (opts.body && typeof opts.body === 'object') {
+
+    if (opts.body instanceof FormData) {
+        // 删除Content-Type，因为FormData会有正确的默认设置
+        delete opts.headers['Content-Type'];
+    } else if (opts.body && typeof opts.body === 'object') {
+        // 如果body是一个对象，转换为JSON字符串
         opts.body = JSON.stringify(opts.body);
     }
 
