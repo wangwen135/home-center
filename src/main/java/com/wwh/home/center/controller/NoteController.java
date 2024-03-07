@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 /**
@@ -72,7 +73,7 @@ public class NoteController {
     //保存文件
     @ApiOperation("保存文件")
     @PostMapping("/save")
-    public Result<NoteFileVo> saveNote(@RequestBody @ApiParam NoteFileVo fileVo) {
+    public Result<NoteFileVo> saveNote(@Valid @RequestBody @ApiParam NoteFileVo fileVo) {
         return Result.success(noteService.saveNote(fileVo));
     }
 

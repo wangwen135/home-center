@@ -2,19 +2,19 @@
  * 全局发送请求的函数封装
 */
 
-function getRequest(url, callback) {
-    return request(url, null, callback);
+function getRequest(url, callback, errorCallback) {
+    return request(url, null, callback, errorCallback);
 }
 
-function postRequest(url, param, callback) {
+function postRequest(url, param, callback, errorCallback) {
     const options = {
         method: 'POST',
         body: param
     }
-    return request(url, options, callback);
+    return request(url, options, callback, errorCallback);
 }
 
-function request(url, options, callback,errorCallback) {
+function request(url, options, callback, errorCallback) {
     // 默认参数
     const defaultOptions = {
         method: 'GET',
@@ -39,57 +39,77 @@ function request(url, options, callback,errorCallback) {
         .then(response => {
             // 如果响应状态码不是200，则抛出错误
             if (response.status !== 200) {
-                const e = new Error(`Error Response Code : ${response.status}`);
-                e.code = response.status;
-                throw e;
-            }
-            //重定向问题
-            if (response.redirected == true) {
-                const e = new Error(`重定向 : ${response.url}`);
-                e.code = 302;
-                throw e;
+                return Promise.reject({
+                    type: 'global',
+                    code: response.status,
+                    message: `Error Response Code : ${response.status}`
+                });
             }
             return response.json();
-        })
-        .then(data => {
-            // 处理不同状态码
+        }).then(data => {
             if (data.code == 200) {
                 return data.data;
             } else {
-                const e = new Error(data.message);
-                e.code = data.code;
-                throw e;
+                return Promise.reject({
+                    type: 'api',
+                    code: data.code,
+                    message: data.message,
+                    timestamp: data.timestamp
+                });
             }
         });
 
-    if (typeof callback === 'undefined' || typeof callback !== 'function') {
-        //没有回调函数，返回
+
+    if (typeof callback === 'function') {
+        rpPromise.then(data => {
+            //执行回调函数
+            callback(data);
+        }).catch(error => {
+            if (error.type == 'global') {
+                globalErrorHandle(error);
+            } else {
+                if (!reLoginHandle(error)) {
+                    if (typeof errorCallback === 'function') {
+                        errorCallback(error);
+                    } else {
+                        apiErrorHandle(error);
+                    }
+                }
+            }
+        });
+    } else {
+        //没有回调函数，返回Promise
         return rpPromise.catch(error => {
-            handleError(error);
-            throw error;
+            if (error.type == 'global') {
+                globalErrorHandle(error);
+            } else {
+                reLoginHandle(error)
+            }
+            return Promise.reject(error);
         });
     }
-    rpPromise.then(data => {
-        //执行回调函数
-        callback(data);
-    }).catch(error => {
-        handleError(error);
-    });
 }
 
-// 弹出错误提示信息
-function handleError(error) {
-    console.debug(error);
 
+function globalErrorHandle(error) {
+    const code = error.code === undefined ? '' : error.code;
+    showModalMessage("错误信息：" + code, error.message, MsgTypes.DANGER);
+}
+
+function reLoginHandle(error) {
     if (error.code == 401) {
         showConfirm("请重新登录", error.message, MsgTypes.INFO, function () {
             location.href = '/login.html';
         });
-    } else {
-        const code = error.code === undefined ? '' : error.code;
-        showModalMessage("错误信息：" + code, error.message, MsgTypes.DANGER);
+        return true;
     }
+    return false;
 }
+
+function apiErrorHandle(error) {
+    showToast(error.message, "错误信息：" + error.code, error.timestamp, MsgTypes.DANGER, Position.TopCenter);
+}
+
 
 /*########################## 提示框 ##########################*/
 /**

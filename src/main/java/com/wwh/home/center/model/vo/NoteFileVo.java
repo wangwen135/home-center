@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import javax.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
 import java.util.Date;
 
@@ -21,6 +22,7 @@ public class NoteFileVo {
     @ApiModelProperty("父路径")
     private String parentPath;
 
+    @NotBlank(message = "文件名不能为空")
     @ApiModelProperty("名称")
     private String name;
 
