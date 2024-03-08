@@ -215,11 +215,22 @@ function NoteListTree() {
         const btnNewFile = document.getElementById("tltb-newFile");
         btnNewFile.onclick = function () {
             const path = noteTree.getCurrentSelectPath();
-            postRequest()
+            let formData = new FormData();
+            formData.append('path', path);
+
+            postRequest('createFile', {body: formData}, pathVo => {
+                console.log("需要创建一个文件：" + pathVo);
+            });
         }
         const btnNewFolder = document.getElementById("tltb-newFolder");
         btnNewFolder.onclick = function () {
             const path = noteTree.getCurrentSelectPath();
+            let formData = new FormData();
+            formData.append('path', path);
+
+            postRequest('createDir', {body: formData}, pathVo => {
+                console.log("需要创建一个目录：" + pathVo);
+            });
         }
 
         const btnExpand = document.getElementById("tltb-expand");
@@ -406,56 +417,3 @@ function noteListAsterisk() {
 
 }
 
-
-// ###############################################################
-// ##################            工具方法         ##################
-// ###############################################################
-/**
- * 获取祖先元素，直到为某个元素为止
- * @param element
- * @param untilElement
- * @returns {[]|*[]}
- */
-function getAncestorsUntil(element, untilElement) {
-    let currentElement = element.parentElement;
-    const ancestors = [];
-    while (currentElement !== untilElement && currentElement !== document) {
-        ancestors.push(currentElement);
-        currentElement = currentElement.parentElement; // 或者使用 currentElement.parentNode
-    }
-    // 如果直到文档根元素都没有找到 untilElement，则返回空数组
-    if (currentElement !== untilElement) {
-        return [];
-    }
-    // 否则，返回包含所有祖先元素的数组
-    return ancestors;
-}
-
-/**
- * 滚动元素到窗口的可见区域
- * @param container position属性为relative, absolute, fixed或sticky
- * @param element
- */
-function scrollElementIntoView(container, element) {
-    // 获取选中元素到容器顶部的距离
-    const elementTop = element.offsetTop;
-    // 获取选中元素的尺寸
-    const elementHeight = element.offsetHeight;
-    // 获取容器的尺寸
-    const containerHeight = container.offsetHeight;
-    // 获取容器的当前滚动位置
-    const containerScrollTop = container.scrollTop;
-    // 计算元素底部到容器顶部的距离
-    const elementBottom = elementTop + elementHeight;
-
-
-    // 检查元素是否在容器的可见范围内
-    if (elementTop < containerScrollTop) {
-        // 元素在容器上方
-        container.scrollTop = elementTop;
-    } else if (elementBottom > containerScrollTop + containerHeight) {
-        // 元素在容器下方
-        container.scrollTop = elementBottom - containerHeight;
-    }
-    // 如果元素已经在可见范围内，则不需要滚动
-}

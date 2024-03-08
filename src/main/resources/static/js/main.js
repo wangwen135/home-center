@@ -446,42 +446,62 @@ function showPopover(element, content, title = '', placement = 'right', timeout 
 }
 
 
-/*################ 下面是测试用的 ####################*/
-
-function fetchRequest(url, options) {
-    // 设置默认的请求选项
-    const defaultOptions = {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: null
-    };
-
-    // 合并用户提供的选项和默认选项
-    const mergedOptions = {...defaultOptions, ...options};
-
-    // 如果body是一个对象，转换为JSON字符串
-    if (mergedOptions.body && typeof mergedOptions.body === 'object') {
-        mergedOptions.body = JSON.stringify(mergedOptions.body);
+// ###############################################################
+// ##################            工具方法         ##################
+// ###############################################################
+/**
+ * 获取祖先元素，直到为某个元素为止
+ * @param element
+ * @param untilElement
+ * @returns {[]|*[]}
+ */
+function getAncestorsUntil(element, untilElement) {
+    let parentElement = element.parentElement;
+    const ancestors = [];
+    while (parentElement !== untilElement && parentElement !== document) {
+        ancestors.push(parentElement);
+        parentElement = parentElement.parentElement; // 或者使用 currentElement.parentNode
     }
-
-    // 发送fetch请求
-    return fetch(url, mergedOptions)
-        .then(response => {
-            // 如果响应状态码不是200，则抛出错误
-            if (response.status !== 200) {
-                alert("错误码：" + response.status + "错误消息：" + response.message)
-                throw new Error(`Error: ${response.status}`);
-            }
-            return response.json(); // 解析JSON响应
-        })
-        .catch(error => {
-            // 处理请求错误
-            console.error('Request failed:', error);
-            throw error; // 重新抛出错误，以便调用者处理
-        });
+    // 如果直到文档根元素都没有找到 untilElement，则返回空数组
+    if (parentElement !== untilElement) {
+        return [];
+    }
+    // 否则，返回包含所有祖先元素的数组
+    return ancestors;
 }
+
+/**
+ * 滚动元素到窗口的可见区域
+ * @param container position属性为relative, absolute, fixed或sticky
+ * @param element
+ */
+function scrollElementIntoView(container, element) {
+    // 获取选中元素到容器顶部的距离
+    const elementTop = element.offsetTop;
+    // 获取选中元素的尺寸
+    const elementHeight = element.offsetHeight;
+    // 获取容器的尺寸
+    const containerHeight = container.offsetHeight;
+    // 获取容器的当前滚动位置
+    const containerScrollTop = container.scrollTop;
+    // 计算元素底部到容器顶部的距离
+    const elementBottom = elementTop + elementHeight;
+
+    // 检查元素是否在容器的可见范围内
+    if (elementTop < containerScrollTop) {
+        // 元素在容器上方
+        container.scrollTop = elementTop;
+    } else if (elementBottom > containerScrollTop + containerHeight) {
+        // 元素在容器下方
+        container.scrollTop = elementBottom - containerHeight;
+    }
+    // 如果元素已经在可见范围内，则不需要滚动
+}
+
+// ###############################################################
+/*################ 下面是测试用的 ####################*/
+// ###############################################################
+
 
 // 使用封装的fetchRequest函数
 /*
