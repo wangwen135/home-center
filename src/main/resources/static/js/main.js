@@ -196,7 +196,7 @@ function showModalMessage(title, message, type = MsgTypes.INFO) {
     document.body.appendChild(modal);
 
     // 初始化 Bootstrap Modal
-    var modalInstance = new bootstrap.Modal(modal);
+    const modalInstance = new bootstrap.Modal(modal);
 
     // 显示 Modal
     modalInstance.show();
@@ -204,8 +204,10 @@ function showModalMessage(title, message, type = MsgTypes.INFO) {
     // 监听 Modal 关闭事件，确保在关闭后移除 Modal 元素
     modal.addEventListener('hidden.bs.modal', function () {
         document.body.removeChild(modal);
+        modalInstance.dispose();
     });
 }
+
 
 /**
  * 弹出确认框
@@ -214,18 +216,25 @@ function showModalMessage(title, message, type = MsgTypes.INFO) {
  * @param type 类型
  * @param callbackTrue 确认回调函数
  * @param callbackFalse 取消回调函数
+ * @param hiddenCallback 隐藏回调，不会和上面的回调同时触发
+ * @param options 参数
  */
-function showConfirm(title, message, type = MsgTypes.QUESTION, callbackTrue, callbackFalse) {
+function showConfirm(title, message, type = MsgTypes.QUESTION, callbackTrue, callbackFalse, hiddenCallback, options) {
     // 样式：
     const style = createMsgStyle(type);
 
     let modal = document.createElement('div');
     modal.className = 'modal fade text-black';
     modal.tabIndex = -1;
-    //设置data-bs-backdrop属性为static
-    modal.dataset.bsBackdrop = 'static';
-    //设置data-bs-keyboard属性为false
-    modal.dataset.bsKeyboard = 'false';
+
+    const defOptions = {
+        backdrop: "static",
+        focus: true,
+        keyboard: false
+    };
+
+    const mergedOpts = {...defOptions, ...options};
+
 
     modal.innerHTML = `
     <div class="modal-dialog">
@@ -249,39 +258,40 @@ function showConfirm(title, message, type = MsgTypes.QUESTION, callbackTrue, cal
     document.body.appendChild(modal);
 
     // 初始化 Bootstrap Modal
-    var modalInstance = new bootstrap.Modal(modal);
+    const modalInstance = new bootstrap.Modal(modal, mergedOpts);
 
     // 显示 Modal
     modalInstance.show();
 
-    // 为“确定”按钮添加事件监听器
-    if (typeof callbackTrue === 'undefined') {
+    let executed = false;
 
-    } else if (typeof callbackTrue !== 'function') {
-        console.error('true callback is not a function');
-    } else {
+    // 为“确定”按钮添加事件监听器
+    if (typeof callbackTrue === 'function') {
         modal.querySelector('.confirm-button').addEventListener('click', function () {
+            executed = true;
             callbackTrue();
         });
     }
 
     //为“取消”按钮添加事件监听
-    if (typeof callbackFalse === 'undefined') {
-
-    } else if (typeof callbackFalse !== 'function') {
-        console.error('false callback is not a function');
-    } else {
+    if (typeof callbackFalse === 'function') {
         modal.querySelectorAll('.cancel-button').forEach(function (button) {
             button.addEventListener('click', function () {
+                executed = true;
                 callbackFalse();
             });
         });
     }
 
-
     // 监听 Modal 关闭事件，确保在关闭后移除 Modal 元素
     modal.addEventListener('hidden.bs.modal', function () {
         document.body.removeChild(modal);
+        modalInstance.dispose();
+        if (!executed) {
+            if (typeof hiddenCallback === 'function') {
+                hiddenCallback();
+            }
+        }
     });
 }
 

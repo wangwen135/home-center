@@ -227,9 +227,40 @@
                     <i class="bi bi-caret-up-square ts d-inline-block"></i>
                 </button>
 
-                <button id="setting" class="btn btn-control btn-p-sm rounded-circle">
-                    <i class="bi bi-three-dots-vertical ts d-inline-block"></i>
-                </button>
+                <div>
+                    <button id="setting" class="btn btn-control btn-p-sm rounded-circle dropdown-toggle afterNone"
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-three-dots-vertical ts d-inline-block"></i>
+                    </button>
+                    <ul class="dropdown-menu min-w-2rem">
+                        <li>
+                            <button class="btn btn-control btn-p-sm dropdown-item">
+                                <i class="bi bi-type-h1"></i> 高级设置1
+                            </button>
+                        </li>
+                        <li>
+                            <button class="btn btn-control btn-p-sm dropdown-item">
+                                <i class="bi bi-type-h2"></i> 高级设置2
+                            </button>
+                        </li>
+                        <li>
+                            <button class="btn btn-control btn-p-sm dropdown-item">
+                                <i class="bi bi-type-h3"></i> 高级设置3
+                            </button>
+                        </li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li>
+                            <button class="btn btn-control btn-p-sm dropdown-item">
+                                <i class="bi bi-type-h4"></i> 清空了after
+                            </button>
+                        </li>
+                        <li><a class="dropdown-item" href="#">Separated link</a></li>
+                        </li>
+
+                    </ul>
+                </div>
             </div>
         </div>
         <div id="toolbarContainer" class="toolbar-container">

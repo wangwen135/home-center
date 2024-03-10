@@ -24,5 +24,7 @@ public interface NoteService {
     NotePathVo createDir(String path, String name);
 
     NotePathVo createFile(String path, String name);
+
+    boolean reName(String filePath, String newName);
 }
 

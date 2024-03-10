@@ -41,7 +41,7 @@ function openLastFile() {
     if (localStorage.lastOpenFilePath != null) {
         //打开上次的文件
         const path = localStorage.lastOpenFilePath;
-        mdNote.openFile(path);
+        //mdNote.openFile(path);
         noteTree.selectPath(path);
     }
 }
@@ -154,7 +154,7 @@ function noteListInit() {
 function NoteListTree() {
     //当前选中的
     let currentSelectElement = null;
-    let currentSelectPath = null;
+    let currentSelectPath = "/";
     let currentSelectFile = null;
 
     const noteListTree = document.getElementById("noteListTree");
@@ -199,9 +199,11 @@ function NoteListTree() {
 
         //展开全部上级
         getAncestorsUntil(target, noteListTree).forEach(i => {
-            // 获取元素下的第一个A标签
-            const a = i.querySelector('a')
-            a.classList.remove("closed");
+            if (i.tagName === 'LI') {
+                // 获取元素下的第一个A标签
+                const a = i.querySelector('a')
+                a.classList.remove("closed");
+            }
         });
 
         //滚动到窗口的可见区域
@@ -218,7 +220,7 @@ function NoteListTree() {
             let formData = new FormData();
             formData.append('path', path);
 
-            postRequest('createFile', {body: formData}, pathVo => {
+            postRequest('createFile', formData, pathVo => {
                 console.log("需要创建一个文件：" + pathVo);
             });
         }
@@ -228,7 +230,7 @@ function NoteListTree() {
             let formData = new FormData();
             formData.append('path', path);
 
-            postRequest('createDir', {body: formData}, pathVo => {
+            postRequest('createDir', formData, pathVo => {
                 console.log("需要创建一个目录：" + pathVo);
             });
         }
@@ -327,7 +329,7 @@ function NoteListTree() {
                 labelClick(event);
             }
         }
-        noteListTree.removeEventListener("contextmenu", labelRightClick);
+        //noteListTree.removeEventListener("contextmenu", labelRightClick);
         noteListTree.addEventListener("contextmenu", labelRightClick);
     }
 
@@ -361,7 +363,14 @@ function NoteListTree() {
             currentSelectFile = null;
         } else {
             currentSelectFile = lb.dataset.fullPath;
-            currentSelectPath = currentSelectFile.substring(0, currentSelectFile.lastIndexOf("/"));
+
+            const lastIndexOf = currentSelectFile.lastIndexOf("/");
+            if (lastIndexOf === 0) {
+                currentSelectPath = "/";
+            } else {
+                currentSelectPath = currentSelectFile.substring(0, lastIndexOf);
+            }
+
         }
 
         // 取消其他的选中

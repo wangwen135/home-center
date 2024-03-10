@@ -68,9 +68,14 @@ public class NoteController {
 
     //创建文件
 
-    //修改文件名
+    @ApiOperation("修改文件名")
+    @PostMapping("/rename")
+    public Result rename(@RequestParam @ApiParam(value = "文件全路径", required = true) String filePath,
+                         @RequestParam @ApiParam(value = "新的文件名称", required = true) String newName) {
+        noteService.reName(filePath, newName);
+        return Result.success();
+    }
 
-    //保存文件
     @ApiOperation("保存文件")
     @PostMapping("/save")
     public Result<NoteFileVo> saveNote(@Valid @RequestBody @ApiParam NoteFileVo fileVo) {

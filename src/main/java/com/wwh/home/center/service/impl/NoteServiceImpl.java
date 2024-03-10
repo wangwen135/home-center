@@ -10,6 +10,7 @@ import com.wwh.home.center.service.NoteService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -46,17 +47,7 @@ public class NoteServiceImpl implements NoteService {
 
     @Override
     public NoteFileVo getNote(String path) {
-        if (StringUtils.isBlank(path)) {
-            throw new BusinessException("文件路径不能为空");
-        }
-        File file = new File(getNoteDir(), path);
-
-        if (!file.exists()) {
-            throw new BusinessException("文件【" + path + "】不存在");
-        }
-        if (file.isDirectory()) {
-            throw new BusinessException("【" + path + "】是一个目录");
-        }
+        File file = getFileByPath(path);
 
         try {
             NoteFileVo vo = new NoteFileVo();
@@ -80,6 +71,21 @@ public class NoteServiceImpl implements NoteService {
             log.error("读取文件异常", e);
             throw new BusinessException("读取文件异常");
         }
+    }
+
+    private File getFileByPath(String path) {
+        if (StringUtils.isBlank(path)) {
+            throw new BusinessException("文件路径不能为空");
+        }
+        File file = new File(getNoteDir(), path);
+
+        if (!file.exists()) {
+            throw new BusinessException("文件【" + path + "】不存在");
+        }
+        if (file.isDirectory()) {
+            throw new BusinessException("【" + path + "】是一个目录");
+        }
+        return file;
     }
 
     @Override
@@ -165,6 +171,23 @@ public class NoteServiceImpl implements NoteService {
             throw new BusinessException("创建文件异常");
         }
         return buildNotePathVo(path, createFile);
+    }
+
+    @Override
+    public boolean reName(String filePath, String newName) {
+        File file = getFileByPath(filePath);
+        //判断是否存在重名的文件
+        File newFile = new File(file.getParentFile(), newName);
+        if (newFile.exists()) {
+            //TODO 这个需要定义特定的错误代码
+            throw new BusinessException("文件名重复");
+        }
+        try {
+            return file.renameTo(newFile);
+        } catch (Exception e) {
+            log.error("将文件：{} 重命名为：{} 异常", filePath, newName, e);
+            throw new BusinessException("重命名文件失败！");
+        }
     }
 
     @Override

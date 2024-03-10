@@ -1,7 +1,13 @@
 /**
  * Markdown 笔记编辑器
  */
-function MarkdownNote() {
+function MarkdownNote(options) {
+
+
+    let openFilePath = null;
+    let fileName = null;
+    let originContent = null;
+
     const converter = new showdown.Converter();
     // converter.setOption('moreStyling', 'true');
     converter.setFlavor('github');
@@ -53,6 +59,10 @@ function MarkdownNote() {
 
     }
 
+    this.getOpenFilePath = function () {
+        return openFilePath;
+    }
+
     this.openFile = openFileInner;
 
     function openFileInner(path) {
@@ -69,9 +79,15 @@ function MarkdownNote() {
             updateTime.textContent = data.updateTime;
             // 收藏和标星
 
-            //记录最后打开的文件名
-            localStorage.openFilePath = path;
+
+            //设置变量值
+            openFilePath = path;
+            fileName = data.name;
+            originContent = data.content;
+
             render();
+
+            editorFootBarRefresh()
         });
     }
 
@@ -307,9 +323,11 @@ function MarkdownNote() {
 
         const cursorPos = editor.selectionStart;
         // 计算光标所在的行和列
-        const cursorRow = value.substring(0, cursorPos).split('\n').length;
-        const cursorCol = cursorPos - value.lastIndexOf('\n', cursorPos - 1) - 1;
-
+        let cursorRow = 0, cursorCol = 0;
+        if (cursorPos > 0) {
+            cursorRow = value.substring(0, cursorPos).split('\n').length;
+            cursorCol = cursorPos - value.lastIndexOf('\n', cursorPos - 1) - 1;
+        }
         document.getElementById('editorCursorRow').textContent = cursorRow + '';
         document.getElementById('editorCursorCol').textContent = cursorCol + '';
     }
@@ -392,9 +410,13 @@ function MarkdownNote() {
         //标题修改同步，这个是为了宽度自动填充
         noteTitle.addEventListener("input", titleChangeSync)
 
+        //修改文件名称
+        noteTitle.onblur = onBlurCheck;
+
         //提示信息
         const tooltip = new bootstrap.Tooltip(noteTitle, {
             title: '文件名中禁止出现 < > : " / \\ | ? * 或控制字符',
+            animation: false,
             placement: 'bottom',
             trigger: 'manual',
             customClass: 'note-title-tooltips'
@@ -405,17 +427,18 @@ function MarkdownNote() {
         let timerId;
 
         function showTips(content) {
-            debugger;
             const defaultTitle = '文件名中禁止出现 < > : " / \\ | ? * 或控制字符';
 
-            /*if (content == null || content == '') {
-                tooltip.setContent(defaultTitle);
+            if (content == null || content == '') {
+                tooltip._config.title = defaultTitle;
             } else {
-                tooltip.setContent(content);
-            }*/
+                tooltip._config.title = content;
+            }
+
             if (tipsShow) {
                 // 取消定时器
                 clearTimeout(timerId);
+                tooltip.hide();
             }
 
             // tooltip.hide();
@@ -424,7 +447,24 @@ function MarkdownNote() {
             timerId = setTimeout(() => {
                 tooltip.hide();
                 tipsShow = false;
-            }, 3000);
+            }, 2000);
+        }
+
+        function onBlurCheck() {
+            const newName = noteTitle.value;
+            if (newName == fileName) {
+                return;
+            }
+            showConfirm("确定将文件名修改为：", newName, MsgTypes.QUESTION, callbackTrue, callbackFalse, callbackFalse, {keyboard: true});
+
+            function callbackFalse() {
+                noteTitle.value = fileName;
+            }
+
+            function callbackTrue() {
+                //修改文件名
+                reNameNote(newName);
+            }
         }
 
         function handleKeyPress(e) {
@@ -471,6 +511,20 @@ function MarkdownNote() {
 
     }
 
+    function reNameNote(newName) {
+
+        let formData = new FormData();
+        formData.append('filePath', openFilePath);
+        formData.append('newName', newName);
+
+        postRequest('rename', formData, pathVo => {
+            noteTitle.value = newName;
+            fileName = newName;
+            //抛出事件
+            //通知菜单树修改文件名称
+            showToastSimple("文件名修改成功！");
+        });
+    }
 
     //删除线
     function strikethroughAction() {
