@@ -3,9 +3,11 @@
  */
 function MarkdownNote(options) {
 
-
-    let openFilePath = null;
+    //父路径
+    let parentPath = null;
+    //文件名
     let fileName = null;
+    //文件原始内容
     let originContent = null;
 
     const converter = new showdown.Converter();
@@ -59,8 +61,13 @@ function MarkdownNote(options) {
 
     }
 
-    this.getOpenFilePath = function () {
-        return openFilePath;
+    this.getOpenFileFullPath = getFileFullPath;
+
+    function getFileFullPath() {
+        if (parentPath == null) {
+            return null;
+        }
+        return parentPath + fileName;
     }
 
     this.openFile = openFileInner;
@@ -81,7 +88,7 @@ function MarkdownNote(options) {
 
 
             //设置变量值
-            openFilePath = path;
+            parentPath = data.parentPath;
             fileName = data.name;
             originContent = data.content;
 
@@ -463,7 +470,7 @@ function MarkdownNote(options) {
 
             function callbackTrue() {
                 //修改文件名
-                reNameNote(newName);
+                renameNote(newName);
             }
         }
 
@@ -511,18 +518,30 @@ function MarkdownNote(options) {
 
     }
 
-    function reNameNote(newName) {
+    /**
+     * 修改笔记名称
+     * @param newName
+     */
+    function renameNote(newName) {
 
         let formData = new FormData();
-        formData.append('filePath', openFilePath);
+        formData.append('filePath', getFileFullPath());
         formData.append('newName', newName);
+
+        let oldName = fileName;
 
         postRequest('rename', formData, pathVo => {
             noteTitle.value = newName;
             fileName = newName;
+
+            titleChangeSync();
             //抛出事件
             //通知菜单树修改文件名称
-            showToastSimple("文件名修改成功！");
+            if (options != null && typeof options.renameCallback === 'function') {
+                options.renameCallback(parentPath, oldName, newName);
+            }
+
+            showToastSimple("文件名修改成功！", MsgTypes.INFO, Position.TopCenter);
         });
     }
 
