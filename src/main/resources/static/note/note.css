@@ -414,29 +414,19 @@ body {
 /*工具栏*/
 .toolbar-container {
     padding-left: 6px;
-    padding-right: 6px;
-    display: flex;
-    /*flex-direction: row;*/
-    /*justify-content: space-between;*/
-    /*flex-wrap: nowrap;*/
-
 }
 
-/*编辑器工具栏*/
-.editor-toolbar {
+/*编辑器/查看器工具栏*/
+.editor-preview-toolbar {
     display: flex;
     align-items: center;
     width: 100%;
     white-space: nowrap;
+
+    padding-left: 6px;
+    /*overflow: hidden;*/
 }
 
-/*预览查看工具栏*/
-.preview-toolbar {
-    display: flex;
-    align-items: center;
-    width: 100%;
-    white-space: nowrap;
-}
 
 /*编辑器和查看器*/
 .editor-viewer {
@@ -458,39 +448,97 @@ body {
     width: 100%;
     display: flex;
     flex-direction: column;
+    overflow: hidden;
 }
 
+/*==============================*/
 /*文本编辑部分*/
-.editor-textarea {
-    resize: none;
-    font-family: Consolas, Courier;
-    font-size: 16px;
-
-    padding: 10px;
-    overflow-y: scroll;
-    overflow-x: auto;
-    white-space: nowrap;
-    width: 100%;
-    height: 100%;
-
-    outline: none;
+.editor-container {
+    flex-grow: 1;
+    overflow: hidden;
     border: 1px solid #eee;
+    display: flex;
+    font-family: monospace;
 }
 
-.editor-textarea:focus {
+.editor-container:focus-within {
     border: 1px solid #5d5d5d;
 }
 
-.editor-divider {
+.line-numbers-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.line-numbers {
+    flex-grow: 1;
+    padding: 10px 5px 50px 5px;
+    border-right: 1px solid #cccccc;
+    background: #eeeeee;
+    text-align: right;
+    min-width: 2rem;
+
+    font-family: Consolas, Courier;
+    font-size: 16px;
+
+    overflow: hidden;
+}
+
+.line-numbers-block {
+    display: none;
+    width: 100%;
+    height: 8px;
+    background: #c4c4c6;
+    flex-shrink: 0;
+}
+
+.line-numbers span {
+    display: block;
+    width: 100%;
+    text-align: right;
+}
+
+.editor-textarea {
+    flex-grow: 1;
+
+    resize: none;
+    outline: none;
+    border: 0px;
+    padding: 10px;
+
+    font-family: Consolas, Courier;
+    font-size: 16px;
+
+    overflow-y: scroll;
+    overflow-x: auto;
+    white-space: nowrap;
+    /*width: 100%;
+    height: 100%;*/
+
+}
+
+/*========================*/
+
+/*编辑和预览的中间部分*/
+.editor-preview-divider {
     flex-shrink: 0;
     flex-grow: 0;
     width: 6px;
     background: #eee;
     cursor: pointer;
+
 }
 
-.editor-divider:hover {
+.editor-preview-divider:hover {
     background: #8b949e;
+}
+
+.toggle-preview-btn {
+    margin: 0;
+    border-radius: 0;
+    background: #eee;
+    border: 0px;
+    padding-right: 0px;
 }
 
 /*markdown渲染部分*/

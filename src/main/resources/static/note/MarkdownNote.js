@@ -14,26 +14,33 @@ function MarkdownNote(options) {
     // converter.setOption('moreStyling', 'true');
     converter.setFlavor('github');
 
-    //标题/路径 修改时间等
+    //############## 标题区域 ##############
+    //标题，路径，修改时间等
     const noteTitle = document.getElementById("noteTitle");
     const filePath = document.getElementById("filePath");
     const createTime = document.getElementById("createTime");
     const updateTime = document.getElementById("updateTime");
 
-    // 编辑和预览区域
+    //标题区域工具栏
+    //编辑/预览 按钮
+    const btnEditOrPreview = document.getElementById('btnEditOrPreview');
+    //展示或隐藏工具栏
+    const btnToggleToolbar = document.getElementById("btnToggleToolbar");
+
+    //############## 编辑区域 ##############
     const editorWrapper = document.getElementById('editorWrapper');
+    const editorToolbar = document.getElementById("editorToolbar");
     const editor = document.getElementById('editor');
-    const editorDivider = document.getElementById('editorDivider')
-    const preview = document.getElementById('preview');
+
+    //############## 分割器 ##############
+    const editorPreviewDivider = document.getElementById('editorPreviewDivider')
+
+    //############## 预览区域 ##############
+    const previewWrapper = document.getElementById('previewWrapper');
+    const previewToolbar = document.getElementById("previewToolbar");
+    const markdownScrollbar = document.getElementById("markdownScrollbar");
     const markdownContent = document.getElementById('markdownContent');
 
-    //编辑器工具栏控制
-    const btnToggleToolbar = document.getElementById("btnToggleToolbar");
-    const toolbarContainer = document.getElementById("toolbarContainer");
-    const editorToolbar = document.getElementById("editorToolbar");
-    const previewToolbar = document.getElementById("previewToolbar");
-    // 编辑/预览 按钮
-    const btnEditOrPreview = document.getElementById('btnEditOrPreview');
 
     this.init = function () {
 
@@ -156,11 +163,9 @@ function MarkdownNote(options) {
     function toggleEditOrPreview() {
         btnEditOrPreview.onclick = function () {
             if (editorWrapper.style.display == 'none') {
-                // 编辑模式工具栏
-                switchEditorToolbar();
 
                 editorWrapper.style.display = '';
-                editorDivider.style.display = '';
+                editorPreviewDivider.style.display = '';
 
                 // 修改图标
                 btnEditOrPreview.querySelector("i").className = "bi bi-filetype-md";
@@ -168,11 +173,9 @@ function MarkdownNote(options) {
                 btnEditOrPreview.childNodes[2].textContent = " 预览 ";
 
             } else {
-                // 预览模式工具栏
-                switchPreviewToolbar();
 
                 editorWrapper.style.display = 'none';
-                editorDivider.style.display = 'none';
+                editorPreviewDivider.style.display = 'none';
 
                 // 修改图标
                 btnEditOrPreview.querySelector("i").className = "bi bi-pencil-square";
@@ -180,19 +183,9 @@ function MarkdownNote(options) {
                 btnEditOrPreview.childNodes[2].textContent = " 编辑 ";
 
                 /*预览区域总是需要显示*/
-                preview.style.display = '';
+                previewWrapper.style.display = '';
             }
         }
-    }
-
-    function switchEditorToolbar() {
-        editorToolbar.classList.remove("d-none");
-        previewToolbar.classList.add("d-none");
-    }
-
-    function switchPreviewToolbar() {
-        editorToolbar.classList.add("d-none");
-        previewToolbar.classList.remove("d-none");
     }
 
     /**
@@ -201,23 +194,27 @@ function MarkdownNote(options) {
     function toggleToolbar() {
 
         btnToggleToolbar.onclick = function () {
-            if (toolbarContainer.style.display == 'none') {
+            if (editorToolbar.style.display == 'none') {
                 /*展示工具栏*/
                 localStorage.styleHiddenToolbar = 'false';
-                toolbarContainer.style.display = '';
+                editorToolbar.style.display = '';
+                previewToolbar.style.display = '';
                 btnToggleToolbar.children[0].classList.remove("rotate-180");
             } else {
                 localStorage.styleHiddenToolbar = 'true';
-                hiddenToolbar()
+                editorToolbar.style.display = 'none';
+                previewToolbar.style.display = 'none';
+                btnToggleToolbar.children[0].classList.add("rotate-180");
             }
         }
     }
 
     function hiddenToolbar() {
-        if (toolbarContainer.style.display == 'none') {
+        if (editorToolbar.style.display == 'none') {
             return;
         }
-        toolbarContainer.style.display = 'none';
+        editorToolbar.style.display = 'none';
+        previewToolbar.style.display = 'none';
         btnToggleToolbar.children[0].classList.add("rotate-180");
     }
 
@@ -247,9 +244,9 @@ function MarkdownNote(options) {
             }
             const height = editor.scrollHeight;
             const top = editor.scrollTop;
-            const pHeight = preview.scrollHeight;
+            const pHeight = markdownScrollbar.scrollHeight;
             //窗口百分比同步
-            preview.scrollTop = pHeight * top / height;
+            markdownScrollbar.scrollTop = pHeight * top / height;
 
         });
 
@@ -271,17 +268,52 @@ function MarkdownNote(options) {
 
     //点击中间隐藏预览
     function hiddenPreviewCtrl() {
-        editorDivider.onclick = function () {
-            if (preview.style.display != 'none') {
-                preview.style.display = 'none';
+        editorPreviewDivider.onclick = function () {
+            if (previewWrapper.style.display != 'none') {
+                previewWrapper.style.display = 'none';
             } else {
-                preview.style.display = '';
+                previewWrapper.style.display = '';
             }
         };
     }
 
 
     function editorCtrl() {
+        //行号控制
+        const lineNumbers = document.getElementById('lineNumbers');
+        let lineNumberCounter = 1;
+        editor.addEventListener('input', updateLineNumbers);
+
+        function updateLineNumbers() {
+            const lineCount = editor.value.split('\n').length;
+            if (lineCount == lineNumberCounter) {
+                return;
+            }
+            while (lineCount != lineNumberCounter) {
+                if (lineCount > lineNumberCounter) {
+                    //增加行数
+                    lineNumberCounter++;
+                    const s = document.createElement("span");
+                    s.textContent = lineNumberCounter + '';
+                    lineNumbers.appendChild(s);
+                } else if (lineCount < lineNumberCounter) {
+                    lineNumberCounter--;
+                    // 移除最后一个子元素
+                    lineNumbers.removeChild(lineNumbers.lastChild);
+                }
+            }
+        }
+
+        editor.addEventListener('scroll', function (event) {
+            lineNumbers.scrollTop = editor.scrollTop;
+            if (editor.scrollWidth > editor.clientWidth) {
+                document.querySelector(".line-numbers-block").style.display = 'block'
+            } else {
+                document.querySelector(".line-numbers-block").style.display = 'none'
+            }
+        });
+
+
         // 输入内容实时渲染
         editor.addEventListener('propertychange', render);
         editor.addEventListener('input', render);
@@ -292,6 +324,7 @@ function MarkdownNote(options) {
         //刷新光标位置记录等
         editor.addEventListener('keyup', editorFootBarRefresh);
         editor.addEventListener('mouseup', editorFootBarRefresh);
+
 
     }
 
