@@ -459,6 +459,23 @@ function showPopover(element, content, title = '', placement = 'right', timeout 
 // ###############################################################
 // ##################            工具方法         ##################
 // ###############################################################
+
+/**
+ * 防抖函数，再一定的时间内只会执行一次
+ * @param func
+ * @param delay
+ * @returns {function(): void}
+ */
+function debounce(func, delay) {
+    let timer;
+    return function () {
+        const context = this;
+        const args = arguments;
+        clearTimeout(timer);
+        timer = setTimeout(() => func.apply(context, args), delay);
+    };
+}
+
 /**
  * 获取祖先元素，直到为某个元素为止
  * @param element

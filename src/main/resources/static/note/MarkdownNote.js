@@ -30,6 +30,7 @@ function MarkdownNote(options) {
     //############## 编辑区域 ##############
     const editorWrapper = document.getElementById('editorWrapper');
     const editorToolbar = document.getElementById("editorToolbar");
+    const lineNumbers = document.getElementById('lineNumbers');
     const editor = document.getElementById('editor');
 
     //############## 分割器 ##############
@@ -47,12 +48,18 @@ function MarkdownNote(options) {
         //笔记标题控制
         noteTitleCtrl();
 
+        // 切换编辑和查看模式
+        toggleEditOrPreview();
+
         //编辑器控制
         editorCtrl();
+
         //滚动控制
         scrollCtrl();
+
         // 点击中间隐藏预览
         hiddenPreviewCtrl();
+
         // 展示或隐藏编辑器的工具栏
         toggleToolbar();
 
@@ -60,12 +67,8 @@ function MarkdownNote(options) {
         editorToolbarBtnBind();
         previewToolbarBtnBind();
 
-        // 切换编辑和查看模式
-        toggleEditOrPreview();
-
         //加载上一次配置
         loadLastConf();
-
     }
 
     this.getOpenFileFullPath = getFileFullPath;
@@ -99,9 +102,8 @@ function MarkdownNote(options) {
             fileName = data.name;
             originContent = data.content;
 
-            render();
 
-            editorFootBarRefresh()
+            textareaValueChanged();
         });
     }
 
@@ -280,31 +282,9 @@ function MarkdownNote(options) {
 
     function editorCtrl() {
         //行号控制
-        const lineNumbers = document.getElementById('lineNumbers');
-        let lineNumberCounter = 1;
-        editor.addEventListener('input', updateLineNumbers);
-
-        function updateLineNumbers() {
-            const lineCount = editor.value.split('\n').length;
-            if (lineCount == lineNumberCounter) {
-                return;
-            }
-            while (lineCount != lineNumberCounter) {
-                if (lineCount > lineNumberCounter) {
-                    //增加行数
-                    lineNumberCounter++;
-                    const s = document.createElement("span");
-                    s.textContent = lineNumberCounter + '';
-                    lineNumbers.appendChild(s);
-                } else if (lineCount < lineNumberCounter) {
-                    lineNumberCounter--;
-                    // 移除最后一个子元素
-                    lineNumbers.removeChild(lineNumbers.lastChild);
-                }
-            }
-        }
-
+        // 纵向滚动条与行号同步
         editor.addEventListener('scroll', function (event) {
+            //滚动条同步
             lineNumbers.scrollTop = editor.scrollTop;
             if (editor.scrollWidth > editor.clientWidth) {
                 document.querySelector(".line-numbers-block").style.display = 'block'
@@ -314,35 +294,106 @@ function MarkdownNote(options) {
         });
 
 
-        // 输入内容实时渲染
-        editor.addEventListener('propertychange', render);
-        editor.addEventListener('input', render);
+        // 输入内容
+        editor.addEventListener('input', textareaValueChanged);
 
         // 键盘监听
         editor.addEventListener('keydown', editorKeyboardAction);
 
         //刷新光标位置记录等
-        editor.addEventListener('keyup', editorFootBarRefresh);
-        editor.addEventListener('mouseup', editorFootBarRefresh);
-
-
+        editor.addEventListener('keyup', debouncedRefreshEditorFootBarCursor);
+        editor.addEventListener('mouseup', debouncedRefreshEditorFootBarCursor);
     }
 
     /**
-     * 渲染内容
+     * 编辑框内容改变
+     */
+    function textareaValueChanged() {
+        console.log("=======================================================")
+        console.time("total")
+        const value = editor.value;
+        const lineCount = value.split('\n').length;
+
+        console.time("行号")
+        updateEditorLineNumbers(lineCount);
+        console.timeEnd("行号")
+
+        console.time("底部和光标")
+        refreshEditorFootBar(lineCount);
+        console.timeEnd("底部和光标")
+
+        // 异步渲染，300毫秒之后渲染
+        debouncedRender();
+
+        console.timeEnd("total")
+    }
+
+    /**
+     * 光标所在的行
+     */
+    let selectedLineNumber = 1;
+
+    function setSelectedLineNumber(line) {
+        if (line === selectedLineNumber) {
+            return;
+        }
+        if (line == null) {
+            return;
+        }
+        const selectSpan = lineNumbers.querySelector(".selected");
+        if (selectSpan != null) {
+            selectSpan.classList.remove("selected");
+        }
+        selectedLineNumber = line;
+        lineNumbers.children[line - 1].classList.add('selected');
+    }
+
+    /**
+     * 总行数
+     */
+    let lineNumberCounter = 1;
+
+    function updateEditorLineNumbers(lineCount) {
+
+        if (lineCount == null) {
+            lineCount = editor.value.split('\n').length;
+        }
+
+        if (lineCount == lineNumberCounter) {
+            return;
+        }
+        while (lineCount != lineNumberCounter) {
+            if (lineCount > lineNumberCounter) {
+                //增加行数
+                lineNumberCounter++;
+                const s = document.createElement("span");
+                s.textContent = lineNumberCounter + '';
+                lineNumbers.appendChild(s);
+            } else if (lineCount < lineNumberCounter) {
+                lineNumberCounter--;
+                // 移除最后一个子元素
+                lineNumbers.removeChild(lineNumbers.lastChild);
+            }
+        }
+    }
+
+    // 防抖渲染
+    const debouncedRender = debounce(function (event) {
+        render();
+    }, 300);
+
+    /**
+     * 实时内容渲染
      */
     function render() {
         const text = editor.value;
         markdownContent.innerHTML = converter.makeHtml(text);
-        previewFootBarRefresh();
-
-        /*editorFootBarRefresh();*/
+        refreshPreviewFootBar();
     }
 
     this.renderMd = render;
 
-
-    function previewFootBarRefresh() {
+    function refreshPreviewFootBar() {
         document.getElementById('previewStatisticHeadline').textContent
             = markdownContent.querySelectorAll('h1, h2, h3, h4, h5, h6').length + '';
         document.getElementById('previewStatisticParagraph').textContent
@@ -355,23 +406,42 @@ function MarkdownNote(options) {
             = markdownContent.querySelectorAll('img').length + '';
     }
 
-    function editorFootBarRefresh() {
+    function refreshEditorFootBar(rows) {
         const value = editor.value;
         document.getElementById('editorStatisticChars').textContent = value.length + '';
-        const rows = value.split('\n').length;
+        if (rows == null) {
+            rows = value.split('\n').length;
+        }
         document.getElementById('editorStatisticRows').textContent = rows + '';
 
+        //刷新光标位置
+        refreshEditorFootBarCursor();
+    }
+
+    // 相当于异步刷新
+    const debouncedRefreshEditorFootBarCursor = debounce(function (event) {
+        refreshEditorFootBarCursor();
+    }, 10);
+
+    function refreshEditorFootBarCursor() {
+        console.log("刷新选中事件。。。")
+        const value = editor.value;
         const cursorPos = editor.selectionStart;
         // 计算光标所在的行和列
-        let cursorRow = 0, cursorCol = 0;
+        let cursorRow = 1, cursorCol = 0;
         if (cursorPos > 0) {
             cursorRow = value.substring(0, cursorPos).split('\n').length;
             cursorCol = cursorPos - value.lastIndexOf('\n', cursorPos - 1) - 1;
         }
         document.getElementById('editorCursorRow').textContent = cursorRow + '';
+        setSelectedLineNumber(cursorRow);
         document.getElementById('editorCursorCol').textContent = cursorCol + '';
     }
 
+    /**
+     * 快捷键处理
+     * @param event
+     */
     function editorKeyboardAction(event) {
         const key = event.key;
         const ctrl = event.ctrlKey;
@@ -614,7 +684,7 @@ function MarkdownNote(options) {
         editor.value = oldValue.substring(0, start) + str + oldValue.substring(end);
         editor.selectionStart = editor.selectionEnd = start + str.length;
 
-        render();
+        textareaValueChanged();
     }
 
     /**
@@ -630,7 +700,7 @@ function MarkdownNote(options) {
         editor.value = oldValue.substring(0, start) + strStart + selectedText + strEnd + oldValue.substring(end);
         editor.selectionStart = editor.selectionEnd = start + strStart.length + selectedText.length + strEnd.length;
 
-        render();
+        textareaValueChanged();
     }
 
 
