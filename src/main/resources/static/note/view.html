@@ -392,18 +392,15 @@
 
                     <!--同步滚动按钮-->
                     <!--这个按钮在最右边-->
-                    <button id="tb-hidePreview" class="btn btn-control btn-p-sm ms-auto">
-                        <i class="bi bi-arrow-bar-right"></i>
+                    <button id="tb-togglePreview" class="btn btn-control btn-p-sm ms-auto">
+                        <i class="bi bi-arrow-bar-right ts d-inline-block"></i>
                     </button>
                 </div>
 
                 <!--编辑区域 -->
                 <div class="editor-container">
-                    <div class="line-numbers-container">
-                        <div class="line-numbers" id="lineNumbers">
-                            <span class="selected">1</span>
-                        </div>
-                        <div class="line-numbers-block"></div>
+                    <div class="line-numbers" id="lineNumbers">
+                        <span class="selected">1</span>
                     </div>
                     <textarea id="editor" class="editor-textarea"></textarea>
                 </div>
@@ -415,7 +412,7 @@
                 </div>
             </div>
 
-            <div id="editorPreviewDivider" class="editor-preview-divider"></div>
+            <div id="editorPreviewDivider" class="editor-preview-divider mt-36px"></div>
 
             <div id="previewWrapper" class="viewer-wrapper">
                 <!--预览工具栏-->

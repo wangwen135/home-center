@@ -57,7 +57,7 @@ function MarkdownNote(options) {
         //滚动控制
         scrollCtrl();
 
-        // 点击中间隐藏预览
+        // 隐藏和显示预览控制
         hiddenPreviewCtrl();
 
         // 展示或隐藏编辑器的工具栏
@@ -202,11 +202,13 @@ function MarkdownNote(options) {
                 editorToolbar.style.display = '';
                 previewToolbar.style.display = '';
                 btnToggleToolbar.children[0].classList.remove("rotate-180");
+                editorPreviewDivider.classList.add("mt-36px")
             } else {
                 localStorage.styleHiddenToolbar = 'true';
                 editorToolbar.style.display = 'none';
                 previewToolbar.style.display = 'none';
                 btnToggleToolbar.children[0].classList.add("rotate-180");
+                editorPreviewDivider.classList.remove("mt-36px")
             }
         }
     }
@@ -237,20 +239,21 @@ function MarkdownNote(options) {
     }
 
 
+    function syncScrolling() {
+        // 滚动同步 (开关控制)
+        if (localStorage.synchronizeScroller == 'false') {
+            return;
+        }
+        const height = editor.scrollHeight;
+        const top = editor.scrollTop;
+        const pHeight = markdownScrollbar.scrollHeight;
+        //窗口百分比同步
+        markdownScrollbar.scrollTop = pHeight * top / height;
+    }
+
     //两个窗口滚动条同步
     function scrollCtrl() {
-        editor.addEventListener('scroll', () => {
-            // 滚动同步 (开关控制)
-            if (localStorage.synchronizeScroller == 'false') {
-                return;
-            }
-            const height = editor.scrollHeight;
-            const top = editor.scrollTop;
-            const pHeight = markdownScrollbar.scrollHeight;
-            //窗口百分比同步
-            markdownScrollbar.scrollTop = pHeight * top / height;
-
-        });
+        editor.addEventListener('scroll', syncScrolling);
 
         const btnSyncScroll = document.getElementById("tb-syncScroll");
         if (localStorage.synchronizeScroller == 'false') {
@@ -268,15 +271,22 @@ function MarkdownNote(options) {
 
     }
 
-    //点击中间隐藏预览
+    //隐藏和显示预览控制
     function hiddenPreviewCtrl() {
-        editorPreviewDivider.onclick = function () {
+        const btnTogglePreview = document.getElementById('tb-togglePreview');
+
+        btnTogglePreview.onclick = togglePreview;
+        editorPreviewDivider.onclick = togglePreview;
+
+        function togglePreview() {
             if (previewWrapper.style.display != 'none') {
                 previewWrapper.style.display = 'none';
+                btnTogglePreview.children[0].classList.add("rotate-180");
             } else {
                 previewWrapper.style.display = '';
+                btnTogglePreview.children[0].classList.remove("rotate-180");
             }
-        };
+        }
     }
 
 
@@ -286,11 +296,6 @@ function MarkdownNote(options) {
         editor.addEventListener('scroll', function (event) {
             //滚动条同步
             lineNumbers.scrollTop = editor.scrollTop;
-            if (editor.scrollWidth > editor.clientWidth) {
-                document.querySelector(".line-numbers-block").style.display = 'block'
-            } else {
-                document.querySelector(".line-numbers-block").style.display = 'none'
-            }
         });
 
 
@@ -309,23 +314,15 @@ function MarkdownNote(options) {
      * 编辑框内容改变
      */
     function textareaValueChanged() {
-        console.log("=======================================================")
-        console.time("total")
         const value = editor.value;
         const lineCount = value.split('\n').length;
 
-        console.time("行号")
         updateEditorLineNumbers(lineCount);
-        console.timeEnd("行号")
 
-        console.time("底部和光标")
         refreshEditorFootBar(lineCount);
-        console.timeEnd("底部和光标")
 
         // 异步渲染，300毫秒之后渲染
         debouncedRender();
-
-        console.timeEnd("total")
     }
 
     /**
@@ -421,10 +418,9 @@ function MarkdownNote(options) {
     // 相当于异步刷新
     const debouncedRefreshEditorFootBarCursor = debounce(function (event) {
         refreshEditorFootBarCursor();
-    }, 10);
+    }, 1);
 
     function refreshEditorFootBarCursor() {
-        console.log("刷新选中事件。。。")
         const value = editor.value;
         const cursorPos = editor.selectionStart;
         // 计算光标所在的行和列
