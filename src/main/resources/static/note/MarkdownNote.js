@@ -166,6 +166,7 @@ function MarkdownNote(options) {
         btnEditOrPreview.onclick = function () {
             if (editorWrapper.style.display == 'none') {
 
+                noteTitle.disabled = false;
                 editorWrapper.style.display = '';
                 editorPreviewDivider.style.display = '';
 
@@ -175,7 +176,7 @@ function MarkdownNote(options) {
                 btnEditOrPreview.childNodes[2].textContent = " 预览 ";
 
             } else {
-
+                noteTitle.disabled = true;
                 editorWrapper.style.display = 'none';
                 editorPreviewDivider.style.display = 'none';
 
@@ -220,6 +221,7 @@ function MarkdownNote(options) {
         editorToolbar.style.display = 'none';
         previewToolbar.style.display = 'none';
         btnToggleToolbar.children[0].classList.add("rotate-180");
+        editorPreviewDivider.classList.remove("mt-36px")
     }
 
 

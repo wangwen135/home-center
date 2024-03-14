@@ -93,17 +93,17 @@
             <div class="file-list-ctrl">
                 <!--新建文件-->
                 <button id="tltb-newFile" class="btn btn-control btn-p-sm" type="button" data-bs-toggle="tooltip"
-                        data-bs-placement="bottom" title="新建文件">
+                        data-bs-placement="bottom" data-bs-title="新建文件">
                     <i class="bi bi-file-earmark-plus"></i>
                 </button>
                 <!--新建文件夹-->
                 <button id="tltb-newFolder" class="btn btn-control btn-p-sm" type="button" data-bs-toggle="tooltip"
-                        data-bs-placement="bottom" title="新建文件夹">
+                        data-bs-placement="bottom" data-bs-title="新建文件夹">
                     <i class="bi bi-folder-plus"></i>
                 </button>
                 <!--排序-->
                 <button id="tltb-sort" class="btn btn-control btn-p-sm" type="button" data-bs-toggle="tooltip"
-                        data-bs-placement="bottom" title="排序">
+                        data-bs-placement="bottom" data-bs-title="排序">
                     <i class="bi bi-sort-down-alt"></i>
                 </button>
                 <!--展开-折叠-->
@@ -430,6 +430,67 @@
                         <span class="letter-icon">AUTO</span>
                     </button>
 
+                    <!--分隔-->
+                    <span class="text-black-50 mx-1">|</span>
+
+
+                    <!--背景颜色下拉框-->
+                    <div class="dropdown d-inline-block" data-bs-toggle="tooltip" data-bs-placement="left"
+                         title="背景颜色">
+
+                        <button id="p-tb-bgColor" class="btn btn-control btn-p-sm dropdown-toggle"
+                                data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-palette"></i>
+                        </button>
+
+                        <ul class="dropdown-menu min-w-2rem">
+                            <li>
+                                <button class="btn btn-control btn-p-sm dropdown-item bg-secondary-subtle">
+                                    bg-secondary-subtle
+                                </button>
+                            </li>
+                            <li>
+                                <button class="btn btn-control btn-p-sm dropdown-item bg-primary-subtle">
+                                    bg-primary-subtle
+                                </button>
+                            </li>
+                            <li>
+                                <button class="btn btn-control btn-p-sm dropdown-item bg-success-subtle">
+                                    bg-success-subtle
+                                </button>
+                            </li>
+                            <li>
+                                <button class="btn btn-control btn-p-sm dropdown-item bg-warning-subtle">
+                                    bg-warning-subtle
+                                </button>
+                            </li>
+                            <li>
+                                <button class="btn btn-control btn-p-sm dropdown-item bg-info-subtle">
+                                    bg-info-subtle
+                                </button>
+                            </li>
+                            <li>
+                                <button class="btn btn-control btn-p-sm dropdown-item bg-transparent">
+                                    bg-transparent
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!--分隔-->
+                    <span class="text-black-50 mx-1">|</span>
+
+                    <!--下载-->
+                    <button id="p-tb-download" class="btn btn-control btn-p-sm ms-auto">
+                        <i class="bi bi-file-earmark-arrow-down"></i>
+                    </button>
+
+                    <!--全屏-->
+                    <button id="p-tb-fullscreen" class="btn btn-control btn-p-sm">
+                        <i class="bi bi-arrows-fullscreen"></i>
+                    </button>
+
+
                     <!--这个按钮在最右边-->
                     <button id="tb-syncScroll" class="btn btn-control btn-p-sm ms-auto" data-select="true">
                         <i class="bi bi-arrows-vertical"></i>
@@ -437,6 +498,11 @@
                 </div>
 
                 <div id="markdownScrollbar" class="markdown-scrollbar">
+                    <div class="markdown-sticky">
+                        <button class="btn btn-control btn-p-xxs border border-secondary">
+                            <i class="bi bi-list-columns-reverse"></i>
+                        </button>
+                    </div>
                     <div id="markdownContent" class="markdown-body markdown-content"></div>
                 </div>
                 <div id="previewFootBar" class="foot-bar-container">
