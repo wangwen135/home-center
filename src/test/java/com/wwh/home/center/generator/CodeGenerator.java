@@ -20,8 +20,10 @@ public class CodeGenerator {
     public static void main(String[] args) {
         FastAutoGenerator.create("jdbc:mysql://localhost:3306/home_center?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf8&useSSL=false",
                 "home", "123456")
+//        FastAutoGenerator.create("jdbc:mysql://localhost:3306/sunshine?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai",
+//                "example-user", "change-me")
                 // 全局配置
-                .globalConfig(builder -> builder.author("wwh").enableSwagger().outputDir("D:\\temp\\MybatisPlus").fileOverride())
+                .globalConfig(builder -> builder.author("wangwh").enableSwagger().outputDir("D:\\temp\\MybatisPlus").fileOverride())
                 //.globalConfig((scanner, builder) -> builder.author(scanner.apply("请输入作者名称？")).fileOverride())
                 // 包配置
                 //.packageConfig((scanner, builder) -> builder.parent(scanner.apply("请输入包名？")))
