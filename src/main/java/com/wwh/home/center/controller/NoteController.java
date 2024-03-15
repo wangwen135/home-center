@@ -1,5 +1,7 @@
 package com.wwh.home.center.controller;
 
+import com.wwh.home.center.common.annotation.OperLog;
+import com.wwh.home.center.common.enums.OperTypeEnum;
 import com.wwh.home.center.common.model.Result;
 import com.wwh.home.center.model.vo.NoteFileVo;
 import com.wwh.home.center.model.vo.NotePathVo;
@@ -27,7 +29,7 @@ import java.util.List;
 @Api(tags = "笔记")
 @RequestMapping("/note")
 public class NoteController {
-
+    private static final String OPER_LOG_MODULE = "笔记";
     @Autowired
     private NoteService noteService;
 
@@ -52,6 +54,7 @@ public class NoteController {
 
     @ApiOperation("创建目录")
     @PostMapping("/createDir")
+    @OperLog(module = OPER_LOG_MODULE, operType = OperTypeEnum.INSERT)
     public Result<NotePathVo> createDir(@RequestParam @ApiParam(value = "路径", required = true) String path,
                                         @RequestParam(required = false) @ApiParam("目录名称") String name) {
         return Result.success(noteService.createDir(path, name));
@@ -59,6 +62,7 @@ public class NoteController {
 
     @ApiOperation("创建文件")
     @PostMapping("/createFile")
+    @OperLog(module = OPER_LOG_MODULE, operType = OperTypeEnum.INSERT)
     public Result<NotePathVo> createFile(@RequestParam @ApiParam(value = "路径", required = true) String path,
                                          @RequestParam(required = false) @ApiParam("文件名称") String name) {
         return Result.success(noteService.createFile(path, name));
@@ -70,6 +74,7 @@ public class NoteController {
 
     @ApiOperation("修改文件名")
     @PostMapping("/rename")
+    @OperLog(module = OPER_LOG_MODULE, operType = OperTypeEnum.INSERT)
     public Result rename(@RequestParam @ApiParam(value = "文件全路径", required = true) String filePath,
                          @RequestParam @ApiParam(value = "新的文件名称", required = true) String newName) {
         noteService.reName(filePath, newName);
@@ -78,6 +83,7 @@ public class NoteController {
 
     @ApiOperation("保存文件")
     @PostMapping("/save")
+    @OperLog(module = OPER_LOG_MODULE, operType = OperTypeEnum.INSERT)
     public Result<NoteFileVo> saveNote(@Valid @RequestBody @ApiParam NoteFileVo fileVo) {
         return Result.success(noteService.saveNote(fileVo));
     }

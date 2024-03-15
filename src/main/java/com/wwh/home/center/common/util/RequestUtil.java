@@ -1,11 +1,15 @@
 package com.wwh.home.center.common.util;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 请求工具
@@ -30,6 +34,48 @@ public class RequestUtil {
         return request;
     }
 
+    /**
+     * 获取请求URI
+     *
+     * @return
+     */
+    public static String getRequestURI() {
+        HttpServletRequest request = getRequestFromContextHolder();
+        if (request == null) {
+            log.warn("无法获取HttpServletRequest...");
+            return "";
+        }
+        return request.getRequestURI();
+    }
+
+    /**
+     * 获得所有请求参数
+     *
+     * @param request
+     * @return Map
+     */
+    public static Map<String, String[]> getParams(HttpServletRequest request) {
+        if (request == null) {
+            return new HashMap<>();
+        }
+        final Map<String, String[]> map = request.getParameterMap();
+        return Collections.unmodifiableMap(map);
+    }
+
+    /**
+     * 获得所有请求参数
+     *
+     * @param request
+     * @return Map
+     */
+    public static Map<String, String> getParamMap(HttpServletRequest request) {
+        Map<String, String> params = new HashMap<>();
+        for (Map.Entry<String, String[]> entry : getParams(request).entrySet()) {
+            params.put(entry.getKey(), StringUtils.join(entry.getValue(), ","));
+        }
+        return params;
+    }
+
 
     /**
      * 获取IP地址
@@ -46,7 +92,7 @@ public class RequestUtil {
     }
 
     /**
-     * 获取ID地址
+     * 获取IP地址
      *
      * @param request
      * @return
