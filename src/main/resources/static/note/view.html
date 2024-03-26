@@ -393,7 +393,7 @@
                     <!--同步滚动按钮-->
                     <!--这个按钮在最右边-->
                     <button id="tb-togglePreview" class="btn btn-control btn-p-sm ms-auto">
-                        <i class="bi bi-arrow-bar-right ts d-inline-block"></i>
+                        <i class="bi bi-arrow-bar-right ts d-inline-block "></i>
                     </button>
                 </div>
 
@@ -492,24 +492,38 @@
 
 
                     <!--这个按钮在最右边-->
-                    <button id="tb-syncScroll" class="btn btn-control btn-p-sm ms-auto" data-select="true">
+                    <button id="tb-syncScroll" class="btn btn-control btn-p-sm ms-auto  sync-scrolling-icon"
+                            data-select="true">
                         <i class="bi bi-arrows-vertical"></i>
                     </button>
                 </div>
 
                 <div class="markdown-container">
                     <div class="markdown-absolute-container">
-                        <button class="btn btn-control btn-p-xxs border border-secondary">
-                            <i class="bi bi-list-columns-reverse"></i>
-                        </button>
-                    </div>
-                    <div id="markdownScrollbar" class="markdown-scrollbar">
-                        <div id="markdownContent" class="markdown-body markdown-content"></div>
-                        <div class="markdown-catalog">
+                        <div class="markdown-absolute-toolbar">
+                            <button class="btn btn-control btn-p-xxs border border-secondary">
+                                <i class="bi bi-list-columns-reverse"></i>
+                            </button>
+                        </div>
+                        <div id="markdownCatalog" class="markdown-catalog">
+                            <ul>
+                                <li>目录一</li>
+                                <li>目录二</li>
+                                <li>目录三</li>
+                            </ul>
                             <div>1. 这里是目录</div>
                             <div>2. 这里是目录</div>
                             <div>3. 这里是目录</div>
+                            <div>x. 这里是目录</div>
+                            <div>x. 这里是目录</div>
+                            <div>x. 这里是目录</div>
+                            <div>x. 这里是目录</div>
+                            <div>x. 这里是目录</div>
+                            <div>x. 这里是目录</div>
                         </div>
+                    </div>
+                    <div id="markdownScrollbar" class="markdown-scrollbar">
+                        <div id="markdownContent" class="markdown-body markdown-content"></div>
                     </div>
                 </div>
 
