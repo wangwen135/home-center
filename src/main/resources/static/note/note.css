@@ -595,23 +595,25 @@ body {
 
 /*目录*/
 .markdown-catalog-container {
-    width: 200px;
-    min-height: 200px;
+    width: 260px;
+    min-height: 360px;
     margin-top: 5px;
     border: 1px solid #ddd;
     border-radius: 5px;
-    padding: 0.5rem;
     background-color: #fbfbfb;
-    overflow: auto;
+    display: flex;
+    flex-direction: column;
 }
 
 .markdown-catalog-title {
     font-size: 1.2rem;
     text-align: center;
+    border-bottom: 1px solid #a7a5a5;
+    margin-bottom: 5px;
 }
 
 .markdown-catalog-list {
-
+    overflow: auto;
 }
 
 .markdown-catalog-item {
@@ -637,8 +639,9 @@ body {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 
-    margin-left: 2px;
-    margin-right: 5px;
+    padding-left: 5px;
+    padding-right: 5px;
+    color: #9696cb;
 
 }
 

@@ -41,7 +41,8 @@ function MarkdownNote(options) {
     const previewToolbar = document.getElementById("previewToolbar");
     const markdownScrollbar = document.getElementById("markdownScrollbar");
     const markdownContent = document.getElementById('markdownContent');
-
+    // 目录列表
+    const markdownCatalogList = document.getElementById("markdownCatalogList");
 
     this.init = function () {
 
@@ -67,8 +68,8 @@ function MarkdownNote(options) {
         editorToolbarBtnBind();
         previewToolbarBtnBind();
 
-        //其他工具按钮
-        markdownToolbarBind();
+        //目录处理
+        markdownCatalogHandle();
 
         //加载上一次配置
         loadLastConf();
@@ -113,11 +114,23 @@ function MarkdownNote(options) {
     /**
      * 文档中的工具按钮
      */
-    function markdownToolbarBind() {
+    function markdownCatalogHandle() {
         const btnCatalog = document.getElementById("btnCatalog");
         const markdownCatalogContainer = document.getElementById("markdownCatalogContainer");
         btnCatalog.onclick = function () {
             markdownCatalogContainer.classList.toggle("d-none");
+        }
+
+        //点击时滚动内容
+        markdownCatalogList.onclick = function (e) {
+            const hl = e.target;
+            const text = hl.textContent;
+            markdownContent.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach(h => {
+                //TODO 标题内容相同时会有问题
+                if (h.textContent === text) {
+                    h.scrollIntoView({behavior: 'smooth', block: 'start'});
+                }
+            })
         }
     }
 
@@ -422,7 +435,6 @@ function MarkdownNote(options) {
     }
 
     function updateCatalog() {
-        const markdownCatalogList = document.getElementById("markdownCatalogList");
         // 清空
         markdownCatalogList.innerHTML = '';
         markdownContent.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach(h => {
@@ -432,7 +444,6 @@ function MarkdownNote(options) {
             catalogItem.dataset.headline = h.tagName;
             markdownCatalogList.appendChild(catalogItem);
         });
-
     }
 
     function refreshEditorFootBar(rows) {
