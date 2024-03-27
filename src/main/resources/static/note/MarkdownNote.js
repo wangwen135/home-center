@@ -67,6 +67,9 @@ function MarkdownNote(options) {
         editorToolbarBtnBind();
         previewToolbarBtnBind();
 
+        //其他工具按钮
+        markdownToolbarBind();
+
         //加载上一次配置
         loadLastConf();
     }
@@ -105,6 +108,17 @@ function MarkdownNote(options) {
 
             textareaValueChanged();
         });
+    }
+
+    /**
+     * 文档中的工具按钮
+     */
+    function markdownToolbarBind() {
+        const btnCatalog = document.getElementById("btnCatalog");
+        const markdownCatalogContainer = document.getElementById("markdownCatalogContainer");
+        btnCatalog.onclick = function () {
+            markdownCatalogContainer.classList.toggle("d-none");
+        }
     }
 
     /**
@@ -388,6 +402,8 @@ function MarkdownNote(options) {
         const text = editor.value;
         markdownContent.innerHTML = converter.makeHtml(text);
         refreshPreviewFootBar();
+
+        updateCatalog();
     }
 
     this.renderMd = render;
@@ -403,6 +419,20 @@ function MarkdownNote(options) {
 
         document.getElementById('previewStatisticImage').textContent
             = markdownContent.querySelectorAll('img').length + '';
+    }
+
+    function updateCatalog() {
+        const markdownCatalogList = document.getElementById("markdownCatalogList");
+        // 清空
+        markdownCatalogList.innerHTML = '';
+        markdownContent.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach(h => {
+            const catalogItem = document.createElement('div');
+            catalogItem.className = 'markdown-catalog-item';
+            catalogItem.textContent = h.textContent;
+            catalogItem.dataset.headline = h.tagName;
+            markdownCatalogList.appendChild(catalogItem);
+        });
+
     }
 
     function refreshEditorFootBar(rows) {

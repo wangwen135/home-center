@@ -501,25 +501,15 @@
                 <div class="markdown-container">
                     <div class="markdown-absolute-container">
                         <div class="markdown-absolute-toolbar">
-                            <button class="btn btn-control btn-p-xxs border border-secondary">
+                            <button id="btnCatalog" class="btn btn-control btn-p-xxs border border-secondary">
                                 <i class="bi bi-list-columns-reverse"></i>
                             </button>
                         </div>
-                        <div id="markdownCatalog" class="markdown-catalog">
-                            <ul>
-                                <li>目录一</li>
-                                <li>目录二</li>
-                                <li>目录三</li>
-                            </ul>
-                            <div>1. 这里是目录</div>
-                            <div>2. 这里是目录</div>
-                            <div>3. 这里是目录</div>
-                            <div>x. 这里是目录</div>
-                            <div>x. 这里是目录</div>
-                            <div>x. 这里是目录</div>
-                            <div>x. 这里是目录</div>
-                            <div>x. 这里是目录</div>
-                            <div>x. 这里是目录</div>
+                        <div id="markdownCatalogContainer" class="markdown-catalog-container d-none">
+                            <div class="markdown-catalog-title">目录</div>
+                            <div id="markdownCatalogList" class="markdown-catalog-list">
+
+                            </div>
                         </div>
                     </div>
                     <div id="markdownScrollbar" class="markdown-scrollbar">

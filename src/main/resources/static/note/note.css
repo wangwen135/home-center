@@ -593,8 +593,10 @@ body {
     flex-direction: row-reverse;
 }
 
-.markdown-catalog {
+/*目录*/
+.markdown-catalog-container {
     width: 200px;
+    min-height: 200px;
     margin-top: 5px;
     border: 1px solid #ddd;
     border-radius: 5px;
@@ -603,13 +605,77 @@ body {
     overflow: auto;
 }
 
+.markdown-catalog-title {
+    font-size: 1.2rem;
+    text-align: center;
+}
+
+.markdown-catalog-list {
+
+}
+
+.markdown-catalog-item {
+    cursor: pointer;
+}
+
+.markdown-catalog-item:hover {
+    background-color: #eeeeee;
+}
+
+
+.markdown-catalog-item::before {
+    /*bootstrap-icons*/
+    display: inline-block;
+    font-family: bootstrap-icons !important;
+    font-style: normal;
+    font-weight: normal !important;
+    font-variant: normal;
+    text-transform: none;
+    line-height: 1;
+    vertical-align: -.125em;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+
+    margin-left: 2px;
+    margin-right: 5px;
+
+}
+
+.markdown-catalog-item[data-headline="H1"]::before {
+    content: "\f5f1";
+}
+
+.markdown-catalog-item[data-headline="H2"]::before {
+    content: "\f5f2";
+    margin-left: 0.5rem;
+}
+
+.markdown-catalog-item[data-headline="H3"]::before {
+    content: "\f5f3";
+    margin-left: 1rem;
+}
+
+.markdown-catalog-item[data-headline="H4"]::before {
+    content: "\f8dc";
+    margin-left: 1.5rem;
+}
+
+.markdown-catalog-item[data-headline="H5"]::before {
+    content: "\f8dd";
+    margin-left: 2rem;
+}
+
+.markdown-catalog-item[data-headline="H6"]::before {
+    content: "\f8de";
+    margin-left: 2.5rem;
+}
+
 .markdown-scrollbar {
     overflow-y: scroll;
     overflow-x: auto;
     width: 100%;
     height: 100%;
 }
-
 
 .markdown-content {
     margin-left: auto;
