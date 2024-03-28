@@ -117,6 +117,7 @@ function MarkdownNote(options) {
     function markdownCatalogHandle() {
         const btnCatalog = document.getElementById("btnCatalog");
         const markdownCatalogContainer = document.getElementById("markdownCatalogContainer");
+
         btnCatalog.onclick = function () {
             markdownCatalogContainer.classList.toggle("d-none");
         }
@@ -124,13 +125,9 @@ function MarkdownNote(options) {
         //点击时滚动内容
         markdownCatalogList.onclick = function (e) {
             const hl = e.target;
-            const text = hl.textContent;
-            markdownContent.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach(h => {
-                //TODO 标题内容相同时会有问题
-                if (h.textContent === text) {
-                    h.scrollIntoView({behavior: 'smooth', block: 'start'});
-                }
-            })
+            const index = hl.dataset.index;
+            markdownContent.querySelectorAll('h1, h2, h3, h4, h5, h6')[index]
+                .scrollIntoView({behavior: 'smooth', block: 'start'});
         }
     }
 
@@ -434,16 +431,21 @@ function MarkdownNote(options) {
             = markdownContent.querySelectorAll('img').length + '';
     }
 
+    /**
+     * 更新目录
+     */
     function updateCatalog() {
-        // 清空
         markdownCatalogList.innerHTML = '';
-        markdownContent.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach(h => {
+        const headers = markdownContent.querySelectorAll('h1, h2, h3, h4, h5, h6');
+        for (let i = 0; i < headers.length; i++) {
+            const h = headers[i];
             const catalogItem = document.createElement('div');
             catalogItem.className = 'markdown-catalog-item';
             catalogItem.textContent = h.textContent;
             catalogItem.dataset.headline = h.tagName;
+            catalogItem.dataset.index = i;
             markdownCatalogList.appendChild(catalogItem);
-        });
+        }
     }
 
     function refreshEditorFootBar(rows) {
