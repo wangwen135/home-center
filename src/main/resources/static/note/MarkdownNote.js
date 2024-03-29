@@ -73,6 +73,9 @@ function MarkdownNote(options) {
 
         //加载上一次配置
         loadLastConf();
+
+        //全局快捷键
+        registerGlobalShortcutKeys();
     }
 
     this.getOpenFileFullPath = getFileFullPath;
@@ -334,6 +337,28 @@ function MarkdownNote(options) {
         //刷新光标位置记录等
         editor.addEventListener('keyup', debouncedRefreshEditorFootBarCursor);
         editor.addEventListener('mouseup', debouncedRefreshEditorFootBarCursor);
+
+        //右键菜单
+        const menuItems = [
+            {
+                text: '复制', onClick: function () {
+                    alert('你点击了菜单项 复制');
+                }
+            },
+            {
+                text: '粘贴', onClick: function () {
+                    alert('你点击了菜单项 粘贴');
+                }
+            },
+            {
+                text: '菜单项 3', onClick: function () {
+                    alert('你点击了菜单项 3');
+                }
+            }
+        ];
+
+        const contextMenu = new ContextMenu(menuItems, editor);
+        contextMenu.init();
     }
 
     /**
@@ -502,7 +527,7 @@ function MarkdownNote(options) {
         } else if (ctrl && key == 'u') {// 下划线
             event.preventDefault();
             underlineAction()
-        } else if (ctrl && shift && (key == 's') || key == 'S') { //删除线
+        } else if (ctrl && shift && (key == 's' || key == 'S')) { //删除线
             strikethroughAction();
         } else if (ctrl && key == 't') {
             event.preventDefault();
@@ -512,6 +537,20 @@ function MarkdownNote(options) {
             saveDoc();
         }
     }
+
+    function registerGlobalShortcutKeys() {
+        function handleKeyDown(event) {
+            //保存
+            if (event.ctrlKey && event.key === 's') {
+                // 阻止默认的保存事件
+                event.preventDefault();
+                saveDoc();
+            }
+        }
+
+        document.addEventListener('keydown', handleKeyDown);
+    }
+
 
     function saveDoc() {
 
@@ -525,6 +564,9 @@ function MarkdownNote(options) {
             content: content
         }).then(data => {
             // 更新文档日期
+            createTime.textContent = data.createTime;
+            updateTime.textContent = data.updateTime;
+
             showToastSimple("保存成功", MsgTypes.SUCCESS, Position.TopCenter);
         });
 

@@ -432,3 +432,31 @@
 }
 
 /*###################################*/
+
+/*右键菜单样式*/
+.context-menu {
+    display: none;
+    position: absolute;
+    background-color: #f9f9f9;
+    border: 1px solid #ccc;
+    list-style: none;
+    padding: 2px 0;
+    margin: 0;
+    border-radius: 5px;
+    box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.2);
+}
+
+.context-menu ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.context-menu li {
+    padding: 5px 15px;
+    cursor: pointer;
+}
+
+.context-menu li:hover {
+    background-color: #e9e9e9;
+}

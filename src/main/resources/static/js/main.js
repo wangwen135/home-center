@@ -455,6 +455,113 @@ function showPopover(element, content, title = '', placement = 'right', timeout 
     }, timeout);
 }
 
+// ###############################################################
+// ##################            右键菜单         ##################
+// ###############################################################
+
+function ContextMenu(menuItems, targetElement) {
+    this.menuItems = menuItems;
+    this.targetElement = targetElement;
+    this.menuElement = null;
+
+    // 静态属性，用于存储所有实例的引用
+    ContextMenu.instances = [];
+
+    this.init = function () {
+        this.createMenu();
+        this.attachEvents();
+        ContextMenu.instances.push(this);
+    };
+    this.createMenu = function () {
+        const menu = document.createElement('div');
+        menu.className = 'context-menu';
+        const ul = document.createElement('ul');
+        this.menuItems.forEach(function (item) {
+            const li = document.createElement('li');
+            li.textContent = item.text;
+            li.onclick = item.onClick;
+            /*li.addEventListener('click', item.onClick);*/
+            ul.appendChild(li);
+        });
+        menu.appendChild(ul);
+        document.body.appendChild(menu);
+        this.menuElement = menu;
+    };
+    this.attachEvents = function () {
+        if (targetElement) {
+            targetElement.addEventListener('contextmenu', this.showMenu.bind(this));
+        }
+        document.addEventListener('click', this.hideMenu.bind(this));
+        document.addEventListener('keydown', this.handleKeyDown.bind(this));
+    };
+    this.handleKeyDown = function (e) {
+        if (e.keyCode === 27) { // 27 是 Esc 键的键码
+            this.hideMenu();
+        }
+    };
+    this.showMenu = function (e) {
+        e.preventDefault();
+
+        ContextMenu.instances.forEach(function (instance) {
+            instance.hideMenu();
+        });
+
+        // 获取菜单元素的大小
+        const menuWidth = this.menuElement.offsetWidth;
+        const menuHeight = this.menuElement.offsetHeight;
+
+        // 获取可视区域的大小
+        const viewportWidth = window.innerWidth;
+        const viewportHeight = window.innerHeight;
+        //不考虑滚动条
+
+        let left = e.pageX;
+        let top = e.pageY;
+
+        if ((left + menuWidth) > viewportWidth) {
+            left = left - menuWidth;
+            if (left < 0) {
+                left = 0;
+            }
+        }
+
+        if ((top + menuHeight) > viewportHeight) {
+            top = viewportHeight - menuHeight;
+            if (top < 0) {
+                top = 0;
+            }
+        }
+
+        this.menuElement.style.display = 'block';
+        this.menuElement.style.left = left + 'px';
+        this.menuElement.style.top = top + 'px';
+    };
+    this.hideMenu = function () {
+        this.menuElement.style.display = 'none';
+    };
+    this.destroy = function () {
+        // 移除事件监听器
+        if (targetElement) {
+            targetElement.removeEventListener('contextmenu', this.showMenu.bind(this));
+        }
+        document.removeEventListener('click', this.hideMenu.bind(this));
+        document.removeEventListener('keydown', this.handleKeyDown.bind(this));
+
+        // 移除菜单元素
+        if (this.menuElement && this.menuElement.parentNode) {
+            this.menuElement.parentNode.removeChild(this.menuElement);
+        }
+
+        // 从数组中移除当前实例
+        const index = ContextMenu.instances.indexOf(this);
+        if (index !== -1) {
+            ContextMenu.instances.splice(index, 1);
+        }
+
+        // 清空菜单元素的引用
+        this.menuElement = null;
+    };
+}
 
 // ###############################################################
 // ##################            工具方法         ##################

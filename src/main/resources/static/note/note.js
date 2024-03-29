@@ -9,6 +9,14 @@ window.onload = function () {
     mdNote.init();
     // openLastFile();
     initBootstrap();
+
+    blockingSystemBehavior();
+}
+
+function blockingSystemBehavior() {
+    document.addEventListener('contextmenu', e => {
+        e.preventDefault();
+    });
 }
 
 function initBootstrap() {
@@ -156,6 +164,7 @@ function NoteListTree() {
     let currentSelectElement = null;
     let currentSelectPath = "/";
     let currentSelectFile = null;
+    let contextMenu = null;
 
     const noteListTree = document.getElementById("noteListTree");
 
@@ -178,6 +187,32 @@ function NoteListTree() {
 
         //数据初始化
         treeDataInit();
+
+        //右键菜单
+        initContextMenu();
+    }
+
+    function initContextMenu() {
+        const menuItems = [
+            {
+                text: '菜单项 1', onClick: function () {
+                    alert('你点击了菜单项 1');
+                }
+            },
+            {
+                text: '菜单项 2', onClick: function () {
+                    alert('你点击了菜单项 2');
+                }
+            },
+            {
+                text: '菜单项 3', onClick: function () {
+                    alert('你点击了菜单项 3');
+                }
+            }
+        ];
+
+        contextMenu = new ContextMenu(menuItems);
+        contextMenu.init();
     }
 
     this.selectPath = function (path) {
@@ -340,7 +375,9 @@ function NoteListTree() {
     function labelRightClick(event) {
         // 阻止默认的右键菜单行为
         event.preventDefault();
-        showToast("鼠标右键触发");
+        //showToast("鼠标右键触发");
+
+        contextMenu.showMenu(event);
     }
 
     /**
