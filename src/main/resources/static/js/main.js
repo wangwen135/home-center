@@ -465,13 +465,16 @@ function ContextMenu(menuItems, targetElement) {
     this.menuElement = null;
 
     // 静态属性，用于存储所有实例的引用
-    ContextMenu.instances = [];
+    if (typeof ContextMenu.instances === 'undefined') {
+        ContextMenu.instances = [];
+    }
 
     this.init = function () {
         this.createMenu();
         this.attachEvents();
         ContextMenu.instances.push(this);
     };
+
     this.createMenu = function () {
         const menu = document.createElement('div');
         menu.className = 'context-menu';
@@ -502,7 +505,7 @@ function ContextMenu(menuItems, targetElement) {
     this.showMenu = function (e) {
         e.preventDefault();
 
-        ContextMenu.instances.forEach(function (instance) {
+        ContextMenu.instances.forEach((instance) => {
             instance.hideMenu();
         });
 

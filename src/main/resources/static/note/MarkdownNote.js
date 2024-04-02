@@ -68,6 +68,8 @@ function MarkdownNote(options) {
         editorToolbarBtnBind();
         previewToolbarBtnBind();
 
+        //预览区域右键菜单
+        previewContextMenuCtrl();
         //目录处理
         markdownCatalogHandle();
 
@@ -112,6 +114,33 @@ function MarkdownNote(options) {
 
             textareaValueChanged();
         });
+    }
+
+    /**
+     * 预览区域右键菜单
+     */
+    function previewContextMenuCtrl() {
+        //右键菜单
+        const menuItems = [
+            {
+                text: '宽度', onClick: function () {
+                    alert('你点击了菜单项 宽度');
+                }
+            },
+            {
+                text: '样式', onClick: function () {
+                    alert('你点击了菜单项 样式');
+                }
+            },
+            {
+                text: '颜色', onClick: function () {
+                    alert('你点击了菜单项 颜色');
+                }
+            }
+        ];
+
+        const contextMenu = new ContextMenu(menuItems, previewWrapper);
+        contextMenu.init();
     }
 
     /**

@@ -447,6 +447,7 @@
 }
 
 .context-menu ul {
+    white-space: nowrap;
     list-style: none;
     padding: 0;
     margin: 0;
