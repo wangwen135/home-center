@@ -293,15 +293,15 @@
                     <!--分隔-->
                     <span class="text-black-50 mx-1">|</span>
 
-                    <!--标题 需要弹出下拉框-->
-                    <div class="dropdown d-inline-block" data-bs-toggle="tooltip" data-bs-placement="left"
-                         title="标题<br><b> Ctrl+[1~6]</b>">
-
-                        <button id="tb-headline" class="btn btn-control btn-p-sm dropdown-toggle"
-                                data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="bi bi-type-h1"></i>
-                        </button>
-
+                    <!--标题 -->
+                    <div class="dropdown d-inline-block">
+                        <div data-bs-toggle="dropdown" aria-expanded="false">
+                            <button id="tb-headline" class="btn btn-control btn-p-sm dropdown-toggle"
+                                    data-bs-toggle="tooltip" data-bs-placement="bottom"
+                                    title="标题<br><b> Ctrl+[1~6]</b>">
+                                <i class="bi bi-type-h1"></i>
+                            </button>
+                        </div>
                         <ul class="dropdown-menu min-w-2rem">
                             <li>
                                 <button class="btn btn-control btn-p-sm dropdown-item">
@@ -417,16 +417,20 @@
             <div id="previewWrapper" class="viewer-wrapper">
                 <!--预览工具栏-->
                 <div id="previewToolbar" class="editor-preview-toolbar ">
-                    <button id="p-tb-small" class="btn btn-control btn-p-sm ms-auto">
+                    <button id="p-tb-small" class="btn btn-control btn-p-sm ms-auto"
+                            data-bs-toggle="tooltip" data-bs-placement="bottom" title="宽度 较窄">
                         <span class="letter-icon">S</span>
                     </button>
-                    <button id="p-tb-middle" class="btn btn-control btn-p-sm" data-select="true">
+                    <button id="p-tb-middle" class="btn btn-control btn-p-sm" data-select="true"
+                            data-bs-toggle="tooltip" data-bs-placement="bottom" title="宽度 中等">
                         <span class="letter-icon">M</span>
                     </button>
-                    <button id="p-tb-large" class="btn btn-control btn-p-sm">
+                    <button id="p-tb-large" class="btn btn-control btn-p-sm"
+                            data-bs-toggle="tooltip" data-bs-placement="bottom" title="宽度 较宽">
                         <span class="letter-icon">L</span>
                     </button>
-                    <button id="p-tb-auto" class="btn btn-control btn-p-sm">
+                    <button id="p-tb-auto" class="btn btn-control btn-p-sm"
+                            data-bs-toggle="tooltip" data-bs-placement="bottom" title="宽度 自适应">
                         <span class="letter-icon">AUTO</span>
                     </button>
 
@@ -435,43 +439,49 @@
 
 
                     <!--背景颜色下拉框-->
-                    <div class="dropdown d-inline-block" data-bs-toggle="tooltip" data-bs-placement="left"
-                         title="背景颜色">
+                    <div class="dropdown d-inline-block">
 
-                        <button id="p-tb-bgColor" class="btn btn-control btn-p-sm dropdown-toggle"
-                                data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="bi bi-palette"></i>
-                        </button>
+                        <div data-bs-toggle="dropdown" aria-expanded="false">
+                            <button id="p-tb-bgColor" class="btn btn-control btn-p-sm dropdown-toggle"
+                                    data-bs-toggle="tooltip" data-bs-placement="bottom" title="背景颜色">
+                                <i class="bi bi-palette"></i>
+                            </button>
+                        </div>
 
-                        <ul class="dropdown-menu min-w-2rem">
+                        <ul id="tb-color-dropdown" class="dropdown-menu max-w-200px">
                             <li>
-                                <button class="btn btn-control btn-p-sm dropdown-item bg-secondary-subtle">
-                                    bg-secondary-subtle
+                                <button class="btn btn-control btn-p-sm dropdown-item bg-secondary-subtle"
+                                        data-color="#e2e3e5">
+                                    浅灰色
                                 </button>
                             </li>
                             <li>
-                                <button class="btn btn-control btn-p-sm dropdown-item bg-primary-subtle">
-                                    bg-primary-subtle
+                                <button class="btn btn-control btn-p-sm dropdown-item bg-primary-subtle"
+                                        data-color="#cfe2ff">
+                                    浅蓝色
                                 </button>
                             </li>
                             <li>
-                                <button class="btn btn-control btn-p-sm dropdown-item bg-success-subtle">
-                                    bg-success-subtle
+                                <button class="btn btn-control btn-p-sm dropdown-item bg-success-subtle"
+                                        data-color="#d1e7dd">
+                                    浅绿色
                                 </button>
                             </li>
                             <li>
-                                <button class="btn btn-control btn-p-sm dropdown-item bg-warning-subtle">
-                                    bg-warning-subtle
+                                <button class="btn btn-control btn-p-sm dropdown-item bg-warning-subtle"
+                                        data-color="#fff3cd">
+                                    浅黄色
                                 </button>
                             </li>
                             <li>
-                                <button class="btn btn-control btn-p-sm dropdown-item bg-info-subtle">
-                                    bg-info-subtle
+                                <button class="btn btn-control btn-p-sm dropdown-item bg-info-subtle"
+                                        data-color="#cff4fc">
+                                    蓝绿色
                                 </button>
                             </li>
                             <li>
-                                <button class="btn btn-control btn-p-sm dropdown-item bg-transparent">
-                                    bg-transparent
+                                <button class="btn btn-control btn-p-sm dropdown-item " data-color="">
+                                    无背景
                                 </button>
                             </li>
                         </ul>
@@ -491,14 +501,14 @@
                     </button>
 
 
-                    <!--这个按钮在最右边-->
+                    <!--这个按钮在最右边 同步滚动-->
                     <button id="tb-syncScroll" class="btn btn-control btn-p-sm ms-auto  sync-scrolling-icon"
                             data-select="true">
                         <i class="bi bi-arrows-vertical"></i>
                     </button>
                 </div>
 
-                <div class="markdown-container">
+                <div id="markdownContainer" class="markdown-container">
                     <div class="markdown-absolute-container">
                         <div class="markdown-absolute-toolbar">
                             <button id="btnCatalog" class="btn btn-control btn-p-xxs border border-secondary">

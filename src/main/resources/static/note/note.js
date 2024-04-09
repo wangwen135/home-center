@@ -208,6 +208,14 @@ function NoteListTree() {
                 text: '菜单项 3', onClick: function () {
                     alert('你点击了菜单项 3');
                 }
+            },
+            {
+                type: 'separator'
+            },
+            {
+                text: '删除', onClick: function () {
+                    alert('提示确认删除？还是直接移动到回收站');
+                }
             }
         ];
 

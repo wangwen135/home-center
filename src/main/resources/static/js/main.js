@@ -481,9 +481,13 @@ function ContextMenu(menuItems, targetElement) {
         const ul = document.createElement('ul');
         this.menuItems.forEach(function (item) {
             const li = document.createElement('li');
-            li.textContent = item.text;
-            li.onclick = item.onClick;
-            /*li.addEventListener('click', item.onClick);*/
+            if (item.type == 'separator') {
+                li.className = 'menu-separator';
+            } else {
+                li.textContent = item.text;
+                li.onclick = item.onClick;
+                /*li.addEventListener('click', item.onClick);*/
+            }
             ul.appendChild(li);
         });
         menu.appendChild(ul);
@@ -510,6 +514,7 @@ function ContextMenu(menuItems, targetElement) {
         });
 
         // 获取菜单元素的大小
+        this.menuElement.style.display = 'block';
         const menuWidth = this.menuElement.offsetWidth;
         const menuHeight = this.menuElement.offsetHeight;
 

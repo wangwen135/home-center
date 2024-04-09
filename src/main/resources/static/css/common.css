@@ -384,6 +384,14 @@
 }
 
 /*最大宽度*/
+.max-w-100px {
+    max-width: 100px;
+}
+
+.max-w-200px {
+    max-width: 200px;
+}
+
 .max-w-300px {
     max-width: 300px;
 }
@@ -437,6 +445,7 @@
 .context-menu {
     display: none;
     position: absolute;
+    z-index: 100;
     background-color: #f9f9f9;
     border: 1px solid #ccc;
     list-style: none;
@@ -460,4 +469,34 @@
 
 .context-menu li:hover {
     background-color: #e9e9e9;
+}
+
+.menu-separator {
+    border-bottom: 1px solid #ccc;
+    padding: 0px !important;
+    cursor: pointer !important;
+}
+
+
+/*###################################*/
+/*########        颜色       ########*/
+/*###################################*/
+.bg-secondary-subtle {
+    background-color: #e2e3e5;
+}
+
+.bg-primary-subtle {
+    background-color: #cfe2ff;
+}
+
+.bg-success-subtle {
+    background-color: #d1e7dd;
+}
+
+.bg-warning-subtle {
+    background-color: #fff3cd;
+}
+
+.bg-info-subtle {
+    background-color: #cff4fc;
 }

@@ -39,6 +39,7 @@ function MarkdownNote(options) {
     //############## 预览区域 ##############
     const previewWrapper = document.getElementById('previewWrapper');
     const previewToolbar = document.getElementById("previewToolbar");
+    const markdownContainer = document.getElementById("markdownContainer");
     const markdownScrollbar = document.getElementById("markdownScrollbar");
     const markdownContent = document.getElementById('markdownContent');
     // 目录列表
@@ -168,6 +169,7 @@ function MarkdownNote(options) {
      */
     function previewToolbarBtnBind() {
 
+        // 宽度控制
         const small = document.getElementById("p-tb-small");
         small.onclick = function (event) {
             clearSelection();
@@ -200,6 +202,21 @@ function MarkdownNote(options) {
             previewToolbar.querySelectorAll("[data-select='true']").forEach(i => {
                 i.dataset.select = '';
             });
+        }
+
+        // 颜色控制
+        const colorDropdown = document.getElementById("tb-color-dropdown");
+        colorDropdown.onclick = function (e) {
+            const color = e.target.dataset.color;
+            markdownContent.style.backgroundColor = color;
+        }
+
+        //下载
+
+        //全屏
+        const btnFullscreen = document.getElementById("p-tb-fullscreen");
+        btnFullscreen.onclick = function (){
+            markdownContainer.requestFullscreen();
         }
     }
 
