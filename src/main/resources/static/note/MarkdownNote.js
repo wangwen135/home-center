@@ -140,7 +140,7 @@ function MarkdownNote(options) {
             }
         ];
 
-        const contextMenu = new ContextMenu(menuItems, previewWrapper);
+        const contextMenu = new ContextMenu(menuItems, markdownContainer);
         contextMenu.init();
     }
 
@@ -212,10 +212,36 @@ function MarkdownNote(options) {
         }
 
         //下载
+        const btnDownload = document.getElementById("p-tb-download");
+        btnDownload.onclick = function () {
+            // 获取要导出为 PDF 的 div 元素 markdownContent
+
+            let pdfxy = [markdownContent.offsetWidth, markdownContent.offsetHeight];
+
+            /*
+                        // 创建一个 jsPDF 实例
+                        const pdf = new jspdf.jsPDF("p", "px", pdfxy);
+
+                        // 将 div 内容添加到 PDF 中
+                        pdf.html(markdownContent, {
+                            callback: function () {
+                                // 保存 PDF 文件
+                                pdf.save('exported.pdf');
+                            }
+                        });
+            */
+
+            html2canvas(markdownContent, {useCORS: true}).then(function (canvas) {
+                const imgData = canvas.toDataURL('image/png');
+                const pdf = new jspdf.jsPDF('p', 'px', [canvas.width, canvas.height]);
+                pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
+                pdf.save('example.pdf');
+            });
+        }
 
         //全屏
         const btnFullscreen = document.getElementById("p-tb-fullscreen");
-        btnFullscreen.onclick = function (){
+        btnFullscreen.onclick = function () {
             markdownContainer.requestFullscreen();
         }
     }
@@ -579,7 +605,11 @@ function MarkdownNote(options) {
             event.preventDefault();
             tableAction();
         } else if (ctrl && key == 's') {
+            //阻止默认行为
             event.preventDefault();
+            //阻止事件传播
+            event.stopPropagation();
+
             saveDoc();
         }
     }

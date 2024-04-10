@@ -574,6 +574,7 @@ body {
     position: relative;
     border: 1px solid #eee;
     flex-grow: 1;
+    background-color: #ffffff;
 }
 
 .markdown-absolute-container {
@@ -674,8 +675,8 @@ body {
 }
 
 .markdown-scrollbar {
-    /*overflow-y: scroll;*/
-    overflow-y: auto;
+    overflow-y: scroll;
+    /*overflow-y: auto;*/
     overflow-x: auto;
     width: 100%;
     height: 100%;
