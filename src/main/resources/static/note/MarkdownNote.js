@@ -191,10 +191,10 @@ function MarkdownNote(options) {
             markdownContent.style.maxWidth = '1360px';
         }
 
-        const auto = document.getElementById("p-tb-auto");
-        auto.onclick = function (event) {
+        const full = document.getElementById("p-tb-full");
+        full.onclick = function (event) {
             clearSelection();
-            auto.dataset.select = 'true';
+            full.dataset.select = 'true';
             markdownContent.style.maxWidth = '100%';
         }
 
