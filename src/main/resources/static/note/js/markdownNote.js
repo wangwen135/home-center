@@ -90,9 +90,13 @@ function MarkdownNote(options) {
         return parentPath + fileName;
     }
 
+    this.getOpenFileName = function () {
+        return fileName;
+    }
+
     this.openFile = openFileInner;
 
-    function openFileInner(path) {
+    function openFileInner(path, callback) {
         if (path == null || path == '') {
             showToastSimple("要打开的文件路径不能为空", MsgTypes.WARNING);
             return;
@@ -112,8 +116,11 @@ function MarkdownNote(options) {
             fileName = data.name;
             originContent = data.content;
 
-
             textareaValueChanged();
+
+            if (typeof callback === 'function') {
+                callback(data);
+            }
         });
     }
 
@@ -215,28 +222,53 @@ function MarkdownNote(options) {
         const btnDownload = document.getElementById("p-tb-download");
         btnDownload.onclick = function () {
             // 获取要导出为 PDF 的 div 元素 markdownContent
-
-            let pdfxy = [markdownContent.offsetWidth, markdownContent.offsetHeight];
-
+            //let pdfxy = [markdownContent.offsetWidth, markdownContent.offsetHeight];
             /*
-                        // 创建一个 jsPDF 实例
-                        const pdf = new jspdf.jsPDF("p", "px", pdfxy);
-
-                        // 将 div 内容添加到 PDF 中
-                        pdf.html(markdownContent, {
-                            callback: function () {
-                                // 保存 PDF 文件
-                                pdf.save('exported.pdf');
-                            }
-                        });
-            */
-
             html2canvas(markdownContent, {useCORS: true}).then(function (canvas) {
                 const imgData = canvas.toDataURL('image/png');
-                const pdf = new jspdf.jsPDF('p', 'px', [canvas.width, canvas.height]);
+                const pdf = new jspdf.jsPDF('p', 'px', pdfxy);
                 pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
                 pdf.save('example.pdf');
             });
+            */
+
+            /*
+            html2canvas(markdownContent, {scale: 2, useCORS: true}).then(canvas => {
+                const imgData = canvas.toDataURL('image/png');
+                const downloadLink = document.createElement('a');
+                downloadLink.href = imgData;
+                downloadLink.download = fileName + '.png';
+                document.body.appendChild(downloadLink);
+                downloadLink.click();
+                document.body.removeChild(downloadLink);
+            });
+            */
+
+            // 创建一个新的窗口或标签页
+            let newWindow = window.open("", "_blank");
+            // 在新的窗口中写入div的内容
+            // 在新的窗口中写入HTML内容和样式
+            let newHead =
+                `
+                <meta charset="utf-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1">
+                <meta name="description" content="wwh">
+                <meta name="author" content="wwh">
+                <title>`
+                + fileName +
+                `</title>
+                <link rel="stylesheet" href="../../bootstrap/css/bootstrap.css">
+                <link rel="stylesheet" href="../../bootstrap/icons/font/bootstrap-icons.css">
+                <link rel="stylesheet" href="../../css/github-markdown/github-markdown.css">         
+                <link rel="stylesheet" href="../../css/common.css">               
+                <link rel="stylesheet" href="../css/note.css">
+            `
+
+            newWindow.document.write('<!DOCTYPE html><html><head>' +
+                newHead +
+                '</head><body class="overflow-auto">' + markdownScrollbar.innerHTML + '</body></html>');
+
+            // newWindow.document.write(markdownScrollbar.innerHTML);
         }
 
         //全屏
@@ -425,6 +457,15 @@ function MarkdownNote(options) {
             {
                 text: '菜单项 3', onClick: function () {
                     alert('你点击了菜单项 3');
+                }
+            },
+            {
+                type: 'separator'
+            },
+            {
+                text: '在新窗口打开',
+                onClick: function () {
+                    window.open("edit.html#" + parentPath + fileName, "_blank");
                 }
             }
         ];
@@ -629,23 +670,29 @@ function MarkdownNote(options) {
 
 
     function saveDoc() {
-
         const content = editor.value;
         const name = noteTitle.value;
         const parentPath = filePath.textContent;
+        if (!name) {
+            showToastSimple("文件名错误", MsgTypes.DANGER, Position.TopCenter);
+            return;
+        }
+        if (!parentPath) {
+            showToastSimple("文件路径错误", MsgTypes.DANGER, Position.TopCenter);
+            return;
+        }
 
         postRequest("/note/save", {
             name: name,
             parentPath: parentPath,
             content: content
-        }).then(data => {
+        }, data => {
             // 更新文档日期
             createTime.textContent = data.createTime;
             updateTime.textContent = data.updateTime;
 
             showToastSimple("保存成功", MsgTypes.SUCCESS, Position.TopCenter);
         });
-
     }
 
     /**
@@ -722,6 +769,10 @@ function MarkdownNote(options) {
         function onBlurCheck() {
             const newName = noteTitle.value;
             if (newName == fileName) {
+                return;
+            }
+            if (!newName) {
+                noteTitle.value = fileName;
                 return;
             }
             showConfirm("确定将文件名修改为：", newName, MsgTypes.QUESTION, callbackTrue, callbackFalse, callbackFalse, {keyboard: true});

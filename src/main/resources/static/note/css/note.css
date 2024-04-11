@@ -685,8 +685,8 @@ body {
 }
 
 .markdown-content {
-    margin-left: auto;
-    margin-right: auto;
+    margin-left: auto !important;
+    margin-right: auto !important;
     max-width: 1020px;
     padding: 1rem;
     min-height: 100%;
