@@ -576,7 +576,7 @@ function ContextMenu(menuItems, targetElement) {
 // ###############################################################
 
 /**
- * 防抖函数，再一定的时间内只会执行一次
+ * 防抖函数，在一定的时间内只会执行一次
  * @param func
  * @param delay
  * @returns {function(): void}

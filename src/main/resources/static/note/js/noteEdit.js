@@ -43,6 +43,7 @@ function openMdFile() {
     mdNote.openFile(path, data => {
         document.title = data.name;
     });
+
 }
 
 

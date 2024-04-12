@@ -1,0 +1,33 @@
+@media print {
+    .hide-on-print {
+        display: none !important;
+    }
+
+    .only-show-on-print {
+        display: block !important;
+    }
+
+    .frame-container {
+        height: auto !important;
+    }
+
+    .markdown-scrollbar {
+        overflow-y: hidden !important;
+    }
+
+    .markdown-container {
+        border: none !important;
+    }
+}
+
+.only-show-on-print {
+    display: none;
+}
+
+.view-title {
+    text-align: center;
+    margin-left: auto;
+    margin-right: 2rem;
+}
+
+

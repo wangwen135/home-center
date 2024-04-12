@@ -23,11 +23,6 @@
 }
 */
 
-
-body {
-    overflow: hidden;
-}
-
 /* ======================= 框架样式 ======================= */
 
 .frame-container {
@@ -677,8 +672,8 @@ body {
 }
 
 .markdown-scrollbar {
-    overflow-y: scroll;
-    /*overflow-y: auto;*/
+    /*overflow-y: scroll;*/
+    overflow-y: auto;
     overflow-x: auto;
     width: 100%;
     height: 100%;
