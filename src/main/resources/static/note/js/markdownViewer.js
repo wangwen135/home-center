@@ -1,14 +1,18 @@
-function MarkdownView(options) {
+/**
+ * Markdown 查看器
+ * @param options
+ * @constructor
+ */
+function MarkdownViewer(options) {
 
     //markdown文件内容
     let markdownText = null;
 
     //父路径
     let parentPath = null;
+
     //文件名
     let fileName = null;
-    //文件原始内容
-    let originContent = null;
 
     const converter = new showdown.Converter();
     // converter.setOption('moreStyling', 'true');
@@ -30,7 +34,6 @@ function MarkdownView(options) {
 
         //目录处理
         markdownCatalogHandle();
-
     }
 
 
@@ -53,6 +56,11 @@ function MarkdownView(options) {
             {
                 text: '颜色', onClick: function () {
                     alert('你点击了菜单项 颜色');
+                }
+            },
+            {
+                text: '全屏', onClick: function () {
+                    markdownContainer.requestFullscreen();
                 }
             }
         ];
@@ -129,29 +137,44 @@ function MarkdownView(options) {
         }
 
         //下载
-        const btnDownload = document.getElementById("p-tb-download");
-        btnDownload.onclick = function () {
-            /*
-            html2canvas(markdownContent, {scale: 2, useCORS: true}).then(canvas => {
-                const imgData = canvas.toDataURL('image/png');
-                const downloadLink = document.createElement('a');
-                downloadLink.href = imgData;
-                downloadLink.download = fileName + '.png';
-                document.body.appendChild(downloadLink);
-                downloadLink.click();
-                document.body.removeChild(downloadLink);
-            });
-            */
-
+        const btnDownloadImg = document.getElementById("p-tb-downloadImg");
+        if (btnDownloadImg) {
+            btnDownloadImg.onclick = function () {
+                html2canvas(markdownContent, {scale: 2.6, useCORS: true}).then(canvas => {
+                    const imgData = canvas.toDataURL('image/png');
+                    const downloadLink = document.createElement('a');
+                    downloadLink.href = imgData;
+                    downloadLink.download = fileName + '.png';
+                    document.body.appendChild(downloadLink);
+                    downloadLink.click();
+                    document.body.removeChild(downloadLink);
+                });
+            }
+        }
+        //打印
+        const btnPrint = document.getElementById("p-tb-print");
+        if (btnPrint) {
+            btnPrint.onclick = function () {
+                window.print();
+            }
         }
 
         //全屏
         const btnFullscreen = document.getElementById("p-tb-fullscreen");
-        btnFullscreen.onclick = function () {
-            markdownContainer.requestFullscreen();
+        if (btnFullscreen) {
+            btnFullscreen.onclick = function () {
+                markdownContainer.requestFullscreen();
+            }
         }
     }
 
+    this.setFileName = function (name) {
+        fileName = name;
+    }
+
+    this.setParentPath = function (path) {
+        parentPath = path;
+    }
 
     this.showToolbar = function () {
         previewToolbar.style.display = '';
@@ -181,7 +204,7 @@ function MarkdownView(options) {
         markdownText = text;
         markdownContent.innerHTML = converter.makeHtml(text);
 
-        if (!options.disableFootBar) {
+        if (options == null || !options.disableFootBar) {
             refreshPreviewFootBar();
         }
 
@@ -190,7 +213,7 @@ function MarkdownView(options) {
 
     this.renderMd = render;
 
-    this.getMarkdownTest = function () {
+    this.getMarkdownText = function () {
         return markdownText;
     }
 

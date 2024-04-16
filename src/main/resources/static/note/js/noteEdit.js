@@ -38,7 +38,6 @@ function openMdFile() {
         showModalMessage("文件为空", "要打开的文件不能为空", MsgTypes.DANGER);
         return;
     }
-    console.log("打开文件：" + path)
 
     mdNote.openFile(path, data => {
         document.title = data.name;

@@ -20,9 +20,10 @@
     <script src="../js/main.js"></script>
     <script src="js/noteEdit.js"></script>
     <script src="js/markdownNote.js"></script>
+    <script src="js/markdownEditor.js"></script>
+    <script src="js/markdownViewer.js"></script>
 
     <script src="../js/html2canvas/html2canvas.js"></script>
-
 </head>
 <body class="overflow-hidden">
 <div class="frame-container">
@@ -143,34 +144,34 @@
                                 <i class="bi bi-type-h1"></i>
                             </button>
                         </div>
-                        <ul class="dropdown-menu min-w-2rem">
+                        <ul id="tb-headline-ul" class="dropdown-menu min-w-2rem">
                             <li>
-                                <button class="btn btn-control btn-p-sm dropdown-item">
+                                <button class="btn btn-control btn-p-sm dropdown-item" data-level="1">
                                     <i class="bi bi-type-h1"></i> 一级标题
                                 </button>
                             </li>
                             <li>
-                                <button class="btn btn-control btn-p-sm dropdown-item">
+                                <button class="btn btn-control btn-p-sm dropdown-item" data-level="2">
                                     <i class="bi bi-type-h2"></i> 二级标题
                                 </button>
                             </li>
                             <li>
-                                <button class="btn btn-control btn-p-sm dropdown-item">
+                                <button class="btn btn-control btn-p-sm dropdown-item" data-level="3">
                                     <i class="bi bi-type-h3"></i> 三级标题
                                 </button>
                             </li>
                             <li>
-                                <button class="btn btn-control btn-p-sm dropdown-item">
+                                <button class="btn btn-control btn-p-sm dropdown-item" data-level="4">
                                     <i class="bi bi-type-h4"></i> 四级标题
                                 </button>
                             </li>
                             <li>
-                                <button class="btn btn-control btn-p-sm dropdown-item">
+                                <button class="btn btn-control btn-p-sm dropdown-item" data-level="5">
                                     <i class="bi bi-type-h5"></i> 五级标题
                                 </button>
                             </li>
                             <li>
-                                <button class="btn btn-control btn-p-sm dropdown-item">
+                                <button class="btn btn-control btn-p-sm dropdown-item" data-level="6">
                                     <i class="bi bi-type-h6"></i> 六级标题
                                 </button>
                             </li>
@@ -180,30 +181,35 @@
                     <!--分隔-->
                     <span class="text-black-50 mx-1">|</span>
 
-                    <!--水平分割线-->
-                    <button class="btn btn-control btn-p-sm">
+                    <!--水平线-->
+                    <button id="tb-horizontal-line" class="btn btn-control btn-p-sm" data-bs-toggle="tooltip"
+                            data-bs-placement="bottom" title="水平线">
                         <i class="bi bi-dash-lg"></i>
-                        <!--<i class="bi bi-hr"></i>-->
                     </button>
                     <!--引用-->
-                    <button class="btn btn-control btn-p-sm">
+                    <button id="tb-quote" class="btn btn-control btn-p-sm" data-bs-toggle="tooltip"
+                            data-bs-placement="bottom" title="引用<br><b>Ctrl+Shift+Q</b>">
                         <!--<i class="bi bi-quote"></i>-->
                         <i class="bi bi-blockquote-left"></i>
                     </button>
                     <!--无序列表-->
-                    <button class="btn btn-control btn-p-sm">
+                    <button id="tb-unordered-list" class="btn btn-control btn-p-sm" data-bs-toggle="tooltip"
+                            data-bs-placement="bottom" title="无序标题<br><b>Ctrl+Shift+[</b>">
                         <i class="bi bi-list-ul"></i>
                     </button>
                     <!--有序列表-->
-                    <button class="btn btn-control btn-p-sm">
+                    <button id="tb-ordered-list" class="btn btn-control btn-p-sm" data-bs-toggle="tooltip"
+                            data-bs-placement="bottom" title="有序标题<br><b>Ctrl+Shift+]</b>">
                         <i class="bi bi-list-ol"></i>
                     </button>
                     <!--未勾选-->
-                    <button class="btn btn-control btn-p-sm">
+                    <button id="tb-task-uncheck" class="btn btn-control btn-p-sm" data-bs-toggle="tooltip"
+                            data-bs-placement="bottom" title="任务列表-未勾选">
                         <i class="bi bi-square"></i>
                     </button>
                     <!--已经勾选-->
-                    <button class="btn btn-control btn-p-sm">
+                    <button id="tb-task-check" class="btn btn-control btn-p-sm" data-bs-toggle="tooltip"
+                            data-bs-placement="bottom" title="任务列表-已勾选">
                         <i class="bi bi-check-square"></i>
                     </button>
 

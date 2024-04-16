@@ -1,7 +1,13 @@
 /**
- * Markdown 笔记编辑器
+ * Markdown 笔记
  */
 function MarkdownNote(options) {
+
+    const markdownViewer = new MarkdownViewer();
+    const markdownEditor = new MarkdownEditor(markdownViewer, {
+            saveCallBack: onSaveCallback
+        }
+    );
 
     //父路径
     let parentPath = null;
@@ -9,10 +15,6 @@ function MarkdownNote(options) {
     let fileName = null;
     //文件原始内容
     let originContent = null;
-
-    const converter = new showdown.Converter();
-    // converter.setOption('moreStyling', 'true');
-    converter.setFlavor('github');
 
     //############## 标题区域 ##############
     //标题，路径，修改时间等
@@ -27,34 +29,26 @@ function MarkdownNote(options) {
     //展示或隐藏工具栏
     const btnToggleToolbar = document.getElementById("btnToggleToolbar");
 
+    //############## 分割器 ##############
+    const editorPreviewDivider = document.getElementById('editorPreviewDivider')
+
     //############## 编辑区域 ##############
     const editorWrapper = document.getElementById('editorWrapper');
     const editorToolbar = document.getElementById("editorToolbar");
-    const lineNumbers = document.getElementById('lineNumbers');
-    const editor = document.getElementById('editor');
-
-    //############## 分割器 ##############
-    const editorPreviewDivider = document.getElementById('editorPreviewDivider')
 
     //############## 预览区域 ##############
     const previewWrapper = document.getElementById('previewWrapper');
     const previewToolbar = document.getElementById("previewToolbar");
-    const markdownContainer = document.getElementById("markdownContainer");
-    const markdownScrollbar = document.getElementById("markdownScrollbar");
-    const markdownContent = document.getElementById('markdownContent');
-    // 目录列表
-    const markdownCatalogList = document.getElementById("markdownCatalogList");
 
     this.init = function () {
+        markdownViewer.init()
+        markdownEditor.init();
 
         //笔记标题控制
         noteTitleCtrl();
 
         // 切换编辑和查看模式
         toggleEditOrPreview();
-
-        //编辑器控制
-        editorCtrl();
 
         //滚动控制
         scrollCtrl();
@@ -65,58 +59,40 @@ function MarkdownNote(options) {
         // 展示或隐藏编辑器的工具栏
         toggleToolbar();
 
-        // 工具栏按钮绑定事件
-        editorToolbarBtnBind();
-        previewToolbarBtnBind();
-
-        //预览区域右键菜单
-        previewContextMenuCtrl();
-        //目录处理
-        markdownCatalogHandle();
-
         //加载上一次配置
         loadLastConf();
-
-        //全局快捷键
-        registerGlobalShortcutKeys();
     }
 
-    this.getOpenFileFullPath = getFileFullPath;
 
-    function getFileFullPath() {
+    this.getFileFullPath = function () {
         if (parentPath == null) {
             return null;
         }
         return parentPath + fileName;
     }
 
-    this.getOpenFileName = function () {
+    this.getFileName = function () {
         return fileName;
     }
 
-    this.openFile = openFileInner;
+    this.openFile = function (path, callback) {
 
-    function openFileInner(path, callback) {
         if (path == null || path == '') {
             showToastSimple("要打开的文件路径不能为空", MsgTypes.WARNING);
             return;
         }
-        getRequest("/note/getNote?path=" + path, data => {
-            editor.value = data.content;
 
+        markdownEditor.openFile(path, data => {
             noteTitle.value = data.name;
             filePath.textContent = data.parentPath;
             createTime.textContent = data.createTime;
             updateTime.textContent = data.updateTime;
             // 收藏和标星
 
-
             //设置变量值
             parentPath = data.parentPath;
             fileName = data.name;
             originContent = data.content;
-
-            textareaValueChanged();
 
             if (typeof callback === 'function') {
                 callback(data);
@@ -124,171 +100,6 @@ function MarkdownNote(options) {
         });
     }
 
-    /**
-     * 预览区域右键菜单
-     */
-    function previewContextMenuCtrl() {
-        //右键菜单
-        const menuItems = [
-            {
-                text: '宽度', onClick: function () {
-                    alert('你点击了菜单项 宽度');
-                }
-            },
-            {
-                text: '样式', onClick: function () {
-                    alert('你点击了菜单项 样式');
-                }
-            },
-            {
-                text: '颜色', onClick: function () {
-                    alert('你点击了菜单项 颜色');
-                }
-            }
-        ];
-
-        const contextMenu = new ContextMenu(menuItems, markdownContainer);
-        contextMenu.init();
-    }
-
-    /**
-     * 文档中的工具按钮
-     */
-    function markdownCatalogHandle() {
-        const btnCatalog = document.getElementById("btnCatalog");
-        const markdownCatalogContainer = document.getElementById("markdownCatalogContainer");
-
-        btnCatalog.onclick = function () {
-            markdownCatalogContainer.classList.toggle("d-none");
-        }
-
-        //点击时滚动内容
-        markdownCatalogList.onclick = function (e) {
-            const hl = e.target;
-            const index = hl.dataset.index;
-            markdownContent.querySelectorAll('h1, h2, h3, h4, h5, h6')[index]
-                .scrollIntoView({behavior: 'smooth', block: 'start'});
-        }
-    }
-
-    /**
-     * 预览工具栏的按钮绑定事件
-     */
-    function previewToolbarBtnBind() {
-
-        // 宽度控制
-        const small = document.getElementById("p-tb-small");
-        small.onclick = function (event) {
-            clearSelection();
-            small.dataset.select = 'true';
-            markdownContent.style.maxWidth = '680px';
-        }
-
-        const middle = document.getElementById("p-tb-middle");
-        middle.onclick = function (event) {
-            clearSelection();
-            middle.dataset.select = 'true';
-            markdownContent.style.maxWidth = '1020px';
-        }
-
-        const large = document.getElementById("p-tb-large");
-        large.onclick = function (event) {
-            clearSelection();
-            large.dataset.select = 'true';
-            markdownContent.style.maxWidth = '1360px';
-        }
-
-        const full = document.getElementById("p-tb-full");
-        full.onclick = function (event) {
-            clearSelection();
-            full.dataset.select = 'true';
-            markdownContent.style.maxWidth = '100%';
-        }
-
-        function clearSelection() {
-            previewToolbar.querySelectorAll("[data-select='true']").forEach(i => {
-                i.dataset.select = '';
-            });
-        }
-
-        // 颜色控制
-        const colorDropdown = document.getElementById("tb-color-dropdown");
-        colorDropdown.onclick = function (e) {
-            const color = e.target.dataset.color;
-            markdownContent.style.backgroundColor = color;
-        }
-
-        //下载
-        const btnDownload = document.getElementById("p-tb-download");
-        btnDownload.onclick = function () {
-            // 获取要导出为 PDF 的 div 元素 markdownContent
-            //let pdfxy = [markdownContent.offsetWidth, markdownContent.offsetHeight];
-            /*
-            html2canvas(markdownContent, {useCORS: true}).then(function (canvas) {
-                const imgData = canvas.toDataURL('image/png');
-                const pdf = new jspdf.jsPDF('p', 'px', pdfxy);
-                pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
-                pdf.save('example.pdf');
-            });
-            */
-
-            /*
-            html2canvas(markdownContent, {scale: 2, useCORS: true}).then(canvas => {
-                const imgData = canvas.toDataURL('image/png');
-                const downloadLink = document.createElement('a');
-                downloadLink.href = imgData;
-                downloadLink.download = fileName + '.png';
-                document.body.appendChild(downloadLink);
-                downloadLink.click();
-                document.body.removeChild(downloadLink);
-            });
-            */
-
-            // 创建一个新的窗口或标签页
-            let newWindow = window.open("", "_blank");
-            // 在新的窗口中写入div的内容
-            // 在新的窗口中写入HTML内容和样式
-            let newHead =
-                `
-                <meta charset="utf-8">
-                <meta name="viewport" content="width=device-width, initial-scale=1">
-                <meta name="description" content="wwh">
-                <meta name="author" content="wwh">
-                <title>`
-                + fileName +
-                `</title>
-                <link rel="stylesheet" href="../../bootstrap/css/bootstrap.css">
-                <link rel="stylesheet" href="../../bootstrap/icons/font/bootstrap-icons.css">
-                <link rel="stylesheet" href="../../css/github-markdown/github-markdown.css">         
-                <link rel="stylesheet" href="../../css/common.css">               
-                <link rel="stylesheet" href="../css/note.css">
-            `
-
-            newWindow.document.write('<!DOCTYPE html><html><head>' +
-                newHead +
-                '</head><body class="overflow-auto">' + markdownScrollbar.innerHTML + '</body></html>');
-
-            // newWindow.document.write(markdownScrollbar.innerHTML);
-        }
-
-        //全屏
-        const btnFullscreen = document.getElementById("p-tb-fullscreen");
-        btnFullscreen.onclick = function () {
-            markdownContainer.requestFullscreen();
-        }
-    }
-
-    /**
-     * 编辑工具栏的按钮绑定事件
-     */
-    function editorToolbarBtnBind() {
-        // 工具栏位
-        document.getElementById("tb-bold").onclick = boldAction;
-        document.getElementById("tb-italic").onclick = italicAction;
-        document.getElementById("tb-underline").onclick = underlineAction;
-        document.getElementById("tb-strikethrough").onclick = strikethroughAction;
-        document.getElementById("tb-table").onclick = tableAction;
-    }
 
     /**
      * 切换编辑或预览模式
@@ -371,22 +182,28 @@ function MarkdownNote(options) {
         }
     }
 
-
-    function syncScrolling() {
-        // 滚动同步 (开关控制)
-        if (localStorage.synchronizeScroller == 'false') {
-            return;
-        }
-        const height = editor.scrollHeight;
-        const top = editor.scrollTop;
-        const pHeight = markdownScrollbar.scrollHeight;
-        //窗口百分比同步
-        markdownScrollbar.scrollTop = pHeight * top / height;
-    }
-
-    //两个窗口滚动条同步
+    /**
+     * 两个窗口滚动条同步
+     */
     function scrollCtrl() {
+        // 编辑窗口
+        const editor = document.getElementById('editor');
+        // 预览窗口
+        const markdownScrollbar = document.getElementById("markdownScrollbar");
+
         editor.addEventListener('scroll', syncScrolling);
+
+        function syncScrolling() {
+            // 滚动同步 (开关控制)
+            if (localStorage.synchronizeScroller == 'false') {
+                return;
+            }
+            const height = editor.scrollHeight;
+            const top = editor.scrollTop;
+            const pHeight = markdownScrollbar.scrollHeight;
+            //窗口百分比同步
+            markdownScrollbar.scrollTop = pHeight * top / height;
+        }
 
         const btnSyncScroll = document.getElementById("tb-syncScroll");
         if (localStorage.synchronizeScroller == 'false') {
@@ -422,278 +239,6 @@ function MarkdownNote(options) {
         }
     }
 
-
-    function editorCtrl() {
-        //行号控制
-        // 纵向滚动条与行号同步
-        editor.addEventListener('scroll', function (event) {
-            //滚动条同步
-            lineNumbers.scrollTop = editor.scrollTop;
-        });
-
-
-        // 输入内容
-        editor.addEventListener('input', textareaValueChanged);
-
-        // 键盘监听
-        editor.addEventListener('keydown', editorKeyboardAction);
-
-        //刷新光标位置记录等
-        editor.addEventListener('keyup', debouncedRefreshEditorFootBarCursor);
-        editor.addEventListener('mouseup', debouncedRefreshEditorFootBarCursor);
-
-        //右键菜单
-        const menuItems = [
-            {
-                text: '复制', onClick: function () {
-                    alert('你点击了菜单项 复制');
-                }
-            },
-            {
-                text: '粘贴', onClick: function () {
-                    alert('你点击了菜单项 粘贴');
-                }
-            },
-            {
-                text: '菜单项 3', onClick: function () {
-                    alert('你点击了菜单项 3');
-                }
-            },
-            {
-                type: 'separator'
-            },
-            {
-                text: '在新窗口打开',
-                onClick: function () {
-                    window.open("edit.html#" + parentPath + fileName, "_blank");
-                }
-            }
-        ];
-
-        const contextMenu = new ContextMenu(menuItems, editor);
-        contextMenu.init();
-    }
-
-    /**
-     * 编辑框内容改变
-     */
-    function textareaValueChanged() {
-        const value = editor.value;
-        const lineCount = value.split('\n').length;
-
-        updateEditorLineNumbers(lineCount);
-
-        refreshEditorFootBar(lineCount);
-
-        // 异步渲染，300毫秒之后渲染
-        debouncedRender();
-    }
-
-    /**
-     * 光标所在的行
-     */
-    let selectedLineNumber = 1;
-
-    function setSelectedLineNumber(line) {
-        if (line === selectedLineNumber) {
-            return;
-        }
-        if (line == null) {
-            return;
-        }
-        const selectSpan = lineNumbers.querySelector(".selected");
-        if (selectSpan != null) {
-            selectSpan.classList.remove("selected");
-        }
-        selectedLineNumber = line;
-        lineNumbers.children[line - 1].classList.add('selected');
-    }
-
-    /**
-     * 总行数
-     */
-    let lineNumberCounter = 1;
-
-    function updateEditorLineNumbers(lineCount) {
-
-        if (lineCount == null) {
-            lineCount = editor.value.split('\n').length;
-        }
-
-        if (lineCount == lineNumberCounter) {
-            return;
-        }
-        while (lineCount != lineNumberCounter) {
-            if (lineCount > lineNumberCounter) {
-                //增加行数
-                lineNumberCounter++;
-                const s = document.createElement("span");
-                s.textContent = lineNumberCounter + '';
-                lineNumbers.appendChild(s);
-            } else if (lineCount < lineNumberCounter) {
-                lineNumberCounter--;
-                // 移除最后一个子元素
-                lineNumbers.removeChild(lineNumbers.lastChild);
-            }
-        }
-    }
-
-    // 防抖渲染
-    const debouncedRender = debounce(function (event) {
-        render();
-    }, 300);
-
-    /**
-     * 实时内容渲染
-     */
-    function render() {
-        const text = editor.value;
-        markdownContent.innerHTML = converter.makeHtml(text);
-        refreshPreviewFootBar();
-
-        updateCatalog();
-    }
-
-    this.renderMd = render;
-
-    function refreshPreviewFootBar() {
-        document.getElementById('previewStatisticHeadline').textContent
-            = markdownContent.querySelectorAll('h1, h2, h3, h4, h5, h6').length + '';
-        document.getElementById('previewStatisticParagraph').textContent
-            = markdownContent.querySelectorAll('p').length + '';
-
-        document.getElementById('previewStatisticCode').textContent
-            = markdownContent.querySelectorAll('code').length + '';
-
-        document.getElementById('previewStatisticImage').textContent
-            = markdownContent.querySelectorAll('img').length + '';
-    }
-
-    /**
-     * 更新目录
-     */
-    function updateCatalog() {
-        markdownCatalogList.innerHTML = '';
-        const headers = markdownContent.querySelectorAll('h1, h2, h3, h4, h5, h6');
-        for (let i = 0; i < headers.length; i++) {
-            const h = headers[i];
-            const catalogItem = document.createElement('div');
-            catalogItem.className = 'markdown-catalog-item';
-            catalogItem.textContent = h.textContent;
-            catalogItem.dataset.headline = h.tagName;
-            catalogItem.dataset.index = i;
-            markdownCatalogList.appendChild(catalogItem);
-        }
-    }
-
-    function refreshEditorFootBar(rows) {
-        const value = editor.value;
-        document.getElementById('editorStatisticChars').textContent = value.length + '';
-        if (rows == null) {
-            rows = value.split('\n').length;
-        }
-        document.getElementById('editorStatisticRows').textContent = rows + '';
-
-        //刷新光标位置
-        refreshEditorFootBarCursor();
-    }
-
-    // 相当于异步刷新
-    const debouncedRefreshEditorFootBarCursor = debounce(function (event) {
-        refreshEditorFootBarCursor();
-    }, 1);
-
-    function refreshEditorFootBarCursor() {
-        const value = editor.value;
-        const cursorPos = editor.selectionStart;
-        // 计算光标所在的行和列
-        let cursorRow = 1, cursorCol = 0;
-        if (cursorPos > 0) {
-            cursorRow = value.substring(0, cursorPos).split('\n').length;
-            cursorCol = cursorPos - value.lastIndexOf('\n', cursorPos - 1) - 1;
-        }
-        document.getElementById('editorCursorRow').textContent = cursorRow + '';
-        setSelectedLineNumber(cursorRow);
-        document.getElementById('editorCursorCol').textContent = cursorCol + '';
-    }
-
-    /**
-     * 快捷键处理
-     * @param event
-     */
-    function editorKeyboardAction(event) {
-        const key = event.key;
-        const ctrl = event.ctrlKey;
-        const shift = event.shiftKey;
-        // console.log(key);
-        // console.log(ctrl);
-        // console.log(shift);
-
-        // tab按键变成4个空格 (开关控制)
-        if (key == 'Tab') {
-            event.preventDefault();
-            insertText("    ");
-        } else if (ctrl && key == 'b') { //加粗
-            boldAction();
-        } else if (ctrl && key == 'i') { //斜体
-            italicAction();
-        } else if (ctrl && key == 'u') {// 下划线
-            event.preventDefault();
-            underlineAction()
-        } else if (ctrl && shift && (key == 's' || key == 'S')) { //删除线
-            strikethroughAction();
-        } else if (ctrl && key == 't') {
-            event.preventDefault();
-            tableAction();
-        } else if (ctrl && key == 's') {
-            //阻止默认行为
-            event.preventDefault();
-            //阻止事件传播
-            event.stopPropagation();
-
-            saveDoc();
-        }
-    }
-
-    function registerGlobalShortcutKeys() {
-        function handleKeyDown(event) {
-            //保存
-            if (event.ctrlKey && event.key === 's') {
-                // 阻止默认的保存事件
-                event.preventDefault();
-                saveDoc();
-            }
-        }
-
-        document.addEventListener('keydown', handleKeyDown);
-    }
-
-
-    function saveDoc() {
-        const content = editor.value;
-        const name = noteTitle.value;
-        const parentPath = filePath.textContent;
-        if (!name) {
-            showToastSimple("文件名错误", MsgTypes.DANGER, Position.TopCenter);
-            return;
-        }
-        if (!parentPath) {
-            showToastSimple("文件路径错误", MsgTypes.DANGER, Position.TopCenter);
-            return;
-        }
-
-        postRequest("/note/save", {
-            name: name,
-            parentPath: parentPath,
-            content: content
-        }, data => {
-            // 更新文档日期
-            createTime.textContent = data.createTime;
-            updateTime.textContent = data.updateTime;
-
-            showToastSimple("保存成功", MsgTypes.SUCCESS, Position.TopCenter);
-        });
-    }
 
     /**
      * 标题改变同步
@@ -838,16 +383,19 @@ function MarkdownNote(options) {
     function renameNote(newName) {
 
         let formData = new FormData();
-        formData.append('filePath', getFileFullPath());
+        formData.append('filePath', parentPath + fileName);
         formData.append('newName', newName);
 
         let oldName = fileName;
 
-        postRequest('rename', formData, pathVo => {
+        postRequest('/note/rename', formData, pathVo => {
             noteTitle.value = newName;
             fileName = newName;
 
             titleChangeSync();
+
+            markdownEditor.setFileName(newName)
+
             //抛出事件
             //通知菜单树修改文件名称
             if (options != null && typeof options.renameCallback === 'function') {
@@ -858,59 +406,14 @@ function MarkdownNote(options) {
         });
     }
 
-    //删除线
-    function strikethroughAction() {
-        wrapText("~~", "~~");
-    }
-
-    //下划线
-    function underlineAction() {
-        wrapText("<u>", "</u>");
-    }
-
-    function italicAction() {//斜体
-        wrapText("*", "*");
-    }
-
-    function boldAction() {
-        wrapText("**", "**");
-    }
-
-    function tableAction() {
-        insertText("| header1 | header2 |\n" +
-            "|---|---|\n" +
-            "| row1-1 | row1-2 |\n" +
-            "| row2-1 | row2-2 |");
-    }
-
     /**
-     * 插入内容
-     * @param str
+     * 保存时修改文件时间
+     * @param data
      */
-    function insertText(str) {
-        const start = editor.selectionStart;
-        const end = editor.selectionEnd;
-        const oldValue = editor.value;
-        editor.value = oldValue.substring(0, start) + str + oldValue.substring(end);
-        editor.selectionStart = editor.selectionEnd = start + str.length;
-
-        textareaValueChanged();
-    }
-
-    /**
-     * 包围内容
-     * @param strStart
-     * @param strEnd
-     */
-    function wrapText(strStart, strEnd) {
-        const start = editor.selectionStart;
-        const end = editor.selectionEnd;
-        const oldValue = editor.value;
-        const selectedText = oldValue.substring(start, end);
-        editor.value = oldValue.substring(0, start) + strStart + selectedText + strEnd + oldValue.substring(end);
-        editor.selectionStart = editor.selectionEnd = start + strStart.length + selectedText.length + strEnd.length;
-
-        textareaValueChanged();
+    function onSaveCallback(data) {
+        // 更新文档日期
+        createTime.textContent = data.createTime;
+        updateTime.textContent = data.updateTime;
     }
 
 

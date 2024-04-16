@@ -1,8 +1,9 @@
 let mdView;
 
+
 window.onload = function () {
 
-    mdView = new MarkdownView({
+    mdView = new MarkdownViewer({
         disableFootBar: true
     });
     mdView.init();
@@ -62,17 +63,14 @@ function openMdFile() {
     }
     console.log("打开文件：" + path)
 
-    /*    if (path == null || path == '') {
-            showToastSimple("要打开的文件路径不能为空", MsgTypes.WARNING);
-            return;
-        }*/
     getRequest("/note/getNote?path=" + path, data => {
         document.title = data.name;
+        mdView.setFileName(data.name);
         document.getElementById("noteTitle").textContent = data.name;
 
-        document.getElementById("printNoteTitle").textContent = data.name;
-
         document.getElementById("filePath").textContent = data.parentPath;
+        mdView.setParentPath(data.parentPath);
+
         document.getElementById("createTime").textContent = data.createTime;
         document.getElementById("updateTime").textContent = data.updateTime;
         mdView.renderMd(data.content);

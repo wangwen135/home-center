@@ -11,12 +11,21 @@
         height: auto !important;
     }
 
+    .viewer-wrapper {
+        display: block;
+        overflow: auto;
+    }
+
     .markdown-scrollbar {
         overflow-y: hidden !important;
     }
 
     .markdown-container {
         border: none !important;
+    }
+
+    .context-menu {
+        display: none !important;
     }
 }
 
