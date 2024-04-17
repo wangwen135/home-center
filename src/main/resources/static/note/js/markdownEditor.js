@@ -297,9 +297,21 @@ function MarkdownEditor(markdownViewer, options) {
         document.getElementById("tb-unordered-list").onclick = unorderedListAction;
         //有序列表
         document.getElementById("tb-ordered-list").onclick = orderedListAction;
+        //任务列表-未勾选
+        document.getElementById("tb-task-uncheck").onclick = taskUncheckAction;
+        //任务列表-已勾选
+        document.getElementById("tb-task-check").onclick = taskCheckAction;
 
         //表格
         document.getElementById("tb-table").onclick = tableAction;
+        //图片
+        document.getElementById("tb-image").onclick = imageAction;
+        //链接
+        document.getElementById("tb-link").onclick = linkAction;
+        //内嵌代码
+        document.getElementById("tb-inner-code").onclick = innerCodeAction;
+        //代码块
+        document.getElementById("tb-code").onclick = codeAction;
     }
 
     /**
@@ -310,9 +322,6 @@ function MarkdownEditor(markdownViewer, options) {
         const key = event.key;
         const ctrl = event.ctrlKey;
         const shift = event.shiftKey;
-        console.log(key);
-        console.log(ctrl);
-        console.log(shift);
 
         // tab按键变成4个空格 (开关控制)
         if (key == 'Tab') {
@@ -336,10 +345,10 @@ function MarkdownEditor(markdownViewer, options) {
             underlineAction();
         } else if (ctrl && shift && key == '}') {//有序列表
             orderedListAction();
-        } else if (ctrl && key == 't') {
+        } else if (ctrl && shift && key == 'T') {//表格
             event.preventDefault();
             tableAction();
-        } else if (ctrl && key == 's') {
+        } else if (ctrl && key == 's') {//保存
             //阻止默认行为
             event.preventDefault();
             //阻止事件传播
@@ -347,6 +356,60 @@ function MarkdownEditor(markdownViewer, options) {
 
             saveDoc();
         }
+    }
+
+    /**
+     * 代码块
+     */
+    function codeAction() {
+        insertTextAtLineStart("```\n```\n");
+    }
+
+    /**
+     * 内嵌代码
+     */
+    function innerCodeAction() {
+        insertText("`code`");
+    }
+
+    /**
+     * 图片
+     */
+    function imageAction() {
+        insertTextAtLineStart("![说明](https://img.wangwen135.top:23456/default.png)\n");
+    }
+
+    /**
+     * 链接
+     */
+    function linkAction() {
+        insertText("[链接](https://wangwen135.top)");
+    }
+
+    /**
+     * 表格
+     */
+    function tableAction() {
+        insertTextAtLineStart(
+            "| header1 | header2 |\n" +
+            "|---|---|\n" +
+            "| row1-1 | row1-2 |\n" +
+            "| row2-1 | row2-2 |\n");
+    }
+
+
+    /**
+     * 任务未勾选
+     */
+    function taskUncheckAction() {
+        insertTextAtLineStart("- [ ] ")
+    }
+
+    /**
+     * 任务已勾选
+     */
+    function taskCheckAction() {
+        insertTextAtLineStart("- [x] ")
     }
 
     /**
@@ -363,7 +426,7 @@ function MarkdownEditor(markdownViewer, options) {
         let number = 1;
         //获取上一行的序号
 
-        insertTextAtLineStart(number + " ");
+        insertTextAtLineStart(number + ". ");
     }
 
     /**
@@ -415,16 +478,6 @@ function MarkdownEditor(markdownViewer, options) {
      */
     function boldAction() {
         wrapText("**", "**");
-    }
-
-    /**
-     * 表格
-     */
-    function tableAction() {
-        insertTextAtLineStart("\n| header1 | header2 |\n" +
-            "|---|---|\n" +
-            "| row1-1 | row1-2 |\n" +
-            "| row2-1 | row2-2 |\n");
     }
 
     /**
