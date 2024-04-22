@@ -149,13 +149,27 @@ function MarkdownEditor(markdownViewer, options) {
         const menuItems = [
             {
                 text: '复制', onClick: function () {
-                    alert('你点击了菜单项 复制');
+                    const text = getSelectedText();
+                    navigator.clipboard.writeText(text).catch(function (err) {
+                        console.error('复制失败：', err);
+                    });
                 }
             },
             {
                 text: '粘贴', onClick: function () {
-                    alert('你点击了菜单项 粘贴');
+                    navigator.clipboard.readText().then(text => {
+                        insertText(text);
+                        console.log('剪贴板中的文本：', text);
+                    }).catch(err => {
+                        console.error('读取剪贴板失败：', err);
+                    });
+
+                    editor.focus();
+
                 }
+            },
+            {
+                type: 'separator'
             },
             {
                 text: '菜单项 3', onClick: function () {
@@ -169,6 +183,12 @@ function MarkdownEditor(markdownViewer, options) {
                 text: '在新窗口打开',
                 onClick: function () {
                     window.open("edit.html#" + parentPath + fileName, "_blank");
+                }
+            },
+            {
+                text: '在新窗口查看',
+                onClick: function () {
+                    window.open("view.html#" + parentPath + fileName, "_blank");
                 }
             }
         ];
@@ -527,6 +547,10 @@ function MarkdownEditor(markdownViewer, options) {
         editor.selectionStart = editor.selectionEnd = start + strStart.length + selectedText.length + strEnd.length;
 
         textareaValueChanged();
+    }
+
+    function getSelectedText() {
+        return editor.value.substring(editor.selectionStart, editor.selectionEnd);
     }
 
 }

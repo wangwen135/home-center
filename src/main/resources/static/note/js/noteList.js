@@ -6,7 +6,13 @@ function NoteListTree() {
     let currentSelectElement = null;
     let currentSelectPath = "/";
     let currentSelectFile = null;
-    let contextMenu = null;
+
+    //右键菜单
+    let fileContextMenu = null;
+    let dirContextMenu = null;
+    let otherContextMenu = null;
+    // 右键菜单选中的元素
+    let rightClickElement = null;
 
     const noteListTree = document.getElementById("noteListTree");
 
@@ -35,20 +41,38 @@ function NoteListTree() {
     }
 
     function initContextMenu() {
-        const menuItems = [
+        const fileMenuItems = [
             {
-                text: '菜单项 1', onClick: function () {
-                    alert('你点击了菜单项 1');
+                text: '复制文件名', onClick: function () {
+                    if (rightClickElement == null) {
+                        return;
+                    }
+                    navigator.clipboard.writeText(rightClickElement.textContent).catch(function (err) {
+                        console.error('复制失败：', err);
+                    });
                 }
             },
             {
-                text: '菜单项 2', onClick: function () {
-                    alert('你点击了菜单项 2');
+                text: '复制文件路径', onClick: function () {
+                    if (rightClickElement == null) {
+                        return;
+                    }
+                    navigator.clipboard.writeText(rightClickElement.dataset.fullPath).catch(function (err) {
+                        console.error('复制失败：', err);
+                    });
                 }
             },
             {
-                text: '菜单项 3', onClick: function () {
-                    alert('你点击了菜单项 3');
+                type: 'separator'
+            },
+            {
+                text: '在新窗口打开', onClick: function () {
+                    window.open("edit.html#" + rightClickElement.dataset.fullPath, "_blank");
+                }
+            },
+            {
+                text: '在新窗口查看', onClick: function () {
+                    window.open("view.html#" + rightClickElement.dataset.fullPath, "_blank");
                 }
             },
             {
@@ -61,8 +85,53 @@ function NoteListTree() {
             }
         ];
 
-        contextMenu = new ContextMenu(menuItems);
-        contextMenu.init();
+        fileContextMenu = new ContextMenu(fileMenuItems);
+        fileContextMenu.init();
+
+        const dirMenuItems = [
+            {
+                text: '新建文件', onClick: function () {
+
+                    addNewFile();
+                }
+            },
+            {
+                text: '新建目录', onClick: function () {
+
+                    addNewFolder();
+                }
+            },
+            {
+                type: 'separator'
+            },
+            {
+                text: '复制目录', onClick: function (event) {
+                    console.log(event);
+                    debugger;
+                    navigator.clipboard.writeText("文件名").catch(function (err) {
+                        console.error('复制失败：', err);
+                    });
+                }
+            },
+            {
+                text: '移动目录', onClick: function () {
+                    alert('你点击了菜单项 2');
+                }
+            },
+            {
+                type: 'separator'
+            },
+            {
+                text: '删除目录', onClick: function () {
+                    alert('提示确认删除？还是直接移动到回收站');
+                }
+            }
+        ];
+
+        dirContextMenu = new ContextMenu(dirMenuItems);
+        dirContextMenu.init();
+
+
     }
 
     this.selectPath = function (path) {
@@ -98,26 +167,40 @@ function NoteListTree() {
         target.click();
     }
 
+    function addNewFile(path) {
+        if (path === null || path === '') {
+            path = "/";
+        }
+        let formData = new FormData();
+        formData.append('path', path);
+
+        postRequest('createFile', formData, pathVo => {
+            console.log("创建一个文件：" + pathVo);
+            console.log("需要刷新菜单树，定位，重命名");
+        });
+    }
+
+    function addNewFolder(path) {
+        if (path === null || path === '') {
+            path = "/";
+        }
+        let formData = new FormData();
+        formData.append('path', path);
+
+        postRequest('createDir', formData, pathVo => {
+            console.log("需要创建一个目录：" + pathVo);
+            console.log("需要刷新菜单树，定位，重命名");
+        });
+    }
+
     function ctrlBtnInit() {
         const btnNewFile = document.getElementById("tltb-newFile");
         btnNewFile.onclick = function () {
-            const path = noteTree.getCurrentSelectPath();
-            let formData = new FormData();
-            formData.append('path', path);
-
-            postRequest('createFile', formData, pathVo => {
-                console.log("需要创建一个文件：" + pathVo);
-            });
+            addNewFile(noteTree.getCurrentSelectPath());
         }
         const btnNewFolder = document.getElementById("tltb-newFolder");
         btnNewFolder.onclick = function () {
-            const path = noteTree.getCurrentSelectPath();
-            let formData = new FormData();
-            formData.append('path', path);
-
-            postRequest('createDir', formData, pathVo => {
-                console.log("需要创建一个目录：" + pathVo);
-            });
+            addNewFolder(noteTree.getCurrentSelectPath());
         }
 
         const btnExpand = document.getElementById("tltb-expand");
@@ -225,9 +308,18 @@ function NoteListTree() {
     function labelRightClick(event) {
         // 阻止默认的右键菜单行为
         event.preventDefault();
-        //showToast("鼠标右键触发");
 
-        contextMenu.showMenu(event);
+        rightClickElement = event.target;
+
+        if (rightClickElement === noteListTree) {
+            console.log("空白区域的右键菜单")
+            rightClickElement = null;
+            return;
+        } else if (rightClickElement.dataset.type === 'DIR') {
+            dirContextMenu.showMenu(event);
+        } else {
+            fileContextMenu.showMenu(event);
+        }
     }
 
     /**

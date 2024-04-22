@@ -1,5 +1,6 @@
 /**
  * Markdown 笔记
+ * 整个右侧，包括标题区域，编辑器，查看器
  */
 function MarkdownNote(options) {
 
