@@ -27,7 +27,6 @@
 </head>
 <body class="overflow-hidden">
 <div class="frame-container">
-
     <div class="note-content-container">
         <div class="note-title-area">
 
@@ -242,8 +241,7 @@
                         <i class="bi bi-code-square"></i>
                     </button>
 
-                    <!--同步滚动按钮-->
-                    <!--这个按钮在最右边-->
+                    <!--切换预览区域 居右-->
                     <button id="tb-togglePreview" class="btn btn-control btn-p-sm ms-auto">
                         <i class="bi bi-arrow-bar-right ts d-inline-block "></i>
                     </button>
@@ -391,6 +389,11 @@
 
     </div>
 
+    <div id="btnToggleFootBar" class="foot-bar-container-absolute btn-control m-0" data-select="true"
+         data-bs-toggle="tooltip"
+         data-bs-placement="right" data-bs-title="折叠底部栏">
+        <i class="bi bi-layout-sidebar d-inline-block rotate-270"></i>
+    </div>
 </div>
 <script>
 

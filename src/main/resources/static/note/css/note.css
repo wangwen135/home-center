@@ -702,3 +702,18 @@
     border: 1px solid #ddd;
     width: 100%;
 }
+
+.foot-bar-container-absolute {
+    position: absolute;
+    left: 1px;
+    bottom: 0px;
+    font-size: 0.8rem;
+    color: rgba(0, 0, 0, 0.65);
+    background: #f6f6f6;
+    white-space: nowrap;
+    overflow: hidden;
+    padding: 2px;
+    border: 1px solid #ddd;
+    width: 2rem;
+    text-align: center;
+}

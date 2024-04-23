@@ -5,7 +5,7 @@ window.onload = function () {
     mdNote.init();
     initBootstrap();
     blockingSystemBehavior();
-
+    footBarCtrl();
     //根据参数打开文件
     openMdFile();
 }
@@ -45,6 +45,19 @@ function openMdFile() {
 
 }
 
-
-
+function footBarCtrl() {
+    /*显示与隐藏底部栏*/
+    const btnToggleFootBar = document.getElementById("btnToggleFootBar");
+    btnToggleFootBar.onclick = function () {
+        let d = '';
+        if (btnToggleFootBar.dataset.select == 'true') {
+            btnToggleFootBar.dataset.select = 'false';
+            d = 'none';
+        } else {
+            btnToggleFootBar.dataset.select = 'true';
+        }
+        document.getElementById('editorFootBar').style.display = d;
+        document.getElementById('previewFootBar').style.display = d;
+    }
+}
 

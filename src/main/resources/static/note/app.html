@@ -32,52 +32,64 @@
 
     <!--最左边的控制按钮-->
     <div class="note-control">
-        <button id="btnToggleNoteList" class="btn btn-control btn-p-sm" type="button">
+        <button id="btnToggleNoteList" class="btn btn-control btn-p-sm" type="button" data-bs-toggle="tooltip"
+                data-bs-placement="right" data-bs-title="折叠/展开笔记列表栏">
             <!--收列表栏-->
-            <!--<i class="bi bi-chevron-bar-left ts d-inline-block"></i>-->
             <i class="bi bi-layout-sidebar"></i>
-
         </button>
 
-        <button class="btn btn-control btn-p-sm" type="button" data-select="true">
+        <button class="btn btn-control btn-p-sm" type="button" data-select="true" data-bs-toggle="tooltip"
+                data-bs-placement="right" data-bs-title="目录">
             <i class="bi bi-folder"></i>
         </button>
-        <button class="btn btn-control btn-p-sm" type="button">
+        <button class="btn btn-control btn-p-sm" type="button" data-bs-toggle="tooltip"
+                data-bs-placement="right" data-bs-title="搜索">
             <i class="bi bi-search"></i>
         </button>
-        <button class="btn btn-control btn-p-sm" type="button">
+        <button class="btn btn-control btn-p-sm" type="button" data-bs-toggle="tooltip"
+                data-bs-placement="right" data-bs-title="最新">
             <i class="bi bi-file-earmark-text"></i>
         </button>
-        <button class="btn btn-control btn-p-sm" type="button">
+        <button class="btn btn-control btn-p-sm" type="button" data-bs-toggle="tooltip"
+                data-bs-placement="right" data-bs-title="加星/收藏">
             <i class="bi bi-bookmark-star"></i>
         </button>
 
-
-        <button class="btn btn-control btn-p-sm" type="button">
+        <!--刷新列表-->
+        <button id="btnRefreshNoteList" class="btn btn-control btn-p-sm" type="button" data-bs-toggle="tooltip"
+                data-bs-placement="right" data-bs-title="刷新列表">
             <i class="bi bi-arrow-clockwise"></i>
         </button>
 
-        <button class="btn btn-control btn-p-sm" type="button">
+        <button class="btn btn-control btn-p-sm" type="button" data-bs-toggle="tooltip"
+                data-bs-placement="right" data-bs-title="日历">
             <i class="bi bi-calendar-week"></i>
         </button>
 
-        <button class="btn btn-control btn-p-sm" type="button">
+        <button class="btn btn-control btn-p-sm" type="button" data-bs-toggle="tooltip"
+                data-bs-placement="right" data-bs-title="命名行">
             <i class="bi bi-terminal"></i>
         </button>
 
         <!--<div class="mb-auto"></div>-->
 
-        <button class="btn btn-control btn-p-sm mt-auto" type="button">
+        <button class="btn btn-control btn-p-sm mt-auto" type="button" data-bs-toggle="tooltip"
+                data-bs-placement="right" data-bs-title="帮助">
             <i class="bi bi-question-circle"></i>
         </button>
-        <button class="btn btn-control btn-p-sm" type="button">
+        <button class="btn btn-control btn-p-sm" type="button" data-bs-toggle="tooltip"
+                data-bs-placement="right" data-bs-title="设置">
             <i class="bi bi-gear"></i>
         </button>
 
-        <!--        <button id="btnToggleFootBar" class="btn btn-control btn-p-sm py-0 mb-0" type="button" data-select="true">
-                    <i class="bi bi-layout-sidebar d-inline-block rotate-270"></i>
-                </button>-->
-        <div id="btnToggleFootBar" class="foot-bar-container btn-control m-0" data-select="true">
+        <!--
+        <button id="btnToggleFootBar" class="btn btn-control btn-p-sm py-0 mb-0" type="button" data-select="true">
+            <i class="bi bi-layout-sidebar d-inline-block rotate-270"></i>
+        </button>
+        -->
+        <div id="btnToggleFootBar" class="foot-bar-container btn-control m-0" data-select="true"
+             data-bs-toggle="tooltip"
+             data-bs-placement="right" data-bs-title="折叠底部栏">
             <i class="bi bi-layout-sidebar d-inline-block rotate-270"></i>
         </div>
 
@@ -364,8 +376,7 @@
                         <i class="bi bi-code-square"></i>
                     </button>
 
-                    <!--同步滚动按钮-->
-                    <!--这个按钮在最右边-->
+                    <!--切换预览区域 居右-->
                     <button id="tb-togglePreview" class="btn btn-control btn-p-sm ms-auto">
                         <i class="bi bi-arrow-bar-right ts d-inline-block "></i>
                     </button>

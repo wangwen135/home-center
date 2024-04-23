@@ -73,6 +73,11 @@ function controlAreaInit() {
         }
     }
 
+    // 刷新笔记列表
+    const btnRefreshNoteList = document.getElementById("btnRefreshNoteList");
+    btnRefreshNoteList.onclick = function () {
+        alert("TODO 刷新笔记列表")
+    }
 
     /*显示与隐藏底部栏*/
     const btnToggleFootBar = document.getElementById("btnToggleFootBar");
