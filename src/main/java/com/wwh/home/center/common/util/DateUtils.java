@@ -3,6 +3,8 @@ package com.wwh.home.center.common.util;
 import com.iceyyy.nongli.NongLi;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -25,6 +27,38 @@ public class DateUtils {
             put(7, "星期日");
         }
     };
+    /**
+     * yyyy-MM-dd
+     */
+    public static final DateTimeFormatter FORMATTER_DATE = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    /**
+     * HH:mm:ss
+     */
+    public static final DateTimeFormatter FORMATTER_TIME = DateTimeFormatter.ofPattern("HH:mm:ss");
+    /**
+     * yyyy-MM-dd HH:mm:ss
+     */
+    public static final DateTimeFormatter FORMATTER_DEFAULT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    /**
+     * yyyyMMddHHmmss
+     */
+    public static final DateTimeFormatter FORMATTER_NUMBER = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
+
+
+    /**
+     * 获取当前时间的格式化字符串
+     *
+     * @param formatter
+     * @return
+     */
+    public static String getCurrentDateTimeFormat(DateTimeFormatter formatter) {
+        if (formatter == null) {
+            formatter = FORMATTER_DEFAULT;
+        }
+        LocalDateTime now = LocalDateTime.now();
+        return now.format(formatter);
+    }
+
 
     /**
      * 获取当天的农历

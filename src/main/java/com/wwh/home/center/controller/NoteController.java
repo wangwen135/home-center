@@ -68,10 +68,6 @@ public class NoteController {
         return Result.success(noteService.createFile(path, name));
     }
 
-    //修改目录名称
-
-    //创建文件
-
     @ApiOperation("修改文件名")
     @PostMapping("/rename")
     @OperLog(module = OPER_LOG_MODULE, operType = OperTypeEnum.INSERT)
@@ -86,6 +82,13 @@ public class NoteController {
     @OperLog(module = OPER_LOG_MODULE, operType = OperTypeEnum.INSERT)
     public Result<NoteFileVo> saveNote(@Valid @RequestBody @ApiParam NoteFileVo fileVo) {
         return Result.success(noteService.saveNote(fileVo));
+    }
+
+    @ApiOperation("删除文件")
+    @PostMapping("/delete")
+    @OperLog(module = OPER_LOG_MODULE, operType = OperTypeEnum.DELETE)
+    public Result<Boolean> delete(@RequestParam(required = false) @ApiParam("文件路径") String filePath) {
+        return Result.success(noteService.deleteFile(filePath));
     }
 
 }

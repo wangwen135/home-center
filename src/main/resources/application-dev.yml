@@ -40,3 +40,4 @@ image:
 
 notes:
   base-path: D:\www\notes
+  recycle-base-path: D:\temp\notes-recycle

@@ -84,4 +84,5 @@ image:
   base-path: Z:\www\images\HC
 
 notes:
-  base-path: D:\temp\note
+  base-path: D:\temp\notes
+  recycle-base-path: D:\temp\notes-recycle

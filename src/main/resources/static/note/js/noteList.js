@@ -80,7 +80,12 @@ function NoteListTree() {
             },
             {
                 text: '删除', onClick: function () {
-                    alert('提示确认删除？还是直接移动到回收站');
+                    const filePath = rightClickElement.dataset.fullPath;
+                    showConfirm("确认删除？", "确认删除：" + filePath, MsgTypes.QUESTION, function () {
+                        delFile(filePath, function () {
+                            removeTreeNode(filePath);
+                        });
+                    }, null, null, {keyboard: true});
                 }
             }
         ];
@@ -180,6 +185,13 @@ function NoteListTree() {
         });
     }
 
+    function delFile(path, callback) {
+        let formData = new FormData();
+        formData.append('filePath', path);
+        console.debug("删除文件：" + path);
+        postRequest('delete', formData, callback);
+    }
+
     function addNewFolder(path) {
         if (path === null || path === '') {
             path = "/";
@@ -240,6 +252,8 @@ function NoteListTree() {
         });
     }
 
+    this.refreshList = treeDataInit;
+
     /*
     * 菜单初始化
     */
@@ -286,6 +300,19 @@ function NoteListTree() {
             });
             parent.appendChild(ul);
         }
+    }
+
+    function removeTreeNode(path) {
+        if (path == null || path == '') {
+            return;
+        }
+        let target = noteListTree.querySelector("[data-full-path='" + path + "']")
+
+        if (target == null) {
+            return;
+        }
+        const liElement = target.parentElement;
+        liElement.parentElement.removeChild(liElement);
     }
 
     /**

@@ -2,6 +2,7 @@ package com.wwh.home.center.service.impl;
 
 import com.wwh.home.center.common.constant.SysConstants;
 import com.wwh.home.center.common.exception.BusinessException;
+import com.wwh.home.center.common.util.DateUtils;
 import com.wwh.home.center.common.util.FileUtil;
 import com.wwh.home.center.model.vo.NoteFileVo;
 import com.wwh.home.center.model.vo.NotePathVo;
@@ -32,18 +33,26 @@ public class NoteServiceImpl implements NoteService {
     @Value("${notes.base-path}")
     private String noteBasePath;
 
-    private File getNoteDir() {
+    @Value("${notes.recycle-base-path}")
+    private String noteRecycleBasePath;
+
+    private File getUserDirectory(String basePath) {
         UserContextHolder.isLoggedIn();
         String username = UserContextHolder.getUsername();
-        File noteDir = new File(noteBasePath, username);
-        if (!noteDir.exists()) {
-            noteDir.mkdirs();
+        File userDir = new File(basePath, username);
+        if (!userDir.exists()) {
+            userDir.mkdirs();
         }
-        return noteDir;
+        return userDir;
     }
 
-    private int count = 0;
+    private File getNoteDir() {
+        return getUserDirectory(noteBasePath);
+    }
 
+    private File getNoteRecycleDir() {
+        return getUserDirectory(noteRecycleBasePath);
+    }
 
     @Override
     public NoteFileVo getNote(String path) {
@@ -189,6 +198,22 @@ public class NoteServiceImpl implements NoteService {
             throw new BusinessException("重命名文件失败！");
         }
     }
+
+    @Override
+    public boolean deleteFile(String filePath) {
+        File file = getFileByPath(filePath);
+        String timeNumber = DateUtils.getCurrentDateTimeFormat(DateUtils.FORMATTER_NUMBER);
+        File dest = new File(getNoteRecycleDir(), filePath + "." + timeNumber);
+        try {
+            FileUtils.moveFile(file, dest);
+        } catch (IOException e) {
+            log.error("移动文件异常", e);
+            return false;
+        }
+        return true;
+    }
+
+    private int count = 0;
 
     @Override
     public List<NotePathVo> listAll() {
