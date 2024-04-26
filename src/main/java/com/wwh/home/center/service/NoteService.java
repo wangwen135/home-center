@@ -27,6 +27,8 @@ public interface NoteService {
 
     boolean reName(String filePath, String newName);
 
+    boolean deleteDir(String path);
+
     boolean deleteFile(String filePath);
 }
 

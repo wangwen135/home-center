@@ -189,7 +189,7 @@ function NoteListTree() {
         let formData = new FormData();
         formData.append('filePath', path);
         console.debug("删除文件：" + path);
-        postRequest('delete', formData, callback);
+        postRequest('delFile', formData, callback);
     }
 
     function addNewFolder(path) {

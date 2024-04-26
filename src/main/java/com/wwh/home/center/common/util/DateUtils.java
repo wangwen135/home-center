@@ -44,7 +44,6 @@ public class DateUtils {
      */
     public static final DateTimeFormatter FORMATTER_NUMBER = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
 
-
     /**
      * 获取当前时间的格式化字符串
      *

@@ -97,6 +97,21 @@ public class NoteServiceImpl implements NoteService {
         return file;
     }
 
+    private File getDirByPath(String path) {
+        if (StringUtils.isBlank(path)) {
+            throw new BusinessException("文件夹路径不能为空");
+        }
+        File file = new File(getNoteDir(), path);
+
+        if (!file.exists()) {
+            throw new BusinessException("目录【" + path + "】不存在");
+        }
+        if (!file.isDirectory()) {
+            throw new BusinessException("【" + path + "】不是一个目录");
+        }
+        return file;
+    }
+
     @Override
     public NoteFileVo saveNote(NoteFileVo fileVo) {
         log.info("保存文档：{}{}", fileVo.getParentPath(), fileVo.getName());
@@ -197,6 +212,11 @@ public class NoteServiceImpl implements NoteService {
             log.error("将文件：{} 重命名为：{} 异常", filePath, newName, e);
             throw new BusinessException("重命名文件失败！");
         }
+    }
+
+    @Override
+    public boolean deleteDir(String path) {
+        return false;
     }
 
     @Override

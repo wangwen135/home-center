@@ -85,7 +85,7 @@ public class NoteController {
     }
 
     @ApiOperation("删除文件")
-    @PostMapping("/delete")
+    @PostMapping("/delFile")
     @OperLog(module = OPER_LOG_MODULE, operType = OperTypeEnum.DELETE)
     public Result<Boolean> delete(@RequestParam(required = false) @ApiParam("文件路径") String filePath) {
         return Result.success(noteService.deleteFile(filePath));
