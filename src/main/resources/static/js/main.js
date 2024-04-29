@@ -1,11 +1,28 @@
-/*
- * 全局发送请求的函数封装
-*/
+/**
+ * 1. 发送请求
+ * 2. 各种弹出框
+ */
 
+
+/**
+ * 发送get请求
+ * @param url 请求地址
+ * @param callback 成功回调
+ * @param errorCallback 失败回调
+ * @returns {Promise<*> | undefined} 没有回调函数则返回Promise
+ */
 function getRequest(url, callback, errorCallback) {
     return request(url, null, callback, errorCallback);
 }
 
+/**
+ * 发送post请求
+ * @param url 请求地址
+ * @param param 请求参数，FormData 或者对象（对象会转成JSON字符串）
+ * @param callback 成功回调
+ * @param errorCallback 失败回调
+ * @returns {Promise<*> | undefined} 没有回调函数则返回Promise
+ */
 function postRequest(url, param, callback, errorCallback) {
     const options = {
         method: 'POST',
@@ -14,6 +31,14 @@ function postRequest(url, param, callback, errorCallback) {
     return request(url, options, callback, errorCallback);
 }
 
+/**
+ * 发送请求
+ * @param url 请求地址
+ * @param options 请求选项，请求方法、请求头、请求参数等
+ * @param callback 成功回调
+ * @param errorCallback 失败回调
+ * @returns {Promise<*> | undefined} 没有回调函数则返回Promise
+ */
 function request(url, options, callback, errorCallback) {
     // 默认参数
     const defaultOptions = {
@@ -90,12 +115,20 @@ function request(url, options, callback, errorCallback) {
     }
 }
 
-
+/**
+ * 全局错误提示
+ * @param error
+ */
 function globalErrorHandle(error) {
     const code = error.code === undefined ? '' : error.code;
     showModalMessage("错误信息：" + code, error.message, MsgTypes.DANGER);
 }
 
+/**
+ * 重新登陆提示
+ * @param error
+ * @returns {boolean}
+ */
 function reLoginHandle(error) {
     if (error.code == 401) {
         showConfirm("请重新登录", error.message, MsgTypes.INFO, function () {
@@ -106,6 +139,10 @@ function reLoginHandle(error) {
     return false;
 }
 
+/**
+ * 接口错误默认提示
+ * @param error
+ */
 function apiErrorHandle(error) {
     showToast(error.message, "错误信息：" + error.code, error.timestamp, MsgTypes.DANGER, Position.TopCenter);
 }
@@ -310,6 +347,11 @@ const Position = {
     BottomRight: {id: 9, style: "bottom-0 end-0"}
 };
 
+/**
+ * 根据编号获取对应位置
+ * @param num 编号为1到9
+ * @returns {{style: string, id: number}|*}
+ */
 function getPositionById(num) {
     for (const key in Position) {
         if (Position.hasOwnProperty(key) && Position[key].id === num) {
@@ -459,12 +501,19 @@ function showPopover(element, content, title = '', placement = 'right', timeout 
 // ##################            右键菜单         ##################
 // ###############################################################
 
+/**
+ * 创建右键菜单
+ * @param menuItems 菜单项 和 对应处理函数
+ * @param targetElement 目标对象
+ * @constructor
+ */
 function ContextMenu(menuItems, targetElement) {
     this.menuItems = menuItems;
     this.targetElement = targetElement;
     this.menuElement = null;
 
     // 静态属性，用于存储所有实例的引用
+    // 确保同时只会显示一个右键菜单
     if (typeof ContextMenu.instances === 'undefined') {
         ContextMenu.instances = [];
     }
@@ -506,6 +555,11 @@ function ContextMenu(menuItems, targetElement) {
             this.hideMenu();
         }
     };
+
+    /**
+     * 展示右键菜单
+     * @param e
+     */
     this.showMenu = function (e) {
         e.preventDefault();
 
@@ -544,9 +598,17 @@ function ContextMenu(menuItems, targetElement) {
         this.menuElement.style.left = left + 'px';
         this.menuElement.style.top = top + 'px';
     };
+
+    /**
+     * 隐藏右键菜单
+     */
     this.hideMenu = function () {
         this.menuElement.style.display = 'none';
     };
+
+    /**
+     * 销毁右键菜单
+     */
     this.destroy = function () {
         // 移除事件监听器
         if (targetElement) {
@@ -640,10 +702,6 @@ function scrollElementIntoView(container, element) {
     // 如果元素已经在可见范围内，则不需要滚动
 }
 
-// ###############################################################
-/*################ 下面是测试用的 ####################*/
-// ###############################################################
-
 
 // 使用封装的fetchRequest函数
 /*
@@ -651,14 +709,14 @@ fetchRequest('/your/java/service', {
     method: 'POST',
     body: {key: 'value'}
 })
-    .then(data => {
-        // 请求成功的处理逻辑
-        console.log('Data received:', data);
-    })
-    .catch(error => {
-        // 错误处理逻辑
-        console.error('An error occurred:', error);
-    });
+.then(data => {
+    // 请求成功的处理逻辑
+    console.log('Data received:', data);
+})
+.catch(error => {
+    // 错误处理逻辑
+    console.error('An error occurred:', error);
+});
 */
 
 

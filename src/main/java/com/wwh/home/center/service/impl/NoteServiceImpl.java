@@ -216,7 +216,14 @@ public class NoteServiceImpl implements NoteService {
 
     @Override
     public boolean deleteDir(String path) {
-        return false;
+        File dir = getDirByPath(path);
+        //判断文件夹中是否还有内容
+        if (dir.list().length > 0) {
+            throw new BusinessException("请先删除目录中的内容再删除目录！");
+
+        }
+        log.info("删除目录：{}", path);
+        return dir.delete();
     }
 
     @Override

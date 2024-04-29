@@ -147,12 +147,14 @@ function MarkdownNote(options) {
                 previewToolbar.style.display = '';
                 btnToggleToolbar.children[0].classList.remove("rotate-180");
                 editorPreviewDivider.classList.add("mt-36px")
+                btnToggleToolbar.dataset.bsOriginalTitle = "隐藏工具栏";
             } else {
                 localStorage.styleHiddenToolbar = 'true';
                 editorToolbar.style.display = 'none';
                 previewToolbar.style.display = 'none';
                 btnToggleToolbar.children[0].classList.add("rotate-180");
                 editorPreviewDivider.classList.remove("mt-36px")
+                btnToggleToolbar.dataset.bsOriginalTitle = "展开工具栏";
             }
         }
     }
@@ -233,9 +235,11 @@ function MarkdownNote(options) {
             if (previewWrapper.style.display != 'none') {
                 previewWrapper.style.display = 'none';
                 btnTogglePreview.children[0].classList.add("rotate-180");
+                btnTogglePreview.dataset.bsOriginalTitle = '展开预览区域';
             } else {
                 previewWrapper.style.display = '';
                 btnTogglePreview.children[0].classList.remove("rotate-180");
+                btnTogglePreview.dataset.bsOriginalTitle = '隐藏预览区域';
             }
         }
     }

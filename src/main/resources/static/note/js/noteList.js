@@ -44,9 +44,6 @@ function NoteListTree() {
         const fileMenuItems = [
             {
                 text: '复制文件名', onClick: function () {
-                    if (rightClickElement == null) {
-                        return;
-                    }
                     navigator.clipboard.writeText(rightClickElement.textContent).catch(function (err) {
                         console.error('复制失败：', err);
                     });
@@ -54,9 +51,6 @@ function NoteListTree() {
             },
             {
                 text: '复制文件路径', onClick: function () {
-                    if (rightClickElement == null) {
-                        return;
-                    }
                     navigator.clipboard.writeText(rightClickElement.dataset.fullPath).catch(function (err) {
                         console.error('复制失败：', err);
                     });
@@ -81,11 +75,8 @@ function NoteListTree() {
             {
                 text: '删除', onClick: function () {
                     const filePath = rightClickElement.dataset.fullPath;
-                    showConfirm("确认删除？", "确认删除：" + filePath, MsgTypes.QUESTION, function () {
-                        delFile(filePath, function () {
-                            removeTreeNode(filePath);
-                        });
-                    }, null, null, {keyboard: true});
+                    showConfirm("确认删除？", "确认删除：" + filePath, MsgTypes.QUESTION,
+                        () => delFile(filePath), null, null, {keyboard: true});
                 }
             }
         ];
@@ -96,14 +87,12 @@ function NoteListTree() {
         const dirMenuItems = [
             {
                 text: '新建文件', onClick: function () {
-
-                    addNewFile();
+                    addNewFile(rightClickElement.dataset.fullPath);
                 }
             },
             {
                 text: '新建目录', onClick: function () {
-
-                    addNewFolder();
+                    addNewFolder(rightClickElement.dataset.fullPath);
                 }
             },
             {
@@ -111,16 +100,14 @@ function NoteListTree() {
             },
             {
                 text: '复制目录', onClick: function (event) {
-                    console.log(event);
-                    debugger;
-                    navigator.clipboard.writeText("文件名").catch(function (err) {
+                    navigator.clipboard.writeText(rightClickElement.dataset.fullPath).catch(function (err) {
                         console.error('复制失败：', err);
                     });
                 }
             },
             {
                 text: '移动目录', onClick: function () {
-                    alert('你点击了菜单项 2');
+                    alert('待实现');
                 }
             },
             {
@@ -128,18 +115,26 @@ function NoteListTree() {
             },
             {
                 text: '删除目录', onClick: function () {
-                    alert('提示确认删除？还是直接移动到回收站');
+                    const dirPath = rightClickElement.dataset.fullPath;
+
+                    if (hasChildNodes(dirPath)) {
+                        showModalMessage("无法删除！", "请先删除目录：" + dirPath + " 下的其他文件和目录");
+                        return;
+                    }
+
+                    showConfirm("确认删除？", "确认删除目录：" + dirPath, MsgTypes.QUESTION,
+                        () => delDir(dirPath), null, null, {keyboard: true});
                 }
             }
         ];
 
         dirContextMenu = new ContextMenu(dirMenuItems);
         dirContextMenu.init();
-
-
     }
 
-    this.selectPath = function (path) {
+    this.selectPath = selectPath
+
+    function selectPath(path) {
         if (path == null || path == '') {
             return;
         }
@@ -172,6 +167,36 @@ function NoteListTree() {
         target.click();
     }
 
+    function expandAndSelected(path) {
+        if (path == null || path == '') {
+            return;
+        }
+        let target = noteListTree.querySelector("[data-full-path='" + path + "']")
+
+        if (target == null) {
+            return;
+        }
+
+        /*// 取消其他的选中
+        noteListTree.querySelectorAll("[data-select='true']").forEach(l => {
+            l.dataset.select = "false";
+        });
+        //选中当前的
+        target.dataset.select = "true";*/
+
+        //展开全部上级
+        getAncestorsUntil(target, noteListTree).forEach(i => {
+            if (i.tagName === 'LI') {
+                // 获取元素下的第一个A标签
+                const a = i.querySelector('a')
+                a.classList.remove("closed");
+            }
+        });
+
+        //滚动到窗口的可见区域
+        scrollElementIntoView(noteListTree, target);
+    }
+
     function addNewFile(path) {
         if (path === null || path === '') {
             path = "/";
@@ -180,16 +205,35 @@ function NoteListTree() {
         formData.append('path', path);
 
         postRequest('createFile', formData, pathVo => {
-            console.log("创建一个文件：" + pathVo);
-            console.log("需要刷新菜单树，定位，重命名");
+            addNode(pathVo)
+            selectPath(pathVo.fullPath);
         });
     }
 
-    function delFile(path, callback) {
+    function delFile(path) {
         let formData = new FormData();
         formData.append('filePath', path);
         console.debug("删除文件：" + path);
-        postRequest('delFile', formData, callback);
+        postRequest('delFile', formData, r => {
+            if (r) {
+                removeTreeNode(path);
+            } else {
+                showModalMessage("系统错误", "删除文件失败，请刷新页面", MsgTypes.WARNING);
+            }
+        });
+    }
+
+    function delDir(path) {
+        let formData = new FormData();
+        formData.append('dirPath', path);
+        console.debug("删除目录：" + path);
+        postRequest('delDir', formData, r => {
+            if (r) {
+                removeTreeNode(path);
+            } else {
+                showModalMessage("系统错误", "删除目录失败，请刷新页面", MsgTypes.WARNING);
+            }
+        });
     }
 
     function addNewFolder(path) {
@@ -200,8 +244,8 @@ function NoteListTree() {
         formData.append('path', path);
 
         postRequest('createDir', formData, pathVo => {
-            console.log("需要创建一个目录：" + pathVo);
-            console.log("需要刷新菜单树，定位，重命名");
+            addNode(pathVo)
+            selectPath(pathVo.fullPath);
         });
     }
 
@@ -277,22 +321,11 @@ function NoteListTree() {
             }
             const ul = document.createElement('ul');
             data.forEach(item => {
-                const li = document.createElement('li');
-                const a = document.createElement('a');
-                a.textContent = item.name;
-                a.dataset.type = item.fileType;
-                a.dataset.fullPath = item.fullPath;
-                if (item.favorite) {
-                    a.dataset.favorite = 'true';
-                }
-                if (item.asterisk) {
-                    a.asterisk = 'true';
-                }
-                li.appendChild(a);
+                const li = createLiElement(item);
+                ul.appendChild(li);
                 if (item.children && item.children.length > 0) {
                     recursive(item.children, li);
                 }
-                ul.appendChild(li);
             });
             //全部折叠
             ul.querySelectorAll("[data-type='DIR']").forEach(i => {
@@ -302,6 +335,101 @@ function NoteListTree() {
         }
     }
 
+    function createLiElement(item) {
+        const li = document.createElement('li');
+        const a = document.createElement('a');
+        a.textContent = item.name;
+        a.dataset.type = item.fileType;
+        a.dataset.fullPath = item.fullPath;
+        if (item.favorite) {
+            a.dataset.favorite = 'true';
+        }
+        if (item.asterisk) {
+            a.asterisk = 'true';
+        }
+        li.appendChild(a);
+        return li;
+    }
+
+
+    //更新节点，比如重命名之后
+
+    //获取目录UL元素
+    function getDirUlElement(path) {
+        if (path == null || path == '' || path == '/') {
+            return noteListTree.firstChild;
+        }
+        const aElement = noteListTree.querySelector("[data-full-path='" + path + "']")
+        if (aElement == null) {
+            console.log("目录不存在：" + path);
+            return null;
+        }
+        if (aElement.dataset.type != "DIR") {
+            console.log(path + " 不是目录")
+            return null;
+        }
+        const parentLi = aElement.parentElement;
+        const ulElement = aElement.nextElementSibling;
+        if (ulElement == null || ulElement.tagName != "UL") {
+            const ul = document.createElement('ul');
+            parentLi.appendChild(ul)
+            return ul;
+        }
+        return ulElement;
+    }
+
+    //新增节点
+    function addNode(notePathVo) {
+        if (notePathVo == null) {
+            return;
+        }
+        const parentUl = getDirUlElement(notePathVo.parentPath);
+        const li = createLiElement(notePathVo);
+        parentUl.appendChild(li);
+
+        listFootBarRefresh();
+    }
+
+    /**
+     * 判断路径下是否还有子节点
+     * @param path
+     * @returns {boolean}
+     */
+    function hasChildNodes(path) {
+        const nodeList = getChildNodes(path);
+        if (nodeList == null) {
+            return false;
+        }
+        return nodeList.length > 0;
+    }
+
+    /**
+     * 获取子节点
+     * @param path
+     * @returns {null|NodeListOf<ChildNode>}
+     */
+    function getChildNodes(path) {
+        if (path == null || path == '') {
+            return null;
+        }
+        const aElement = noteListTree.querySelector("[data-full-path='" + path + "']")
+        if (aElement == null) {
+            return null;
+        }
+        const ulElement = aElement.nextElementSibling;
+        if (ulElement == null) {
+            return null;
+        }
+        if (ulElement.tagName != 'UL') {
+            return null;
+        }
+        return ulElement.childNodes;
+    }
+
+    /**
+     * 移除树节点
+     * @param path
+     */
     function removeTreeNode(path) {
         if (path == null || path == '') {
             return;
@@ -313,6 +441,8 @@ function NoteListTree() {
         }
         const liElement = target.parentElement;
         liElement.parentElement.removeChild(liElement);
+
+        listFootBarRefresh();
     }
 
     /**
@@ -321,7 +451,7 @@ function NoteListTree() {
     function noteListTreeEventHandle() {
         noteListTree.onclick = function (event) {
             if (event.target.tagName === 'A') {
-                labelClick(event);
+                labelAClick(event);
             }
         }
         //noteListTree.removeEventListener("contextmenu", labelRightClick);
@@ -336,13 +466,20 @@ function NoteListTree() {
         // 阻止默认的右键菜单行为
         event.preventDefault();
 
+        const tmp = event.target;
+
+        if (tmp === noteListTree) {
+            console.log("空白区域的右键菜单待定义");
+            return;
+        }
+        if (tmp.tagName !== 'A') {
+            console.log("点击了其他位置");
+            return;
+        }
+
         rightClickElement = event.target;
 
-        if (rightClickElement === noteListTree) {
-            console.log("空白区域的右键菜单")
-            rightClickElement = null;
-            return;
-        } else if (rightClickElement.dataset.type === 'DIR') {
+        if (rightClickElement.dataset.type === 'DIR') {
             dirContextMenu.showMenu(event);
         } else {
             fileContextMenu.showMenu(event);
@@ -353,22 +490,22 @@ function NoteListTree() {
      * 列表被点击
      * @param event
      */
-    function labelClick(event) {
+    function labelAClick(event) {
         event.preventDefault();
 
-        const lb = event.target;
-        currentSelectElement = lb;
-        if (lb.dataset.type == "DIR") {
+        const lbA = event.target;
+        currentSelectElement = lbA;
+        if (lbA.dataset.type == "DIR") {
             /*lb.classList.toggle('closed');*/
-            if (lb.classList.contains("closed")) {
-                lb.classList.remove('closed');
-            } else if (lb.dataset.select == "true") {
-                lb.classList.add("closed");
+            if (lbA.classList.contains("closed")) {
+                lbA.classList.remove('closed');
+            } else if (lbA.dataset.select == "true") {
+                lbA.classList.add("closed");
             }
-            currentSelectPath = lb.dataset.fullPath;
+            currentSelectPath = lbA.dataset.fullPath;
             currentSelectFile = null;
         } else {
-            currentSelectFile = lb.dataset.fullPath;
+            currentSelectFile = lbA.dataset.fullPath;
 
             const lastIndexOf = currentSelectFile.lastIndexOf("/");
             if (lastIndexOf === 0) {
@@ -383,15 +520,15 @@ function NoteListTree() {
         noteListTree.querySelectorAll("[data-select='true']").forEach(l => {
             l.dataset.select = "false";
         });
-        lb.dataset.select = "true";
+        lbA.dataset.select = "true";
 
         //加载文件
-        console.log('lable 被点击', event.target);
+        console.log('lable A 被点击', event.target);
         console.log(event.target.textContent)
 
-        const fileType = lb.dataset.type;
+        const fileType = lbA.dataset.type;
         if (fileType == "md") {
-            const path = lb.dataset.fullPath;
+            const path = lbA.dataset.fullPath;
             openMdFile(path);
         } else if (fileType == 'DIR') {
 
