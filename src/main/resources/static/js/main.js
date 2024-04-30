@@ -703,20 +703,4 @@ function scrollElementIntoView(container, element) {
 }
 
 
-// 使用封装的fetchRequest函数
-/*
-fetchRequest('/your/java/service', {
-    method: 'POST',
-    body: {key: 'value'}
-})
-.then(data => {
-    // 请求成功的处理逻辑
-    console.log('Data received:', data);
-})
-.catch(error => {
-    // 错误处理逻辑
-    console.error('An error occurred:', error);
-});
-*/
-
 

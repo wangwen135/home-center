@@ -1,5 +1,5 @@
 /**
- * 各种工具方法
+ * 工具方法
  */
 
 /**
@@ -7,13 +7,10 @@
  * @param value
  * @returns {boolean}
  */
-function isEmpty(value) {
-    if (value == null || value == '') {
-        return true;
-    }
 
-    if (value.trim() == '') {
-        return true;
+const StringUtils = {
+    isEmpty: function (str) {
+        return !str || str.trim().length === 0;
     }
-    return false;
-}
+};
+

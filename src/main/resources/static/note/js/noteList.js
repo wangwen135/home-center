@@ -132,57 +132,36 @@ function NoteListTree() {
         dirContextMenu.init();
     }
 
-    this.selectPath = selectPath
+    this.selectPath = selectPathClick
 
-    function selectPath(path) {
-        if (path == null || path == '') {
-            return;
+    function selectPathClick(path) {
+        const target = expandAndSelected(path);
+        if (target != null) {
+            //点击
+            target.click();
         }
-        let target = noteListTree.querySelector("[data-full-path='" + path + "']")
-
-        if (target == null) {
-            return;
-        }
-
-        /*// 取消其他的选中
-        noteListTree.querySelectorAll("[data-select='true']").forEach(l => {
-            l.dataset.select = "false";
-        });
-        //选中当前的
-        target.dataset.select = "true";*/
-
-        //展开全部上级
-        getAncestorsUntil(target, noteListTree).forEach(i => {
-            if (i.tagName === 'LI') {
-                // 获取元素下的第一个A标签
-                const a = i.querySelector('a')
-                a.classList.remove("closed");
-            }
-        });
-
-        //滚动到窗口的可见区域
-        scrollElementIntoView(noteListTree, target);
-
-        //点击
-        target.click();
     }
 
+    /**
+     * 展开并选中
+     * @param path
+     */
     function expandAndSelected(path) {
-        if (path == null || path == '') {
-            return;
+        if (StringUtils.isEmpty(path)) {
+            return null;
         }
         let target = noteListTree.querySelector("[data-full-path='" + path + "']")
 
         if (target == null) {
-            return;
+            return null;
         }
 
-        /*// 取消其他的选中
+        // 取消其他的选中
         noteListTree.querySelectorAll("[data-select='true']").forEach(l => {
             l.dataset.select = "false";
         });
         //选中当前的
-        target.dataset.select = "true";*/
+        target.dataset.select = "true";
 
         //展开全部上级
         getAncestorsUntil(target, noteListTree).forEach(i => {
@@ -195,6 +174,7 @@ function NoteListTree() {
 
         //滚动到窗口的可见区域
         scrollElementIntoView(noteListTree, target);
+        return target;
     }
 
     function addNewFile(path) {
@@ -206,7 +186,7 @@ function NoteListTree() {
 
         postRequest('createFile', formData, pathVo => {
             addNode(pathVo)
-            selectPath(pathVo.fullPath);
+            selectPathClick(pathVo.fullPath);
         });
     }
 
@@ -245,7 +225,7 @@ function NoteListTree() {
 
         postRequest('createDir', formData, pathVo => {
             addNode(pathVo)
-            selectPath(pathVo.fullPath);
+            selectPathClick(pathVo.fullPath);
         });
     }
 
@@ -296,6 +276,10 @@ function NoteListTree() {
         });
     }
 
+    /**
+     * 刷新列表，全部重新加载
+     * @type {treeDataInit}
+     */
     this.refreshList = treeDataInit;
 
     /*
@@ -354,7 +338,11 @@ function NoteListTree() {
 
     //更新节点，比如重命名之后
 
-    //获取目录UL元素
+    /**
+     * 获取目录UL元素
+     * @param path
+     * @returns {ChildNode|HTMLUListElement|null|Element}
+     */
     function getDirUlElement(path) {
         if (path == null || path == '' || path == '/') {
             return noteListTree.firstChild;
@@ -378,7 +366,10 @@ function NoteListTree() {
         return ulElement;
     }
 
-    //新增节点
+    /**
+     * 新增节点
+     * @param notePathVo
+     */
     function addNode(notePathVo) {
         if (notePathVo == null) {
             return;
@@ -451,18 +442,18 @@ function NoteListTree() {
     function noteListTreeEventHandle() {
         noteListTree.onclick = function (event) {
             if (event.target.tagName === 'A') {
-                labelAClick(event);
+                labelClick(event);
             }
         }
         //noteListTree.removeEventListener("contextmenu", labelRightClick);
-        noteListTree.addEventListener("contextmenu", labelRightClick);
+        noteListTree.addEventListener("contextmenu", treeRightClick);
     }
 
     /**
      * 鼠标右键
      * @param event
      */
-    function labelRightClick(event) {
+    function treeRightClick(event) {
         // 阻止默认的右键菜单行为
         event.preventDefault();
 
@@ -479,6 +470,8 @@ function NoteListTree() {
 
         rightClickElement = event.target;
 
+        labelClick(event);
+
         if (rightClickElement.dataset.type === 'DIR') {
             dirContextMenu.showMenu(event);
         } else {
@@ -490,7 +483,7 @@ function NoteListTree() {
      * 列表被点击
      * @param event
      */
-    function labelAClick(event) {
+    function labelClick(event) {
         event.preventDefault();
 
         const lbA = event.target;
