@@ -2,6 +2,8 @@
  * 文件列表树
  */
 function NoteListTree() {
+    const noteListTree = document.getElementById("noteListTree");
+
     //当前选中的
     let currentSelectElement = null;
     let currentSelectPath = "/";
@@ -14,7 +16,6 @@ function NoteListTree() {
     // 右键菜单选中的元素
     let rightClickElement = null;
 
-    const noteListTree = document.getElementById("noteListTree");
 
     this.getCurrentSelectElement = function () {
         return currentSelectElement;
@@ -132,8 +133,16 @@ function NoteListTree() {
         dirContextMenu.init();
     }
 
-    this.selectPath = selectPathClick
+    /**
+     * 选中并打开指定路径
+     * @type {selectPathClick}
+     */
+    this.selectPath = selectPathClick;
 
+    /**
+     * 选中并点击路径
+     * @param path
+     */
     function selectPathClick(path) {
         const target = expandAndSelected(path);
         if (target != null) {
@@ -141,6 +150,12 @@ function NoteListTree() {
             target.click();
         }
     }
+
+    /**
+     * 展开指定路径
+     * @type {function(*=): (null|Element | null)}
+     */
+    this.expandPath = expandAndSelected;
 
     /**
      * 展开并选中
@@ -338,6 +353,18 @@ function NoteListTree() {
 
     //更新节点，比如重命名之后
 
+    this.renameFile = function (parentPath, oldName, newName) {
+
+        let filePath = parentPath + oldName;
+        const aElement = noteListTree.querySelector("[data-full-path='" + filePath + "']")
+        if (aElement == null) {
+            console.error("路径不存在：" + path);
+            return;
+        }
+        aElement.textContent = newName;
+        aElement.dataset.fullPath = parentPath + newName;
+    }
+
     /**
      * 获取目录UL元素
      * @param path
@@ -470,7 +497,7 @@ function NoteListTree() {
 
         rightClickElement = event.target;
 
-        labelClick(event);
+        labelClick(event, false);
 
         if (rightClickElement.dataset.type === 'DIR') {
             dirContextMenu.showMenu(event);
@@ -483,17 +510,19 @@ function NoteListTree() {
      * 列表被点击
      * @param event
      */
-    function labelClick(event) {
+    function labelClick(event, toggleDirState = true) {
         event.preventDefault();
 
         const lbA = event.target;
         currentSelectElement = lbA;
         if (lbA.dataset.type == "DIR") {
-            /*lb.classList.toggle('closed');*/
-            if (lbA.classList.contains("closed")) {
-                lbA.classList.remove('closed');
-            } else if (lbA.dataset.select == "true") {
-                lbA.classList.add("closed");
+
+            if (toggleDirState) {
+                if (lbA.classList.contains("closed")) {
+                    lbA.classList.remove('closed');
+                } else if (lbA.dataset.select == "true") {
+                    lbA.classList.add("closed");
+                }
             }
             currentSelectPath = lbA.dataset.fullPath;
             currentSelectFile = null;

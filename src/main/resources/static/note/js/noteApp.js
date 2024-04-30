@@ -5,7 +5,14 @@ let mdNote;
 window.onload = function () {
     frameworkInit();
     noteListInit();
-    mdNote = new MarkdownNote();
+
+    const options = {
+        renameCallback: function (parentPath, oldName, newName) {
+            noteTree.renameFile(parentPath, oldName, newName);
+        }
+    }
+
+    mdNote = new MarkdownNote(options);
     mdNote.init();
     // openLastFile();
     initBootstrap();

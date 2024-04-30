@@ -505,6 +505,7 @@ function MarkdownEditor(markdownViewer, options) {
      * @param str
      */
     function insertTextAtLineStart(str) {
+
         const oldValue = editor.value;
         // 获取光标所在行的起始位置
         let startOfLine = editor.selectionStart;
@@ -513,10 +514,14 @@ function MarkdownEditor(markdownViewer, options) {
         }
         // 插入内容
         editor.value = oldValue.substring(0, startOfLine) + str + oldValue.substring(startOfLine);
+
         // 更新光标位置
-        editor.selectionStart = editor.selectionEnd = startOfLine + str.length;
+        const index = startOfLine + str.length;
+        editor.selectionStart = editor.selectionEnd = index;
+        editor.setSelectionRange(index, index);
 
         textareaValueChanged();
+        editor.focus();
     }
 
     /**
@@ -528,9 +533,13 @@ function MarkdownEditor(markdownViewer, options) {
         const end = editor.selectionEnd;
         const oldValue = editor.value;
         editor.value = oldValue.substring(0, start) + str + oldValue.substring(end);
-        editor.selectionStart = editor.selectionEnd = start + str.length;
+
+        const index = start + str.length;
+        editor.selectionStart = editor.selectionEnd = index;
+        editor.setSelectionRange(index, index);
 
         textareaValueChanged();
+        editor.focus();
     }
 
     /**
@@ -544,9 +553,13 @@ function MarkdownEditor(markdownViewer, options) {
         const oldValue = editor.value;
         const selectedText = oldValue.substring(start, end);
         editor.value = oldValue.substring(0, start) + strStart + selectedText + strEnd + oldValue.substring(end);
-        editor.selectionStart = editor.selectionEnd = start + strStart.length + selectedText.length + strEnd.length;
+
+        const index = start + strStart.length + selectedText.length + strEnd.length;
+        editor.selectionStart = editor.selectionEnd = index;
+        editor.setSelectionRange(index, index);
 
         textareaValueChanged();
+        editor.focus();
     }
 
     function getSelectedText() {
