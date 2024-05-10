@@ -3,6 +3,7 @@ package com.wwh.home.center.service;
 import com.wwh.home.center.model.vo.NoteFileVo;
 import com.wwh.home.center.model.vo.NotePathVo;
 
+import java.io.File;
 import java.util.List;
 
 /**
@@ -12,6 +13,8 @@ import java.util.List;
  * @date 2024/02/22
  */
 public interface NoteService {
+
+    File getFileByPath(String path);
 
     List<NotePathVo> listAll();
 
@@ -25,7 +28,9 @@ public interface NoteService {
 
     NotePathVo createFile(String path, String name);
 
-    boolean reName(String filePath, String newName);
+    boolean rename(String filePath, String newName);
+
+    boolean dirRename(String path, String newName);
 
     boolean deleteDir(String path);
 

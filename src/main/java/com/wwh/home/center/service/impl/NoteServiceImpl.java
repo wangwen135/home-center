@@ -82,7 +82,7 @@ public class NoteServiceImpl implements NoteService {
         }
     }
 
-    private File getFileByPath(String path) {
+    public File getFileByPath(String path) {
         if (StringUtils.isBlank(path)) {
             throw new BusinessException("文件路径不能为空");
         }
@@ -198,7 +198,12 @@ public class NoteServiceImpl implements NoteService {
     }
 
     @Override
-    public boolean reName(String filePath, String newName) {
+    public boolean rename(String filePath, String newName) {
+        String invalid = FileUtil.findInvalidCharacters(newName);
+        if (invalid != null) {
+            throw new BusinessException("文件名不能包含特殊字符：" + invalid);
+        }
+
         File file = getFileByPath(filePath);
         //判断是否存在重名的文件
         File newFile = new File(file.getParentFile(), newName);
@@ -211,6 +216,22 @@ public class NoteServiceImpl implements NoteService {
         } catch (Exception e) {
             log.error("将文件：{} 重命名为：{} 异常", filePath, newName, e);
             throw new BusinessException("重命名文件失败！");
+        }
+    }
+
+    @Override
+    public boolean dirRename(String path, String newName) {
+        File dir = getDirByPath(path);
+        //判断名字是否重复
+        File newDir = new File(dir.getParentFile(), newName);
+        if (newDir.exists()) {
+            throw new BusinessException("文件名重复");
+        }
+        try {
+            return dir.renameTo(newDir);
+        } catch (Exception e) {
+            log.error("将文件夹：{} 重命名为：{} 异常", path, newName, e);
+            throw new BusinessException("重命名文件夹失败！");
         }
     }
 

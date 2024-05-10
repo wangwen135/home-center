@@ -1,6 +1,7 @@
 package com.wwh.home.center.controller;
 
 import com.wwh.home.center.common.annotation.OperLog;
+import com.wwh.home.center.common.constant.SysConstants;
 import com.wwh.home.center.common.enums.OperTypeEnum;
 import com.wwh.home.center.common.model.Result;
 import com.wwh.home.center.model.vo.NoteFileVo;
@@ -11,10 +12,17 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.io.File;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.List;
 
 /**
@@ -73,7 +81,7 @@ public class NoteController {
     @OperLog(module = OPER_LOG_MODULE, operType = OperTypeEnum.INSERT)
     public Result rename(@RequestParam @ApiParam(value = "文件全路径", required = true) String filePath,
                          @RequestParam @ApiParam(value = "新的文件名称", required = true) String newName) {
-        noteService.reName(filePath, newName);
+        noteService.rename(filePath, newName);
         return Result.success();
     }
 
@@ -98,4 +106,13 @@ public class NoteController {
         return Result.success(noteService.deleteDir(dirPath));
     }
 
+    @ApiOperation("下载文件")
+    @GetMapping("/download")
+    public ResponseEntity download(@RequestParam @ApiParam(value = "文件路径", required = true) String filePath) throws UnsupportedEncodingException {
+        File file = noteService.getFileByPath(filePath);
+        String fileName = URLEncoder.encode(file.getName(), SysConstants.DEFAULT_CHARACTER_ENCODING);
+        return ResponseEntity.ok().contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + fileName)
+                .body(new FileSystemResource(file));
+    }
 }

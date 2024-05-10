@@ -74,10 +74,38 @@ function NoteListTree() {
                 type: 'separator'
             },
             {
+                text: '重命名文件', onClick: function () {
+                    renameTreeNode(rightClickElement);
+                }
+            },
+            {
+                text: '移动到目录', onClick: function () {
+                    alert('待实现');
+                }
+            },
+            {
+                type: 'separator'
+            },
+            {
                 text: '删除', onClick: function () {
                     const filePath = rightClickElement.dataset.fullPath;
                     showConfirm("确认删除？", "确认删除：" + filePath, MsgTypes.QUESTION,
                         () => delFile(filePath), null, null, {keyboard: true});
+                }
+            },
+            {
+                text: '下载文件', onClick: function () {
+                    const fileName = rightClickElement.dataset.fullPath; // 需要下载的文件名
+                    let downloadUrl = 'download?filePath=' + encodeURIComponent(fileName);
+                    // 创建一个a标签
+                    const a = document.createElement('a');
+                    a.href = downloadUrl;
+                    a.style.display = 'none';
+                    document.body.appendChild(a);
+                    // 模拟点击下载
+                    a.click();
+                    // 移除a标签
+                    document.body.removeChild(a);
                 }
             }
         ];
@@ -104,6 +132,11 @@ function NoteListTree() {
                     navigator.clipboard.writeText(rightClickElement.dataset.fullPath).catch(function (err) {
                         console.error('复制失败：', err);
                     });
+                }
+            },
+            {
+                text: '重命名目录', onClick: function () {
+                    alert('待实现');
                 }
             },
             {
@@ -353,6 +386,12 @@ function NoteListTree() {
 
     //更新节点，比如重命名之后
 
+    /**
+     * 在编辑区域修改文件名之后 需要同步修改列表中的文件名
+     * @param parentPath
+     * @param oldName
+     * @param newName
+     */
     this.renameFile = function (parentPath, oldName, newName) {
 
         let filePath = parentPath + oldName;
@@ -463,6 +502,55 @@ function NoteListTree() {
         listFootBarRefresh();
     }
 
+
+    /**
+     * 内部的重命名动作
+     * @param targetNode
+     */
+    function renameTreeNode(targetNode) {
+        const oldName = targetNode.textContent;
+        const parentLi = targetNode.parentElement;
+        const textInput = document.createElement("INPUT");
+        textInput.type = 'text';
+        textInput.value = oldName;
+        targetNode.style.display = 'none';
+        parentLi.insertBefore(textInput, targetNode);
+        textInput.focus();
+        textInput.onblur = function () {
+            const newName = textInput.value;
+            if (newName === oldName) {
+                resetNode();
+                return;
+            }
+            showConfirm("确定将文件名修改为：", newName, MsgTypes.QUESTION, confirm, resetNode, resetNode, {keyboard: true});
+        }
+
+
+        function confirm() {
+            const oldName = targetNode.textContent;
+            const newName = textInput.value;
+            const fullPath = targetNode.dataset.fullPath;
+            //修改文件名
+            let formData = new FormData();
+            formData.append('filePath', fullPath);
+            formData.append('newName', newName);
+
+            postRequest('/note/rename', formData).then(pathVo => {
+                targetNode.textContent = newName;
+                targetNode.dataset.fullPath = fullPath.replace(oldName, newName);
+                showToastSimple("文件名修改成功！", MsgTypes.INFO, Position.TopCenter);
+            }).catch(error => {
+                apiErrorHandle(error);
+            });
+            resetNode();
+        }
+
+        function resetNode() {
+            targetNode.style.display = '';
+            parentLi.removeChild(textInput);
+        }
+    }
+
     /**
      * 笔记列表树事件处理
      */
@@ -545,8 +633,6 @@ function NoteListTree() {
         lbA.dataset.select = "true";
 
         //加载文件
-        console.log('lable A 被点击', event.target);
-        console.log(event.target.textContent)
 
         const fileType = lbA.dataset.type;
         if (fileType == "md") {

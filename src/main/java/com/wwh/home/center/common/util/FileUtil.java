@@ -12,6 +12,8 @@ import java.nio.file.attribute.FileTime;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -24,13 +26,61 @@ import java.util.stream.Stream;
 @Slf4j
 public class FileUtil {
 
+    // 定义无效字符的正则表达式
+    private static final Pattern INVALID_CHARACTERS = Pattern.compile("[<>/\\\\|:?*\"\\x00-\\x1F]");
 
     /**
+     * 过滤文件名中的特殊字符
+     *
+     * @param fileName 输入的文件名
+     * @return 过滤后的文件名
+     */
+    public static String filterInvalidCharacters(String fileName) {
+        if (fileName == null) {
+            return null;
+        }
+        // 使用正则表达式替换无效字符为空
+        return INVALID_CHARACTERS.matcher(fileName).replaceAll("");
+    }
+
+    /**
+     * 检查文件名中包含的特殊字符
+     *
+     * @param fileName 输入的文件名
+     * @return 包含的特殊字符（以字符串形式），如果没有则返回null
+     */
+    public static String findInvalidCharacters(String fileName) {
+        if (fileName == null) {
+            return null;
+        }
+
+        Matcher matcher = INVALID_CHARACTERS.matcher(fileName);
+        StringBuilder invalidChars = new StringBuilder();
+
+        while (matcher.find()) {
+            // 遍历匹配到的字符
+            String group = matcher.group();
+            for (int i = 0; i < group.length(); i++) {
+                char c = group.charAt(i);
+                // 确保不重复添加相同的字符
+                if (invalidChars.indexOf(Character.toString(c)) == -1) {
+                    invalidChars.append(c);
+                }
+            }
+        }
+
+        return invalidChars.length() > 0 ? invalidChars.toString() : null;
+    }
+
+    /**
+     * <pre>
      * 计算有效的文件名称
+     * 判断目录下是否存在同名文件，如果存在就在文件名后加上数字
+     * </pre>
      *
      * @param path
      * @param name
-     * @return
+     * @return 返回如 新建文件123.txt 的不重复文件
      */
     public static String calcValidFileName(File path, String name) {
         String[] names = path.list();
@@ -58,11 +108,14 @@ public class FileUtil {
     }
 
     /**
+     * <pre>
      * 计算有效的目录名称
+     * 判断目录下是否存在同名目录，如果存在就在目录名后加上数字
+     * </pre>
      *
      * @param path
      * @param name
-     * @return
+     * @return 返回如 新建目录1 的不重复名称
      */
     public static String calcValidDirName(File path, String name) {
         String[] names = path.list();
@@ -79,6 +132,12 @@ public class FileUtil {
         return newName;
     }
 
+    /**
+     * 获取文件后缀
+     *
+     * @param fileName
+     * @return
+     */
     public static String getFileExtension(String fileName) {
         if (fileName == null || fileName.isEmpty()) {
             return "";
@@ -128,6 +187,17 @@ public class FileUtil {
         return fti;
     }
 
+    public static void main(String[] args) {
+        String fileName = "example:<>file*name?.txt";
+
+        String invalidChars = findInvalidCharacters(fileName);
+
+        if (invalidChars == null) {
+            System.out.println("No invalid characters found.");
+        } else {
+            System.out.println("Found invalid characters: " + invalidChars);
+        }
+    }
 
     public static void main1(String[] args) {
         Path path = Paths.get("D:\\temp\\ShutdownTest.jar");

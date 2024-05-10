@@ -654,6 +654,32 @@ function debounce(func, delay) {
 }
 
 /**
+ * 延时执行，在真正执行之前多次调用无效
+ * @param func
+ * @param delay
+ * @returns {function(): (undefined)}
+ */
+function executeWithDelay(func, delay) {
+    let isTimerRunning = false;
+
+    return function () {
+        if (isTimerRunning) {
+            // 如果定时器正在运行，忽略后续调用
+            return;
+        }
+
+        isTimerRunning = true;  // 标记定时器已启动
+        const context = this;
+        const args = arguments;
+
+        setTimeout(() => {
+            func.apply(context, args);  // 执行函数
+            isTimerRunning = false;  // 重置标记，允许再次启动
+        }, delay);  // 设置延迟时间
+    };
+}
+
+/**
  * 获取祖先元素，直到为某个元素为止
  * @param element
  * @param untilElement

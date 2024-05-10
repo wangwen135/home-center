@@ -85,6 +85,8 @@ function MarkdownNote(options) {
 
         markdownEditor.openFile(path, data => {
             noteTitle.value = data.name;
+            titleChangeSync();
+
             filePath.textContent = data.parentPath;
             createTime.textContent = data.createTime;
             updateTime.textContent = data.updateTime;
@@ -279,6 +281,15 @@ function MarkdownNote(options) {
         //修改文件名称
         noteTitle.onblur = onBlurCheck;
 
+        //回车事件处理
+        noteTitle.onkeyup = function (e) {
+            if (e.key === 'Enter') {
+                //onBlurCheck();
+                //焦点落到编辑框中比较好
+                noteTitle.blur();
+            }
+        }
+
         //提示信息
         const tooltip = new bootstrap.Tooltip(noteTitle, {
             title: '文件名中禁止出现 < > : " / \\ | ? * 或控制字符',
@@ -316,6 +327,7 @@ function MarkdownNote(options) {
             }, 2000);
         }
 
+        //焦点离开
         function onBlurCheck() {
             const newName = noteTitle.value;
             if (newName == fileName) {
@@ -337,6 +349,7 @@ function MarkdownNote(options) {
             }
         }
 
+        // 按键监听
         function handleKeyPress(e) {
             // 获取用户输入的内容
             const char = e.key;
@@ -393,7 +406,7 @@ function MarkdownNote(options) {
 
         let oldName = fileName;
 
-        postRequest('/note/rename', formData, pathVo => {
+        postRequest('/note/rename', formData).then(pathVo => {
             noteTitle.value = newName;
             fileName = newName;
 
@@ -406,8 +419,10 @@ function MarkdownNote(options) {
             if (options != null && typeof options.renameCallback === 'function') {
                 options.renameCallback(parentPath, oldName, newName);
             }
-
             showToastSimple("文件名修改成功！", MsgTypes.INFO, Position.TopCenter);
+        }).catch(error => {
+            apiErrorHandle(error);
+            noteTitle.value = fileName;
         });
     }
 

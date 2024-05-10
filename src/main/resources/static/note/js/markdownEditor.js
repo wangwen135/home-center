@@ -63,7 +63,11 @@ function MarkdownEditor(markdownViewer, options) {
         registerGlobalShortcutKeys();
     }
 
-
+    /**
+     * 打开路径
+     * @param path 路径
+     * @param callback 回调函数
+     */
     this.openFile = function (path, callback) {
         if (path == null || path == '') {
             showToastSimple("要打开的文件路径不能为空", MsgTypes.WARNING);
@@ -85,8 +89,22 @@ function MarkdownEditor(markdownViewer, options) {
         });
     }
 
-    function saveDoc() {
+    /**
+     * 延时保存
+     * @type {function(): undefined}
+     */
+    const delaySaveDoc = executeWithDelay(saveDoc, 5000);
+
+    /**
+     * 保存文档
+     * @param showToast
+     */
+    function saveDoc(showToast = true) {
         const content = editor.value;
+
+        if (originContent === content) {
+            return;
+        }
 
         if (!fileName) {
             showToastSimple("文件名错误", MsgTypes.DANGER, Position.TopCenter);
@@ -102,7 +120,10 @@ function MarkdownEditor(markdownViewer, options) {
             parentPath: parentPath,
             content: content
         }, data => {
-            showToastSimple("保存成功", MsgTypes.SUCCESS, Position.TopCenter);
+            originContent = data.content;
+            if (showToast) {
+                showToastSimple(fileName + " 保存成功!", MsgTypes.SUCCESS, Position.TopCenter);
+            }
 
             if (options != null && typeof options.saveCallBack === 'function') {
                 options.saveCallBack(data);
@@ -141,6 +162,9 @@ function MarkdownEditor(markdownViewer, options) {
         //刷新光标位置记录等
         editor.addEventListener('keyup', debouncedRefreshEditorFootBarCursor);
         editor.addEventListener('mouseup', debouncedRefreshEditorFootBarCursor);
+
+        //光标离开自动保存
+        editor.onblur = saveDoc;
     }
 
     function editorContextMenuInit() {
@@ -209,6 +233,8 @@ function MarkdownEditor(markdownViewer, options) {
         refreshEditorFootBar(lineCount);
 
         markdownViewer.debouncedRenderMd(value);
+
+        delaySaveDoc(false);
     }
 
     /**
