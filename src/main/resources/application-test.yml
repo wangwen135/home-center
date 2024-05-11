@@ -38,3 +38,7 @@ camera-video:
 
 iamge:
   base-path: /www/mnt/images/HC
+
+notes:
+  base-path: /www/mnt/notes
+  recycle-base-path: /www/mnt/notes-recycle
