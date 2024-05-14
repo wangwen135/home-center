@@ -36,7 +36,7 @@ camera-video:
   base-path: /mnt/监控/xiaomi_camera_videos
 
 
-iamge:
+image:
   base-path: /www/mnt/images/HC
 
 notes:
