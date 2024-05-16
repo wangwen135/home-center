@@ -1,5 +1,6 @@
 package com.wwh.home.center.security;
 
+import com.wwh.home.center.common.constant.SysConstants;
 import com.wwh.home.center.common.exception.ForbiddenException;
 import com.wwh.home.center.common.exception.UnauthorizedException;
 import com.wwh.home.center.common.util.PathMatchUtils;
@@ -52,6 +53,10 @@ public class LoginInterceptor implements HandlerInterceptor {
         System.out.println(handler.getClass());
         System.out.println("=======================preHandle=========================");
 */
+        //特殊请求直接放行，加快响应速度
+        if (SysConstants.PATH_CHECK_AUTH.equals(path)) {
+            return true;
+        }
 
         //options请求直接放行
         if (HttpMethod.OPTIONS.matches(method)) {

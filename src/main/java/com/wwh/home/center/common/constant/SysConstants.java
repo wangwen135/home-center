@@ -14,9 +14,30 @@ public class SysConstants {
      */
     public static final String DEFAULT_CHARACTER_ENCODING = "UTF-8";
     public static final Charset DEFAULT_CHARSET = Charset.forName(DEFAULT_CHARACTER_ENCODING);
-
+    /**
+     * token名称
+     */
     public static final String TOKEN_NAME = "token";
-    public static final String COOKIE_TOKEN_NAME = "wwh_token";
+    /**
+     * <pre>
+     * cookie名称
+     * Nginx 需要设置到内部其他系统中
+     * </pre>
+     */
+    public static final String COOKIE_TOKEN_NAME = "home_center_token";
+
+    /**
+     * <pre>
+     * 权限检查路径
+     * Nginx 中需要配置该地址
+     * </pre>
+     */
+    public static final String PATH_CHECK_AUTH = "/checkAuth";
+
+    /**
+     * 内部系统Key Id
+     */
+    public static final String INTERNAL_SYSTEM_KEY = "sys_key";
 
     /**
      * 超级管理员角色ID
