@@ -4,6 +4,7 @@ import com.wwh.home.center.common.constant.SysConstants;
 import com.wwh.home.center.common.exception.ForbiddenException;
 import com.wwh.home.center.common.exception.UnauthorizedException;
 import com.wwh.home.center.common.util.PathMatchUtils;
+import com.wwh.home.center.common.util.RequestUtil;
 import com.wwh.home.center.model.entity.SysRole;
 import com.wwh.home.center.security.model.LoggedUserAllInfo;
 import lombok.extern.slf4j.Slf4j;
@@ -38,8 +39,8 @@ public class LoginInterceptor implements HandlerInterceptor {
      * **：匹配零个或多个目录或文件
      * </pre>
      */
-    private static final List<String> WHITE_LIST = Arrays.asList("/login", "/logout", "/login.html", "/favicon.ico",
-            "/error", "/test/**");
+    private static final List<String> WHITE_LIST = Arrays.asList("/login", "/logout", "/preLogin", "/login.html",
+            "/favicon.ico", "/error", "/test/**");
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
@@ -65,7 +66,7 @@ public class LoginInterceptor implements HandlerInterceptor {
         }
 
         //从请求头，请求参数，cookie 中获取token
-        String token = getTokenFromRequest(request);
+        String token = RequestUtil.getTokenFromRequest(request);
         LoggedUserAllInfo loggedUserAllInfo = TokenManager.getUserAllInfoFromToken(token);
 
         //设置上下文
@@ -139,34 +140,6 @@ public class LoginInterceptor implements HandlerInterceptor {
         return PathMatchUtils.matchList(path, loggedUserInfo.getAntUrls());
     }
 
-    private String getTokenFromRequest(HttpServletRequest request) {
-        String token = request.getHeader(TOKEN_NAME);
-        if (StringUtils.isNotEmpty(token)) {
-            log.trace("从请求头中获取到 token = {}", token);
-            return token;
-        }
-        token = request.getParameter(TOKEN_NAME);
-        if (StringUtils.isNotEmpty(token)) {
-            log.trace("从请求参数中获取到 token = {}", token);
-            return token;
-        }
-        // 获取所有的Cookie
-        Cookie[] cookies = request.getCookies();
-        if (cookies == null || cookies.length == 0) {
-            return null;
-        }
-        // 遍历Cookie数组
-        for (Cookie cookie : cookies) {
-            // 判断是否是你之前设置的Cookie
-            if (COOKIE_TOKEN_NAME.equals(cookie.getName())) {
-                // 获取Cookie的值
-                String cookieValue = cookie.getValue();
-                log.trace("从Cookie中获取到 token = {}", cookieValue);
-                return cookieValue;
-            }
-        }
-        return null;
-    }
 
     @Override
     public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {

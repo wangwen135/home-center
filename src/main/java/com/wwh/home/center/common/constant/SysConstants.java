@@ -35,11 +35,6 @@ public class SysConstants {
     public static final String PATH_CHECK_AUTH = "/checkAuth";
 
     /**
-     * 内部系统Key Id
-     */
-    public static final String INTERNAL_SYSTEM_KEY = "sys_key";
-
-    /**
      * 超级管理员角色ID
      */
     public static final int SUPER_ADMIN_ROLE_ID = 1;

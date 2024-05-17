@@ -6,10 +6,14 @@ import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+
+import static com.wwh.home.center.common.constant.SysConstants.COOKIE_TOKEN_NAME;
+import static com.wwh.home.center.common.constant.SysConstants.TOKEN_NAME;
 
 /**
  * 请求工具
@@ -151,5 +155,52 @@ public class RequestUtil {
      */
     public static String getBrowserInfo(HttpServletRequest request) {
         return request.getHeader("User-Agent");
+    }
+
+
+    /**
+     * 从请求中获取token
+     *
+     * @param request
+     * @return
+     */
+    public static String getTokenFromRequest(HttpServletRequest request) {
+        String token = request.getHeader(TOKEN_NAME);
+        if (StringUtils.isNotEmpty(token)) {
+            log.trace("从请求头中获取到 token = {}", token);
+            return token;
+        }
+        token = request.getParameter(TOKEN_NAME);
+        if (StringUtils.isNotEmpty(token)) {
+            log.trace("从请求参数中获取到 token = {}", token);
+            return token;
+        }
+
+        return getTokenFromCookies(request);
+    }
+
+    /**
+     * 从cookies中获取token
+     *
+     * @param request
+     * @return
+     */
+    public static String getTokenFromCookies(HttpServletRequest request) {
+        // 获取所有的Cookie
+        Cookie[] cookies = request.getCookies();
+        if (cookies == null || cookies.length == 0) {
+            return null;
+        }
+        // 遍历Cookie数组
+        for (Cookie cookie : cookies) {
+            // 判断是否是你之前设置的Cookie
+            if (COOKIE_TOKEN_NAME.equals(cookie.getName())) {
+                // 获取Cookie的值
+                String cookieValue = cookie.getValue();
+                log.trace("从Cookie中获取到 token = {}", cookieValue);
+                return cookieValue;
+            }
+        }
+        return null;
     }
 }
