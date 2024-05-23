@@ -36,8 +36,8 @@ public class InternalSystemConfig implements Serializable {
     @ApiModelProperty("系统名称")
     private String sysName;
 
-    @ApiModelProperty("系统标记")
-    private String sysKey;
+    @ApiModelProperty("系统域名")
+    private String sysDomain;
 
     @ApiModelProperty("系统描述")
     private String sysDescription;
@@ -50,6 +50,9 @@ public class InternalSystemConfig implements Serializable {
 
     @ApiModelProperty("公网地址")
     private String internetUrl;
+
+    @ApiModelProperty("开放公网地址")
+    private String openInternetUrl;
 
     @ApiModelProperty("内网地址")
     private String internalUrl;

@@ -25,8 +25,8 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, sys_name, sys_key, sys_description, sys_status, icon, internet_url, internal_url, config, sort, remark,
-        disabled, deleted, create_by, create_time, update_by, update_time
+        id, sys_name, sys_domain, sys_description, sys_status, icon, internet_url, open_internet_url internal_url,
+        config, sort, remark, disabled, deleted, create_by, create_time, update_by, update_time
     </sql>
 
     <select id="getInternalSystemByUserId" resultMap="BaseResultMap">

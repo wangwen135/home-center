@@ -55,10 +55,9 @@ public class InternalSysAccessController {
         }
 
         //判断用户是否有访问这个域名的权限
-        String schemeDomain = "https://" + domain;
         List<InternalSystemConfig> systemList = userAllInfo.getUserSystem();
         for (InternalSystemConfig systemConfig : systemList) {
-            if (systemConfig.getInternetUrl().startsWith(schemeDomain)) {
+            if (systemConfig.getSysDomain().equals(domain)) {
                 return Result.success();
             }
         }
@@ -97,7 +96,9 @@ public class InternalSysAccessController {
         reqPart = reqPart.equals("") ? "/" : reqPart;
 
         //注册地址固定
-        response.sendRedirect(baseUrl + "/home-center/token?token=" + token + "&ref=" + reqPart);
+        String redirectUrl = baseUrl + "/home-center/token?token=" + token + "&ref=" + reqPart;
+        log.debug("重定向地址：{}", redirectUrl);
+        response.sendRedirect(redirectUrl);
 
     }
 

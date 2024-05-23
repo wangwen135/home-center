@@ -103,7 +103,7 @@
 </main>
 <footer>
     <p>
-        个人学习测试用
+        个人学习测试用 By 王某某
         <a href="mailto:example@example.com">Email</a>
     </p>
 </footer>
@@ -135,7 +135,18 @@
                     // 登录成功，存储 token 到本地存储
                     sessionStorage.setItem('token', result.data);
 
-                    window.location.href = '/index.html';
+                    //跳转地址控制
+                    // 获取当前页面 URL 中的参数
+                    const urlParams = new URLSearchParams(window.location.search);
+                    // 获取名为 "ref" 的参数的值
+                    const ref = urlParams.get('ref');
+                    if (ref != null && ref.length > 8) {
+                        //跳转到指定地址
+                        window.location.href = ref;
+                    } else {
+                        //跳转到首页
+                        window.location.href = '/index.html';
+                    }
                 } else {
                     alert(result.message);
                 }
