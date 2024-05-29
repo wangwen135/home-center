@@ -47,6 +47,7 @@ public class ImageController {
         MEDIA_TYPES.put("jpeg", MediaType.IMAGE_JPEG_VALUE);
         MEDIA_TYPES.put("png", MediaType.IMAGE_PNG_VALUE);
         MEDIA_TYPES.put("gif", MediaType.IMAGE_GIF_VALUE);
+        MEDIA_TYPES.put("svg", "image/svg+xml");
         // 添加更多支持的图片类型
     }
 
