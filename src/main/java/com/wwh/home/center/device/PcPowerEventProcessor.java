@@ -30,6 +30,15 @@ public class PcPowerEventProcessor {
     public void handlePowerOff() {
         log.info("## 关闭电脑...");
 
+        //连续发送 10 个wol 数据包
+        try {
+            for (int i = 0; i < 10; i++) {
+                WakeOnLan.sendWakeOnLanPacket(macAddress, ipAddress);
+                log.info("## 关机数据包已经发送");
+            }
+        } catch (Exception e) {
+            log.error("发送Wake-on-LAN 数据包关闭机器异常", e);
+        }
     }
 
 }
