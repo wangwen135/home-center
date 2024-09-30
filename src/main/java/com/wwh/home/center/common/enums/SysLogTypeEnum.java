@@ -7,5 +7,7 @@ package com.wwh.home.center.common.enums;
  * @date 2024/01/10
  */
 public enum SysLogTypeEnum {
-    LOGIN
+    LOGIN,//登录
+    LOGOUT,//退出
+    CHANGE_PWD //修改密码
 }

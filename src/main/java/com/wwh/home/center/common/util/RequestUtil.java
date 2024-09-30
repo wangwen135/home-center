@@ -53,6 +53,21 @@ public class RequestUtil {
     }
 
     /**
+     * 获取请求方法
+     *
+     * @return
+     */
+    public static String getRequestMethod() {
+        HttpServletRequest request = getRequestFromContextHolder();
+        if (request == null) {
+            log.warn("无法获取HttpServletRequest...");
+            return "";
+        }
+        return request.getMethod();
+    }
+
+
+    /**
      * 获得所有请求参数
      *
      * @param request
@@ -104,8 +119,7 @@ public class RequestUtil {
     public static String getIpAddress(HttpServletRequest request) {
         /**
          * <pre>
-         * 直接在nginx想配置：
-         *
+         * 直接在nginx中配置：
          * #启用X-Real-IP头
          * real_ip_header X-Real-IP;
          * </pre>
@@ -132,7 +146,6 @@ public class RequestUtil {
         return clientIp;
     }
 
-
     /**
      * 获取浏览器信息
      *
@@ -157,6 +170,30 @@ public class RequestUtil {
         return request.getHeader("User-Agent");
     }
 
+    /**
+     * 获取 HTTP Referer 信息
+     *
+     * @return
+     */
+    public static String getReferrer() {
+        HttpServletRequest request = getRequestFromContextHolder();
+        if (request == null) {
+            log.info("获取Referrer信息时，无法获取HttpServletRequest...");
+            return "";
+        }
+        return getReferrer(request);
+    }
+
+    /**
+     * 获取 HTTP Referer 信息
+     *
+     * @param request
+     * @return
+     */
+    public static String getReferrer(HttpServletRequest request) {
+        String referrerUrl = request.getHeader("Referer");
+        return referrerUrl != null ? referrerUrl : "";
+    }
 
     /**
      * 从请求中获取token

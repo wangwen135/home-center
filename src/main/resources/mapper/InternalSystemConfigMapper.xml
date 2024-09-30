@@ -6,7 +6,7 @@
     <resultMap id="BaseResultMap" type="com.wwh.home.center.model.entity.InternalSystemConfig">
         <id column="id" property="id"/>
         <result column="sys_name" property="sysName"/>
-        <result column="sys_key" property="sysKey"/>
+        <result column="sys_domain" property="sysDomain"/>
         <result column="sys_description" property="sysDescription"/>
         <result column="sys_status" property="sysStatus"/>
         <result column="icon" property="icon"/>

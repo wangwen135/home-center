@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
@@ -41,15 +42,23 @@ public class LoginManager {
     @Autowired
     private InternalSystemConfigService internalSystemConfigService;
 
+    @Autowired
+    private IpBanManager ipBanManager;
+
+    @Autowired
+    private UsernameBanManager usernameBanManager;
+
     /**
      * 登录
      *
      * @param username
      * @param password
+     * @param request
+     * @param response
      * @return
      */
-    public String login(String username, String password, HttpServletResponse response) {
-        String ipAddr = RequestUtil.getIpAddress();
+    public String login(String username, String password, HttpServletRequest request, HttpServletResponse response) {
+        String ipAddr = RequestUtil.getIpAddress(request);
         // 登录前检查
         preLogin(username, ipAddr);
 
@@ -64,26 +73,29 @@ public class LoginManager {
         }
 
         if (user == null) {
-            loginFailed(username, ipAddr);
+            loginFailed(username, password, ipAddr, request);
             throw new UnauthorizedException("用户名或密码错误");
         }
 
         //检查用户状态
         if (user.getDisabled()) {
             log.info("用户被禁用：{}", user);
+            loginSuccess(user, username, "用户被禁用");
             throw new UnauthorizedException("用户被禁用，请联系管理员");
         }
         if (user.getLocked()) {
             log.info("用户被锁定：{}", user);
+            loginSuccess(user, username, "用户被锁定");
             throw new UnauthorizedException("用户被锁定，请联系管理员");
         }
         if (user.getExpired()) {
             log.info("账号已过期：{}", user);
+            loginSuccess(user, username, "账号已过期");
             throw new UnauthorizedException("账号已过期，请联系管理员");
         }
 
         //日志
-        loginSuccess(user, username);
+        loginSuccess(user, username, "");
 
         //清空用户密码
         user.setPassword(null);
@@ -150,40 +162,41 @@ public class LoginManager {
         TokenManager.removeToken(token);
     }
 
-    private void loginSuccess(UserInfo user, String identity) {
+    private void loginSuccess(UserInfo user, String identity, String msg) {
         //记录操作日志
         String ipAddr = RequestUtil.getIpAddress();
         SysLog sysLog = new SysLog();
         sysLog.setOperatorId(user.getId());
         sysLog.setOperatorName(user.getUsername());
         sysLog.setLogType(SysLogTypeEnum.LOGIN.toString());
-        sysLog.setContent("【" + identity + "】 + 【密码】 登录成功");
+        sysLog.setContent("【" + identity + "】 + 【密码】 登录成功 " + msg);
         sysLog.setIp(ipAddr);
         sysLog.setBrowserInfo(RequestUtil.getBrowserInfo());
         sysLogService.saveSysLog(sysLog);
     }
 
-    public void loginFailed(String username, String ipAddr) {
+    public void loginFailed(String username, String password, String ipAddr, HttpServletRequest request) {
         //记录失败的IP和用户名
-        IpBanManager.handleLoginFailure(ipAddr);
-        UsernameBanManager.handleLoginFailure(username);
+        ipBanManager.handleLoginFailure(ipAddr);
+        usernameBanManager.handleLoginFailure(username, password);
     }
 
     private void preLogin(String username, String ipAddr) {
         //检查IP地址
-        if (IpBanManager.isIpBanned(ipAddr)) {
+        if (ipBanManager.isIpBanned(ipAddr)) {
             throw new UnauthorizedException("IP地址【" + ipAddr + "】已被禁止登录");
         }
 
         //检查用户名
-        if (UsernameBanManager.isUsernameBanned(username)) {
+        if (usernameBanManager.isUsernameBanned(username)) {
             throw new UnauthorizedException("用户【" + username + "】已被禁止登录");
         }
     }
 
 
     private boolean matchPwd(String pwd, UserInfo userInfo) {
-        String hexPwd = DigestUtils.md5Hex(pwd + userInfo.getSalt());
+        // String hexPwd = DigestUtils.md5Hex(pwd + userInfo.getSalt());
+        String hexPwd = DigestUtils.sha256Hex(pwd + userInfo.getSalt() + pwd);
         return hexPwd.equals(userInfo.getPassword());
     }
 

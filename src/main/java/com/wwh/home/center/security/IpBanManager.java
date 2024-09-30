@@ -1,6 +1,12 @@
 package com.wwh.home.center.security;
 
+import com.wwh.home.center.common.util.RequestUtil;
+import com.wwh.home.center.common.util.TimeFormatUtil;
+import com.wwh.home.center.model.entity.SecurityLog;
+import com.wwh.home.center.security.model.SecurityOperTypeEnum;
+import com.wwh.home.center.service.SecurityLogService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -21,9 +27,12 @@ public class IpBanManager {
     private static final int BAN_TIME_DURATION_MS = 60 * 1000; //1分钟
     private static final long BAN_TIME_MILLISECONDS = 5 * 60 * 1000; // 5分钟
 
-    private static final Map<String, BanInfo> bannedIps = new ConcurrentHashMap<>();
+    @Autowired
+    private SecurityLogService securityLogService;
 
-    public static boolean isIpBanned(String ipAddress) {
+    private Map<String, BanInfo> bannedIps = new ConcurrentHashMap<>();
+
+    public boolean isIpBanned(String ipAddress) {
         BanInfo banInfo = bannedIps.get(ipAddress);
 
         if (banInfo != null && banInfo.getFailureCount() >= MAX_LOGIN_FAILURE) {
@@ -33,7 +42,7 @@ public class IpBanManager {
         }
     }
 
-    public static void handleLoginFailure(String ipAddress) {
+    public void handleLoginFailure(String ipAddress) {
         BanInfo banInfo = bannedIps.get(ipAddress);
 
         if (banInfo == null) {
@@ -45,8 +54,26 @@ public class IpBanManager {
 
         if (banInfo.getFailureCount() >= MAX_LOGIN_FAILURE) {
             banInfo.setBanEndTime(System.currentTimeMillis() + BAN_TIME_MILLISECONDS);
-            log.info("禁止IP地址：{} 直到：{}", ipAddress, banInfo.getBanEndTime());
+            log.info("禁止IP地址：{} 直到：{}", ipAddress, TimeFormatUtil.format(banInfo.getBanEndTime()));
+
+            insertSecurityLog(banInfo);
         }
+    }
+
+    private void insertSecurityLog(BanInfo banInfo) {
+        SecurityLog sLog = new SecurityLog();
+        sLog.setIpAddress(banInfo.getIpAddress());
+        sLog.setOperationType(SecurityOperTypeEnum.BAN_IP.name());
+
+        sLog.setOperationResult(banInfo.getIpAddress());
+        sLog.setDescription("由于连续登录失败，而触发禁用IP地址：" + banInfo.getIpAddress() + " 直到：" + TimeFormatUtil.format(banInfo.getBanEndTime()));
+
+        //请求方法，地址 等信息
+        sLog.setHttpMethod(RequestUtil.getRequestMethod());
+        sLog.setRequestUrl(RequestUtil.getRequestURI());
+        sLog.setUserAgent(RequestUtil.getBrowserInfo());
+        sLog.setReferrerUrl(RequestUtil.getReferrer());
+        securityLogService.saveSysLog(sLog);
     }
 
     // 每分钟执行1次

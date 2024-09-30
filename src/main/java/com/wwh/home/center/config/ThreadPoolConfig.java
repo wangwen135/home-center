@@ -3,10 +3,9 @@ package com.wwh.home.center.config;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.scheduling.TaskScheduler;
+import org.springframework.context.annotation.Primary;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -21,20 +20,24 @@ import java.util.concurrent.ThreadPoolExecutor;
 @Configuration
 public class ThreadPoolConfig {
 
-    @Value("${threadPool.corePoolSize:2}")
+    @Value("${threadPool.corePoolSize:4}")
     private int corePoolSize;
-    @Value("${threadPool.maxPoolSize:5}")
+    @Value("${threadPool.maxPoolSize:8}")
     private int maxPoolSize;
-    @Value("${threadPool.queueCapacity:0}")
+    @Value("${threadPool.queueCapacity:30}")
     private int queueCapacity;
+    @Value("${threadPool.keepAliveSeconds:300}")
+    private int keepAliveSeconds;
 
+    // 将这个线程池设为默认线程池
+    @Primary
     @Bean("handleExecutor")
     public Executor handleExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
         executor.setCorePoolSize(corePoolSize);
         executor.setMaxPoolSize(maxPoolSize);
         executor.setQueueCapacity(queueCapacity);
-        executor.setKeepAliveSeconds(60);
+        executor.setKeepAliveSeconds(keepAliveSeconds);
         executor.setThreadNamePrefix("handle-");
         executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
         executor.setWaitForTasksToCompleteOnShutdown(true);

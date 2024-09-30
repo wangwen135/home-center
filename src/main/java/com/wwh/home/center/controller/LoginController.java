@@ -40,7 +40,7 @@ public class LoginController {
             , @RequestParam @NotEmpty(message = "密码不能为空") @ApiParam("密码") String password
             , HttpServletRequest request, HttpServletResponse response) {
 
-        return Result.success(loginManager.login(username, password, response));
+        return Result.success(loginManager.login(username, password, request, response));
     }
 
     @ApiOperation("退出")

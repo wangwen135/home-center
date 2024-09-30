@@ -20,6 +20,7 @@ public class PwdTest {
         System.out.println(pwd);
 
         String hexPwd = DigestUtils.md5Hex(pwd + salt);
+        DigestUtils.sha256Hex(pwd + salt + pwd);
         System.out.println("encrypt pwd:");
         System.out.println(hexPwd);
 
