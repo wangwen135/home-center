@@ -1,81 +1,149 @@
 package com.wwh.home.center.device;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.wwh.home.center.device.tools.SimpleSocketSender;
 import com.wwh.home.center.device.tools.WakeOnLan;
-import lombok.Getter;
-import lombok.Setter;
+import com.wwh.home.center.model.entity.PcDevice;
+import com.wwh.home.center.dao.mapper.PcDeviceMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
 
-/**
- * PC的电源事件处理
- *
- * @author wangwh
- * @date 2024/05/31
- */
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+
 @Slf4j
 @Component
-@Getter
-@Setter
-@Configuration
-@ConfigurationProperties(prefix = "device.pc")
 public class PcPowerEventProcessor {
 
-    // 广播地址：255.255.255.255
-    private String broadcastAddress = "255.255.255.255";
+    @Value("${device.pc.broadcast-address:255.255.255.255}")
+    private String broadcastAddress;
 
-    //书房台式机真实的IP地址是：localhost
-    private String ipAddress = "localhost";
+    @Autowired
+    private PcDeviceMapper pcDeviceMapper;
 
-    // MAC地址
-    private String macAddress = "00-00-00-00-00-00";
+    public void handlePowerOnAll() throws Exception {
+        List<PcDevice> devices = listDevices();
+        for (PcDevice device : devices) {
+            handlePowerOn(device.getId());
+        }
+    }
 
-    // 端口
-    private int socketPort = 65432;
-
-    /**
-     * 启动电脑
-     */
-    public void handlePowerOn() {
-        log.info("## 启动电脑...");
-        try {
-            WakeOnLan.sendWakeOnLanPacket(macAddress, broadcastAddress);
-            log.info("## 唤醒数据包已经发送");
-        } catch (Exception e) {
-            log.error("发送Wake-on-LAN 数据包唤醒机器异常", e);
+    public void handlePowerOffAll() throws Exception {
+        List<PcDevice> devices = listDevices();
+        for (PcDevice device : devices) {
+            handlePowerOff(device.getId());
         }
     }
 
     /**
-     * 关闭电脑
+     * 启动指定电脑
+     *
+     * @throws Exception 操作异常
      */
-    public void handlePowerOff() {
-        log.info("## 关闭电脑...");
+    public void handlePowerOn(Long deviceId) throws Exception {
+        PcDevice device = pcDeviceMapper.selectById(deviceId);
+        if (device == null || device.getStatus() != 1) {
+            throw new IllegalArgumentException("设备不存在或已禁用");
+        }
+
         try {
-            String response = SimpleSocketSender.sendCommand(ipAddress, socketPort, "shutdown");
-            log.info("## 关机指令已经发送，收到响应：{}", response);
+            WakeOnLan.sendWakeOnLanPacket(device.getMacAddress(), broadcastAddress);
+            log.info("## 已发送唤醒数据包到设备: {}, MAC地址: {}", device.getName(), device.getMacAddress());
         } catch (Exception e) {
-            log.error("发送关闭电脑指令异常", e);
+            String error = String.format("发送Wake-on-LAN数据包唤醒设备[%s]异常", device.getName());
+            log.error(error, e);
+            throw new RuntimeException(error, e);
         }
     }
 
     /**
-     * 这种方式，如果电脑没有启动，发送这个指令会导致其关机
+     * 关闭指定电脑
+     *
+     * @throws Exception 操作异常
      */
-    public void handlePowerOff2() {
-        log.info("## 关闭电脑...");
+    public void handlePowerOff(Long deviceId) throws Exception {
+        PcDevice device = pcDeviceMapper.selectById(deviceId);
+        if (device == null || device.getStatus() != 1) {
+            throw new IllegalArgumentException("设备不存在或已禁用");
+        }
 
-        //连续发送 10 个wol 数据包
         try {
-            for (int i = 0; i < 10; i++) {
-                WakeOnLan.sendWakeOnLanPacket(macAddress, broadcastAddress);
-                log.info("## 关机数据包已经发送");
+            String response = SimpleSocketSender.sendCommand(
+                    device.getIpAddress(),
+                    device.getSocketPort(),
+                    "shutdown"
+            );
+            log.info("## 已发送关机指令到设备: {}, IP: {}, 响应: {}",
+                    device.getName(), device.getIpAddress(), response);
+        } catch (Exception e) {
+            String error = String.format("发送关机指令到设备[%s]异常：%s", device.getName(), e.getMessage());
+            log.error(error, e);
+            throw new RuntimeException(error, e);
+        }
+    }
+
+    /**
+     * 异步启动指定电脑
+     */
+    public void handlePowerOnAsync(Long deviceId) {
+        CompletableFuture.runAsync(() -> {
+            try {
+                handlePowerOn(deviceId);
+            } catch (Exception e) {
+                log.error("异步启动设备[{}]异常", deviceId, e);
             }
-        } catch (Exception e) {
-            log.error("发送Wake-on-LAN 数据包关闭机器异常", e);
-        }
+        });
+    }
+
+    /**
+     * 异步关闭指定电脑
+     */
+    public void handlePowerOffAsync(Long deviceId) {
+        CompletableFuture.runAsync(() -> {
+            try {
+                handlePowerOff(deviceId);
+            } catch (Exception e) {
+                log.error("异步关闭设备[{}]异常", deviceId, e);
+            }
+        });
+    }
+
+    /**
+     * 异步启动所有电脑
+     */
+    public void handlePowerOnAllAsync() {
+        CompletableFuture.runAsync(() -> {
+            try {
+                handlePowerOnAll();
+            } catch (Exception e) {
+                log.error("异步启动所有设备异常", e);
+            }
+        });
+    }
+
+    /**
+     * 异步关闭所有电脑
+     */
+    public void handlePowerOffAllAsync() {
+        CompletableFuture.runAsync(() -> {
+            try {
+                handlePowerOffAll();
+            } catch (Exception e) {
+                log.error("异步关闭所有设备异常", e);
+            }
+        });
+    }
+
+    /**
+     * 获取所有可用设备
+     */
+    public List<PcDevice> listDevices() {
+        return pcDeviceMapper.selectList(
+                new LambdaQueryWrapper<PcDevice>()
+                        .eq(PcDevice::getStatus, 1)
+                        .orderByAsc(PcDevice::getId)
+        );
     }
 }

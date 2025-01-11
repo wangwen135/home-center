@@ -1,4 +1,4 @@
-package com.wwh.home.center.controller;
+package com.wwh.home.center.controller.note;
 
 import com.wwh.home.center.common.annotation.OperLog;
 import com.wwh.home.center.common.constant.SysConstants;

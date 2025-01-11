@@ -1,4 +1,4 @@
-package com.wwh.home.center.controller;
+package com.wwh.home.center.controller.common;
 
 import com.wwh.home.center.model.vo.WeatherVo;
 import com.wwh.home.center.service.WeatherService;

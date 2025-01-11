@@ -86,13 +86,26 @@ public class BfMqttConfig {
             log.info("收到巴法云云平台的MQTT消息：topic={}  msg={}", topic, receiveMsg);
 
             if ("on".equalsIgnoreCase(receiveMsg)) {
-                pcPowerEventProcessor.handlePowerOn();
+                handlePowerOn();
             } else if ("off".equalsIgnoreCase(receiveMsg)) {
-                pcPowerEventProcessor.handlePowerOff();
+                handlePowerOff();
             } else {
                 log.warn("收到【巴法】topic={} 的无效消息：{}", topic, receiveMsg);
             }
         };
+    }
+
+
+    //ID先固定这两个
+    private void handlePowerOn() {
+        pcPowerEventProcessor.handlePowerOnAsync(1L);
+        pcPowerEventProcessor.handlePowerOnAsync(2L);
+    }
+
+    private void handlePowerOff() {
+        pcPowerEventProcessor.handlePowerOffAsync(1L);
+        pcPowerEventProcessor.handlePowerOffAsync(2L);
+
     }
 
     // 定义输出通道

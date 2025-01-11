@@ -1,4 +1,4 @@
-package com.wwh.home.center.controller;
+package com.wwh.home.center.controller.device;
 
 import com.wwh.home.center.model.entity.PromptMessage;
 import com.wwh.home.center.model.vo.PromptMessageVo;

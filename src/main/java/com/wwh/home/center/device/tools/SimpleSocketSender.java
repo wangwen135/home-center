@@ -18,12 +18,14 @@ public class SimpleSocketSender {
     /**
      * 发送指令
      *
-     * @param hostname
-     * @param port
-     * @param command
-     * @return
+     * @param hostname 主机名
+     * @param port 端口号
+     * @param command 命令
+     * @return 响应结果
+     * @throws UnknownHostException 未知主机异常
+     * @throws IOException IO异常
      */
-    public static String sendCommand(String hostname, int port, String command) {
+    public static String sendCommand(String hostname, int port, String command) throws UnknownHostException, IOException {
         try (Socket socket = new Socket(hostname, port);
              PrintWriter out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream(), "UTF-8"), true);
              BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream(), "UTF-8"))) {
@@ -36,12 +38,6 @@ public class SimpleSocketSender {
             log.debug("收到响应：{}", response);
 
             return response;
-        } catch (UnknownHostException e) {
-            log.error("未知主机:{}", hostname, e);
-            return "err: 未知主机";
-        } catch (IOException e) {
-            log.error("I/O 错误", e);
-            return "err: I/O 错误";
         }
     }
 }
