@@ -55,6 +55,8 @@ public class BfMqttConfig {
         options.setServerURIs(new String[]{bfServerUri});
         options.setUserName(""); // 如果需要用户名密码
         options.setPassword("".toCharArray());
+        options.setCleanSession(false); // 保持会话
+        options.setKeepAliveInterval(60); // 心跳间隔时间（秒）
         factory.setConnectionOptions(options);
         return factory;
     }
