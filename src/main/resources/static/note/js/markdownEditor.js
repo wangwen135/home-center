@@ -422,14 +422,14 @@ function MarkdownEditor(markdownViewer, options) {
      * 图片
      */
     function imageAction() {
-        insertTextAtLineStart("![说明](https://img.wangwen135.top:23456/default.png)\n");
+        insertTextAtLineStart("![说明](https://img.example.com:23456/default.png)\n");
     }
 
     /**
      * 链接
      */
     function linkAction() {
-        insertText("[链接](https://wangwen135.top)");
+        insertText("[链接](https://example.com)");
     }
 
     /**
