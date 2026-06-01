@@ -41,3 +41,7 @@ image:
 notes:
   base-path: D:\www\notes
   recycle-base-path: D:\temp\notes-recycle
+
+agent:
+  screenshot-dir: /opt/home-center/screenshots
+  release-dir: /opt/home-center/releases
