@@ -7,7 +7,7 @@ import lombok.ToString;
 
 /**
  * 用户查询对象
- * 
+ *
  * @author wangwh
  * @date 2021-12-15
  */

@@ -24,49 +24,49 @@ import java.util.Map;
  *   RSA/ECB/PKCS1Padding (默认)
  *   RSA/ECB/NoPadding
  *   RSA/ECB/OAEPPadding
- * 
+ *
  * 公钥编码格式：X.509，私钥编码格式：PKCS#8
- * 
+ *
  * # 秘钥
  *  RSA密钥至少必须512位长
  *  秘钥由模数 和 指数 构成
  *  公钥模数 = 私钥模数 ；模数长度 = 秘钥长度
- *  
+ *
  * # 加密原理
  *  publickKey = （e,n）,privateKey = (d,n)
  *  密文 = 明文^e mod n
  *  明文 = 密文^d mod n
- *  
+ *
  *  增加填充之后
  *  密文 =（ random + 明文）^e mod n  //publicKey  加密
  *  （random + 明文） = 密文^d mod n   // 服务器端利用privateKey 解密
  *  明文 = （random + 明文）- random //服务器端解码出random
- * 
+ *
  * # 明文密文长度
  * RSA加密的明文的长度是受 RSA填充模式 和 秘钥长度 共同限制的
  * 但是RSA每次加密的块长度就是秘钥的长度，每次加密输出的密文长度也是秘钥的长度
  * 不同填充方式所能加密的明文长度不同，需要预留一定的长度用于填充内容
- * 
+ *
  * # 填充方式
- * ## PKCS1Padding（JDK默认） 
+ * ## PKCS1Padding（JDK默认）
  * ### 明文长度
  *  明文长度(bytes) <= 密钥长度(bytes)-11 ； 预留的11个字节将在加密时随机填充，确保每次加密后的结果不同
  *  当密钥长度为1024bits 能加密的明文上限就是117bytes
  *  所以就出现了分片加密，如果明文长度大于最大明文长度了，就将明文分成多个分片
  *  片数=(明文长度(bytes)/(密钥长度(bytes)-11))的整数部分+1,就是不满一片的按一片算
- * 
+ *
  * ### 密文长度
  *  每次加密后的密文长度等于秘钥长度
  *  在不分片的情况下加密后的密文长度等于密钥长度，（如秘钥长度为512bit，加密1字节，得到的密文长度为：64byte = 512bit）
  *  分片后：密文长度 = 密钥长度 * 片数
- * 
+ *
  * ## NoPadding
  *  输入的明文字节可以和RSA钥模长一样长，输出的密文长度等于模长，如果输入的明文过长，必须切割
- *  
+ *
  * ## OAEPPadding
  *  输入的明文字节长度为秘钥模长 - 41 ，输出的密文长度等于模长
  * </pre>
- * 
+ *
  * @author wwh
  *
  */
@@ -101,7 +101,7 @@ public class RSATools {
         System.out.println("私钥解密后的明文：");
         System.out.println(privateKeyDecryptSimple(privateKeyBase64, cipher));
     }
-    
+
     public static void main3(String[] args) throws Exception {
         Map<String, Object> keyPair = generateRsaKeyPairMap(1024);
         String privateKeyBase64 = keyPair.get("privateKeyBase64").toString();
@@ -162,7 +162,7 @@ public class RSATools {
 
     /**
      * 随机生成RSA秘钥对
-     * 
+     *
      * @param keySize 秘钥长度
      * @return 秘钥对，其中公钥编码格式：X.509，私钥编码格式：PKCS#8
      * @throws NoSuchAlgorithmException
@@ -180,7 +180,7 @@ public class RSATools {
      * 公钥编码格式：X.509，私钥编码格式：PKCS#8
      * 并且返回 模数 和 指数
      * </pre>
-     * 
+     *
      * @param keySize
      * @return 包含key：
      * @throws NoSuchAlgorithmException
@@ -208,7 +208,7 @@ public class RSATools {
 
     /**
      * 使用模和指数生成RSA公钥
-     * 
+     *
      * @param modulus  模
      * @param exponent 指数
      * @return
@@ -226,7 +226,7 @@ public class RSATools {
 
     /**
      * 使用模和指数生成RSA私钥
-     * 
+     *
      * @param modulus  模
      * @param exponent 指数
      * @return
@@ -245,7 +245,7 @@ public class RSATools {
     /**
      * 获取公钥<br>
      * 公钥是 X.509 编码的
-     * 
+     *
      * @param buffer 公钥字节数组
      * @return
      * @throws NoSuchAlgorithmException
@@ -263,7 +263,7 @@ public class RSATools {
      * 私钥是 PKCS8 编码的
      * The Public-Key Cryptography Standards (PKCS)是由美国RSA数据安全公司及其合作伙伴制定的一组公钥密码学标准
      * </pre>
-     * 
+     *
      * @param buffer 私钥字节数组
      * @return
      * @throws NoSuchAlgorithmException
@@ -278,7 +278,7 @@ public class RSATools {
     /**
      * 简单公钥加密<br>
      * 自动计算分片
-     * 
+     *
      * @param publicKey base64编码的X.509格式公钥
      * @param cleartext 明文内容，使用UTF8编码转成字节数组
      * @return base64编码的密文
@@ -295,7 +295,7 @@ public class RSATools {
 
     /**
      * 公钥加密
-     * 
+     *
      * @param publicKey    公钥
      * @param padding      填充方式
      * @param cleartext    明文
@@ -326,7 +326,7 @@ public class RSATools {
     /**
      * 简单公钥解密<br>
      * 自动计算分片
-     * 
+     *
      * @param publicKey  base64编码的X.509格式公钥
      * @param ciphertext base64编码的密文
      * @return UTF-8编码的字符串
@@ -343,7 +343,7 @@ public class RSATools {
 
     /**
      * 公钥解密
-     * 
+     *
      * @param publicKey 公钥
      * @param padding   填充方式
      * @param crypttext 经过私钥加密后的密文
@@ -364,7 +364,7 @@ public class RSATools {
 
     /**
      * 简单私钥加密<br>
-     * 
+     *
      * @param privateKey base64编码的PKCS#8格式私钥
      * @param cleartext  明文内容，使用UTF8编码转成字节数组
      * @return base64编码的密文
@@ -382,7 +382,7 @@ public class RSATools {
 
     /**
      * 私钥加密
-     * 
+     *
      * @param privateKey   私钥
      * @param padding      填充方式
      * @param cleartext    明文
@@ -414,7 +414,7 @@ public class RSATools {
     /**
      * 简单私钥解密<br>
      * 自动计算分片
-     * 
+     *
      * @param privateKey base64编码的PKCS#8格式私钥
      * @param ciphertext base64编码的密文
      * @return UTF-8编码的字符串
@@ -431,7 +431,7 @@ public class RSATools {
 
     /**
      * 私钥解密
-     * 
+     *
      * @param privateKey 私钥
      * @param padding    填充方式
      * @param crypttext  经过公钥加密的密文
@@ -461,7 +461,7 @@ public class RSATools {
 
     /**
      * 解密算法
-     * 
+     *
      * @param algorithm “算法/模式/填充”或“算法”如："RSA"、"RSA/ECB/PKCS1Padding"、"RSA/ECB/NoPadding"
      * @param key       公钥 或者 私钥
      * @param crypttext 加密后的密文字节数组，需要是秘钥长度的整数倍
@@ -502,7 +502,7 @@ public class RSATools {
 
     /**
      * 加密方法
-     * 
+     *
      * @param algorithm    “算法/模式/填充”或“算法”如："RSA"、"RSA/ECB/PKCS1Padding"、"RSA/ECB/NoPadding"
      * @param key          公钥 或者 私钥
      * @param cleartext    输入的明文内容字节数组

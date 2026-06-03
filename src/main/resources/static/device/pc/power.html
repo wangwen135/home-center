@@ -1,1 +1,177 @@
-<!DOCTYPE html><html lang="zh-CN"><head>    <meta charset="UTF-8">    <meta name="viewport" content="width=device-width, initial-scale=1.0">    <title>电脑远程开关机控制</title>    <link href="/lib/element-ui/element-ui.css" rel="stylesheet">    <style>        .container {            max-width: 800px;            margin: 20px auto;            padding: 20px;        }        .pc-card {            margin-bottom: 20px;            padding: 20px;            border: 1px solid #eee;            border-radius: 8px;            background-color: rgba(255, 255, 255, 0.9);            box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);        }        .button-group {            margin-top: 15px;        }        .status-text {            margin-top: 10px;            color: #409EFF;            font-size: 14px;        }        .status-text.error {            color: #F56C6C;            font-weight: 500;        }        .global-controls {            margin-bottom: 30px;            text-align: center;            padding: 20px;            background: #f8f9fa;            border-radius: 8px;            box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);        }        .global-controls .el-button {            margin: 0 10px;            min-width: 120px;            font-weight: 500;        }        body {            background-color: #f5f7fa;        }        h2, h3 {            color: #303133;            margin-bottom: 15px;        }        .pc-info {            color: #606266;            margin: 5px 0;            font-size: 14px;        }    </style></head><body>    <div id="app" class="container">        <h2>电脑远程控制</h2>                <div class="global-controls">            <el-button type="success" size="medium" @click="handleGlobalAction('on')" :loading="globalLoading">                全部开机            </el-button>            <el-button type="danger" size="medium" @click="handleGlobalAction('off')" :loading="globalLoading">                全部关机            </el-button>        </div>                <div v-for="device in devices" :key="device.id" class="pc-card">            <h3>{{device.name}}</h3>            <p class="pc-info">{{device.description}}</p>            <p class="pc-info">IP地址: {{device.ipAddress}}</p>            <p class="pc-info">MAC地址: {{device.macAddress}}</p>            <div class="button-group">                <el-button type="success"                     @click="sendPowerCommand('on', device.id)"                     :loading="device.loading">                    开机                </el-button>                <el-button type="danger"                     @click="sendPowerCommand('off', device.id)"                     :loading="device.loading">                    关机                </el-button>            </div>            <p :class="['status-text', device.status_type]">{{device.status || ''}}</p>        </div>    </div>    <script src="/lib/vue/vue.min.js"></script>    <script src="/lib/element-ui/element-ui.js"></script>    <script src="/lib/axios/axios.min.js"></script>    <script>        new Vue({            el: '#app',            data: {                devices: [],                globalLoading: false            },            created() {                this.loadDevices();            },            methods: {                async loadDevices() {                    try {                        const response = await axios.get('/device/pc/devices');                        this.devices = response.data.data.map(device => ({                            ...device,                            loading: false,                            status: '',                            status_type: 'success'                        }));                    } catch (error) {                        this.$message.error('加载设备列表失败');                    }                },                                async sendPowerCommand(action, deviceId) {                    const device = this.devices.find(d => d.id === deviceId);                    if (!device) return;                                        device.loading = true;                    device.status = '正在发送指令...';                                        try {                        const response = await axios.post(`/device/pc/power/${deviceId}/${action}`);                        if (response.data.status === 'success') {                            device.status = response.data.message;                            device.status_type = 'success';                            this.$message.success(response.data.message);                        } else {                            throw new Error(response.data.message);                        }                    } catch (error) {                        const message = error.response?.data?.message || error.message;                        device.status = '操作失败: ' + message;                        device.status_type = 'error';                        this.$message.error(device.status);                    } finally {                        device.loading = false;                    }                },                async handleGlobalAction(action) {                    this.globalLoading = true;                    const promises = this.devices.map(device =>                         this.sendPowerCommand(action, device.id)                    );                                        try {                        await Promise.all(promises);                        this.$message.success(`已发送${action === 'on' ? '开机' : '关机'}指令到所有电脑`);                    } catch (error) {                        this.$message.error('部分设备操作失败，请查看详细状态');                    } finally {                        this.globalLoading = false;                    }                }            }        });    </script></body></html> 
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>电脑远程开关机控制</title>
+    <link href="/lib/element-ui/element-ui.css" rel="stylesheet">
+    <style>
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+
+        .pc-card {
+            margin-bottom: 20px;
+            padding: 20px;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            background-color: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+        }
+
+        .button-group {
+            margin-top: 15px;
+        }
+
+        .status-text {
+            margin-top: 10px;
+            color: #409EFF;
+            font-size: 14px;
+        }
+
+        .status-text.error {
+            color: #F56C6C;
+            font-weight: 500;
+        }
+
+        .global-controls {
+            margin-bottom: 30px;
+            text-align: center;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+        }
+
+        .global-controls .el-button {
+            margin: 0 10px;
+            min-width: 120px;
+            font-weight: 500;
+        }
+
+        body {
+            background-color: #f5f7fa;
+        }
+
+        h2, h3 {
+            color: #303133;
+            margin-bottom: 15px;
+        }
+
+        .pc-info {
+            color: #606266;
+            margin: 5px 0;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div id="app" class="container">
+        <h2>电脑远程控制</h2>
+
+        <div class="global-controls">
+            <el-button type="success" size="medium" @click="handleGlobalAction('on')" :loading="globalLoading">
+                全部开机
+            </el-button>
+            <el-button type="danger" size="medium" @click="handleGlobalAction('off')" :loading="globalLoading">
+                全部关机
+            </el-button>
+        </div>
+
+        <div v-for="device in devices" :key="device.id" class="pc-card">
+            <h3>{{device.name}}</h3>
+            <p class="pc-info">{{device.description}}</p>
+            <p class="pc-info">IP地址: {{device.ipAddress}}</p>
+            <p class="pc-info">MAC地址: {{device.macAddress}}</p>
+            <div class="button-group">
+                <el-button type="success"
+                    @click="sendPowerCommand('on', device.id)"
+                    :loading="device.loading">
+                    开机
+                </el-button>
+                <el-button type="danger"
+                    @click="sendPowerCommand('off', device.id)"
+                    :loading="device.loading">
+                    关机
+                </el-button>
+            </div>
+            <p :class="['status-text', device.status_type]">{{device.status || ''}}</p>
+        </div>
+    </div>
+
+    <script src="/lib/vue/vue.min.js"></script>
+    <script src="/lib/element-ui/element-ui.js"></script>
+    <script src="/lib/axios/axios.min.js"></script>
+    <script>
+        new Vue({
+            el: '#app',
+            data: {
+                devices: [],
+                globalLoading: false
+            },
+            created() {
+                this.loadDevices();
+            },
+            methods: {
+                async loadDevices() {
+                    try {
+                        const response = await axios.get('/device/pc/devices');
+                        this.devices = response.data.data.map(device => ({
+                            ...device,
+                            loading: false,
+                            status: '',
+                            status_type: 'success'
+                        }));
+                    } catch (error) {
+                        this.$message.error('加载设备列表失败');
+                    }
+                },
+
+                async sendPowerCommand(action, deviceId) {
+                    const device = this.devices.find(d => d.id === deviceId);
+                    if (!device) return;
+
+                    device.loading = true;
+                    device.status = '正在发送指令...';
+
+                    try {
+                        const response = await axios.post(`/device/pc/power/${deviceId}/${action}`);
+                        if (response.data.status === 'success') {
+                            device.status = response.data.message;
+                            device.status_type = 'success';
+                            this.$message.success(response.data.message);
+                        } else {
+                            throw new Error(response.data.message);
+                        }
+                    } catch (error) {
+                        const message = error.response?.data?.message || error.message;
+                        device.status = '操作失败: ' + message;
+                        device.status_type = 'error';
+                        this.$message.error(device.status);
+                    } finally {
+                        device.loading = false;
+                    }
+                },
+
+                async handleGlobalAction(action) {
+                    this.globalLoading = true;
+                    const promises = this.devices.map(device =>
+                        this.sendPowerCommand(action, device.id)
+                    );
+
+                    try {
+                        await Promise.all(promises);
+                        this.$message.success(`已发送${action === 'on' ? '开机' : '关机'}指令到所有电脑`);
+                    } catch (error) {
+                        this.$message.error('部分设备操作失败，请查看详细状态');
+                    } finally {
+                        this.globalLoading = false;
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

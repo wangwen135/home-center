@@ -1,0 +1,16 @@
+* text=auto eol=lf
+
+# Binary assets
+*.class binary
+*.jar binary
+*.war binary
+*.tar.gz binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.ico binary
+*.ttf binary
+*.woff binary
+*.woff2 binary
