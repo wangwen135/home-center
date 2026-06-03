@@ -1,6 +1,6 @@
 package com.wwh.home.center.service.extend.impl;
 
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSONObject;
 import com.wwh.home.center.model.vo.WeatherVo;
 import com.wwh.home.center.service.extend.WeatherProvider;
 import lombok.extern.slf4j.Slf4j;
@@ -23,14 +23,14 @@ import org.springframework.web.client.RestTemplate;
 @Service
 public class TuLiuWeatherProvider implements WeatherProvider {
     // 纬度
-    public static String LAT = "28.152314";
+    public static String LAT = System.getenv().getOrDefault("TULIU_WEATHER_LAT", "39.9042");
     // 经度
-    public static String LON = "113.06269";
+    public static String LON = System.getenv().getOrDefault("TULIU_WEATHER_LON", "116.4074");
 
-    public static String CLIENT_ID = "diduoduo";
+    public static String CLIENT_ID = System.getenv().getOrDefault("TULIU_WEATHER_CLIENT_ID", "change-me");
 
-    //public static String WEATHER_URL = "http://localhost:51089/common/weather/condition";
-    public static String WEATHER_URL = "https://tc-gateway.tuliu.com/common/weather/condition?client_id=diduoduo";
+    public static String WEATHER_URL = System.getenv().getOrDefault("TULIU_WEATHER_URL",
+            "https://example.com/common/weather/condition?client_id=change-me");
 
     @Autowired
     private RestTemplate restTemplate;

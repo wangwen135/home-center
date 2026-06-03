@@ -5,59 +5,122 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="wwh">
     <meta name="author" content="wwh">
-    <title>我的家庭中心</title>
+    <title>Home Center</title>
 
-    <!-- Bootstrap core CSS -->
-    <link href="/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        .bd-placeholder-img {
-            font-size: 1.125rem;
-            text-anchor: middle;
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            user-select: none;
-        }
-
-        @media (min-width: 768px) {
-            .bd-placeholder-img-lg {
-                font-size: 3.5rem;
-            }
-        }
-    </style>
-    <!-- Custom styles for this template -->
-    <link href="/css/cover.css" rel="stylesheet">
+    <link rel="stylesheet" href="bootstrap/css/bootstrap.css">
+    <link rel="stylesheet" href="bootstrap/icons/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/index.css">
+    <script src="bootstrap/js/bootstrap.bundle.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/index.js"></script>
 </head>
 
-<body class="d-flex h-100 text-center text-white bg-dark">
+<body class="d-flex h-100 text-center text-white ">
+<div class="d-flex w-100 h-100 p-3 mx-auto flex-column">
+    <header class="mb-2 header">
+        <h3 class="float-md-start mb-0">Home Center</h3>
 
-<div class="cover-container d-flex w-100 h-100 p-3 mx-auto flex-column">
-    <header class="mb-auto">
-        <div>
-            <h3 class="float-md-start mb-0">王某某的家庭中心</h3>
-            <nav class="nav nav-masthead justify-content-center float-md-end">
-                <a class="nav-link active" aria-current="page" href="#">快速入口</a>
-                <a class="nav-link" href="#">资料</a>
-                <a class="nav-link" href="#">软件</a>
-                <a class="nav-link" href="#">硬件</a>
-            </nav>
+        <div class="ms-auto"></div>
+
+        <nav class="nav nav-masthead justify-content-center float-md-end">
+            <a class="nav-link active" aria-current="page" href="#">快速入口</a>
+
+            <a class="nav-link dropdown-toggle" href="#" id="hardwareDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                设备
+            </a>
+            <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="hardwareDropdown">
+                <li><a class="dropdown-item" href="/device/camera/video.html" target="_blank">监控视频</a></li>
+                <li><a class="dropdown-item" href="/device/pc/power.html" target="_blank">电脑远程控制</a></li>
+            </ul>
+            <div class="ms-2"></div>
+            <a class="nav-link" href="#">资料</a>
+            <a class="nav-link" href="#">软件</a>
+
+            <a class="nav-link" href="note/app.html" target="_blank">笔记</a>
+        </nav>
+
+        <div class="avatar-container">
+            <a href="profile.html" target="_blank" class="text-decoration-none">
+                <img id="avatar" class="avatar-icon" src="bootstrap/icons/person-gear.svg" alt="头像">
+            </a>
+            <div class="dropdown d-inline-block">
+                <button id="userName" class="btn btn-dark dropdown-toggle py-1" type="button" data-bs-toggle="dropdown"
+                        aria-expanded="false">
+                    user name
+                </button>
+                <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuLink">
+                    <li><span class="dropdown-item-text">角色：
+                        <span id="roleName" class="text-primary">管理员</span>
+                    </span></li>
+                    <li><a class="dropdown-item" href="profile.html" target="_blank">个人信息</a></li>
+                    <li><a class="dropdown-item" href="admin.html">管理后台</a></li>
+                    <li><a class="dropdown-item" href="/doc.html" target="_blank">API文档</a></li>
+                    <li>
+                        <hr class="dropdown-divider">
+                    </li>
+                    <li><a class="dropdown-item" href="/logout">退出</a></li>
+
+                </ul>
+            </div>
         </div>
+
     </header>
 
+    <div id="systemLabContainer" class="mb-auto flex-row">
+        <!--
+                <div class="sys-lab status-dot" tabindex="0" data-status="online" data-select="true">
+                    <img src="/common/img/view/icon/pve.png" alt="..." class="sys-icon">
+                    <span class="sys-text">PVE 1</span>
+                </div>
+         -->
+
+    </div>
+
     <main class="px-3">
-        <h1>Cover your page.</h1>
-        <p class="lead">Cover is a one-page template for building simple and beautiful home pages. Download, edit the
-            text, and add your own fullscreen background photo to make it your own.</p>
-        <p class="lead">
-            <a href="#" class="btn btn-lg btn-secondary fw-bold border-white bg-white">Learn more</a>
-        </p>
+        <div id="sysDescContainer" class="mx-auto shadow sys-desc-container">
+            <img id="sysIcon" src="/common/img/view/icon/pve.png" alt="" class="sys-desc-icon"/>
+            <button type="button" class="btn-close btn-close-white sys-desc-close" aria-label="Close"
+                    onclick="closeSysDesc()"></button>
+            <h3 id="sysName">
+                系统名称
+            </h3>
+            <p id="sysDesc" class="lead">系统说明A系统说明</p>
+            <p>
+                <code id="sysRemark">这个地方是其他的说明信息，比如用户名，密码，注意事项等</code>
+            </p>
+
+            <div class="lead d-flex justify-content-center m-3">
+                <div class="w-100">
+                    <a id="sysInternalAddr-A" href="#" target="_blank" class="btn text-success fw-bold bg-white"><i
+                            class="bi bi-arrow-right-circle"></i>
+                        内网地址访问</a>
+                    <span id="sysInternalAddr" class="d-block text-break">http://localhost:8080</span>
+                </div>
+                <span class="bg-light w-3px mx-3"></span>
+                <div class="w-100">
+                    <a id="sysInternetAddr-A" href="#" target="_blank" class="btn text-primary fw-bold bg-white"><i
+                            class="bi bi-globe"></i> 公网地址访问</a>
+                    <span id="sysInternetAddr" class="d-block text-break">https://example.com</span>
+                </div>
+            </div>
+
+            <div class="progress-bar"></div>
+
+        </div>
     </main>
 
-    <footer class="mt-auto text-white-50">
-        <p>Cover template for <a href="https://getbootstrap.com/" class="text-white">Bootstrap</a>, by <a
-                href="https://twitter.com/mdo" class="text-white">@mdo</a>.</p>
+    <footer class="mt-auto text-white-50 ">
+        <p class="mb-0">
+            <!--由
+            <a href="https://example.com/" class="text-white">作者</a>
+            创建于2024年-->
+        </p>
     </footer>
 </div>
 
-
+<div class="parallax-container">
+    <img class="parallax-image" src="/bootstrap/icons/house.svg" alt="">
+</div>
 </body>
 </html>

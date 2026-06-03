@@ -1,0 +1,719 @@
+/*############# 主体样式 #############*/
+/*设置滚动条宽度和背景颜色*/
+/*
+::-webkit-scrollbar {
+    width: 8px; !*横向滚动条*!
+    height: 8px; !*纵向滚动条*!
+    background-color: #F5F5F5;
+}
+
+!* 设置滚动轨迹的样式 *!
+::-webkit-scrollbar-track {
+    background: #fdfdfd;
+}
+
+!* 设置滚动滑块的样式 *!
+::-webkit-scrollbar-thumb {
+    background: #bababa;
+}
+
+!* 当鼠标悬停在滚动滑块上时的样式 *!
+::-webkit-scrollbar-thumb:hover {
+    background: #868686;
+}
+*/
+
+/* ======================= 框架样式 ======================= */
+
+.frame-container {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    height: 100vh;
+}
+
+.note-control {
+    flex-grow: 0;
+    flex-shrink: 0;
+    background-color: #F6F6F6;
+    padding-top: 2px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    border-right: 1px solid;
+    border-color: #c1c1c1;
+}
+
+.note-list {
+    flex-shrink: 0;
+    width: 280px;
+    background-color: rgba(246, 246, 246, 0.12);
+    /*padding: 0px 2px 2px 2px;*/
+    /*overflow: auto;*/
+    display: flex;
+    flex-direction: column;
+}
+
+.note-divider {
+    width: 5px;
+    cursor: col-resize;
+    background-color: #ddd;
+    user-select: none;
+    flex-grow: 0;
+    flex-shrink: 0;
+}
+
+.note-divider:hover {
+    background-color: #a7a9ac;
+}
+
+.note-content-container {
+    flex-grow: 1;
+    flex-shrink: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.note-extends {
+
+}
+
+/*############# 控制按钮 #############*/
+
+.note-control button {
+    margin: 2px 4px 6px 4px;
+    font-size: 1.2rem;
+}
+
+/*############# 菜单切换 #############*/
+
+
+/*############# 文件列表 #############*/
+.tab-file-list {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    overflow: hidden;
+}
+
+.file-list-ctrl {
+    display: flex;
+    justify-content: space-evenly;
+    flex-shrink: 0;
+    padding: 2px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.3);
+}
+
+/*.file-list-ctrl > button {
+    padding: 2px 4px;
+}*/
+
+/*############# 菜单树 #############*/
+.tree {
+    flex-grow: 1;
+    max-height: 100%;
+    overflow-y: scroll;
+    position: relative;
+    padding: 2px;
+    /*border: 1px solid;*/
+    /*border-radius: 0.2rem;*/
+}
+
+/*其他ul*/
+.tree ul {
+    list-style: none;
+    margin-left: 0.75rem;
+    padding-left: 0.5rem;
+    /*border-left: 1px solid transparent;*/
+    border-left: 1px solid #eae9e9;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+/*树下的第一个ul*/
+.tree > ul {
+    border-left: 0px solid transparent;
+    margin-left: 1px;
+    padding-left: 1px;
+}
+
+/**
+ * 隐藏下级
+ */
+.tree li > a.closed + ul {
+    display: none;
+    /*height: 0px;*/
+}
+
+.tree li {
+    user-select: none;
+    display: flex;
+    flex-direction: column;
+}
+
+.tree li > a {
+    cursor: pointer;
+    width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    padding-left: 0.25rem;
+    border-radius: 0.25rem;
+    /*transition: all 0.5s;*/
+
+    display: flex;
+    align-items: center;
+
+    color: inherit; /* 继承父元素的文字颜色 */
+    text-decoration: none; /* 去除下划线 */
+    background-color: transparent; /* 背景透明 */
+}
+
+.tree li > a:hover {
+    background-color: #ececec;
+}
+
+/*label选中样式*/
+.tree li > a[data-select="true"] {
+    background-color: #e0dfdf;
+    /*border-left: #0000ff36 1px solid;*/
+}
+
+/*选中的下级ul出现一个竖线*/
+.tree li > a[data-select="true"] + ul {
+    border-left: 1px solid #000000;
+}
+
+
+/*图标默认样式*/
+.tree li > a::before,
+.tree li > a::after {
+    /*bootstrap-icons*/
+    display: inline-block;
+    font-family: bootstrap-icons !important;
+    font-style: normal;
+    font-weight: normal !important;
+    font-variant: normal;
+    text-transform: none;
+    line-height: 1;
+    vertical-align: -.125em;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+
+}
+
+.tree li > a::before {
+    content: "\F373";
+    color: #29292d;
+
+    padding-right: 2px;
+    transition: all 0.3s ease;
+
+}
+
+/*文件夹样式*/
+.tree li > a[data-type="DIR"] {
+    /*padding-left: 0.14rem;*/
+}
+
+/*文件夹收起样式*/
+.tree li > a[data-type="DIR"].closed::before {
+    /*content: url("../bootstrap/icons/folder.svg");*/
+    /*content: "\f3d9";*/
+    color: black;
+    transform: rotate(-90deg);
+}
+
+/*打开的文件夹*/
+.tree li > a[data-type="DIR"]::before {
+    /*font-size: small;*/
+
+    content: "\F282"; /*向下的箭头*/
+    transform: rotate(0deg);
+
+    /*content: "\F22C";*/
+    color: blue;
+}
+
+/*下面是各个文件类型的图标*/
+
+.tree li > a[data-type="md"]::before {
+    content: "\F750";
+}
+
+.tree li > a[data-type="java"]::before {
+    content: "\F74A";
+}
+
+.tree li > a[data-type="json"]::before {
+    content: "\F791";
+}
+
+.tree li > a[data-type="txt"]::before {
+    content: "\F766";
+}
+
+.tree li > a[data-type="pdf"]::before {
+    content: "\F756";
+}
+
+/*#### 标题后面的图标 ####*/
+.tree li > a::after {
+    margin-left: auto;
+}
+
+/*标星的*/
+.tree li > a[data-asterisk="true"]::after {
+    content: "\F586";
+    color: #ffaa00;
+    margin-left: auto;
+}
+
+
+/*收藏的*/
+.tree li > a[data-favorite="true"]::after {
+    content: "\F19B";
+    color: #dc3545;
+
+}
+
+/** 标星 + 收藏 **/
+.tree li > a[data-favorite="true"][data-asterisk="true"]::after {
+    content: "\F19B \F586";
+    color: #dc3545;
+}
+
+/*##########################################################*/
+
+/*############# markdown #############*/
+
+/*标题区域*/
+.note-title-area {
+    flex-shrink: 0;
+
+    padding: 2px 6px 0px 6px;
+    margin-bottom: 6px;
+
+    /*border-bottom: 1px solid;*/
+    /*border-color: rgba(0, 0, 0, 0.3);*/
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/*使用可编辑的DIV作为标题*/
+.note-title {
+    min-width: 20rem;
+    max-width: 50%;
+    margin-right: 1rem;
+    padding: 1px;
+    border: none;
+    border-bottom: 1px solid #e9e9e9;
+    outline: none;
+    font-size: 1.5rem;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.note-title:focus {
+    border-bottom: 1px solid black; /* 获得焦点时，底部横线变色 */
+}
+
+/*使用文本框做标题*/
+.note-title-input {
+    min-width: 20rem;
+    max-width: 50%;
+
+    margin-right: 1rem;
+
+    position: relative;
+
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+/*文本框*/
+.note-title-input input {
+    display: inline-block;
+    outline: none;
+    width: 100%;
+    /*height: 100%;*/
+
+    border: none;
+    border-bottom: 1px solid #e9e9e9;
+    padding: 1px 2px 1px 2px;
+    font-size: 1.5rem;
+
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+
+.note-title-input input:focus {
+    border-bottom: 1px solid black;
+}
+
+.note-title-input input:disabled {
+    background: transparent;
+    color: black;
+}
+
+/*是文本框自动增长的span*/
+.note-title-input span {
+    display: inline-block;
+    outline: none;
+    /*width: 100%;*/
+    /*height: 100%;*/
+
+    /*为了保证高度，样式同文本框*/
+    border: none;
+    border-bottom: 1px solid #e9e9e9;
+    padding: 1px 2px 1px 2px;
+    font-size: 1.5rem;
+
+    visibility: hidden;
+}
+
+
+/*修改时间等*/
+.file-info-area {
+    overflow: hidden;
+    flex-shrink: 10;
+    white-space: nowrap;
+    color: #c5c3c3;
+    display: flex;
+    align-items: center;
+    margin-left: auto;
+    margin-right: 1rem;
+}
+
+.file-info-path {
+    font-size: 0.9rem;
+}
+
+.file-info-time {
+    font-size: 0.8rem;
+    margin-left: 1.5rem;
+    line-height: 1.2;
+}
+
+.note-title-toolbar {
+    flex-shrink: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.note-title-toolbar button {
+    margin-left: 3px;
+}
+
+/*编辑器和查看器*/
+.editor-viewer {
+    flex-grow: 1;
+
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: center;
+    align-items: stretch;
+    width: 100%;
+    overflow: hidden;
+}
+
+/*编辑器/查看器工具栏*/
+.editor-preview-toolbar {
+    flex-shrink: 0;
+    flex-grow: 0;
+
+    display: flex;
+    align-items: center;
+    width: 100%;
+    white-space: nowrap;
+
+    padding-left: 6px;
+    /*overflow: hidden;*/
+}
+
+/*同步滚动按钮样式*/
+.sync-scrolling-icon {
+    padding-left: 6px;
+    padding-right: 6px;
+}
+
+.sync-scrolling-icon i {
+    border-left: 2px solid #c1c1c1;
+    border-right: 2px solid #c1c1c1;
+}
+
+.sync-scrolling-icon[data-select="true"] i {
+    border-color: blue;
+}
+
+/*文本编辑器*/
+.editor-wrapper {
+    flex-grow: 1;
+    flex-shrink: 1;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/*==============================*/
+/*文本编辑部分*/
+.editor-container {
+    flex-grow: 1;
+    overflow: hidden;
+    border: 1px solid #eee;
+    display: flex;
+    font-family: monospace;
+}
+
+.editor-container:focus-within {
+    border: 1px solid #5d5d5d;
+}
+
+.line-numbers {
+    padding: 10px 0px 50px 0px;
+    border-right: 1px solid #cccccc;
+    background: #eeeeee;
+    text-align: right;
+    min-width: 2rem;
+
+    font-family: Consolas, Courier;
+    font-size: 16px;
+
+    overflow: hidden;
+}
+
+.line-numbers span {
+    display: block;
+    width: 100%;
+    text-align: right;
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+.line-numbers .selected {
+    color: blue;
+    background-color: #bdd5e3;
+}
+
+.editor-textarea {
+    flex-grow: 1;
+
+    resize: none;
+    outline: none;
+    border: 0px;
+    padding: 10px;
+
+    font-family: Consolas, Courier;
+    font-size: 16px;
+
+    overflow-y: scroll;
+    overflow-x: auto;
+    white-space: nowrap;
+    /*width: 100%;
+    height: 100%;*/
+
+}
+
+/*========================*/
+
+/*编辑和预览的中间部分*/
+.editor-preview-divider {
+    flex-shrink: 0;
+    flex-grow: 0;
+    width: 10px;
+    background: #eee;
+    cursor: pointer;
+
+}
+
+.editor-preview-divider:hover {
+    background: #bacce0;
+}
+
+.mt-36px {
+    margin-top: 36px;
+}
+
+
+.toggle-preview-btn {
+    margin: 0;
+    border-radius: 0;
+    background: #eee;
+    border: 0px;
+    padding-right: 0px;
+}
+
+/*markdown渲染部分*/
+.viewer-wrapper {
+    flex-grow: 1;
+    flex-shrink: 1;
+    width: 100%;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.markdown-container {
+    overflow: hidden;
+    position: relative;
+    border: 1px solid #eee;
+    flex-grow: 1;
+    background-color: #ffffff;
+}
+
+.markdown-absolute-container {
+    position: absolute;
+    top: 0px;
+    right: 20px;
+    z-index: 1;
+    padding: 10px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    max-height: 100%;
+}
+
+.markdown-absolute-toolbar {
+    display: flex;
+    flex-direction: row-reverse;
+}
+
+/*目录*/
+.markdown-catalog-container {
+    width: 260px;
+    min-height: 360px;
+    margin-top: 5px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #fbfbfb;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.2);
+}
+
+.markdown-catalog-title {
+    font-size: 1.2rem;
+    text-align: center;
+    border-bottom: 1px solid #a7a5a5;
+    margin-bottom: 5px;
+}
+
+.markdown-catalog-list {
+    overflow: auto;
+}
+
+.markdown-catalog-item {
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.markdown-catalog-item:hover {
+    background-color: #eeeeee;
+}
+
+
+.markdown-catalog-item::before {
+    /*bootstrap-icons*/
+    display: inline-block;
+    font-family: bootstrap-icons !important;
+    font-style: normal;
+    font-weight: normal !important;
+    font-variant: normal;
+    text-transform: none;
+    line-height: 1;
+    vertical-align: -.125em;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+
+    padding-left: 5px;
+    padding-right: 5px;
+    color: #9696cb;
+
+}
+
+.markdown-catalog-item[data-headline="H1"]::before {
+    content: "\f5f1";
+}
+
+.markdown-catalog-item[data-headline="H2"]::before {
+    content: "\f5f2";
+    margin-left: 0.5rem;
+}
+
+.markdown-catalog-item[data-headline="H3"]::before {
+    content: "\f5f3";
+    margin-left: 1rem;
+}
+
+.markdown-catalog-item[data-headline="H4"]::before {
+    content: "\f8dc";
+    margin-left: 1.5rem;
+}
+
+.markdown-catalog-item[data-headline="H5"]::before {
+    content: "\f8dd";
+    margin-left: 2rem;
+}
+
+.markdown-catalog-item[data-headline="H6"]::before {
+    content: "\f8de";
+    margin-left: 2.5rem;
+}
+
+.markdown-scrollbar {
+    /*overflow-y: scroll;*/
+    overflow-y: auto;
+    overflow-x: auto;
+    width: 100%;
+    height: 100%;
+}
+
+.markdown-content {
+    margin-left: auto !important;
+    margin-right: auto !important;
+    max-width: 1020px;
+    padding: 1rem;
+    min-height: 100%;
+}
+
+/*底部栏 样式*/
+.foot-bar-container {
+    flex-grow: 0;
+    flex-shrink: 0;
+    display: flex;
+    justify-content: space-around;
+    font-size: 0.8rem;
+    color: rgba(0, 0, 0, 0.65);
+    background: #f6f6f6;
+    white-space: nowrap;
+    overflow: hidden;
+    padding: 2px;
+    border: 1px solid #ddd;
+    width: 100%;
+}
+
+.foot-bar-container-absolute {
+    position: absolute;
+    left: 1px;
+    bottom: 0px;
+    font-size: 0.8rem;
+    color: rgba(0, 0, 0, 0.65);
+    background: #f6f6f6;
+    white-space: nowrap;
+    overflow: hidden;
+    padding: 2px;
+    border: 1px solid #ddd;
+    width: 2rem;
+    text-align: center;
+}

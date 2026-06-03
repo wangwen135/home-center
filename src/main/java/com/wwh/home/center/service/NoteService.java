@@ -1,0 +1,39 @@
+package com.wwh.home.center.service;
+
+import com.wwh.home.center.model.vo.NoteFileVo;
+import com.wwh.home.center.model.vo.NotePathVo;
+
+import java.io.File;
+import java.util.List;
+
+/**
+ * 笔记服务
+ *
+ * @author wangwh
+ * @date 2024/02/22
+ */
+public interface NoteService {
+
+    File getFileByPath(String path);
+
+    List<NotePathVo> listAll();
+
+    List<NotePathVo> list(String path);
+
+    NoteFileVo getNote(String path);
+
+    NoteFileVo saveNote(NoteFileVo fileVo);
+
+    NotePathVo createDir(String path, String name);
+
+    NotePathVo createFile(String path, String name);
+
+    boolean rename(String filePath, String newName);
+
+    boolean dirRename(String path, String newName);
+
+    boolean deleteDir(String path);
+
+    boolean deleteFile(String filePath);
+}
+

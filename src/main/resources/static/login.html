@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-KW3KSFY9WM"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'G-KW3KSFY9WM');
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录</title>
+    <style>
+
+        body {
+            background-color: #121212ba; /* 深色背景色 */
+            color: #fff; /* 文字颜色 */
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            height: 100vh;
+            margin: 0;
+        }
+
+        header {
+            opacity: 0.5;
+        }
+
+        footer {
+            font-size: small;
+            color: rgba(0, 0, 0, 0.5);
+        }
+
+        .login-container {
+            background-color: #1e1e1e; /* 登录框背景色 */
+            padding: 6px 36px 16px 36px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            width: 280px;
+            text-align: center;
+        }
+
+        .login-container h2 {
+            margin-bottom: 25px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .form-group input {
+            box-sizing: border-box;
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #444;
+            border-radius: 4px;
+            background-color: #333;
+            color: #fff;
+        }
+
+        .form-group button {
+            width: 100%;
+            margin-top: 15px;
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            background-color: #4CAF50; /* 按钮颜色 */
+            color: #fff;
+            cursor: pointer;
+        }
+
+        .form-group button:hover {
+            background-color: #45a049; /* 鼠标悬停时的按钮颜色 */
+        }
+
+
+    </style>
+</head>
+
+<body>
+<header>
+    <h3>Home Center</h3>
+</header>
+<main class="login-container">
+    <h3>用户登录</h3>
+    <br>
+    <form onsubmit="return login()">
+        <div class="form-group">
+            <label for="username">用户名</label>
+            <input type="text" id="username" name="username" required>
+        </div>
+        <div class="form-group">
+            <label for="password">密 &nbsp; 码</label>
+            <input type="password" id="password" name="password" required>
+        </div>
+        <div class="form-group">
+            <button type="submit">登 &nbsp;&nbsp; 录</button>
+        </div>
+    </form>
+</main>
+<footer>
+    <p>
+        个人学习测试用
+    </p>
+</footer>
+
+<script>
+    function login() {
+        // 阻止表单默认提交行为
+        //event.preventDefault();
+
+        // 获取用户名和密码
+        const username = document.getElementById("username").value;
+        const password = document.getElementById("password").value;
+
+        // 创建一个 FormData 对象，用于发送表单数据
+        const formData = new FormData();
+        formData.append('username', username);
+        formData.append('password', password);
+
+        // 发送登录请求
+        fetch('/login', {
+            method: 'POST',
+            body: formData,
+        })
+            .then(response => response.json())
+            .then(result => {
+                // 检查登录是否成功
+                if (result.code == 200) {
+                    console.log("获取到token：" + result.data)
+                    // 登录成功，存储 token 到本地存储
+                    sessionStorage.setItem('token', result.data);
+
+                    //跳转地址控制
+                    // 获取当前页面 URL 中的参数
+                    const urlParams = new URLSearchParams(window.location.search);
+                    // 获取名为 "ref" 的参数的值
+                    const ref = urlParams.get('ref');
+                    if (ref != null && ref.length > 8) {
+                        //跳转到指定地址
+                        window.location.href = ref;
+                    } else {
+                        //跳转到首页
+                        window.location.href = '/index.html';
+                    }
+                } else {
+                    alert(result.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('发生错误，请稍后重试');
+            });
+
+        return false;
+    }
+</script>
+</body>
+
+</html>

@@ -1,52 +1,52 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE configuration>
 <configuration>
-	<property name="LOG_HOME" value="./logs" />
-	<property name="maxHistory" value="10" />
+    <property name="LOG_HOME" value="./logs"/>
+    <property name="maxHistory" value="10"/>
 
-	<!-- 控制台输出 -->
-	<appender name="STDOUT"
-		class="ch.qos.logback.core.ConsoleAppender">
-		<encoder charset="UTF-8">
-			<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%-5level] [%thread] [%logger{36}->%M\(%L\)] %msg%n</pattern>
-		</encoder>
-	</appender>
+    <!-- 控制台输出 -->
+    <appender name="STDOUT"
+              class="ch.qos.logback.core.ConsoleAppender">
+        <encoder charset="UTF-8">
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%-5level] [%thread] [%logger{36}->%M\(%L\)] %msg%n</pattern>
+        </encoder>
+    </appender>
 
-	<!-- 按天生成日志文件 -->
-	<appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-		<file>${LOG_HOME}/home-center.log</file>
-		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-			<FileNamePattern>${LOG_HOME}/home-center.%d{yyyy-MM-dd}.log</FileNamePattern>
-			<MaxHistory>${maxHistory}</MaxHistory>
-		</rollingPolicy>
-		<encoder charset="UTF-8">
-			<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%-5level] [%thread] [%logger{36}->%M\(%L\)] %msg%n</pattern>
-		</encoder>
-	</appender> 
-   
-	<!-- 开发环境 -->
-    <springProfile name="default | dev">
-       	<root level="INFO">
-			<appender-ref ref="STDOUT" />
-			<appender-ref ref="FILE" />
-		</root>
-		<logger name="com.wwh.home.center" level="DEBUG" />
+    <!-- 按天生成日志文件 -->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_HOME}/home-center.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <FileNamePattern>${LOG_HOME}/home-center.%d{yyyy-MM-dd}.log</FileNamePattern>
+            <MaxHistory>${maxHistory}</MaxHistory>
+        </rollingPolicy>
+        <encoder charset="UTF-8">
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%-5level] [%thread] [%logger{36}->%M\(%L\)] %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- 开发环境 -->
+    <springProfile name="default | dev | comp">
+        <root level="INFO">
+            <appender-ref ref="STDOUT"/>
+            <appender-ref ref="FILE"/>
+        </root>
+        <logger name="com.wwh.home.center" level="TRACE"/>
     </springProfile>
 
-	<!-- 测试环境 -->
+    <!-- 测试环境 -->
     <springProfile name="test">
-       	<root level="INFO">
-			<!--<appender-ref ref="STDOUT" />-->
-			<appender-ref ref="FILE" />
-		</root>
-		<logger name="com.wwh.home.center" level="DEBUG"/>
+        <root level="INFO">
+            <!--<appender-ref ref="STDOUT" />-->
+            <appender-ref ref="FILE"/>
+        </root>
+        <logger name="com.wwh.home.center" level="DEBUG"/>
     </springProfile>
 
-	<!-- 生产环境 -->
-	<springProfile name="stage | prod">
-		<root level="INFO">
-			<appender-ref ref="FILE" />
-		</root>
-	</springProfile>
+    <!-- 生产环境 -->
+    <springProfile name="stage | prod">
+        <root level="INFO">
+            <appender-ref ref="FILE"/>
+        </root>
+    </springProfile>
 
 </configuration>

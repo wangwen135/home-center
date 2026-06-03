@@ -1,0 +1,318 @@
+:root {
+    /*--bs-bg-opacity: 0.8;*/
+    /*--bs-dark-rgb: 33, 37, 41;*/
+}
+
+/*.bg-dark {*/
+/*    --bs-bg-opacity: 0.8;*/
+/*    background-color: rgba(var(--bs-dark-rgb), var(--bs-bg-opacity)) !important;*/
+/*}*/
+
+/* Custom default button */
+.btn-secondary,
+.btn-secondary:hover,
+.btn-secondary:focus {
+    color: #333;
+    text-shadow: none; /* Prevent inheritance from `body` */
+}
+
+/*
+ * Base structure
+ */
+
+body {
+    /*text-shadow: 0 .05rem .1rem rgba(0, 0, 0, .5);*/
+    box-shadow: inset 0 0 5rem rgba(0, 0, 0, .5);
+    /*背景图片*/
+    /*background-image: url('/images/wallpaper.jpg');*/
+    background: black;
+}
+
+/* 当屏幕尺寸小于这个尺寸时应用样式 */
+/* 上面的都会匹配，但是会使用最后匹配的一个*/
+/*
+@media screen and (max-width: 4096px) {
+    body {
+        background-image: url('/images/wallpaper-4096.jpg');
+    }
+}
+
+@media screen and (max-width: 2560px) {
+    body {
+        background-image: url('/images/wallpaper-2560.jpg');
+    }
+}
+
+@media screen and (max-width: 1920px) {
+    body {
+        background-image: url('/images/wallpaper-1920.jpg');
+    }
+}
+*/
+
+
+.cover-container {
+    max-width: 42em;
+}
+
+
+/*Header*/
+.header {
+    display: flex;
+    justify-content: space-between;
+}
+
+.avatar-container {
+    margin-left: 2rem
+}
+
+.avatar-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    /* border: 1px solid #fff; */
+    cursor: pointer;
+    background: white;
+}
+
+/*导航*/
+.nav-masthead .nav-link {
+    padding: .25rem 0;
+    font-weight: 700;
+    color: rgba(255, 255, 255, .5);
+    background-color: transparent;
+    border-bottom: .25rem solid transparent;
+}
+
+.nav-masthead .nav-link:hover,
+.nav-masthead .nav-link:focus {
+    border-bottom-color: rgba(255, 255, 255, .25);
+}
+
+.nav-masthead .nav-link + .nav-link {
+    margin-left: 1rem;
+}
+
+.nav-masthead .active {
+    color: #fff;
+    border-bottom-color: #fff;
+}
+
+/*################### 背景效果 ###################*/
+.parallax-container {
+    position: fixed;
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+    top: 0;
+    left: 0;
+    z-index: -101;
+}
+
+.parallax-image {
+    z-index: -100;
+    position: absolute;
+    top: 0;
+    left: 0;
+    animation: parallaxRotate 720s linear infinite;
+    /*animation: parallaxRotate 600s ease infinite;*/
+}
+
+@keyframes parallaxRotate {
+    0% {
+        transform: translate(0%, 0%) rotate(0deg) scale(0.4);
+        opacity: 0.2;
+    }
+    25% {
+        transform: translate(-50%, -50%) rotate(90deg) scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: translate(-50%, -50%) rotate(180deg) scale(0.6);
+        opacity: 0.8;
+    }
+    75% {
+        transform: translate(-50%, -50%) rotate(270deg) scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: translate(0%, 0%) rotate(360deg) scale(0.4);
+        opacity: 0.2;
+    }
+}
+
+/*###################################### 系统块效果 #####################################*/
+/*系统展示块*/
+.sys-lab {
+    /*max-width: 6rem;*/
+    display: inline-block;
+    margin: 0.6rem;
+    transition: color 0.3s ease, transform 0.1s ease-in-out;
+    position: relative;
+    cursor: pointer;
+    /*transition: box-shadow 0.3s ease-in-out;*/
+    /*border-top-left-radius: 1.25rem;*/
+    /*border-top-right-radius: 1.25rem;*/
+
+}
+
+.sys-lab:hover {
+    color: #0d6efd;
+    /*transform: scale(1.1);*/
+    /*transform: rotate(10deg);*/
+    transform: translateY(-2px);
+    /*box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.3);*/
+    /*border-bottom: 1px solid #dee2e6;*/
+}
+
+/*底部的动画横条*/
+.sys-lab::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    width: 0%;
+    height: 2px;
+    background-color: rgba(182, 216, 234, 0.07);
+    /*transform: scaleX(2); */
+    /*transform-origin: bottom right;*/
+    /*transition: transform 1.3s ease-out;*/
+    transition: all 0.3s ease-out;
+}
+
+/*从中间开始向两边展开并改变颜色*/
+.sys-lab:hover::after {
+    left: 0;
+    width: 100%;
+    background-color: #0d6efd;
+}
+
+/*选中效果*/
+.sys-lab[data-select="true"]::after {
+    left: 0;
+    width: 100%;
+    background-color: #f8a62d;
+}
+
+/*获得焦点*/
+.sys-lab:focus {
+    color: #0d6efd;
+    /*outline: 1px solid #ffffff;*/
+    border-bottom: 1px solid #ffffff;
+    transform: translateY(-2px);
+}
+
+/*点击效果*/
+.sys-lab:active {
+    transform: scale(0.95);
+}
+
+/*小圆点*/
+.status-dot::before {
+    content: '';
+    position: absolute;
+    top: 5px;
+    right: 8px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    /*transform: translateX(-50%);*/
+    background-color: #45a049;
+}
+
+/* 根据状态设置颜色 */
+.status-dot[data-status="online"]::before {
+    background-color: #4CAF50; /* 绿色，表示在线 */
+}
+
+.status-dot[data-status="offline"]::before {
+    background-color: #888888; /* 灰色，表示离线 */
+}
+
+.status-dot[data-status="other"]::before {
+    background-color: #FFC107; /* 其他颜色，表示其他状态 */
+}
+
+/*系统图片*/
+.sys-icon {
+    padding: 0.25rem;
+    background-color: #fff;
+    border: 1px solid #dee2e6;
+    border-radius: 1.25rem;
+    width: 6rem;
+    height: 6rem;
+    object-fit: contain;
+    display: block;
+    transition: transform 0.3s ease-in-out;
+}
+
+.sys-lab:hover .sys-icon {
+    /*transform: scale(0.95);*/
+    box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.3);
+}
+
+/*系统说明文字*/
+.sys-text {
+    text-shadow: none;
+}
+
+/*.sys-text::after {*/
+/*    content: '';*/
+/*    position: absolute;*/
+/*    width: 100%;*/
+/*    height: 2px;*/
+/*    bottom: 0;*/
+/*    left: 0;*/
+/*    right: 0;*/
+/*    color: #fd7e14;*/
+/*    background-color: #fd7e14; !* 横线颜色 *!*/
+/*    opacity: 1;*/
+/*    transition: opacity 0.5s ease; !* 控制横线消失的过渡效果 *!*/
+/*}*/
+
+/*系统说明*/
+.sys-desc-container {
+    --bs-bg-opacity: 0.8;
+    background-color: rgba(var(--bs-dark-rgb), var(--bs-bg-opacity)) !important;
+    max-width: 960px;
+    position: relative;
+    padding: 1rem 1rem 0rem 1rem;
+    border-radius: 0.5rem;
+    display: none;
+}
+
+/*系统说明图片*/
+.sys-desc-icon {
+    background-color: #fff;
+    /*border: 1px solid #dee2e6;*/
+    border-radius: 0.25rem;
+    width: 2rem;
+    height: 2rem;
+    object-fit: contain;
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+}
+
+/*系统说明关闭按钮*/
+.sys-desc-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 4px;
+    background-color: #0c63e4;
+    margin-left: auto;
+    margin-right: auto;
+    animation: width-to-zero 20s linear forwards; /* 2秒内完成，线性过渡 */
+}
+
+@keyframes width-to-zero {
+    to {
+        width: 0;
+        background-color: red;
+    }
+}

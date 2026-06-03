@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="zh_CN" class="h-100">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>个人信息</title>
+    <link rel="stylesheet" href="bootstrap/css/bootstrap.css">
+    <script src="bootstrap/js/bootstrap.js"></script>
+    <script src="bootstrap/js/bootstrap.bundle.js"></script>
+    <script src="js/jquery-3.6.1.min.js"></script>
+</head>
+<body>
+<div class="container mt-5">
+    <h2>个人信息</h2>
+    <form>
+        <div class="form-group">
+            <label for="username">用户名:</label>
+            <input type="text" class="form-control" id="username" placeholder="用户名" readonly>
+        </div>
+        <div class="form-group">
+            <label for="role">角色:</label>
+            <input type="text" class="form-control" id="role" placeholder="角色" readonly>
+        </div>
+        <div class="form-group">
+            <label for="nickname">昵称:</label>
+            <input type="text" class="form-control" id="nickname" placeholder="昵称">
+        </div>
+        <div class="form-group">
+            <label for="gender">性别:</label>
+            <select class="form-control" id="gender">
+                <option>男</option>
+                <option>女</option>
+                <option>其他</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="avatar">头像:</label>
+            <div class="input-group">
+                <div class="custom-file">
+                    <input type="file" class="custom-file-input" id="avatar" aria-describedby="avatarHelp">
+                    <label class="custom-file-label" for="avatar">选择文件</label>
+                </div>
+                <div class="input-group-append">
+                    <span class="input-group-text">上传</span>
+                </div>
+            </div>
+            <small id="avatarHelp" class="form-text text-muted">支持JPEG、PNG格式，文件大小不超过2MB。</small>
+        </div>
+        <div class="form-group">
+            <label for="phone">手机号码:</label>
+            <input type="tel" class="form-control" id="phone" placeholder="手机号码">
+        </div>
+        <div class="form-group">
+            <label for="email">邮箱:</label>
+            <input type="email" class="form-control" id="email" placeholder="邮箱">
+        </div>
+        <div class="form-group">
+            <label for="expire-time">过期时间:</label>
+            <input type="datetime-local" class="form-control" id="expire-time">
+        </div>
+        <div class="form-group">
+            <label for="create-time">创建时间:</label>
+            <input type="datetime-local" class="form-control" id="create-time" readonly>
+        </div>
+        <div class="form-group">
+            <label for="modify-time">修改时间:</label>
+            <input type="datetime-local" class="form-control" id="modify-time" readonly>
+        </div>
+        <button type="submit" class="btn btn-primary">保存修改</button>
+    </form>
+</div>
+</body>
+</html>

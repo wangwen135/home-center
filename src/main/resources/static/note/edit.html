@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="zh_CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Edit one">
+    <meta name="author" content="wwh">
+    <title>Note Edit</title>
+
+    <link rel="stylesheet" href="../bootstrap/css/bootstrap.css">
+    <link rel="stylesheet" href="../bootstrap/icons/font/bootstrap-icons.css">
+    <script src="../bootstrap/js/bootstrap.bundle.js"></script>
+
+    <script src="../js/showdown/showdown.js"></script>
+    <link rel="stylesheet" href="../css/github-markdown/github-markdown.css">
+
+    <link rel="stylesheet" href="../css/common.css">
+    <link rel="stylesheet" href="css/note.css">
+
+    <script src="../js/main.js"></script>
+    <script src="js/noteEdit.js"></script>
+    <script src="js/markdownNote.js"></script>
+    <script src="js/markdownEditor.js"></script>
+    <script src="js/markdownViewer.js"></script>
+
+    <script src="../js/html2canvas/html2canvas.js"></script>
+</head>
+<body class="overflow-hidden">
+<div class="frame-container">
+    <div class="note-content-container">
+        <div class="note-title-area">
+
+            <!--<div id="noteTitle" class="note-title" contenteditable="true" placeholder="请输入标题"></div>-->
+            <div class="note-title-input">
+                <span>|</span>
+                <input id="noteTitle" type="text">
+                <span id="noteTileSpan"></span>
+            </div>
+            <div class="file-info-area">
+                <div class="file-info-path">
+                    <i class="bi bi-folder-symlink"></i>
+                    <span id="filePath"></span>
+                </div>
+                <div class="file-info-time">
+                    创建：<span id="createTime"></span><br>
+                    修改：<span id="updateTime"></span>
+                </div>
+            </div>
+
+            <div class="note-title-toolbar">
+                <!--收藏-->
+                <button id="btnToggleFavorite" class="btn btn-control btn-p-sm" type="button">
+                    <i class="bi bi-bookmark-heart"></i>
+                </button>
+                <!--加星-->
+                <button id="btnToggleAsterisk" class="btn btn-control btn-p-sm" type="button">
+                    <i class="bi bi-star-fill"></i>
+                </button>
+
+                <button id="btnEditOrPreview" class="btn btn-control btn-p-sm mx-3">
+                    <i class="bi bi-filetype-md"></i> 预览
+                </button>
+
+                <!--折叠编辑工具栏-->
+                <button id="btnToggleToolbar" class="btn btn-control btn-p-sm" data-bs-toggle="tooltip"
+                        data-bs-placement="bottom" title="隐藏工具栏">
+                    <!--<i class="bi bi-chevron-bar-up ts d-inline-block"></i>-->
+                    <!--<i class="bi bi-caret-up ts d-inline-block"></i>-->
+                    <i class="bi bi-caret-up-square ts d-inline-block"></i>
+                </button>
+
+                <div>
+                    <button id="setting" class="btn btn-control btn-p-sm rounded-circle dropdown-toggle afterNone"
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-three-dots-vertical ts d-inline-block"></i>
+                    </button>
+                    <ul class="dropdown-menu min-w-2rem">
+                        <li>
+                            <button class="btn btn-control btn-p-sm dropdown-item">
+                                <i class="bi bi-type-h1"></i> 高级设置1
+                            </button>
+                        </li>
+                        <li>
+                            <button class="btn btn-control btn-p-sm dropdown-item">
+                                <i class="bi bi-type-h2"></i> 高级设置2
+                            </button>
+                        </li>
+                        <li>
+                            <button class="btn btn-control btn-p-sm dropdown-item">
+                                <i class="bi bi-type-h3"></i> 高级设置3
+                            </button>
+                        </li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li>
+                            <button class="btn btn-control btn-p-sm dropdown-item">
+                                <i class="bi bi-type-h4"></i> 清空了after
+                            </button>
+                        </li>
+                        <li><a class="dropdown-item" href="#">Separated link</a></li>
+                        </li>
+
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="editor-viewer">
+            <div id="editorWrapper" class="editor-wrapper">
+                <!--编辑工具栏-->
+                <div id="editorToolbar" class="editor-preview-toolbar">
+                    <!--粗体-->
+                    <button id="tb-bold" class="btn btn-control btn-p-sm" data-bs-toggle="tooltip"
+                            data-bs-placement="bottom" title="加粗<br><b>Ctrl+B</b>">
+                        <i class="bi bi-type-bold"></i>
+                    </button>
+                    <!--斜体-->
+                    <button id="tb-italic" class="btn btn-control btn-p-sm" data-bs-toggle="tooltip"
+                            data-bs-placement="bottom" title="斜体<br><b>Ctrl+I</b>">
+                        <i class="bi bi-type-italic"></i>
+                    </button>
+                    <!--下划线-->
+                    <button id="tb-underline" class="btn btn-control btn-p-sm" data-bs-toggle="tooltip"
+                            data-bs-placement="bottom" title="下划线<br><b>Ctrl+U</b>">
+                        <i class="bi bi-type-underline"></i>
+                    </button>
+                    <!--删除线-->
+                    <button id="tb-strikethrough" class="btn btn-control btn-p-sm" data-bs-toggle="tooltip"
+                            data-bs-placement="bottom" title="删除线<br><b>Ctrl+Shift+S</b>">
+                        <i class="bi bi-type-strikethrough"></i>
+                    </button>
+
+                    <!--分隔-->
+                    <span class="text-black-50 mx-1">|</span>
+
+                    <!--标题 -->
+                    <div class="dropdown d-inline-block">
+                        <div data-bs-toggle="dropdown" aria-expanded="false">
+                            <button id="tb-headline" class="btn btn-control btn-p-sm dropdown-toggle"
+                                    data-bs-toggle="tooltip" data-bs-placement="bottom"
+                                    title="标题<br><b> Ctrl+[1~6]</b>">
+                                <i class="bi bi-type-h1"></i>
+                            </button>
+                        </div>
+                        <ul id="tb-headline-ul" class="dropdown-menu min-w-2rem">
+                            <li>
+                                <button class="btn btn-control btn-p-sm dropdown-item" data-level="1">
+                                    <i class="bi bi-type-h1"></i> 一级标题
+                                </button>
+                            </li>
+                            <li>
+                                <button class="btn btn-control btn-p-sm dropdown-item" data-level="2">
+                                    <i class="bi bi-type-h2"></i> 二级标题
+                                </button>
+                            </li>
+                            <li>
+                                <button class="btn btn-control btn-p-sm dropdown-item" data-level="3">
+                                    <i class="bi bi-type-h3"></i> 三级标题
+                                </button>
+                            </li>
+                            <li>
+                                <button class="btn btn-control btn-p-sm dropdown-item" data-level="4">
+                                    <i class="bi bi-type-h4"></i> 四级标题
+                                </button>
+                            </li>
+                            <li>
+                                <button class="btn btn-control btn-p-sm dropdown-item" data-level="5">
+                                    <i class="bi bi-type-h5"></i> 五级标题
+                                </button>
+                            </li>
+                            <li>
+                                <button class="btn btn-control btn-p-sm dropdown-item" data-level="6">
+                                    <i class="bi bi-type-h6"></i> 六级标题
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!--分隔-->
+                    <span class="text-black-50 mx-1">|</span>
+
+                    <!--水平线-->
+                    <button id="tb-horizontal-line" class="btn btn-control btn-p-sm" data-bs-toggle="tooltip"
+                            data-bs-placement="bottom" title="水平线">
+                        <i class="bi bi-dash-lg"></i>
+                    </button>
+                    <!--引用-->
+                    <button id="tb-quote" class="btn btn-control btn-p-sm" data-bs-toggle="tooltip"
+                            data-bs-placement="bottom" title="引用<br><b>Ctrl+Shift+Q</b>">
+                        <!--<i class="bi bi-quote"></i>-->
+                        <i class="bi bi-blockquote-left"></i>
+                    </button>
+                    <!--无序列表-->
+                    <button id="tb-unordered-list" class="btn btn-control btn-p-sm" data-bs-toggle="tooltip"
+                            data-bs-placement="bottom" title="无序标题<br><b>Ctrl+Shift+[</b>">
+                        <i class="bi bi-list-ul"></i>
+                    </button>
+                    <!--有序列表-->
+                    <button id="tb-ordered-list" class="btn btn-control btn-p-sm" data-bs-toggle="tooltip"
+                            data-bs-placement="bottom" title="有序标题<br><b>Ctrl+Shift+]</b>">
+                        <i class="bi bi-list-ol"></i>
+                    </button>
+                    <!--未勾选-->
+                    <button id="tb-task-uncheck" class="btn btn-control btn-p-sm" data-bs-toggle="tooltip"
+                            data-bs-placement="bottom" title="任务列表-未勾选">
+                        <i class="bi bi-square"></i>
+                    </button>
+                    <!--已经勾选-->
+                    <button id="tb-task-check" class="btn btn-control btn-p-sm" data-bs-toggle="tooltip"
+                            data-bs-placement="bottom" title="任务列表-已勾选">
+                        <i class="bi bi-check-square"></i>
+                    </button>
+
+                    <!--分隔-->
+                    <span class="text-black-50 mx-1">|</span>
+
+                    <!--表格-->
+                    <button id="tb-table" class="btn btn-control btn-p-sm" data-bs-toggle="tooltip"
+                            data-bs-placement="bottom" title="表格<br><b>Ctrl+Shift+T</b>">
+                        <i class="bi bi-table"></i>
+                    </button>
+                    <!--图片-->
+                    <button id="tb-image" class="btn btn-control btn-p-sm" data-bs-toggle="tooltip"
+                            data-bs-placement="bottom" title="图片">
+                        <i class="bi bi-image"></i>
+                    </button>
+                    <!--链接-->
+                    <button id="tb-link" class="btn btn-control btn-p-sm" data-bs-toggle="tooltip"
+                            data-bs-placement="bottom" title="链接">
+                        <i class="bi bi-link-45deg"></i>
+                    </button>
+                    <!--内嵌代码-->
+                    <button id="tb-inner-code" class="btn btn-control btn-p-sm" data-bs-toggle="tooltip"
+                            data-bs-placement="bottom" title="内嵌代码">
+                        <i class="bi bi-code"></i>
+                    </button>
+                    <!--代码块-->
+                    <button id="tb-code" id="tb-code" class="btn btn-control btn-p-sm" data-bs-toggle="tooltip"
+                            data-bs-placement="bottom" title="代码块">
+                        <i class="bi bi-code-square"></i>
+                    </button>
+
+                    <!--切换预览区域 居右-->
+                    <button id="tb-togglePreview" class="btn btn-control btn-p-sm ms-auto" data-bs-toggle="tooltip"
+                            data-bs-placement="left" title="隐藏预览区域">
+                        <i class="bi bi-arrow-bar-right ts d-inline-block "></i>
+                    </button>
+                </div>
+
+                <!--编辑区域 -->
+                <div class="editor-container">
+                    <div class="line-numbers" id="lineNumbers">
+                        <span class="selected">1</span>
+                    </div>
+                    <textarea id="editor" class="editor-textarea"></textarea>
+                </div>
+
+                <div id="editorFootBar" class="foot-bar-container">
+                    <span>字符：<span id="editorStatisticChars">0</span></span>
+                    <span>行数：<span id="editorStatisticRows">0</span></span>
+                    <span>光标： <span id="editorCursorRow">0</span> 行 <span id="editorCursorCol">0</span> 列</span>
+                </div>
+            </div>
+
+            <div id="editorPreviewDivider" class="editor-preview-divider mt-36px"></div>
+
+            <div id="previewWrapper" class="viewer-wrapper">
+                <!--预览工具栏-->
+                <div id="previewToolbar" class="editor-preview-toolbar ">
+                    <button id="p-tb-small" class="btn btn-control btn-p-sm ms-auto"
+                            data-bs-toggle="tooltip" data-bs-placement="bottom" title="宽度 较窄">
+                        <span class="letter-icon">S</span>
+                    </button>
+                    <button id="p-tb-middle" class="btn btn-control btn-p-sm" data-select="true"
+                            data-bs-toggle="tooltip" data-bs-placement="bottom" title="宽度 中等">
+                        <span class="letter-icon">M</span>
+                    </button>
+                    <button id="p-tb-large" class="btn btn-control btn-p-sm"
+                            data-bs-toggle="tooltip" data-bs-placement="bottom" title="宽度 较宽">
+                        <span class="letter-icon">L</span>
+                    </button>
+                    <button id="p-tb-full" class="btn btn-control btn-p-sm"
+                            data-bs-toggle="tooltip" data-bs-placement="bottom" title="宽度 拉满">
+                        <span class="letter-icon">F</span>
+                    </button>
+
+                    <!--分隔-->
+                    <span class="text-black-50 mx-1">|</span>
+
+
+                    <!--背景颜色下拉框-->
+                    <div class="dropdown d-inline-block">
+
+                        <div data-bs-toggle="dropdown" aria-expanded="false">
+                            <button id="p-tb-bgColor" class="btn btn-control btn-p-sm dropdown-toggle"
+                                    data-bs-toggle="tooltip" data-bs-placement="bottom" title="背景颜色">
+                                <i class="bi bi-palette"></i>
+                            </button>
+                        </div>
+
+                        <ul id="tb-color-dropdown" class="dropdown-menu max-w-200px">
+                            <li>
+                                <button class="btn btn-control btn-p-sm dropdown-item bg-secondary-subtle"
+                                        data-color="#e2e3e5">
+                                    浅灰色
+                                </button>
+                            </li>
+                            <li>
+                                <button class="btn btn-control btn-p-sm dropdown-item bg-primary-subtle"
+                                        data-color="#cfe2ff">
+                                    浅蓝色
+                                </button>
+                            </li>
+                            <li>
+                                <button class="btn btn-control btn-p-sm dropdown-item bg-success-subtle"
+                                        data-color="#d1e7dd">
+                                    浅绿色
+                                </button>
+                            </li>
+                            <li>
+                                <button class="btn btn-control btn-p-sm dropdown-item bg-warning-subtle"
+                                        data-color="#fff3cd">
+                                    浅黄色
+                                </button>
+                            </li>
+                            <li>
+                                <button class="btn btn-control btn-p-sm dropdown-item bg-info-subtle"
+                                        data-color="#cff4fc">
+                                    蓝绿色
+                                </button>
+                            </li>
+                            <li>
+                                <button class="btn btn-control btn-p-sm dropdown-item " data-color="">
+                                    无背景
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!--分隔-->
+                    <span class="text-black-50 mx-1">|</span>
+
+                    <!--下载-->
+                    <button id="p-tb-download" class="btn btn-control btn-p-sm ms-auto"
+                            data-bs-toggle="tooltip" data-bs-placement="bottom" title="下载文档图片">
+                        <!--<i class="bi bi-file-earmark-arrow-down"></i>-->
+                        <i class="bi bi-image"></i>
+                    </button>
+
+                    <!--全屏-->
+                    <button id="p-tb-fullscreen" class="btn btn-control btn-p-sm"
+                            data-bs-toggle="tooltip" data-bs-placement="bottom" title="内容全屏">
+                        <i class="bi bi-arrows-fullscreen"></i>
+                    </button>
+
+
+                    <!--这个按钮在最右边 同步滚动-->
+                    <button id="tb-syncScroll" class="btn btn-control btn-p-sm ms-auto  sync-scrolling-icon"
+                            data-select="true" data-bs-toggle="tooltip" data-bs-placement="bottom" title="同步滚动">
+                        <i class="bi bi-arrows-vertical"></i>
+                    </button>
+                </div>
+
+                <div id="markdownContainer" class="markdown-container">
+                    <div class="markdown-absolute-container">
+                        <div class="markdown-absolute-toolbar">
+                            <button id="btnCatalog" class="btn btn-control btn-p-xxs border border-secondary shadow-sm">
+                                <i class="bi bi-list-columns-reverse"></i>
+                            </button>
+                        </div>
+                        <div id="markdownCatalogContainer" class="markdown-catalog-container d-none">
+                            <div class="markdown-catalog-title">目录</div>
+                            <div id="markdownCatalogList" class="markdown-catalog-list"></div>
+                        </div>
+                    </div>
+                    <div id="markdownScrollbar" class="markdown-scrollbar">
+                        <div id="markdownContent" class="markdown-body markdown-content"></div>
+                    </div>
+                </div>
+
+                <div id="previewFootBar" class="foot-bar-container">
+                    <span>标题：<span id="previewStatisticHeadline">0</span></span>
+                    <span>段落：<span id="previewStatisticParagraph">0</span></span>
+                    <span>代码块：<span id="previewStatisticCode">0</span></span>
+                    <span>图片：<span id="previewStatisticImage">0</span></span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div id="btnToggleFootBar" class="foot-bar-container-absolute btn-control m-0" data-select="true"
+         data-bs-toggle="tooltip"
+         data-bs-placement="right" data-bs-title="折叠底部栏">
+        <i class="bi bi-layout-sidebar d-inline-block rotate-270"></i>
+    </div>
+</div>
+<script>
+
+</script>
+</body>
+</html>
