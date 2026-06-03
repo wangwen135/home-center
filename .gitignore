@@ -12,3 +12,7 @@ logs/
 *.tar.gz
 *.iml
 
+# Local Spring Boot override configs with private environment values.
+config/application-*.yml
+config/application-*.yaml
+config/application-*.properties

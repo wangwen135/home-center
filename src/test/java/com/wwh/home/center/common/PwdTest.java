@@ -15,7 +15,7 @@ public class PwdTest {
         String salt = UUID.randomUUID().toString().replace("-", "");
         System.out.println("salt:");
         System.out.println(salt);
-        String pwd = "123456";
+        String pwd = System.getenv().getOrDefault("PWD_TEST_VALUE", "change-me");
         System.out.println("pwd:");
         System.out.println(pwd);
 

@@ -90,10 +90,11 @@ public class RSATools {
      */
     private static final String DEFAULT_PADDING = "PKCS1Padding";
 
-    public static void main(String[] args) {
-        String privateKeyBase64 = "REDACTED_PRIVATE_KEY";
-        String publicKeyBase64 = "REDACTED_PUBLIC_KEY";
-        String text = "new_password=123456&identify_code=example&phone=13000000000";
+    public static void main(String[] args) throws Exception {
+        Map<String, Object> keyPair = generateRsaKeyPairMap(1024);
+        String privateKeyBase64 = keyPair.get("privateKeyBase64").toString();
+        String publicKeyBase64 = keyPair.get("publicKeyBase64").toString();
+        String text = "new_password=example&identify_code=example&phone=13000000000";
         System.out.println("公钥加密后的密文：");
         String cipher = publicKeyEncryptSimple(publicKeyBase64, text);
         System.out.println(cipher);
@@ -101,9 +102,10 @@ public class RSATools {
         System.out.println(privateKeyDecryptSimple(privateKeyBase64, cipher));
     }
     
-    public static void main3(String[] args) {
-        String privateKeyBase64 = "REDACTED_PRIVATE_KEY";
-        String publicKeyBase64 = "REDACTED_PUBLIC_KEY";
+    public static void main3(String[] args) throws Exception {
+        Map<String, Object> keyPair = generateRsaKeyPairMap(1024);
+        String privateKeyBase64 = keyPair.get("privateKeyBase64").toString();
+        String publicKeyBase64 = keyPair.get("publicKeyBase64").toString();
         String text = "【待加密的内容】 超过117字节长度的文本加密测试，这里指的是使用UTF-8编码后的字节数组长度超过了117字节(RSA/ECB/PKCS1Padding在使用1024位长度秘钥的情况下)，此时需要对加解密数据进行分片";
 
         System.out.println("公钥加密 - 私钥解密\n");
@@ -112,9 +114,8 @@ public class RSATools {
         String cipher = publicKeyEncryptSimple(publicKeyBase64, text);
         System.out.println(cipher);
 
-        String xxx= "REDACTED_CIPHERTEXT=";
         System.out.println("私钥解密后的明文：");
-        System.out.println(privateKeyDecryptSimple(privateKeyBase64, xxx));
+        System.out.println(privateKeyDecryptSimple(privateKeyBase64, cipher));
 
         System.out.println("\n\n私钥加密 - 公钥解密\n");
         cipher = privateKeyEncryptSimple(privateKeyBase64, text);

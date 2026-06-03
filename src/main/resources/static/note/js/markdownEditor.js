@@ -422,7 +422,7 @@ function MarkdownEditor(markdownViewer, options) {
      * 图片
      */
     function imageAction() {
-        insertTextAtLineStart("![说明](https://img.example.com:23456/default.png)\n");
+        insertTextAtLineStart("![说明](https://example.com/default.png)\n");
     }
 
     /**
@@ -593,4 +593,3 @@ function MarkdownEditor(markdownViewer, options) {
     }
 
 }
-

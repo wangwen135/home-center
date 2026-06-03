@@ -18,12 +18,14 @@ import java.util.List;
  */
 public class CodeGenerator {
     public static void main(String[] args) {
-        FastAutoGenerator.create("jdbc:mysql://localhost:3306/home_center?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf8&useSSL=false",
-                "home", "123456")
-//        FastAutoGenerator.create("jdbc:mysql://localhost:3306/sunshine?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai",
-//                "example-user", "change-me")
+        String dbUrl = System.getenv().getOrDefault("DB_URL",
+                "jdbc:mysql://localhost:3306/home_center?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf8&useSSL=false");
+        String dbUsername = System.getenv().getOrDefault("DB_USERNAME", "home_center");
+        String dbPassword = System.getenv().getOrDefault("DB_PASSWORD", "change-me");
+
+        FastAutoGenerator.create(dbUrl, dbUsername, dbPassword)
                 // 全局配置
-                .globalConfig(builder -> builder.author("wangwh").enableSwagger().outputDir("D:\\temp\\MybatisPlus").fileOverride())
+                .globalConfig(builder -> builder.author("wwh").enableSwagger().outputDir("/tmp/MybatisPlus").fileOverride())
                 //.globalConfig((scanner, builder) -> builder.author(scanner.apply("请输入作者名称？")).fileOverride())
                 // 包配置
                 //.packageConfig((scanner, builder) -> builder.parent(scanner.apply("请输入包名？")))

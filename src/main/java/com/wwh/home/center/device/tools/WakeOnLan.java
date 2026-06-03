@@ -15,8 +15,12 @@ public class WakeOnLan {
     private static final int PORT = 9;
 
     public static void main(String[] args) {
-        String macAddress = "00-00-00-00-00-00"; // 替换为目标计算机的MAC地址
-        String ipAddress = "localhost"; // 替换为广播地址或目标计算机的IP地址
+        if (args.length < 2) {
+            System.out.println("Usage: WakeOnLan <mac-address> <broadcast-address>");
+            return;
+        }
+        String macAddress = args[0];
+        String ipAddress = args[1];
 
         try {
             sendWakeOnLanPacket(macAddress, ipAddress);
