@@ -144,7 +144,7 @@ public class LogAspect {
                         params.append(str).append(" ");
                     }
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    log.warn("操作日志参数序列化失败: {}", o.getClass().getName(), e);
                 }
             }
         }

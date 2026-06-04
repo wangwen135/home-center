@@ -8,13 +8,11 @@ import com.wwh.home.center.common.util.RequestUtil;
 import com.wwh.home.center.model.entity.SysRole;
 import com.wwh.home.center.security.model.LoggedUserAllInfo;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Arrays;
@@ -39,8 +37,9 @@ public class LoginInterceptor implements HandlerInterceptor {
      * **：匹配零个或多个目录或文件
      * </pre>
      */
-    private static final List<String> WHITE_LIST = Arrays.asList("/login", "/logout", "/preLogin", "/login.html",
-            "/favicon.ico", "/error", "/api/screenshot", "/api/version", "/api/download/latest"); //, "/test/**"
+    private static final List<String> WHITE_LIST = Arrays.asList("/", "/index.html", "/css/nav.css",
+            "/login", "/logout", "/preLogin", "/login.html", "/favicon.ico", "/error",
+            "/api/screenshot", "/api/version", "/api/download/latest");
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
@@ -48,12 +47,6 @@ public class LoginInterceptor implements HandlerInterceptor {
         String method = request.getMethod();
         String path = request.getRequestURI();
         log.debug("preHandle 进入登录拦截器:[{}]{}", method, path);
-/*
-        System.out.println("=======================preHandle=========================");
-        System.out.println(handler);
-        System.out.println(handler.getClass());
-        System.out.println("=======================preHandle=========================");
-*/
         //特殊请求直接放行，加快响应速度
         if (SysConstants.PATH_CHECK_AUTH.equals(path)) {
             return true;
@@ -151,12 +144,5 @@ public class LoginInterceptor implements HandlerInterceptor {
     @Override
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
         UserContextHolder.removeUserInfo();
-/*
-        System.out.println("++++++++++++++++++++++++afterCompletion+++++++++++++++++++++++++++++");
-        System.out.println(handler);
-        System.out.println(handler.getClass());
-        System.out.println(ex);
-        System.out.println("++++++++++++++++++++++++afterCompletion+++++++++++++++++++++++++++++");
-*/
     }
 }

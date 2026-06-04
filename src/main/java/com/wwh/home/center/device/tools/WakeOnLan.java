@@ -14,21 +14,6 @@ public class WakeOnLan {
 
     private static final int PORT = 9;
 
-    public static void main(String[] args) {
-        if (args.length < 2) {
-            System.out.println("Usage: WakeOnLan <mac-address> <broadcast-address>");
-            return;
-        }
-        String macAddress = args[0];
-        String ipAddress = args[1];
-
-        try {
-            sendWakeOnLanPacket(macAddress, ipAddress);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
     /**
      * 发送wake on lan 数据包
      *
@@ -53,8 +38,6 @@ public class WakeOnLan {
         DatagramSocket socket = new DatagramSocket();
         socket.send(packet);
         socket.close();
-
-        System.out.println("Wake-on-LAN packet sent...");
     }
 
     private static byte[] getMacBytes(String macStr) throws IllegalArgumentException {

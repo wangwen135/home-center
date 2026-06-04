@@ -52,7 +52,7 @@ public class HeFengWeatherProvider implements WeatherProvider {
         ResponseEntity<byte[]> responseEntity = restTemplate.exchange(nowUrl, HttpMethod.GET, new HttpEntity<>(httpHeaders), byte[].class);
 
         if (!responseEntity.getStatusCode().is2xxSuccessful()) {
-            // TODO 非200响应
+            log.warn("和风实时天气响应状态异常：{}", responseEntity.getStatusCode());
             return null;
         }
         // gzip解压服务器的响应体

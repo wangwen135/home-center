@@ -97,28 +97,4 @@ public class TimeFormatUtil {
     public static String format(LocalTime time) {
         return format(time, DEFAULT_TIME_PATTERN);
     }
-
-    public static void main(String[] args) {
-        long currentTimestamp = System.currentTimeMillis();
-        LocalDateTime nowDateTime = LocalDateTime.now();
-        LocalDate today = LocalDate.now();
-        LocalTime currentTime = LocalTime.now();
-
-        // long 类型的时间戳
-        System.out.println("默认格式化 long 类型: " + format(currentTimestamp));
-        System.out.println("自定义格式化 long 类型: " + format(currentTimestamp, "yyyy/MM/dd HH:mm"));
-
-        // LocalDateTime 类型
-        System.out.println("默认格式化 LocalDateTime 类型: " + format(nowDateTime));
-        System.out.println("自定义格式化 LocalDateTime 类型: " + format(nowDateTime, "yyyy/MM/dd HH:mm:ss"));
-
-        // LocalDate 类型
-        System.out.println("默认格式化 LocalDate 类型: " + format(today));
-        System.out.println("自定义格式化 LocalDate 类型: " + format(today, "dd/MM/yyyy"));
-
-        // LocalTime 类型
-        System.out.println("默认格式化 LocalTime 类型: " + format(currentTime));
-        System.out.println("自定义格式化 LocalTime 类型: " + format(currentTime, "HH:mm"));
-    }
 }
-

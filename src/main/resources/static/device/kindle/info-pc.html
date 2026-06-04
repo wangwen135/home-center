@@ -147,32 +147,18 @@
         document.getElementById("time").innerHTML = timeString
         var h = date.getHours();
         var m = date.getMinutes();
-        if (h == 0 & m < 3) {
-            console.log("@@ hours=" + h + " minutes=" + m);
-            console.log("更新日期和星期");
+        if (h == 0 && m < 3) {
             updateDateAndWeek();
-            console.log("更新农历");
             updateNongLi();
         }
         if (m == 0 || m == 15 || m == 30 || m == 45) {
-            console.log("## hours=" + h + " minutes=" + m);
-            console.log("更新名言")
             updateFamous();
-            console.log("更新消息")
             updatePromptMessage();
-            console.log("更新天气")
             updateWeather();
         }
     }
 
     updateTime()
-
-    function updateDateAndWeek2() {
-        $.get("/smartScreen/getDateAndWeek", function (result) {
-            console.log(result);
-            document.getElementById("date").innerHTML = result;
-        });
-    }
 
     function updateDateAndWeek() {
         var date = new Date()
@@ -188,8 +174,9 @@
 
     function updateNongLi() {
         $.get("/smartScreen/getNongLiShort", function (result) {
-            console.log(result);
-            document.getElementById("nongli").innerHTML = result;
+            if (result) {
+                document.getElementById("nongli").innerHTML = result;
+            }
         });
     }
 
@@ -197,8 +184,9 @@
 
     function updateFamous() {
         $.get("/smartScreen/getRandomFamous", function (result) {
-            console.log(result);
-            document.getElementById("famous").innerHTML = result;
+            if (result) {
+                document.getElementById("famous").innerHTML = result;
+            }
         });
     }
 
@@ -206,8 +194,7 @@
 
     function updatePromptMessage() {
         $.get("/smartScreen/getPromptMessage", function (result) {
-            console.log(result);
-            document.getElementById("msg").innerHTML = result.message;
+            document.getElementById("msg").innerHTML = result && result.message ? result.message : "";
         });
     }
 
@@ -215,7 +202,9 @@
 
     function updateWeather() {
         $.get("/weather/getWeather", function (result) {
-            console.log(result);
+            if (!result) {
+                return;
+            }
             document.getElementById("w_icon").src = result.iconUrl;
             document.getElementById("w_text").innerHTML = result.text;
             document.getElementById("w_temp").innerHTML = result.temp;
@@ -231,7 +220,6 @@
         //计算定时器，每分钟更新一次
         var date = new Date()
         var next = 60 - date.getSeconds() + 1;
-        console.log("下次更新时间：" + next);
         next = next * 1000;
         setTimeout(refPreMinute, next);
     }

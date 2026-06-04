@@ -139,7 +139,6 @@
             .then(result => {
                 // 检查登录是否成功
                 if (result.code == 200) {
-                    console.log("获取到token：" + result.data)
                     // 登录成功，存储 token 到本地存储
                     sessionStorage.setItem('token', result.data);
 
@@ -152,8 +151,8 @@
                         //跳转到指定地址
                         window.location.href = ref;
                     } else {
-                        //跳转到首页
-                        window.location.href = '/index.html';
+                        //跳转到后台首页
+                        window.location.href = '/admin.html';
                     }
                 } else {
                     alert(result.message);
