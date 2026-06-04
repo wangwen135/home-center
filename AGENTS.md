@@ -6,6 +6,10 @@ This is a Java 8 Spring Boot 2.4 application built with Maven. Main application 
 
 Runtime resources are in `src/main/resources`: MyBatis XML mappings in `mapper`, Thymeleaf templates in `templates`, environment configuration in `application*.yml`, and browser assets in `static` (`js`, `css`, `device`, `weather`, `bootstrap`, `lib`). Tests and test-only helpers are under `src/test/java`; temporary test resources are under `src/test/resources`.
 
+## Companion Agent Project
+
+The paired PC agent repository is in the sibling directory `/opt/projects/home-center-pc-agent`. This server project exposes device and PC agent APIs; the agent project runs on the target PC and handles local actions such as shutdown, screenshots, version reporting, and update/download workflows. When changing PC control contracts, update both repositories together and keep endpoint paths, payloads, ports, and auth expectations aligned.
+
 ## Build, Test, and Development Commands
 
 - `mvn clean package`: compile, run tests, and build the Spring Boot jar.

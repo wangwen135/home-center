@@ -172,23 +172,23 @@ function createMsgStyle(type) {
     let icon, titleStyle;
     switch (type) {
         case MsgTypes.SUCCESS:
-            icon = "<i class='bi bi-check-circle'></i>";
+            icon = "[OK]";
             titleStyle = "text-success";
             break;
         case MsgTypes.WARNING:
-            icon = "<i class='bi bi-exclamation-circle'></i>";
+            icon = "[!]";
             titleStyle = "text-warning";
             break;
         case MsgTypes.DANGER:
-            icon = "<i class='bi bi-x-circle'></i>";
+            icon = "[X]";
             titleStyle = "text-danger";
             break;
         case MsgTypes.INFO:
-            icon = "<i class='bi bi-info-circle'></i>";
+            icon = "[i]";
             titleStyle = "text-info";
             break;
         case MsgTypes.QUESTION:
-            icon = "<i class='bi bi-question-circle'></i>";
+            icon = "[?]";
             titleStyle = "text-dark";
             break;
         default:
@@ -462,7 +462,7 @@ function showTooltips(element, content, placement = 'bottom', timeout = 3000) {
         title: content,
         placement: placement,
         trigger: 'manual',
-        customClass: 'note-title-tooltips',
+        customClass: 'wide-tooltips',
         html: true
     });
     tooltip.show();
@@ -727,6 +727,4 @@ function scrollElementIntoView(container, element) {
     }
     // 如果元素已经在可见范围内，则不需要滚动
 }
-
-
 

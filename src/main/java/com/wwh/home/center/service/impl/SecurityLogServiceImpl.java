@@ -25,9 +25,6 @@ public class SecurityLogServiceImpl implements SecurityLogService {
     @Async
     @Override
     public void saveSysLog(SecurityLog securityLog) {
-        //debugger
-        System.out.println(Thread.currentThread().getName());
-
         securityLog.setId(null);
         securityLog.setOperationTime(LocalDateTime.now());
         securityLogMapper.insert(securityLog);

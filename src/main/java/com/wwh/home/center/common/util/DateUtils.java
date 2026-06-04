@@ -108,31 +108,4 @@ public class DateUtils {
         LocalDate localDate = LocalDate.now();
         return localDate.getMonthValue() + "月" + localDate.getDayOfMonth() + "日 " + weekMap.get(localDate.getDayOfWeek().getValue());
     }
-
-    public static void main(String[] args) {
-        System.out.println(getMonthAndDay());
-        System.out.println(getDateAndWeek());
-    }
-
-    public static void main2(String[] args) {
-        LocalDate localDate = LocalDate.now();
-        for (int i = 0; i < 30; i++) {
-            print(localDate.minusDays(i));
-        }
-    }
-
-    private static void print(LocalDate localDate) {
-        System.out.println("+++++++++++++++++++++++++++++++++++");
-        System.out.println(localDate.toString());
-        System.out.println(localDate.getMonthValue());
-        System.out.println(localDate.getDayOfMonth());
-        System.out.println(localDate.getDayOfWeek());
-        System.out.println(localDate.getDayOfWeek().getValue());
-        System.out.println(weekMap.get(localDate.getDayOfWeek().getValue()));
-
-        String str = NongLi.getDate(localDate.toString());
-        //String str = NongLi.getDate("2022-11-22");
-        System.out.println(str);
-        System.out.println(str.substring(str.indexOf("年") + 1));
-    }
 }

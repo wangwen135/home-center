@@ -1,6 +1,6 @@
 # 服务端口号，默认80
 server:
-  port: 8866
+  port: ${SERVER_PORT:8866}
 spring:
   # 服务名称
   application:
@@ -61,14 +61,8 @@ spring:
     multipart:
       location: upload-tmp-dir
 
-  thymeleaf:
-    cache: false
-
 mybatis-plus:
-  configuration:
-    #控制台打印完整带参数SQL语句
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
-    mapper-locations: classpath*:mapper/*Mapper.xml
+  mapper-locations: classpath*:mapper/*Mapper.xml
 
 weather:
   provider: 和风
@@ -76,13 +70,5 @@ weather:
     hefeng:
       now-url: ${WEATHER_HEFENG_NOW_URL:https://devapi.qweather.com/v7/weather/now?location=${WEATHER_LOCATION:101010100}&key=${WEATHER_HEFENG_KEY:change-me}}
 
-camera-video:
-  base-path: ${CAMERA_VIDEO_BASE_PATH:/tmp/home-center/camera-videos}
-
-
 image:
   base-path: ${IMAGE_BASE_PATH:/tmp/home-center/images}
-
-notes:
-  base-path: ${NOTES_BASE_PATH:/tmp/home-center/notes}
-  recycle-base-path: ${NOTES_RECYCLE_BASE_PATH:/tmp/home-center/notes-recycle}
