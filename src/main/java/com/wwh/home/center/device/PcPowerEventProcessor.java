@@ -23,6 +23,9 @@ public class PcPowerEventProcessor {
     @Autowired
     private PcDeviceMapper pcDeviceMapper;
 
+    @Autowired
+    private SimpleSocketSender simpleSocketSender;
+
     public void handlePowerOnAll() throws Exception {
         List<PcDevice> devices = listDevices();
         for (PcDevice device : devices) {
@@ -70,11 +73,7 @@ public class PcPowerEventProcessor {
         }
 
         try {
-            String response = SimpleSocketSender.sendCommand(
-                    device.getIpAddress(),
-                    device.getSocketPort(),
-                    "shutdown"
-            );
+            String response = simpleSocketSender.sendCommand(device, "shutdown");
             log.info("## 已发送关机指令到设备: {}, IP: {}, 响应: {}",
                     device.getName(), device.getIpAddress(), response);
         } catch (Exception e) {

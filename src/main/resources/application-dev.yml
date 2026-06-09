@@ -35,3 +35,7 @@ image:
 agent:
   screenshot-dir: ${AGENT_SCREENSHOT_DIR:/tmp/home-center/screenshots}
   release-dir: ${AGENT_RELEASE_DIR:/tmp/home-center/releases}
+  access-token: ${AGENT_ACCESS_TOKEN:changeme}
+  connect-timeout-seconds: ${AGENT_CONNECT_TIMEOUT_SECONDS:5}
+  socket-timeout-seconds: ${AGENT_SOCKET_TIMEOUT_SECONDS:10}
+  command-timeout-seconds: ${AGENT_COMMAND_TIMEOUT_SECONDS:30}

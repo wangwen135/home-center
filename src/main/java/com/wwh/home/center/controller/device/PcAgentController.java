@@ -1,9 +1,12 @@
 package com.wwh.home.center.controller.device;
 
 import com.wwh.home.center.common.model.Result;
+import com.wwh.home.center.dao.mapper.PcDeviceMapper;
+import com.wwh.home.center.model.entity.PcDevice;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
@@ -13,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -45,12 +49,16 @@ public class PcAgentController {
     @Value("${agent.release-dir:/opt/home-center/releases}")
     private String releaseDir;
 
+    @Autowired
+    private PcDeviceMapper pcDeviceMapper;
+
     /**
      * 接收 pc-agent 上传的截图
      */
     @PostMapping("/screenshot")
     @ApiOperation("上传截图")
-    public Result<Map<String, String>> uploadScreenshot(@RequestParam("file") MultipartFile file) {
+    public Result<Map<String, String>> uploadScreenshot(@RequestParam("file") MultipartFile file,
+                                                        HttpServletRequest request) {
         if (file.isEmpty()) {
             return Result.badRequest("上传文件为空");
         }
@@ -68,7 +76,9 @@ public class PcAgentController {
             if (originalFilename != null && originalFilename.contains(".")) {
                 ext = originalFilename.substring(originalFilename.lastIndexOf(".") + 1);
             }
-            String filename = "screenshot-" + timestamp + "." + ext;
+            PcDevice device = findDeviceByRequestIp(request);
+            String devicePrefix = device == null ? "" : "device-" + device.getId() + "-";
+            String filename = devicePrefix + "screenshot-" + timestamp + "." + ext;
 
             Path filePath = dirPath.resolve(filename);
             file.transferTo(filePath.toFile());
@@ -79,12 +89,45 @@ public class PcAgentController {
             data.put("filename", filename);
             data.put("path", filePath.toString());
             data.put("message", "截图已保存");
+            if (device != null) {
+                data.put("deviceId", String.valueOf(device.getId()));
+            }
 
             return Result.success(data);
         } catch (IOException e) {
             log.error("保存截图失败", e);
             return Result.error(500, "截图保存失败: " + e.getMessage());
         }
+    }
+
+    private PcDevice findDeviceByRequestIp(HttpServletRequest request) {
+        String ipAddress = getClientIp(request);
+        if (ipAddress == null) {
+            return null;
+        }
+        try {
+            List<PcDevice> devices = pcDeviceMapper.selectList(null);
+            for (PcDevice device : devices) {
+                if (ipAddress.equals(device.getIpAddress())) {
+                    return device;
+                }
+            }
+        } catch (Exception e) {
+            log.warn("根据上传IP匹配PC设备失败: ip={}", ipAddress, e);
+        }
+        return null;
+    }
+
+    private String getClientIp(HttpServletRequest request) {
+        String forwardedFor = request.getHeader("X-Forwarded-For");
+        if (forwardedFor != null && forwardedFor.trim().length() > 0) {
+            return forwardedFor.split(",")[0].trim();
+        }
+        String realIp = request.getHeader("X-Real-IP");
+        if (realIp != null && realIp.trim().length() > 0) {
+            return realIp.trim();
+        }
+        return request.getRemoteAddr();
     }
 
     /**
