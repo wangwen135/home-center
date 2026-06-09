@@ -53,7 +53,7 @@ public class UserController {
         UserContextHolder.isLoggedIn();
         SysRole role = UserContextHolder.getSysRole();
         if (role == null) {
-            Result.success();
+            return Result.success();
         }
         SysRoleVo vo = new SysRoleVo();
         BeanUtils.copyProperties(role, vo);
@@ -97,5 +97,4 @@ public class UserController {
         return Result.success(resultList);
     }
 }
-
 
