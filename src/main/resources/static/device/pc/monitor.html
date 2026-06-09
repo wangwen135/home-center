@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>客户端管理</title>
+    <link href="/lib/element-ui/element-ui.css" rel="stylesheet">
+    <link href="/css/common.css" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            color: #1f2937;
+            background: #eef2f7;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
+        }
+
+        .page {
+            min-height: 100vh;
+            padding: 24px;
+        }
+
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            margin: 0 auto 22px;
+            max-width: 1480px;
+        }
+
+        .title-block h1 {
+            margin: 0;
+            font-size: 28px;
+            line-height: 1.2;
+            letter-spacing: 0;
+        }
+
+        .title-block p {
+            margin: 7px 0 0;
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        .top-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        .device-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 22px;
+            max-width: 1480px;
+            margin: 0 auto;
+        }
+
+        @media (min-width: 1360px) {
+            .device-grid {
+                grid-template-columns: repeat(4, minmax(0, 1fr));
+            }
+        }
+
+        @media (min-width: 980px) and (max-width: 1359px) {
+            .device-grid {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+        }
+
+        @media (min-width: 680px) and (max-width: 979px) {
+            .device-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        .pc-card {
+            position: relative;
+            min-width: 0;
+            cursor: pointer;
+            user-select: none;
+            transition: transform 0.18s ease, filter 0.18s ease;
+        }
+
+        .pc-card:hover {
+            transform: translateY(-2px);
+            filter: drop-shadow(0 18px 28px rgba(31, 41, 55, 0.14));
+        }
+
+        .monitor-frame {
+            padding: 12px 12px 10px;
+            border-radius: 16px;
+            background: linear-gradient(180deg, #111827 0%, #030712 100%);
+            box-shadow: 0 16px 36px rgba(15, 23, 42, 0.24), inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+        }
+
+        .screen {
+            position: relative;
+            overflow: hidden;
+            aspect-ratio: 16 / 9;
+            border: 1px solid #263244;
+            border-radius: 10px;
+            background: #0b1120;
+        }
+
+        .screen img {
+            width: 100%;
+            height: 100%;
+            display: block;
+            object-fit: cover;
+        }
+
+        .screen-empty,
+        .screen-loading {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            color: #94a3b8;
+            background: radial-gradient(circle at top, #1f2937 0%, #0b1120 60%);
+        }
+
+        .screen-empty .pc-icon {
+            width: 58px;
+            height: 42px;
+            border: 4px solid #64748b;
+            border-radius: 8px;
+            position: relative;
+        }
+
+        .screen-empty .pc-icon:before {
+            content: "";
+            position: absolute;
+            left: 19px;
+            bottom: -16px;
+            width: 12px;
+            height: 12px;
+            background: #64748b;
+        }
+
+        .screen-empty .pc-icon:after {
+            content: "";
+            position: absolute;
+            left: 9px;
+            bottom: -21px;
+            width: 32px;
+            height: 5px;
+            border-radius: 999px;
+            background: #64748b;
+        }
+
+        .screen-loading {
+            z-index: 2;
+            background: rgba(11, 17, 32, 0.82);
+        }
+
+        .spinner {
+            width: 34px;
+            height: 34px;
+            border: 3px solid rgba(148, 163, 184, 0.25);
+            border-top-color: #38bdf8;
+            border-radius: 50%;
+            animation: spin 0.9s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .monitor-neck {
+            width: 22%;
+            height: 18px;
+            margin: 0 auto;
+            background: linear-gradient(180deg, #273449 0%, #111827 100%);
+        }
+
+        .monitor-base {
+            width: 44%;
+            height: 12px;
+            margin: 0 auto;
+            border-radius: 0 0 12px 12px;
+            background: #111827;
+            box-shadow: 0 8px 14px rgba(15, 23, 42, 0.18);
+        }
+
+        .device-info {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 8px;
+            align-items: center;
+            padding: 14px 4px 0;
+        }
+
+        .device-name {
+            overflow: hidden;
+            color: #111827;
+            font-size: 16px;
+            font-weight: 700;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .device-ip {
+            margin-top: 4px;
+            color: #6b7280;
+            font-size: 13px;
+        }
+
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: #4b5563;
+            font-size: 13px;
+            white-space: nowrap;
+        }
+
+        .status-dot {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background: #9ca3af;
+            box-shadow: 0 0 0 3px rgba(156, 163, 175, 0.18);
+        }
+
+        .status-pill.online .status-dot {
+            background: #16a34a;
+            box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.16);
+        }
+
+        .action-menu {
+            position: absolute;
+            right: 14px;
+            top: 48px;
+            z-index: 5;
+            min-width: 168px;
+            padding: 8px;
+            border: 1px solid rgba(148, 163, 184, 0.25);
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.96);
+            box-shadow: 0 18px 36px rgba(15, 23, 42, 0.18);
+            backdrop-filter: blur(10px);
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+            padding: 10px;
+            border: 0;
+            border-radius: 8px;
+            color: #1f2937;
+            background: transparent;
+            text-align: left;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .menu-item:hover {
+            background: #eef6ff;
+            color: #1d4ed8;
+        }
+
+        .empty-state {
+            grid-column: 1 / -1;
+            padding: 56px 20px;
+            border: 1px dashed #cbd5e1;
+            border-radius: 12px;
+            color: #64748b;
+            background: rgba(255, 255, 255, 0.7);
+            text-align: center;
+        }
+
+        .terminal-body {
+            height: min(70vh, 680px);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border-radius: 8px;
+            background: #050b12;
+            color: #d1fae5;
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+        }
+
+        .terminal-output {
+            flex: 1;
+            overflow: auto;
+            padding: 18px;
+            font-size: 13px;
+            line-height: 1.55;
+        }
+
+        .terminal-line {
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .terminal-line.command {
+            color: #93c5fd;
+        }
+
+        .terminal-line.stderr {
+            color: #fca5a5;
+        }
+
+        .terminal-line.system {
+            color: #a7f3d0;
+        }
+
+        .terminal-input {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 14px;
+            border-top: 1px solid rgba(148, 163, 184, 0.18);
+            background: #08111f;
+        }
+
+        .terminal-prompt {
+            color: #22c55e;
+            font-weight: 700;
+        }
+
+        .terminal-input input {
+            flex: 1;
+            min-width: 0;
+            border: 0;
+            outline: 0;
+            color: #f8fafc;
+            background: transparent;
+            font: inherit;
+        }
+
+        @media (max-width: 679px) {
+            .page {
+                padding: 16px;
+            }
+
+            .topbar {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .top-actions {
+                width: 100%;
+                justify-content: flex-start;
+            }
+
+            .device-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .action-menu {
+                left: 14px;
+                right: 14px;
+                top: auto;
+                bottom: 58px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div id="app" class="page" @click="closeMenu">
+    <header class="topbar">
+        <div class="title-block">
+            <h1>客户端管理</h1>
+            <p>{{devices.length}} 台设备 · 截图每 60 秒自动刷新</p>
+        </div>
+        <div class="top-actions">
+            <el-button size="small" icon="el-icon-refresh" @click.stop="refreshAllScreenshots" :loading="refreshing">
+                刷新截图
+            </el-button>
+            <el-button size="small" icon="el-icon-switch-button" @click.stop="goPower">
+                电源控制
+            </el-button>
+        </div>
+    </header>
+
+    <main class="device-grid">
+        <div v-if="devices.length === 0 && !pageLoading" class="empty-state">暂无客户端设备</div>
+
+        <section v-for="device in devices" :key="device.id" class="pc-card" @click.stop="toggleMenu(device)">
+            <div class="monitor-frame">
+                <div class="screen">
+                    <img v-if="device.screenshotUrl && !device.noScreenshot"
+                         :src="device.screenshotUrl"
+                         :alt="device.name + ' 截图'"
+                         @load="onScreenshotLoad(device)"
+                         @error="onScreenshotError(device)">
+                    <div v-if="device.noScreenshot && !device.loading" class="screen-empty">
+                        <span class="pc-icon"></span>
+                        <span>暂无截图</span>
+                    </div>
+                    <div v-if="device.loading" class="screen-loading">
+                        <span class="spinner"></span>
+                        <span>截图加载中</span>
+                    </div>
+                </div>
+            </div>
+            <div class="monitor-neck"></div>
+            <div class="monitor-base"></div>
+
+            <div class="device-info">
+                <div>
+                    <div class="device-name" :title="device.name">{{device.name}}</div>
+                    <div class="device-ip">{{device.ipAddress || '未配置 IP'}}</div>
+                </div>
+                <div :class="['status-pill', device.status === 1 ? 'online' : '']">
+                    <span class="status-dot"></span>
+                    <span>{{device.status === 1 ? '在线' : '离线'}}</span>
+                </div>
+            </div>
+
+            <div v-if="activeDeviceId === device.id" class="action-menu" @click.stop>
+                <button class="menu-item" type="button" @click="captureScreenshot(device)">
+                    <span>📸</span><span>截图</span>
+                </button>
+                <button class="menu-item" type="button" @click="openTerminal(device)">
+                    <span>💻</span><span>终端</span>
+                </button>
+                <button class="menu-item" type="button" @click="goPower">
+                    <span>🔌</span><span>电源</span>
+                </button>
+            </div>
+        </section>
+    </main>
+
+    <el-dialog
+            :title="terminalDevice ? terminalDevice.name + ' · Shell' : 'Shell'"
+            :visible.sync="terminalVisible"
+            width="88%"
+            top="5vh"
+            custom-class="terminal-dialog"
+            @opened="focusTerminalInput">
+        <div class="terminal-body">
+            <div ref="terminalOutput" class="terminal-output">
+                <div v-for="(line, index) in terminalLines" :key="index" :class="['terminal-line', line.type]">
+                    {{line.text}}
+                </div>
+            </div>
+            <div class="terminal-input">
+                <span class="terminal-prompt">$</span>
+                <input ref="terminalInput"
+                       v-model="terminalCommand"
+                       :disabled="terminalLoading"
+                       @keydown.enter.prevent="executeTerminalCommand"
+                       @keydown.up.prevent="previousCommand"
+                       @keydown.down.prevent="nextCommand">
+            </div>
+        </div>
+    </el-dialog>
+</div>
+
+<script src="/lib/vue/vue.min.js"></script>
+<script src="/lib/element-ui/element-ui.js"></script>
+<script src="/lib/axios/axios.min.js"></script>
+<script>
+    new Vue({
+        el: '#app',
+        data: {
+            devices: [],
+            activeDeviceId: null,
+            pageLoading: false,
+            refreshing: false,
+            refreshTimer: null,
+            terminalVisible: false,
+            terminalDevice: null,
+            terminalLines: [],
+            terminalCommand: '',
+            terminalLoading: false,
+            commandHistory: [],
+            historyIndex: -1
+        },
+        created: function () {
+            this.loadDevices();
+            this.refreshTimer = setInterval(this.refreshAllScreenshots, 60000);
+        },
+        beforeDestroy: function () {
+            if (this.refreshTimer) {
+                clearInterval(this.refreshTimer);
+            }
+        },
+        methods: {
+            loadDevices: async function () {
+                this.pageLoading = true;
+                try {
+                    var response = await axios.get('/device/pc/devices');
+                    var list = response.data && response.data.data ? response.data.data : [];
+                    this.devices = list.map(function (device) {
+                        device.loading = true;
+                        device.noScreenshot = false;
+                        device.screenshotUrl = this.latestScreenshotUrl(device.id);
+                        return device;
+                    }, this);
+                } catch (error) {
+                    this.$message.error('加载设备列表失败');
+                } finally {
+                    this.pageLoading = false;
+                }
+            },
+
+            latestScreenshotUrl: function (deviceId) {
+                return '/device/pc/' + deviceId + '/screenshot/latest?t=' + Date.now();
+            },
+
+            refreshAllScreenshots: function () {
+                if (this.devices.length === 0) {
+                    return;
+                }
+                this.refreshing = true;
+                this.devices.forEach(function (device) {
+                    device.loading = true;
+                    device.noScreenshot = false;
+                    device.screenshotUrl = this.latestScreenshotUrl(device.id);
+                }, this);
+                setTimeout(function () {
+                    this.refreshing = false;
+                }.bind(this), 800);
+            },
+
+            onScreenshotLoad: function (device) {
+                device.loading = false;
+                device.noScreenshot = false;
+            },
+
+            onScreenshotError: function (device) {
+                device.loading = false;
+                device.noScreenshot = true;
+            },
+
+            toggleMenu: function (device) {
+                this.activeDeviceId = this.activeDeviceId === device.id ? null : device.id;
+            },
+
+            closeMenu: function () {
+                this.activeDeviceId = null;
+            },
+
+            captureScreenshot: async function (device) {
+                this.activeDeviceId = null;
+                device.loading = true;
+                device.noScreenshot = false;
+                try {
+                    var response = await axios.post('/device/pc/' + device.id + '/screenshot');
+                    if (response.data.status !== 'success') {
+                        throw new Error(response.data.message || '截图失败');
+                    }
+                    device.screenshotUrl = this.latestScreenshotUrl(device.id);
+                    this.$message.success(response.data.message || '截图已更新');
+                } catch (error) {
+                    device.loading = false;
+                    this.$message.error(this.errorMessage(error, '截图失败'));
+                }
+            },
+
+            openTerminal: function (device) {
+                this.activeDeviceId = null;
+                this.terminalDevice = device;
+                this.terminalLines = [
+                    {type: 'system', text: '已连接到 ' + device.name + ' (' + (device.ipAddress || '-') + ')'}
+                ];
+                this.terminalCommand = '';
+                this.terminalVisible = true;
+                this.historyIndex = this.commandHistory.length;
+            },
+
+            focusTerminalInput: function () {
+                this.$nextTick(function () {
+                    if (this.$refs.terminalInput) {
+                        this.$refs.terminalInput.focus();
+                    }
+                });
+            },
+
+            executeTerminalCommand: async function () {
+                var command = this.terminalCommand.trim();
+                if (!command || !this.terminalDevice || this.terminalLoading) {
+                    return;
+                }
+
+                this.terminalLines.push({type: 'command', text: '$ ' + command});
+                this.commandHistory.push(command);
+                this.historyIndex = this.commandHistory.length;
+                this.terminalCommand = '';
+                this.terminalLoading = true;
+                this.scrollTerminalToBottom();
+
+                try {
+                    var response = await axios.post('/device/pc/command/' + this.terminalDevice.id, {
+                        command: command,
+                        timeoutSeconds: 60
+                    });
+                    if (response.data.status !== 'success') {
+                        throw new Error(response.data.message || '命令执行失败');
+                    }
+                    var result = response.data.data || {};
+                    if (result.stdout) {
+                        this.terminalLines.push({type: 'stdout', text: result.stdout});
+                    }
+                    if (result.stderr) {
+                        this.terminalLines.push({type: 'stderr', text: result.stderr});
+                    }
+                    if (result.error) {
+                        this.terminalLines.push({type: 'stderr', text: result.error});
+                    }
+                    if (!result.stdout && !result.stderr && !result.error) {
+                        this.terminalLines.push({type: 'system', text: 'exitCode=' + result.exitCode});
+                    }
+                } catch (error) {
+                    this.terminalLines.push({type: 'stderr', text: this.errorMessage(error, '命令执行失败')});
+                } finally {
+                    this.terminalLoading = false;
+                    this.scrollTerminalToBottom();
+                    this.focusTerminalInput();
+                }
+            },
+
+            previousCommand: function () {
+                if (this.commandHistory.length === 0) {
+                    return;
+                }
+                this.historyIndex = Math.max(0, this.historyIndex - 1);
+                this.terminalCommand = this.commandHistory[this.historyIndex] || '';
+            },
+
+            nextCommand: function () {
+                if (this.commandHistory.length === 0) {
+                    return;
+                }
+                this.historyIndex = Math.min(this.commandHistory.length, this.historyIndex + 1);
+                this.terminalCommand = this.commandHistory[this.historyIndex] || '';
+            },
+
+            scrollTerminalToBottom: function () {
+                this.$nextTick(function () {
+                    var output = this.$refs.terminalOutput;
+                    if (output) {
+                        output.scrollTop = output.scrollHeight;
+                    }
+                });
+            },
+
+            goPower: function () {
+                window.location.href = '/device/pc/power.html';
+            },
+
+            errorMessage: function (error, fallback) {
+                if (error && error.response && error.response.data && error.response.data.message) {
+                    return error.response.data.message;
+                }
+                if (error && error.message) {
+                    return error.message;
+                }
+                return fallback;
+            }
+        }
+    });
+</script>
+</body>
+</html>
