@@ -49,4 +49,19 @@ public interface UserService {
      * @return
      */
     PageInfo<UserInfoVo> unionAllTest(int page, int size);
+
+    /**
+     * 管理员重置用户密码
+     *
+     * @param userId 用户ID
+     */
+    void resetPassword(Long userId);
+
+    /**
+     * 当前登录用户修改自己的密码
+     *
+     * @param oldPassword 旧密码
+     * @param newPassword 新密码
+     */
+    void changePassword(String oldPassword, String newPassword);
 }

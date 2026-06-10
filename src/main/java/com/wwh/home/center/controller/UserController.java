@@ -11,15 +11,20 @@ import com.wwh.home.center.model.vo.SysPermissionVo;
 import com.wwh.home.center.model.vo.SysRoleVo;
 import com.wwh.home.center.model.vo.UserInfoVo;
 import com.wwh.home.center.security.UserContextHolder;
+import com.wwh.home.center.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.constraints.NotEmpty;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,6 +40,9 @@ import java.util.List;
 @Api(tags = "登录用户信息")
 @RequestMapping("/user")
 public class UserController {
+
+    @Autowired
+    private UserService userService;
 
     @ApiOperation("获取登录用户信息")
     @GetMapping("/info")
@@ -96,5 +104,12 @@ public class UserController {
         });
         return Result.success(resultList);
     }
-}
 
+    @ApiOperation("当前登录用户修改自己的密码")
+    @PutMapping("/changePassword")
+    public Result<Void> changePassword(@RequestParam @NotEmpty(message = "旧密码不能为空") String oldPassword,
+                                       @RequestParam @NotEmpty(message = "新密码不能为空") String newPassword) {
+        userService.changePassword(oldPassword, newPassword);
+        return Result.success();
+    }
+}

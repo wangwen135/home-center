@@ -48,14 +48,14 @@
             </if>
             AND deleted = 0
         </where>
-        ORDER BY user_id DESC
+        ORDER BY id DESC
     </select>
 
     <select id="listUser" resultMap="BaseResultMap">
         SELECT
         <include refid="Base_Column_List"/>
         FROM user_info
-        WHERE user_id in
+        WHERE id in
         <foreach collection="list" index="index" item="item" open="(" separator="," close=")">
             #{item,jdbcType=BIGINT}
         </foreach>

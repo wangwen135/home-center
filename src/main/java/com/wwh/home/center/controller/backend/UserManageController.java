@@ -1,6 +1,7 @@
 package com.wwh.home.center.controller.backend;
 
 import com.wwh.home.center.common.constant.RegexpConstants;
+import com.wwh.home.center.common.exception.ForbiddenException;
 import com.wwh.home.center.common.model.PageInfo;
 import com.wwh.home.center.common.model.Result;
 import com.wwh.home.center.common.util.PageHelper;
@@ -8,6 +9,7 @@ import com.wwh.home.center.model.entity.UserInfo;
 import com.wwh.home.center.model.qo.PageQuery;
 import com.wwh.home.center.model.qo.UserQuery;
 import com.wwh.home.center.model.vo.UserInfoVo;
+import com.wwh.home.center.security.UserContextHolder;
 import com.wwh.home.center.service.UserService;
 import io.swagger.annotations.*;
 import lombok.extern.slf4j.Slf4j;
@@ -29,6 +31,16 @@ public class UserManageController {
 
     @Autowired
     private UserService userService;
+
+    @ApiOperation("管理员重置指定用户密码")
+    @ApiImplicitParam(name = "userId", value = "用户id", required = true)
+    @PutMapping("/resetPassword")
+    public Result<Void> resetPassword(@RequestParam @NotNull(message = "用户Id不能为空") Long userId) {
+        checkSuperAdmin();
+        log.info("管理员重置用户密码，userId={}", userId);
+        userService.resetPassword(userId);
+        return Result.success();
+    }
 
     @ApiOperation("根据userId获取用户信息")
     @ApiImplicitParam(name = "userId", value = "用户id", required = true)
@@ -90,6 +102,12 @@ public class UserManageController {
     public Result<PageInfo<UserInfoVo>> unionAllTest(@RequestBody PageQuery page) {
         log.debug("分页查询条件：{}", page);
         return Result.success(userService.unionAllTest(page.getPageNum(), page.getPageSize()));
+    }
+
+    private void checkSuperAdmin() {
+        if (!UserContextHolder.isSuperAdmin()) {
+            throw new ForbiddenException("只有超级管理员才能访问后台管理接口");
+        }
     }
 
 }

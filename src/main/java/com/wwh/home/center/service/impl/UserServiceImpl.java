@@ -2,19 +2,24 @@ package com.wwh.home.center.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.wwh.home.center.common.exception.BusinessException;
 import com.wwh.home.center.common.model.PageInfo;
 import com.wwh.home.center.common.util.PageHelper;
 import com.wwh.home.center.dao.mapper.UserInfoMapper;
 import com.wwh.home.center.model.entity.UserInfo;
 import com.wwh.home.center.model.qo.UserQuery;
 import com.wwh.home.center.model.vo.UserInfoVo;
+import com.wwh.home.center.security.UserContextHolder;
 import com.wwh.home.center.service.UserService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.security.SecureRandom;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -28,6 +33,12 @@ import java.util.List;
 @Slf4j
 @Service
 public class UserServiceImpl implements UserService {
+
+    private static final String DEFAULT_PASSWORD = "123456";
+
+    private static final int SALT_LENGTH = 6;
+
+    private static final SecureRandom SECURE_RANDOM = new SecureRandom();
 
     @Autowired
     private UserInfoMapper userInfoMapper;
@@ -146,6 +157,54 @@ public class UserServiceImpl implements UserService {
         pageInfo.setData(voList);
         pageInfo.setTotal(mPage.getTotal());
         return pageInfo;
+    }
+
+    @Override
+    public void resetPassword(Long userId) {
+        UserInfo user = userInfoMapper.selectById(userId);
+        if (user == null || Boolean.TRUE.equals(user.getDeleted())) {
+            throw new BusinessException("用户不存在");
+        }
+        updatePassword(user, DEFAULT_PASSWORD);
+        log.info("管理员重置用户密码成功，userId={}", userId);
+    }
+
+    @Override
+    public void changePassword(String oldPassword, String newPassword) {
+        Integer userId = UserContextHolder.isLoggedIn();
+        UserInfo user = userInfoMapper.selectById(userId);
+        if (user == null || Boolean.TRUE.equals(user.getDeleted())) {
+            throw new BusinessException("当前用户不存在");
+        }
+        String oldPasswordHex = encryptPassword(oldPassword, user.getSalt());
+        if (!oldPasswordHex.equals(user.getPassword())) {
+            throw new BusinessException("旧密码不正确");
+        }
+        updatePassword(user, newPassword);
+        log.info("用户修改自己的密码成功，userId={}", userId);
+    }
+
+    private void updatePassword(UserInfo user, String password) {
+        String salt = randomSalt();
+        UserInfo update = new UserInfo();
+        update.setId(user.getId());
+        update.setSalt(salt);
+        update.setPassword(encryptPassword(password, salt));
+        update.setUpdateBy(UserContextHolder.getUserId());
+        update.setUpdateTime(LocalDateTime.now());
+        userInfoMapper.updateById(update);
+    }
+
+    private String encryptPassword(String password, String salt) {
+        return DigestUtils.sha256Hex(password + salt + password);
+    }
+
+    private String randomSalt() {
+        StringBuilder sb = new StringBuilder(SALT_LENGTH);
+        for (int i = 0; i < SALT_LENGTH; i++) {
+            sb.append(SECURE_RANDOM.nextInt(10));
+        }
+        return sb.toString();
     }
 
 }

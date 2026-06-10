@@ -1,0 +1,491 @@
+<!doctype html>
+<html lang="zh-CN" class="h-100">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>后台管理 - Home Center</title>
+    <link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/common.css">
+    <link rel="stylesheet" href="/css/index.css">
+    <style>
+        body {
+            background: #05070a;
+            color: #e8eef6;
+        }
+
+        .manage-shell {
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .manage-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 220px minmax(0, 1fr);
+            gap: 18px;
+        }
+
+        .sidebar {
+            border: 1px solid rgba(255, 255, 255, .14);
+            background: rgba(255, 255, 255, .05);
+            border-radius: 8px;
+            padding: 12px;
+            height: fit-content;
+        }
+
+        .content-panel {
+            border: 1px solid rgba(255, 255, 255, .14);
+            background: rgba(255, 255, 255, .05);
+            border-radius: 8px;
+            padding: 18px;
+            min-height: 620px;
+        }
+
+        .nav-pills .nav-link {
+            color: rgba(255, 255, 255, .72);
+            text-align: left;
+            border-radius: 6px;
+        }
+
+        .nav-pills .nav-link.active {
+            background: #0d6efd;
+            color: #fff;
+        }
+
+        .table-dark {
+            --bs-table-bg: transparent;
+            --bs-table-striped-bg: rgba(255, 255, 255, .04);
+            --bs-table-hover-bg: rgba(13, 110, 253, .12);
+            border-color: rgba(255, 255, 255, .12);
+        }
+
+        .toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+
+        .form-control, .form-select {
+            background: rgba(255, 255, 255, .08);
+            border-color: rgba(255, 255, 255, .18);
+            color: #fff;
+        }
+
+        .form-control:focus, .form-select:focus {
+            background: rgba(255, 255, 255, .1);
+            color: #fff;
+        }
+
+        .form-control::placeholder {
+            color: rgba(255, 255, 255, .45);
+        }
+
+        .config-value {
+            cursor: text;
+            min-width: 160px;
+            border-bottom: 1px dashed rgba(255, 255, 255, .35);
+            word-break: break-all;
+        }
+
+        .empty-state {
+            display: none;
+            padding: 42px 16px;
+            text-align: center;
+            color: rgba(255, 255, 255, .6);
+        }
+
+        .modal-content {
+            background: #121821;
+            color: #e8eef6;
+            border: 1px solid rgba(255, 255, 255, .16);
+        }
+
+        @media (max-width: 768px) {
+            .manage-shell {
+                padding: 14px;
+            }
+
+            .layout {
+                grid-template-columns: 1fr;
+            }
+
+            .toolbar {
+                align-items: stretch;
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="manage-shell">
+    <header class="manage-header">
+        <div>
+            <h3 class="mb-1">后台管理</h3>
+            <div class="text-white-50 small">Home Center</div>
+        </div>
+        <a class="btn btn-outline-light btn-sm" href="/admin.html">返回首页</a>
+    </header>
+
+    <div id="forbiddenPanel" class="alert alert-warning d-none">
+        当前账号没有后台管理权限。
+    </div>
+
+    <div id="manageLayout" class="layout d-none">
+        <aside class="sidebar">
+            <nav class="nav nav-pills flex-column" id="manageTabs" role="tablist">
+                <button class="nav-link active" data-bs-toggle="pill" data-bs-target="#userPane" type="button">用户管理</button>
+                <button class="nav-link" data-bs-toggle="pill" data-bs-target="#devicePane" type="button">设备管理</button>
+                <button class="nav-link" data-bs-toggle="pill" data-bs-target="#configPane" type="button">系统配置</button>
+            </nav>
+        </aside>
+
+        <main class="content-panel">
+            <div class="tab-content">
+                <section class="tab-pane fade show active" id="userPane">
+                    <div class="toolbar">
+                        <h5 class="mb-0">用户管理</h5>
+                        <div class="input-group" style="max-width: 360px;">
+                            <input id="userSearchInput" class="form-control" placeholder="用户名">
+                            <button id="userSearchBtn" class="btn btn-primary" type="button">搜索</button>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-dark table-striped table-hover align-middle">
+                            <thead>
+                            <tr>
+                                <th>用户名</th>
+                                <th>昵称</th>
+                                <th>手机</th>
+                                <th>状态</th>
+                                <th>创建时间</th>
+                                <th class="text-end">操作</th>
+                            </tr>
+                            </thead>
+                            <tbody id="userTableBody"></tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section class="tab-pane fade" id="devicePane">
+                    <div class="toolbar">
+                        <h5 class="mb-0">设备管理</h5>
+                        <button id="addDeviceBtn" class="btn btn-primary btn-sm" type="button">添加设备</button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-dark table-striped table-hover align-middle">
+                            <thead>
+                            <tr>
+                                <th>名称</th>
+                                <th>IP</th>
+                                <th>端口</th>
+                                <th>MAC</th>
+                                <th>状态</th>
+                                <th class="text-end">操作</th>
+                            </tr>
+                            </thead>
+                            <tbody id="deviceTableBody"></tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section class="tab-pane fade" id="configPane">
+                    <div class="toolbar">
+                        <h5 class="mb-0">系统配置</h5>
+                        <button id="refreshConfigBtn" class="btn btn-outline-light btn-sm" type="button">刷新</button>
+                    </div>
+                    <div id="configEmptyState" class="empty-state">
+                        sys_config 表不存在或暂无配置。
+                    </div>
+                    <div id="configTableWrap" class="table-responsive">
+                        <table class="table table-dark table-striped table-hover align-middle">
+                            <thead>
+                            <tr>
+                                <th style="width: 260px;">key</th>
+                                <th>value</th>
+                                <th>描述</th>
+                            </tr>
+                            </thead>
+                            <tbody id="configTableBody"></tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+</div>
+
+<div class="modal fade" id="deviceModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <form class="modal-content" id="deviceForm">
+            <div class="modal-header py-2">
+                <h6 class="modal-title" id="deviceModalTitle">添加设备</h6>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="deviceId">
+                <div class="mb-3">
+                    <label class="form-label" for="deviceName">名称</label>
+                    <input class="form-control" id="deviceName" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="deviceIp">IP</label>
+                    <input class="form-control" id="deviceIp" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="devicePort">端口</label>
+                    <input class="form-control" id="devicePort" type="number" min="1">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="deviceMac">MAC</label>
+                    <input class="form-control" id="deviceMac">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="deviceStatus">状态</label>
+                    <select class="form-select" id="deviceStatus">
+                        <option value="1">启用</option>
+                        <option value="0">停用</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="form-label" for="deviceDesc">描述</label>
+                    <textarea class="form-control" id="deviceDesc" rows="3"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer py-2">
+                <button type="submit" class="btn btn-primary">保存</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="/js/jquery-3.6.1.min.js"></script>
+<script src="/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="/js/main.js"></script>
+<script>
+    let devices = [];
+    const deviceModal = new bootstrap.Modal(document.getElementById('deviceModal'));
+
+    $(function () {
+        checkAdmin();
+        $('#userSearchBtn').on('click', loadUsers);
+        $('#userSearchInput').on('keydown', function (event) {
+            if (event.key === 'Enter') {
+                loadUsers();
+            }
+        });
+        $('#userTableBody').on('click', '.reset-password-btn', function () {
+            resetPassword($(this).data('user-id'), $(this).data('username'));
+        });
+        $('#addDeviceBtn').on('click', openAddDeviceModal);
+        $('#deviceForm').on('submit', saveDevice);
+        $('#refreshConfigBtn').on('click', loadConfigs);
+    });
+
+    function checkAdmin() {
+        getRequest('/user/role', function (role) {
+            if (role && role.id === 1) {
+                $('#manageLayout').removeClass('d-none');
+                loadUsers();
+                loadDevices();
+                loadConfigs();
+            } else {
+                $('#forbiddenPanel').removeClass('d-none');
+            }
+        }, function () {
+            $('#forbiddenPanel').removeClass('d-none').text('请先登录超级管理员账号。');
+        });
+    }
+
+    function loadUsers() {
+        const username = $.trim($('#userSearchInput').val());
+        const body = {
+            pageNum: 1,
+            pageSize: 100,
+            condition: {
+                username: username
+            }
+        };
+        postRequest('/backend/user/findPage2', body, function (page) {
+            renderUsers((page && page.data) || []);
+        });
+    }
+
+    function renderUsers(list) {
+        const rows = list.map(function (user) {
+            const status = user.disabled ? '禁用' : (user.locked ? '锁定' : '正常');
+            return '<tr>' +
+                '<td>' + escapeHtml(user.username) + '</td>' +
+                '<td>' + escapeHtml(user.nickname) + '</td>' +
+                '<td>' + escapeHtml(user.phone) + '</td>' +
+                '<td>' + status + '</td>' +
+                '<td>' + escapeHtml(user.createTime) + '</td>' +
+                '<td class="text-end"><button class="btn btn-outline-warning btn-sm reset-password-btn" data-user-id="' + user.id + '" data-username="' + escapeHtml(user.username) + '">重置密码</button></td>' +
+                '</tr>';
+        });
+        $('#userTableBody').html(rows.join('') || '<tr><td colspan="6" class="text-center text-white-50">暂无数据</td></tr>');
+    }
+
+    function resetPassword(userId, username) {
+        showConfirm('重置密码', '确定将用户 ' + escapeHtml(username) + ' 的密码重置为 123456？', MsgTypes.WARNING, function () {
+            request('/backend/user/resetPassword?userId=' + encodeURIComponent(userId), {method: 'PUT'}, function () {
+                showToastSimple('密码已重置为 123456', MsgTypes.SUCCESS, Position.TopCenter);
+            });
+        });
+    }
+
+    function loadDevices() {
+        getRequest('/backend/device/pc/list', function (list) {
+            devices = list || [];
+            renderDevices();
+        });
+    }
+
+    function renderDevices() {
+        const rows = devices.map(function (device) {
+            const status = Number(device.status) === 1 ? '启用' : '停用';
+            return '<tr>' +
+                '<td>' + escapeHtml(device.name) + '</td>' +
+                '<td>' + escapeHtml(device.ipAddress) + '</td>' +
+                '<td>' + escapeHtml(device.socketPort) + '</td>' +
+                '<td>' + escapeHtml(device.macAddress) + '</td>' +
+                '<td>' + status + '</td>' +
+                '<td class="text-end">' +
+                '<button class="btn btn-outline-light btn-sm me-2" onclick="openEditDeviceModal(' + device.id + ')">编辑</button>' +
+                '<button class="btn btn-outline-danger btn-sm" onclick="deleteDevice(' + device.id + ')">删除</button>' +
+                '</td>' +
+                '</tr>';
+        });
+        $('#deviceTableBody').html(rows.join('') || '<tr><td colspan="6" class="text-center text-white-50">暂无数据</td></tr>');
+    }
+
+    function openAddDeviceModal() {
+        $('#deviceModalTitle').text('添加设备');
+        $('#deviceForm')[0].reset();
+        $('#deviceId').val('');
+        $('#deviceStatus').val('1');
+        deviceModal.show();
+    }
+
+    function openEditDeviceModal(id) {
+        const device = devices.find(function (item) {
+            return item.id === id;
+        });
+        if (!device) {
+            return;
+        }
+        $('#deviceModalTitle').text('编辑设备');
+        $('#deviceId').val(device.id);
+        $('#deviceName').val(device.name || '');
+        $('#deviceIp').val(device.ipAddress || '');
+        $('#devicePort').val(device.socketPort || '');
+        $('#deviceMac').val(device.macAddress || '');
+        $('#deviceStatus').val(String(device.status == null ? 1 : device.status));
+        $('#deviceDesc').val(device.description || '');
+        deviceModal.show();
+    }
+
+    function saveDevice(event) {
+        event.preventDefault();
+        const id = $('#deviceId').val();
+        const payload = {
+            id: id ? Number(id) : null,
+            name: $.trim($('#deviceName').val()),
+            ipAddress: $.trim($('#deviceIp').val()),
+            socketPort: $('#devicePort').val() ? Number($('#devicePort').val()) : null,
+            macAddress: $.trim($('#deviceMac').val()),
+            status: Number($('#deviceStatus').val()),
+            description: $.trim($('#deviceDesc').val())
+        };
+        const url = id ? '/backend/device/pc/update' : '/backend/device/pc/add';
+        const method = id ? 'PUT' : 'POST';
+        request(url, {method: method, body: payload}, function () {
+            deviceModal.hide();
+            showToastSimple('设备已保存', MsgTypes.SUCCESS, Position.TopCenter);
+            loadDevices();
+        });
+    }
+
+    function deleteDevice(id) {
+        showConfirm('删除设备', '确定删除该设备？', MsgTypes.WARNING, function () {
+            request('/backend/device/pc/delete?id=' + encodeURIComponent(id), {method: 'DELETE'}, function () {
+                showToastSimple('设备已删除', MsgTypes.SUCCESS, Position.TopCenter);
+                loadDevices();
+            });
+        });
+    }
+
+    function loadConfigs() {
+        getRequest('/backend/config/list', function (list) {
+            renderConfigs(list || []);
+        }, function () {
+            $('#configTableWrap').hide();
+            $('#configEmptyState').show();
+        });
+    }
+
+    function renderConfigs(list) {
+        if (!list.length) {
+            $('#configTableWrap').hide();
+            $('#configEmptyState').show();
+            $('#configTableBody').empty();
+            return;
+        }
+        $('#configEmptyState').hide();
+        $('#configTableWrap').show();
+        const rows = list.map(function (item) {
+            return '<tr>' +
+                '<td><code>' + escapeHtml(item.configKey) + '</code></td>' +
+                '<td class="config-value" contenteditable="true" data-key="' + escapeHtml(item.configKey) + '">' + escapeHtml(item.configValue) + '</td>' +
+                '<td>' + escapeHtml(item.description) + '</td>' +
+                '</tr>';
+        });
+        $('#configTableBody').html(rows.join(''));
+        $('.config-value').on('blur', saveConfigValue);
+        $('.config-value').on('keydown', function (event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                $(this).blur();
+            }
+        });
+    }
+
+    function saveConfigValue() {
+        const cell = $(this);
+        const key = cell.data('key');
+        const value = cell.text();
+        request('/backend/config/update', {
+            method: 'PUT',
+            body: {
+                key: key,
+                value: value
+            }
+        }, function () {
+            showToastSimple('配置已保存', MsgTypes.SUCCESS, Position.TopCenter);
+        });
+    }
+
+    function escapeHtml(value) {
+        if (value === null || value === undefined) {
+            return '';
+        }
+        return String(value)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+
+</script>
+</body>
+</html>
