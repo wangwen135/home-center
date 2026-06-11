@@ -51,6 +51,37 @@
             --transition-base: 200ms ease;
         }
 
+        [data-theme="light"] {
+            --background: #ffffff;
+            --foreground: #09090b;
+            --card: #ffffff;
+            --card-foreground: #09090b;
+            --popover: #ffffff;
+            --popover-foreground: #09090b;
+            --primary: #18181b;
+            --primary-foreground: #fafafa;
+            --secondary: #f4f4f5;
+            --secondary-foreground: #18181b;
+            --muted: #f4f4f5;
+            --muted-foreground: #71717a;
+            --accent: #f4f4f5;
+            --accent-foreground: #18181b;
+            --destructive: #fef2f2;
+            --border: rgba(0,0,0,0.10);
+            --input: rgba(0,0,0,0.12);
+            --ring: #a1a1aa;
+            --accent-blue: #2563eb;
+            --accent-indigo: #4f46e5;
+            --success: #16a34a;
+            --warning: #ca8a04;
+            --danger: #dc2626;
+            --info: #2563eb;
+            --shadow-border: 0 0 0 1px rgba(0,0,0,0.06);
+            --shadow-card: 0 0 0 1px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.08);
+            --shadow-card-hover: 0 0 0 1px rgba(0,0,0,0.10), 0 4px 12px rgba(0,0,0,0.10);
+            --shadow-modal: 0 0 0 1px rgba(0,0,0,0.08), 0 24px 48px rgba(0,0,0,0.12);
+        }
+
         * { box-sizing: border-box; margin: 0; }
 
         body {
@@ -102,6 +133,31 @@
             letter-spacing: 0.04em;
             text-transform: uppercase;
         }
+        .theme-toggle {
+            width: 30px;
+            height: 30px;
+            padding: 0;
+            margin-left: auto;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--muted-foreground);
+            background: transparent;
+            border: none;
+            border-radius: 9999px;
+            transition: all var(--transition-fast);
+        }
+        .theme-toggle:hover {
+            color: var(--foreground);
+            background: rgba(255,255,255,0.06);
+        }
+        .theme-toggle:focus-visible {
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(99,102,241,0.2);
+        }
+        .theme-toggle svg { display: none; }
+        [data-theme="dark"] .theme-toggle .theme-icon-moon,
+        [data-theme="light"] .theme-toggle .theme-icon-sun { display: block; }
 
         /* ── Layout ── */
         .layout {
@@ -466,6 +522,78 @@
         ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
         ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.18); }
 
+        [data-theme="light"] body { background: #fafafa; }
+        [data-theme="light"] .table-dark {
+            --bs-table-bg: transparent;
+            --bs-table-color: rgba(0,0,0,0.75);
+            --bs-table-striped-bg: rgba(0,0,0,0.02);
+            --bs-table-striped-color: rgba(0,0,0,0.75);
+            --bs-table-hover-bg: rgba(0,0,0,0.02);
+            --bs-table-hover-color: var(--foreground);
+            border-color: transparent;
+        }
+        [data-theme="light"] .table-dark thead th {
+            color: #71717a;
+            border-bottom: 1px solid rgba(0,0,0,0.10);
+            background: rgba(0,0,0,0.02);
+        }
+        [data-theme="light"] .table-dark td {
+            color: rgba(0,0,0,0.75);
+            border-bottom: 1px solid rgba(0,0,0,0.06);
+        }
+        [data-theme="light"] .table-dark tbody tr:hover td {
+            color: var(--foreground);
+            background: rgba(0,0,0,0.02);
+        }
+        [data-theme="light"] .nav-pills .nav-link:hover,
+        [data-theme="light"] .theme-toggle:hover {
+            background: rgba(0,0,0,0.04);
+        }
+        [data-theme="light"] .nav-pills .nav-link.active {
+            background: rgba(79,70,229,0.08);
+        }
+        [data-theme="light"] .btn-primary {
+            background: #18181b;
+            color: #fafafa;
+            border-color: #18181b;
+        }
+        [data-theme="light"] .btn-primary:hover {
+            background: #27272a;
+            border-color: #27272a;
+        }
+        [data-theme="light"] .btn-outline-light:hover {
+            background: rgba(0,0,0,0.04);
+            border-color: rgba(0,0,0,0.15);
+        }
+        [data-theme="light"] .btn-secondary {
+            background: #f4f4f5;
+            border-color: #f4f4f5;
+            color: #18181b;
+        }
+        [data-theme="light"] .btn-secondary:hover {
+            background: #e4e4e7;
+            border-color: #e4e4e7;
+        }
+        [data-theme="light"] .form-control,
+        [data-theme="light"] .form-select {
+            background: #ffffff;
+        }
+        [data-theme="light"] .form-control:focus,
+        [data-theme="light"] .form-select:focus {
+            background: #ffffff;
+            box-shadow: 0 0 0 2px rgba(79,70,229,0.12);
+        }
+        [data-theme="light"] .form-check-input { background-color: #e4e4e7; }
+        [data-theme="light"] .form-check-input:checked { background-color: var(--accent-indigo); }
+        [data-theme="light"] .modal-content { background: #ffffff; }
+        [data-theme="light"] ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); }
+        [data-theme="light"] ::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.25); }
+        [data-theme="light"] .permission-check-list { background: rgba(0,0,0,0.02); }
+        [data-theme="light"] .alert-warning {
+            background: rgba(202,138,4,0.06);
+            border-color: rgba(202,138,4,0.15);
+        }
+
         /* ── Animations ── */
         .tab-pane.active { animation: fadeIn 0.15s ease; }
         @keyframes fadeIn {
@@ -490,6 +618,10 @@
             <h3 class="mb-1">后台管理</h3>
             <div class="text-white-50 small">Home Center</div>
         </div>
+        <button id="themeToggleBtn" class="theme-toggle" type="button" title="切换主题">
+            <svg class="theme-icon-sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+            <svg class="theme-icon-moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </button>
         <a class="btn btn-outline-light btn-sm" href="/admin.html">返回首页</a>
     </header>
 
@@ -1249,6 +1381,40 @@
 <script src="/bootstrap/js/bootstrap.bundle.min.js"></script>
 <script src="/js/main.js"></script>
 <script>
+    const THEME_STORAGE_KEY = 'home-center-admin-theme';
+
+    function getInitialTheme() {
+        let savedTheme = null;
+        try {
+            savedTheme = localStorage.getItem(THEME_STORAGE_KEY);
+        } catch (e) {
+            savedTheme = null;
+        }
+        if (savedTheme === 'light' || savedTheme === 'dark') {
+            return savedTheme;
+        }
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
+            return 'light';
+        }
+        return 'dark';
+    }
+
+    function applyTheme(theme) {
+        const nextTheme = theme === 'light' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', nextTheme);
+        $('#themeToggleBtn').attr('title', nextTheme === 'light' ? '切换为暗色模式' : '切换为明亮模式');
+    }
+
+    function saveTheme(theme) {
+        try {
+            localStorage.setItem(THEME_STORAGE_KEY, theme);
+        } catch (e) {
+            // localStorage may be unavailable in private or restricted contexts.
+        }
+    }
+
+    applyTheme(getInitialTheme());
+
     let users = [];
     let roles = [];
     let permissions = [];
@@ -1271,6 +1437,12 @@
     const internalSystemModal = new bootstrap.Modal(document.getElementById('internalSystemModal'));
 
     $(function () {
+        applyTheme(document.documentElement.getAttribute('data-theme'));
+        $('#themeToggleBtn').on('click', function () {
+            const nextTheme = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+            applyTheme(nextTheme);
+            saveTheme(nextTheme);
+        });
         checkAdmin();
         $('#userSearchBtn').on('click', loadUsers);
         $('#userSearchInput').on('keydown', function (event) {
