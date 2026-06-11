@@ -106,8 +106,8 @@
         /* ── Layout ── */
         .layout {
             display: grid;
-            grid-template-columns: 192px minmax(0, 1fr);
-            gap: 12px;
+            grid-template-columns: 208px minmax(0, 1fr);
+            gap: 16px;
         }
 
         /* ── Sidebar ── */
@@ -166,7 +166,7 @@
         .content-panel {
             background: var(--card);
             border-radius: var(--radius);
-            padding: 20px 24px;
+            padding: 24px;
             min-height: 600px;
             box-shadow: var(--shadow-card);
         }
@@ -204,27 +204,27 @@
         /* ── Tables (Tabler-inspired) ── */
         .table-dark {
             --bs-table-bg: transparent;
-            --bs-table-striped-bg: rgba(255,255,255,0.015);
-            --bs-table-hover-bg: rgba(255,255,255,0.05);
+            --bs-table-striped-bg: rgba(255,255,255,0.02);
+            --bs-table-hover-bg: rgba(255,255,255,0.06);
             border-color: transparent;
             font-size: 0.8125rem;
             margin-bottom: 0;
         }
         .table-dark thead th {
-            color: var(--muted-foreground);
+            color: #d4d4d8;
             font-weight: 600;
             font-size: 0.6875rem;
             letter-spacing: 0.06em;
             text-transform: uppercase;
             padding: 10px 14px;
-            border-bottom: 1px solid var(--border);
-            background: rgba(255,255,255,0.02);
+            border-bottom: 1px solid rgba(255,255,255,0.12);
+            background: rgba(255,255,255,0.03);
             white-space: nowrap;
         }
         .table-dark td {
             padding: 10px 14px;
-            border-bottom: 1px solid rgba(255,255,255,0.06);
-            color: rgba(255,255,255,0.7);
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            color: rgba(255,255,255,0.82);
             vertical-align: middle;
             transition: all var(--transition-fast);
         }
@@ -233,7 +233,7 @@
         }
         .table-dark tbody tr:hover td {
             color: var(--foreground);
-            background: rgba(255,255,255,0.03);
+            background: rgba(255,255,255,0.04);
         }
         .table-dark td[colspan] {
             text-align: center;
@@ -252,7 +252,7 @@
         }
         .btn:active { transform: scale(0.97); }
         .btn-sm { padding: 4px 10px; font-size: 0.75rem; }
-        .me-2 { margin-right: 4px !important; }
+        .me-2 { margin-right: 6px !important; }
 
         .btn-primary {
             background: var(--foreground);
