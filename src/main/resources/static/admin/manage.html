@@ -120,6 +120,20 @@
             white-space: nowrap;
         }
 
+        .tree-name {
+            display: inline-block;
+            white-space: nowrap;
+        }
+
+        .permission-check-list {
+            max-height: 420px;
+            overflow: auto;
+            border: 1px solid rgba(255, 255, 255, .14);
+            border-radius: 8px;
+            padding: 10px;
+            background: rgba(255, 255, 255, .04);
+        }
+
         .modal-content {
             background: #121821;
             color: #e8eef6;
@@ -160,6 +174,8 @@
         <aside class="sidebar">
             <nav class="nav nav-pills flex-column" id="manageTabs" role="tablist">
                 <button class="nav-link active" data-bs-toggle="pill" data-bs-target="#userPane" type="button">用户管理</button>
+                <button class="nav-link" data-bs-toggle="pill" data-bs-target="#rolePane" type="button">角色管理</button>
+                <button class="nav-link" data-bs-toggle="pill" data-bs-target="#permissionPane" type="button">权限管理</button>
                 <button class="nav-link" data-bs-toggle="pill" data-bs-target="#devicePane" type="button">设备管理</button>
                 <button class="nav-link" data-bs-toggle="pill" data-bs-target="#configPane" type="button">系统配置</button>
                 <button class="nav-link" data-bs-toggle="pill" data-bs-target="#navPane" type="button">导航管理</button>
@@ -177,9 +193,12 @@
                 <section class="tab-pane fade show active" id="userPane">
                     <div class="toolbar">
                         <h5 class="mb-0">用户管理</h5>
-                        <div class="input-group" style="max-width: 360px;">
-                            <input id="userSearchInput" class="form-control" placeholder="用户名">
-                            <button id="userSearchBtn" class="btn btn-primary" type="button">搜索</button>
+                        <div class="d-flex gap-2">
+                            <button id="addUserBtn" class="btn btn-primary btn-sm" type="button">创建用户</button>
+                            <div class="input-group" style="max-width: 360px;">
+                                <input id="userSearchInput" class="form-control" placeholder="用户名">
+                                <button id="userSearchBtn" class="btn btn-primary" type="button">搜索</button>
+                            </div>
                         </div>
                     </div>
                     <div class="table-responsive">
@@ -189,12 +208,55 @@
                                 <th>用户名</th>
                                 <th>昵称</th>
                                 <th>手机</th>
+                                <th>角色</th>
                                 <th>状态</th>
                                 <th>创建时间</th>
                                 <th class="text-end">操作</th>
                             </tr>
                             </thead>
                             <tbody id="userTableBody"></tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section class="tab-pane fade" id="rolePane">
+                    <div class="toolbar">
+                        <h5 class="mb-0">角色管理</h5>
+                        <button id="addRoleBtn" class="btn btn-primary btn-sm" type="button">新建角色</button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-dark table-striped table-hover align-middle">
+                            <thead>
+                            <tr>
+                                <th>角色名</th>
+                                <th>备注</th>
+                                <th>创建时间</th>
+                                <th class="text-end">操作</th>
+                            </tr>
+                            </thead>
+                            <tbody id="roleTableBody"></tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section class="tab-pane fade" id="permissionPane">
+                    <div class="toolbar">
+                        <h5 class="mb-0">权限管理</h5>
+                        <button id="addPermissionBtn" class="btn btn-primary btn-sm" type="button">新建权限</button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-dark table-striped table-hover align-middle">
+                            <thead>
+                            <tr>
+                                <th>权限名</th>
+                                <th>类型</th>
+                                <th>URL 列表</th>
+                                <th>图标</th>
+                                <th>排序</th>
+                                <th class="text-end">操作</th>
+                            </tr>
+                            </thead>
+                            <tbody id="permissionTableBody"></tbody>
                         </table>
                     </div>
                 </section>
@@ -431,6 +493,154 @@
                 </section>
             </div>
         </main>
+    </div>
+</div>
+
+<div class="modal fade" id="userModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <form class="modal-content" id="userForm">
+            <div class="modal-header py-2">
+                <h6 class="modal-title" id="userModalTitle">创建用户</h6>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="userId">
+                <div class="mb-3 user-create-field">
+                    <label class="form-label" for="userUsername">用户名</label>
+                    <input class="form-control" id="userUsername" required>
+                </div>
+                <div class="mb-3 user-create-field">
+                    <label class="form-label" for="userPassword">密码</label>
+                    <input class="form-control" id="userPassword" type="password" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="userNickname">昵称</label>
+                    <input class="form-control" id="userNickname">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="userPhone">手机</label>
+                    <input class="form-control" id="userPhone">
+                </div>
+                <div class="user-create-field">
+                    <label class="form-label" for="userRole">角色</label>
+                    <select class="form-select" id="userRole" required></select>
+                </div>
+            </div>
+            <div class="modal-footer py-2">
+                <button type="submit" class="btn btn-primary">保存</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="modal fade" id="assignUserRoleModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <form class="modal-content" id="assignUserRoleForm">
+            <div class="modal-header py-2">
+                <h6 class="modal-title">分配角色</h6>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="assignUserRoleUserId">
+                <div id="assignUserRoleList"></div>
+            </div>
+            <div class="modal-footer py-2">
+                <button type="submit" class="btn btn-primary">保存</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="modal fade" id="roleModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <form class="modal-content" id="roleForm">
+            <div class="modal-header py-2">
+                <h6 class="modal-title" id="roleModalTitle">新建角色</h6>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="roleId">
+                <div class="mb-3">
+                    <label class="form-label" for="roleName">角色名</label>
+                    <input class="form-control" id="roleName" required>
+                </div>
+                <div>
+                    <label class="form-label" for="roleRemark">备注</label>
+                    <textarea class="form-control" id="roleRemark" rows="3"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer py-2">
+                <button type="submit" class="btn btn-primary">保存</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="modal fade" id="rolePermissionModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <form class="modal-content" id="rolePermissionForm">
+            <div class="modal-header py-2">
+                <h6 class="modal-title" id="rolePermissionModalTitle">分配权限</h6>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="rolePermissionRoleId">
+                <div id="rolePermissionList" class="permission-check-list"></div>
+            </div>
+            <div class="modal-footer py-2">
+                <button type="submit" class="btn btn-primary">保存</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="modal fade" id="permissionModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <form class="modal-content" id="permissionForm">
+            <div class="modal-header py-2">
+                <h6 class="modal-title" id="permissionModalTitle">新建权限</h6>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="permissionId">
+                <div class="mb-3">
+                    <label class="form-label" for="permissionPid">上级权限</label>
+                    <select class="form-select" id="permissionPid"></select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="permissionName">权限名</label>
+                    <input class="form-control" id="permissionName" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="permissionType">类型</label>
+                    <select class="form-select" id="permissionType">
+                        <option value="1">目录</option>
+                        <option value="2">菜单</option>
+                        <option value="3">按钮</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="permissionUrls">URL 列表</label>
+                    <input class="form-control" id="permissionUrls" placeholder="多个 URL 用分号分隔">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="permissionIcon">图标</label>
+                    <input class="form-control" id="permissionIcon">
+                </div>
+                <div>
+                    <label class="form-label" for="permissionSort">排序</label>
+                    <input class="form-control" id="permissionSort" type="number" value="0">
+                </div>
+            </div>
+            <div class="modal-footer py-2">
+                <button type="submit" class="btn btn-primary">保存</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+            </div>
+        </form>
     </div>
 </div>
 
@@ -712,12 +922,20 @@
 <script src="/bootstrap/js/bootstrap.bundle.min.js"></script>
 <script src="/js/main.js"></script>
 <script>
+    let users = [];
+    let roles = [];
+    let permissions = [];
     let devices = [];
     let navCategories = [];
     let navLinks = [];
     let famousQuotes = [];
     let promptMessages = [];
     let internalSystems = [];
+    const userModal = new bootstrap.Modal(document.getElementById('userModal'));
+    const assignUserRoleModal = new bootstrap.Modal(document.getElementById('assignUserRoleModal'));
+    const roleModal = new bootstrap.Modal(document.getElementById('roleModal'));
+    const rolePermissionModal = new bootstrap.Modal(document.getElementById('rolePermissionModal'));
+    const permissionModal = new bootstrap.Modal(document.getElementById('permissionModal'));
     const deviceModal = new bootstrap.Modal(document.getElementById('deviceModal'));
     const navCategoryModal = new bootstrap.Modal(document.getElementById('navCategoryModal'));
     const navLinkModal = new bootstrap.Modal(document.getElementById('navLinkModal'));
@@ -733,9 +951,17 @@
                 loadUsers();
             }
         });
+        $('#addUserBtn').on('click', openAddUserModal);
+        $('#userForm').on('submit', saveUser);
+        $('#assignUserRoleForm').on('submit', saveUserRole);
         $('#userTableBody').on('click', '.reset-password-btn', function () {
             resetPassword($(this).data('user-id'), $(this).data('username'));
         });
+        $('#addRoleBtn').on('click', openAddRoleModal);
+        $('#roleForm').on('submit', saveRole);
+        $('#rolePermissionForm').on('submit', saveRolePermissions);
+        $('#addPermissionBtn').on('click', openAddPermissionModal);
+        $('#permissionForm').on('submit', savePermission);
         $('#addDeviceBtn').on('click', openAddDeviceModal);
         $('#deviceForm').on('submit', saveDevice);
         $('#refreshConfigBtn').on('click', loadConfigs);
@@ -760,6 +986,8 @@
             if (role && role.id === 1) {
                 $('#manageLayout').removeClass('d-none');
                 loadUsers();
+                loadRoles();
+                loadPermissions();
                 loadDevices();
                 loadConfigs();
                 loadNavCategories();
@@ -787,23 +1015,33 @@
             }
         };
         postRequest('/backend/user/findPage2', body, function (page) {
-            renderUsers((page && page.data) || []);
+            users = (page && page.data) || [];
+            renderUsers(users);
         });
     }
 
     function renderUsers(list) {
         const rows = list.map(function (user) {
             const status = user.disabled ? '禁用' : (user.locked ? '锁定' : '正常');
+            const disabledChecked = user.disabled ? ' checked' : '';
             return '<tr>' +
                 '<td>' + escapeHtml(user.username) + '</td>' +
                 '<td>' + escapeHtml(user.nickname) + '</td>' +
                 '<td>' + escapeHtml(user.phone) + '</td>' +
+                '<td>' + escapeHtml(user.roleName || '-') + '</td>' +
                 '<td>' + status + '</td>' +
                 '<td>' + escapeHtml(user.createTime) + '</td>' +
-                '<td class="text-end"><button class="btn btn-outline-warning btn-sm reset-password-btn" data-user-id="' + user.id + '" data-username="' + escapeHtml(user.username) + '">重置密码</button></td>' +
+                '<td class="text-end">' +
+                '<button class="btn btn-outline-light btn-sm me-2" onclick="openAssignUserRoleModal(' + user.id + ')">分配角色</button>' +
+                '<button class="btn btn-outline-light btn-sm me-2" onclick="openEditUserModal(' + user.id + ')">编辑</button>' +
+                '<button class="btn btn-outline-warning btn-sm me-2 reset-password-btn" data-user-id="' + user.id + '" data-username="' + escapeHtml(user.username) + '">重置密码</button>' +
+                '<div class="form-check form-switch d-inline-block align-middle mb-0" title="禁用/启用">' +
+                '<input class="form-check-input" type="checkbox" role="switch" onchange="toggleUserStatus(' + user.id + ', this.checked)"' + disabledChecked + '>' +
+                '</div>' +
+                '</td>' +
                 '</tr>';
         });
-        $('#userTableBody').html(rows.join('') || '<tr><td colspan="6" class="text-center text-white-50">暂无数据</td></tr>');
+        $('#userTableBody').html(rows.join('') || '<tr><td colspan="7" class="text-center text-white-50">暂无数据</td></tr>');
     }
 
     function resetPassword(userId, username) {
@@ -812,6 +1050,339 @@
                 showToastSimple('密码已重置为 123456', MsgTypes.SUCCESS, Position.TopCenter);
             });
         });
+    }
+
+    function openAddUserModal() {
+        $('#userModalTitle').text('创建用户');
+        $('#userForm')[0].reset();
+        $('#userId').val('');
+        $('.user-create-field').show();
+        $('#userUsername, #userPassword, #userRole').prop('required', true);
+        fillRoleSelect('#userRole');
+        userModal.show();
+    }
+
+    function openEditUserModal(id) {
+        const user = users.find(function (item) {
+            return item.id === id;
+        });
+        if (!user) {
+            return;
+        }
+        $('#userModalTitle').text('编辑用户');
+        $('#userForm')[0].reset();
+        $('#userId').val(user.id);
+        $('#userNickname').val(user.nickname || '');
+        $('#userPhone').val(user.phone || '');
+        $('.user-create-field').hide();
+        $('#userUsername, #userPassword, #userRole').prop('required', false);
+        userModal.show();
+    }
+
+    function saveUser(event) {
+        event.preventDefault();
+        const id = $('#userId').val();
+        const payload = {
+            id: id ? Number(id) : null,
+            username: $.trim($('#userUsername').val()),
+            password: $('#userPassword').val(),
+            nickname: $.trim($('#userNickname').val()),
+            phone: $.trim($('#userPhone').val()),
+            roleId: Number($('#userRole').val())
+        };
+        const url = id ? '/backend/user/update' : '/backend/user/create';
+        request(url, {method: id ? 'PUT' : 'POST', body: payload}, function () {
+            userModal.hide();
+            showToastSimple('用户已保存', MsgTypes.SUCCESS, Position.TopCenter);
+            loadUsers();
+        });
+    }
+
+    function openAssignUserRoleModal(userId) {
+        $('#assignUserRoleUserId').val(userId);
+        getRequest('/backend/user/' + encodeURIComponent(userId) + '/roles', function (roleIds) {
+            const checkedRoleId = roleIds && roleIds.length ? roleIds[0] : null;
+            const rows = roles.map(function (role) {
+                const checked = role.id === checkedRoleId ? ' checked' : '';
+                return '<div class="form-check mb-2">' +
+                    '<input class="form-check-input" type="radio" name="assignUserRole" id="assignUserRole' + role.id + '" value="' + role.id + '"' + checked + '>' +
+                    '<label class="form-check-label" for="assignUserRole' + role.id + '">' + escapeHtml(role.name) + '</label>' +
+                    '</div>';
+            });
+            $('#assignUserRoleList').html(rows.join('') || '<div class="text-white-50">暂无角色</div>');
+            assignUserRoleModal.show();
+        });
+    }
+
+    function saveUserRole(event) {
+        event.preventDefault();
+        const userId = $('#assignUserRoleUserId').val();
+        const roleId = $('input[name="assignUserRole"]:checked').val();
+        if (!roleId) {
+            showToastSimple('请选择角色', MsgTypes.WARNING, Position.TopCenter);
+            return;
+        }
+        request('/backend/user/' + encodeURIComponent(userId) + '/roles?roleId=' + encodeURIComponent(roleId), {method: 'PUT'}, function () {
+            assignUserRoleModal.hide();
+            showToastSimple('角色已分配', MsgTypes.SUCCESS, Position.TopCenter);
+            loadUsers();
+        });
+    }
+
+    function toggleUserStatus(userId, disabled) {
+        request('/backend/user/' + encodeURIComponent(userId) + '/status?disabled=' + encodeURIComponent(disabled), {method: 'PUT'}, function () {
+            showToastSimple(disabled ? '用户已禁用' : '用户已启用', MsgTypes.SUCCESS, Position.TopCenter);
+            loadUsers();
+        }, function () {
+            loadUsers();
+        });
+    }
+
+    function loadRoles() {
+        getRequest('/backend/role/list', function (list) {
+            roles = list || [];
+            renderRoles();
+        });
+    }
+
+    function renderRoles() {
+        const rows = roles.map(function (role) {
+            const superAdmin = role.id === 1;
+            return '<tr>' +
+                '<td>' + escapeHtml(role.name) + (superAdmin ? ' <span class="badge bg-warning text-dark">超管</span>' : '') + '</td>' +
+                '<td>' + escapeHtml(role.remark) + '</td>' +
+                '<td>' + escapeHtml(role.createTime) + '</td>' +
+                '<td class="text-end">' +
+                (superAdmin ? '' : '<button class="btn btn-outline-light btn-sm me-2" onclick="openEditRoleModal(' + role.id + ')">编辑</button>') +
+                '<button class="btn btn-outline-info btn-sm me-2" onclick="openRolePermissionModal(' + role.id + ')">分配权限</button>' +
+                (superAdmin ? '' : '<button class="btn btn-outline-danger btn-sm" onclick="deleteRole(' + role.id + ')">删除</button>') +
+                '</td>' +
+                '</tr>';
+        });
+        $('#roleTableBody').html(rows.join('') || '<tr><td colspan="4" class="text-center text-white-50">暂无数据</td></tr>');
+        fillRoleSelect('#userRole');
+    }
+
+    function openAddRoleModal() {
+        $('#roleModalTitle').text('新建角色');
+        $('#roleForm')[0].reset();
+        $('#roleId').val('');
+        roleModal.show();
+    }
+
+    function openEditRoleModal(id) {
+        const role = roles.find(function (item) {
+            return item.id === id;
+        });
+        if (!role) {
+            return;
+        }
+        $('#roleModalTitle').text('编辑角色');
+        $('#roleId').val(role.id);
+        $('#roleName').val(role.name || '');
+        $('#roleRemark').val(role.remark || '');
+        roleModal.show();
+    }
+
+    function saveRole(event) {
+        event.preventDefault();
+        const id = $('#roleId').val();
+        const payload = {
+            id: id ? Number(id) : null,
+            name: $.trim($('#roleName').val()),
+            remark: $.trim($('#roleRemark').val())
+        };
+        request(id ? '/backend/role/update' : '/backend/role/create', {method: id ? 'PUT' : 'POST', body: payload}, function () {
+            roleModal.hide();
+            showToastSimple('角色已保存', MsgTypes.SUCCESS, Position.TopCenter);
+            loadRoles();
+        });
+    }
+
+    function deleteRole(id) {
+        showConfirm('删除角色', '确定删除该角色？', MsgTypes.WARNING, function () {
+            request('/backend/role/' + encodeURIComponent(id), {method: 'DELETE'}, function () {
+                showToastSimple('角色已删除', MsgTypes.SUCCESS, Position.TopCenter);
+                loadRoles();
+            });
+        });
+    }
+
+    function openRolePermissionModal(roleId) {
+        $('#rolePermissionRoleId').val(roleId);
+        const role = roles.find(function (item) {
+            return item.id === roleId;
+        });
+        $('#rolePermissionModalTitle').text('分配权限' + (role ? ' - ' + role.name : ''));
+        getRequest('/backend/role/' + encodeURIComponent(roleId) + '/permissions', function (permissionIds) {
+            renderRolePermissionList(permissionIds || []);
+            rolePermissionModal.show();
+        });
+    }
+
+    function renderRolePermissionList(permissionIds) {
+        const selected = {};
+        permissionIds.forEach(function (id) {
+            selected[id] = true;
+        });
+        const rows = buildPermissionTree(permissions).map(function (item) {
+            const checked = selected[item.id] ? ' checked' : '';
+            return '<div class="form-check mb-2" style="padding-left:' + (24 + item.level * 24) + 'px;">' +
+                '<input class="form-check-input role-permission-check" type="checkbox" value="' + item.id + '" id="rolePermission' + item.id + '"' + checked + '>' +
+                '<label class="form-check-label" for="rolePermission' + item.id + '">' +
+                escapeHtml(item.name) + ' <span class="text-white-50">(' + permissionTypeName(item.type) + ')</span>' +
+                '</label>' +
+                '</div>';
+        });
+        $('#rolePermissionList').html(rows.join('') || '<div class="text-white-50">暂无权限</div>');
+    }
+
+    function saveRolePermissions(event) {
+        event.preventDefault();
+        const roleId = $('#rolePermissionRoleId').val();
+        const permissionIds = $('.role-permission-check:checked').map(function () {
+            return Number($(this).val());
+        }).get();
+        request('/backend/role/' + encodeURIComponent(roleId) + '/permissions', {method: 'PUT', body: permissionIds}, function () {
+            rolePermissionModal.hide();
+            showToastSimple('权限已分配', MsgTypes.SUCCESS, Position.TopCenter);
+        });
+    }
+
+    function loadPermissions() {
+        getRequest('/backend/permission/list', function (list) {
+            permissions = list || [];
+            renderPermissions();
+        });
+    }
+
+    function renderPermissions() {
+        const rows = buildPermissionTree(permissions).map(function (permission) {
+            return '<tr>' +
+                '<td><span class="tree-name" style="padding-left:' + (permission.level * 24) + 'px;">' + escapeHtml(permission.name) + '</span></td>' +
+                '<td>' + permissionTypeName(permission.type) + '</td>' +
+                '<td class="text-truncate-cell" title="' + escapeHtml(permission.urls) + '">' + escapeHtml(permission.urls) + '</td>' +
+                '<td>' + escapeHtml(permission.icon) + '</td>' +
+                '<td>' + escapeHtml(permission.sort) + '</td>' +
+                '<td class="text-end">' +
+                '<button class="btn btn-outline-light btn-sm me-2" onclick="openEditPermissionModal(' + permission.id + ')">编辑</button>' +
+                '<button class="btn btn-outline-danger btn-sm" onclick="deletePermission(' + permission.id + ')">删除</button>' +
+                '</td>' +
+                '</tr>';
+        });
+        $('#permissionTableBody').html(rows.join('') || '<tr><td colspan="6" class="text-center text-white-50">暂无数据</td></tr>');
+        fillPermissionParentSelect();
+    }
+
+    function openAddPermissionModal() {
+        $('#permissionModalTitle').text('新建权限');
+        $('#permissionForm')[0].reset();
+        $('#permissionId').val('');
+        $('#permissionType').val('2');
+        $('#permissionSort').val('0');
+        fillPermissionParentSelect();
+        permissionModal.show();
+    }
+
+    function openEditPermissionModal(id) {
+        const permission = permissions.find(function (item) {
+            return item.id === id;
+        });
+        if (!permission) {
+            return;
+        }
+        $('#permissionModalTitle').text('编辑权限');
+        fillPermissionParentSelect(id);
+        $('#permissionId').val(permission.id);
+        $('#permissionPid').val(permission.pid || 0);
+        $('#permissionName').val(permission.name || '');
+        $('#permissionType').val(permission.type || 2);
+        $('#permissionUrls').val(permission.urls || '');
+        $('#permissionIcon').val(permission.icon || '');
+        $('#permissionSort').val(permission.sort || 0);
+        permissionModal.show();
+    }
+
+    function savePermission(event) {
+        event.preventDefault();
+        const id = $('#permissionId').val();
+        const payload = {
+            id: id ? Number(id) : null,
+            pid: Number($('#permissionPid').val() || 0),
+            name: $.trim($('#permissionName').val()),
+            type: Number($('#permissionType').val()),
+            urls: $.trim($('#permissionUrls').val()),
+            icon: $.trim($('#permissionIcon').val()),
+            sort: Number($('#permissionSort').val() || 0)
+        };
+        request(id ? '/backend/permission/update' : '/backend/permission/create', {method: id ? 'PUT' : 'POST', body: payload}, function () {
+            permissionModal.hide();
+            showToastSimple('权限已保存', MsgTypes.SUCCESS, Position.TopCenter);
+            loadPermissions();
+        });
+    }
+
+    function deletePermission(id) {
+        showConfirm('删除权限', '确定删除该权限？如果存在子权限，请先删除子权限。', MsgTypes.WARNING, function () {
+            request('/backend/permission/' + encodeURIComponent(id), {method: 'DELETE'}, function () {
+                showToastSimple('权限已删除', MsgTypes.SUCCESS, Position.TopCenter);
+                loadPermissions();
+            });
+        });
+    }
+
+    function fillRoleSelect(selector) {
+        const options = roles.map(function (role) {
+            return '<option value="' + role.id + '">' + escapeHtml(role.name) + '</option>';
+        });
+        $(selector).html(options.join(''));
+    }
+
+    function fillPermissionParentSelect(excludeId) {
+        const options = ['<option value="0">顶级权限</option>'];
+        buildPermissionTree(permissions).forEach(function (permission) {
+            if (permission.id === excludeId) {
+                return;
+            }
+            options.push('<option value="' + permission.id + '">' + '&nbsp;'.repeat(permission.level * 4) + escapeHtml(permission.name) + '</option>');
+        });
+        $('#permissionPid').html(options.join(''));
+    }
+
+    function buildPermissionTree(list) {
+        const childrenMap = {};
+        (list || []).forEach(function (item) {
+            const pid = item.pid || 0;
+            if (!childrenMap[pid]) {
+                childrenMap[pid] = [];
+            }
+            childrenMap[pid].push(item);
+        });
+        Object.keys(childrenMap).forEach(function (pid) {
+            childrenMap[pid].sort(function (a, b) {
+                return (a.sort || 0) - (b.sort || 0) || (a.id || 0) - (b.id || 0);
+            });
+        });
+        const result = [];
+        const walk = function (pid, level) {
+            (childrenMap[pid] || []).forEach(function (item) {
+                const copy = Object.assign({}, item, {level: level});
+                result.push(copy);
+                walk(item.id, level + 1);
+            });
+        };
+        walk(0, 0);
+        return result;
+    }
+
+    function permissionTypeName(type) {
+        if (Number(type) === 1) {
+            return '目录';
+        }
+        if (Number(type) === 3) {
+            return '按钮';
+        }
+        return '菜单';
     }
 
     function loadDevices() {

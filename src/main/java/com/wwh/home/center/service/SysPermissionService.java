@@ -15,4 +15,12 @@ public interface SysPermissionService {
     List<SysPermission> getPermissionByRoleId(Integer roleId);
 
     List<SysPermission> getAll();
+
+    void createPermission(SysPermission permission);
+
+    void updatePermission(SysPermission permission);
+
+    void deletePermission(Integer permissionId);
+
+    SysPermission getById(Integer id);
 }

@@ -104,6 +104,45 @@ public class UserManageController {
         return Result.success(userService.unionAllTest(page.getPageNum(), page.getPageSize()));
     }
 
+    @ApiOperation("获取用户角色ID列表")
+    @GetMapping("/{id}/roles")
+    public Result<java.util.List<Integer>> getUserRoles(@PathVariable("id") Long id) {
+        checkSuperAdmin();
+        return Result.success(userService.getUserRoleIds(id));
+    }
+
+    @ApiOperation("分配用户角色")
+    @PutMapping("/{id}/roles")
+    public Result<Void> assignRoles(@PathVariable("id") Long id, @RequestParam Integer roleId) {
+        checkSuperAdmin();
+        userService.assignRoles(id, roleId);
+        return Result.success();
+    }
+
+    @ApiOperation("创建用户")
+    @PostMapping("/create")
+    public Result<Void> createUser(@RequestBody UserInfo user) {
+        checkSuperAdmin();
+        userService.createUser(user);
+        return Result.success();
+    }
+
+    @ApiOperation("更新用户")
+    @PutMapping("/update")
+    public Result<Void> updateUser(@RequestBody UserInfo user) {
+        checkSuperAdmin();
+        userService.updateUser(user);
+        return Result.success();
+    }
+
+    @ApiOperation("禁用或启用用户")
+    @PutMapping("/{id}/status")
+    public Result<Void> toggleUserStatus(@PathVariable("id") Long id, @RequestParam Boolean disabled) {
+        checkSuperAdmin();
+        userService.toggleUserStatus(id, disabled);
+        return Result.success();
+    }
+
     private void checkSuperAdmin() {
         if (!UserContextHolder.isSuperAdmin()) {
             throw new ForbiddenException("只有超级管理员才能访问后台管理接口");

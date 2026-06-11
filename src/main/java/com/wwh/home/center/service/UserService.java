@@ -64,4 +64,14 @@ public interface UserService {
      * @param newPassword 新密码
      */
     void changePassword(String oldPassword, String newPassword);
+
+    List<Integer> getUserRoleIds(Long userId);
+
+    void assignRoles(Long userId, Integer roleId);
+
+    void createUser(UserInfo user);
+
+    void updateUser(UserInfo user);
+
+    void toggleUserStatus(Long userId, Boolean disabled);
 }

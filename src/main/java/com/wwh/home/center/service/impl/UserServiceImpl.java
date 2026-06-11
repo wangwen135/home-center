@@ -2,11 +2,17 @@ package com.wwh.home.center.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.wwh.home.center.common.constant.SysConstants;
 import com.wwh.home.center.common.exception.BusinessException;
 import com.wwh.home.center.common.model.PageInfo;
 import com.wwh.home.center.common.util.PageHelper;
+import com.wwh.home.center.dao.mapper.SysRoleMapper;
 import com.wwh.home.center.dao.mapper.UserInfoMapper;
+import com.wwh.home.center.dao.mapper.UserRoleMapper;
+import com.wwh.home.center.model.entity.SysRole;
 import com.wwh.home.center.model.entity.UserInfo;
+import com.wwh.home.center.model.entity.UserRole;
 import com.wwh.home.center.model.qo.UserQuery;
 import com.wwh.home.center.model.vo.UserInfoVo;
 import com.wwh.home.center.security.UserContextHolder;
@@ -17,12 +23,17 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * 用户服务
@@ -42,6 +53,12 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private UserInfoMapper userInfoMapper;
+
+    @Autowired
+    private UserRoleMapper userRoleMapper;
+
+    @Autowired
+    private SysRoleMapper sysRoleMapper;
 
     @Override
     public List<UserInfo> getUserByNameOrPhone(String identity) {
@@ -143,7 +160,33 @@ public class UserServiceImpl implements UserService {
             BeanUtils.copyProperties(ubi, vo);
             voList.add(vo);
         });
+        fillRoleNames(voList);
         return voList;
+    }
+
+    private void fillRoleNames(List<UserInfoVo> voList) {
+        Set<Integer> userIds = voList.stream().map(UserInfoVo::getId).filter(Objects::nonNull).collect(Collectors.toSet());
+        if (userIds.isEmpty()) {
+            return;
+        }
+        QueryWrapper<UserRole> userRoleWrapper = new QueryWrapper<>();
+        userRoleWrapper.in("user_id", userIds);
+        List<UserRole> userRoles = userRoleMapper.selectList(userRoleWrapper);
+        if (userRoles == null || userRoles.isEmpty()) {
+            return;
+        }
+        Set<Integer> roleIds = userRoles.stream().map(UserRole::getRoleId).filter(Objects::nonNull).collect(Collectors.toSet());
+        Map<Integer, String> roleNameMap = Collections.emptyMap();
+        if (!roleIds.isEmpty()) {
+            QueryWrapper<SysRole> roleWrapper = new QueryWrapper<>();
+            roleWrapper.in("id", roleIds).eq("deleted", 0);
+            roleNameMap = sysRoleMapper.selectList(roleWrapper).stream()
+                    .collect(Collectors.toMap(SysRole::getId, SysRole::getName, (a, b) -> a));
+        }
+        Map<Integer, Integer> userRoleMap = userRoles.stream()
+                .collect(Collectors.toMap(UserRole::getUserId, UserRole::getRoleId, (a, b) -> a));
+        Map<Integer, String> finalRoleNameMap = roleNameMap;
+        voList.forEach(vo -> vo.setRoleName(finalRoleNameMap.get(userRoleMap.get(vo.getId()))));
     }
 
     @Override
@@ -207,4 +250,89 @@ public class UserServiceImpl implements UserService {
         return sb.toString();
     }
 
+    @Override
+    public List<Integer> getUserRoleIds(Long userId) {
+        QueryWrapper<UserRole> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("user_id", toIntegerUserId(userId));
+        List<UserRole> list = userRoleMapper.selectList(queryWrapper);
+        if (list == null || list.isEmpty()) {
+            return Collections.emptyList();
+        }
+        return list.stream().map(UserRole::getRoleId).collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void assignRoles(Long userId, Integer roleId) {
+        QueryWrapper<UserRole> deleteWrapper = Wrappers.query();
+        Integer intUserId = toIntegerUserId(userId);
+        deleteWrapper.eq("user_id", intUserId);
+        userRoleMapper.delete(deleteWrapper);
+        UserRole userRole = new UserRole();
+        userRole.setUserId(intUserId);
+        userRole.setRoleId(roleId);
+        userRoleMapper.insert(userRole);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void createUser(UserInfo user) {
+        if (StringUtils.isBlank(user.getUsername())) {
+            throw new BusinessException("用户名不能为空");
+        }
+        if (StringUtils.isBlank(user.getPassword())) {
+            throw new BusinessException("密码不能为空");
+        }
+        if (user.getRoleId() == null) {
+            throw new BusinessException("角色不能为空");
+        }
+        QueryWrapper<UserInfo> existWrapper = new QueryWrapper<>();
+        existWrapper.eq("username", user.getUsername()).eq("deleted", 0);
+        if (userInfoMapper.selectCount(existWrapper) > 0) {
+            throw new BusinessException("用户名已存在");
+        }
+        String salt = randomSalt();
+        user.setId(null);
+        user.setSalt(salt);
+        user.setPassword(encryptPassword(user.getPassword(), salt));
+        user.setDisabled(false);
+        user.setLocked(false);
+        user.setExpired(false);
+        user.setDeleted(false);
+        user.setCreateBy(UserContextHolder.getUserId());
+        user.setCreateTime(LocalDateTime.now());
+        userInfoMapper.insert(user);
+        assignRoles(Long.valueOf(user.getId()), user.getRoleId());
+    }
+
+    @Override
+    public void updateUser(UserInfo user) {
+        UserInfo update = new UserInfo();
+        update.setId(user.getId());
+        update.setNickname(user.getNickname());
+        update.setPhone(user.getPhone());
+        update.setUpdateBy(UserContextHolder.getUserId());
+        update.setUpdateTime(LocalDateTime.now());
+        userInfoMapper.updateById(update);
+    }
+
+    @Override
+    public void toggleUserStatus(Long userId, Boolean disabled) {
+        if (Long.valueOf(SysConstants.SUPER_ADMIN_ROLE_ID).equals(userId)) {
+            throw new BusinessException("超级管理员不可禁用");
+        }
+        UserInfo update = new UserInfo();
+        update.setId(toIntegerUserId(userId));
+        update.setDisabled(disabled);
+        update.setUpdateBy(UserContextHolder.getUserId());
+        update.setUpdateTime(LocalDateTime.now());
+        userInfoMapper.updateById(update);
+    }
+
+    private Integer toIntegerUserId(Long userId) {
+        if (userId == null || userId > Integer.MAX_VALUE || userId < Integer.MIN_VALUE) {
+            throw new BusinessException("用户ID不合法");
+        }
+        return userId.intValue();
+    }
 }
