@@ -113,6 +113,13 @@
             color: rgba(255, 255, 255, .6);
         }
 
+        .text-truncate-cell {
+            max-width: 280px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
         .modal-content {
             background: #121821;
             color: #e8eef6;
@@ -156,6 +163,12 @@
                 <button class="nav-link" data-bs-toggle="pill" data-bs-target="#devicePane" type="button">设备管理</button>
                 <button class="nav-link" data-bs-toggle="pill" data-bs-target="#configPane" type="button">系统配置</button>
                 <button class="nav-link" data-bs-toggle="pill" data-bs-target="#navPane" type="button">导航管理</button>
+                <button class="nav-link" data-bs-toggle="pill" data-bs-target="#famousQuotePane" type="button">名言管理</button>
+                <button class="nav-link" data-bs-toggle="pill" data-bs-target="#promptMessagePane" type="button">提示消息</button>
+                <button class="nav-link" data-bs-toggle="pill" data-bs-target="#internalSystemPane" type="button">内部系统</button>
+                <button class="nav-link" data-bs-toggle="pill" data-bs-target="#operationLogPane" type="button">操作日志</button>
+                <button class="nav-link" data-bs-toggle="pill" data-bs-target="#securityLogPane" type="button">安全日志</button>
+                <button class="nav-link" data-bs-toggle="pill" data-bs-target="#sysLogPane" type="button">系统日志</button>
             </nav>
         </aside>
 
@@ -277,6 +290,143 @@
                                 <tbody id="navLinkTableBody"></tbody>
                             </table>
                         </div>
+                    </div>
+                </section>
+
+                <section class="tab-pane fade" id="famousQuotePane">
+                    <div class="toolbar">
+                        <h5 class="mb-0">名言管理</h5>
+                        <button id="addFamousQuoteBtn" class="btn btn-primary btn-sm" type="button">新增名言</button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-dark table-striped table-hover align-middle">
+                            <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>名言内容</th>
+                                <th>权重</th>
+                                <th>固定显示</th>
+                                <th>备注</th>
+                                <th class="text-end">操作</th>
+                            </tr>
+                            </thead>
+                            <tbody id="famousQuoteTableBody"></tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section class="tab-pane fade" id="promptMessagePane">
+                    <div class="toolbar">
+                        <h5 class="mb-0">提示消息</h5>
+                        <button id="addPromptMessageBtn" class="btn btn-primary btn-sm" type="button">新增消息</button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-dark table-striped table-hover align-middle">
+                            <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>消息内容</th>
+                                <th>权重</th>
+                                <th>仅显示此消息</th>
+                                <th>过期时间</th>
+                                <th>备注</th>
+                                <th class="text-end">操作</th>
+                            </tr>
+                            </thead>
+                            <tbody id="promptMessageTableBody"></tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section class="tab-pane fade" id="internalSystemPane">
+                    <div class="toolbar">
+                        <h5 class="mb-0">内部系统</h5>
+                        <button id="addInternalSystemBtn" class="btn btn-primary btn-sm" type="button">新增系统</button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-dark table-striped table-hover align-middle">
+                            <thead>
+                            <tr>
+                                <th>名称</th>
+                                <th>域名</th>
+                                <th>描述</th>
+                                <th>状态</th>
+                                <th>图标</th>
+                                <th>公网地址</th>
+                                <th>内网地址</th>
+                                <th>排序</th>
+                                <th>禁用</th>
+                                <th class="text-end">操作</th>
+                            </tr>
+                            </thead>
+                            <tbody id="internalSystemTableBody"></tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section class="tab-pane fade" id="operationLogPane">
+                    <div class="toolbar">
+                        <h5 class="mb-0">操作日志</h5>
+                        <button id="refreshOperationLogBtn" class="btn btn-outline-light btn-sm" type="button">刷新</button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-dark table-striped table-hover align-middle">
+                            <thead>
+                            <tr>
+                                <th>操作时间</th>
+                                <th>操作类型</th>
+                                <th>模块</th>
+                                <th>用户ID</th>
+                                <th>状态</th>
+                                <th>备注</th>
+                            </tr>
+                            </thead>
+                            <tbody id="operationLogTableBody"></tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section class="tab-pane fade" id="securityLogPane">
+                    <div class="toolbar">
+                        <h5 class="mb-0">安全日志</h5>
+                        <button id="refreshSecurityLogBtn" class="btn btn-outline-light btn-sm" type="button">刷新</button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-dark table-striped table-hover align-middle">
+                            <thead>
+                            <tr>
+                                <th>操作时间</th>
+                                <th>用户名</th>
+                                <th>IP地址</th>
+                                <th>操作类型</th>
+                                <th>操作结果</th>
+                                <th>HTTP方法</th>
+                                <th>请求地址</th>
+                            </tr>
+                            </thead>
+                            <tbody id="securityLogTableBody"></tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section class="tab-pane fade" id="sysLogPane">
+                    <div class="toolbar">
+                        <h5 class="mb-0">系统日志</h5>
+                        <button id="refreshSysLogBtn" class="btn btn-outline-light btn-sm" type="button">刷新</button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-dark table-striped table-hover align-middle">
+                            <thead>
+                            <tr>
+                                <th>系统时间</th>
+                                <th>操作人</th>
+                                <th>日志类型</th>
+                                <th>内容</th>
+                                <th>IP地址</th>
+                            </tr>
+                            </thead>
+                            <tbody id="sysLogTableBody"></tbody>
+                        </table>
                     </div>
                 </section>
             </div>
@@ -415,6 +565,149 @@
     </div>
 </div>
 
+<div class="modal fade" id="famousQuoteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <form class="modal-content" id="famousQuoteForm">
+            <div class="modal-header py-2">
+                <h6 class="modal-title" id="famousQuoteModalTitle">新增名言</h6>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="famousQuoteId">
+                <div class="mb-3">
+                    <label class="form-label" for="famousQuoteFamous">名言内容</label>
+                    <textarea class="form-control" id="famousQuoteFamous" rows="4" required></textarea>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="famousQuoteWeight">权重</label>
+                    <input class="form-control" id="famousQuoteWeight" type="number" value="1">
+                </div>
+                <div class="form-check form-switch mb-3">
+                    <input class="form-check-input" id="famousQuoteFixedDisplay" type="checkbox" role="switch">
+                    <label class="form-check-label" for="famousQuoteFixedDisplay">固定显示</label>
+                </div>
+                <div>
+                    <label class="form-label" for="famousQuoteRemark">备注</label>
+                    <textarea class="form-control" id="famousQuoteRemark" rows="3"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer py-2">
+                <button type="submit" class="btn btn-primary">保存</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="modal fade" id="promptMessageModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <form class="modal-content" id="promptMessageForm">
+            <div class="modal-header py-2">
+                <h6 class="modal-title" id="promptMessageModalTitle">新增消息</h6>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="promptMessageId">
+                <div class="mb-3">
+                    <label class="form-label" for="promptMessageMessage">消息内容</label>
+                    <textarea class="form-control" id="promptMessageMessage" rows="4" required></textarea>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="promptMessageWeight">权重</label>
+                    <input class="form-control" id="promptMessageWeight" type="number" value="1">
+                </div>
+                <div class="form-check form-switch mb-3">
+                    <input class="form-check-input" id="promptMessageShowOnly" type="checkbox" role="switch">
+                    <label class="form-check-label" for="promptMessageShowOnly">仅显示此消息</label>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="promptMessageExpirationTime">过期时间</label>
+                    <input class="form-control" id="promptMessageExpirationTime" type="datetime-local">
+                </div>
+                <div>
+                    <label class="form-label" for="promptMessageRemark">备注</label>
+                    <textarea class="form-control" id="promptMessageRemark" rows="3"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer py-2">
+                <button type="submit" class="btn btn-primary">保存</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="modal fade" id="internalSystemModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <form class="modal-content" id="internalSystemForm">
+            <div class="modal-header py-2">
+                <h6 class="modal-title" id="internalSystemModalTitle">新增系统</h6>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="internalSystemId">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label" for="internalSystemSysName">系统名称</label>
+                        <input class="form-control" id="internalSystemSysName" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="internalSystemSysDomain">域名</label>
+                        <input class="form-control" id="internalSystemSysDomain" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="internalSystemSysStatus">状态</label>
+                        <input class="form-control" id="internalSystemSysStatus">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="internalSystemIcon">图标</label>
+                        <input class="form-control" id="internalSystemIcon">
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label" for="internalSystemSysDescription">描述</label>
+                        <textarea class="form-control" id="internalSystemSysDescription" rows="2"></textarea>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="internalSystemInternetUrl">公网地址</label>
+                        <input class="form-control" id="internalSystemInternetUrl">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="internalSystemOpenInternetUrl">开放公网地址</label>
+                        <input class="form-control" id="internalSystemOpenInternetUrl">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="internalSystemInternalUrl">内网地址</label>
+                        <input class="form-control" id="internalSystemInternalUrl">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label" for="internalSystemSort">排序</label>
+                        <input class="form-control" id="internalSystemSort" type="number" value="0">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label" for="internalSystemDisabled">禁用</label>
+                        <select class="form-select" id="internalSystemDisabled">
+                            <option value="0">正常</option>
+                            <option value="1">禁用</option>
+                        </select>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label" for="internalSystemConfig">配置信息</label>
+                        <textarea class="form-control" id="internalSystemConfig" rows="3"></textarea>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label" for="internalSystemRemark">备注</label>
+                        <textarea class="form-control" id="internalSystemRemark" rows="3"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer py-2">
+                <button type="submit" class="btn btn-primary">保存</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <script src="/js/jquery-3.6.1.min.js"></script>
 <script src="/bootstrap/js/bootstrap.bundle.min.js"></script>
 <script src="/js/main.js"></script>
@@ -422,9 +715,15 @@
     let devices = [];
     let navCategories = [];
     let navLinks = [];
+    let famousQuotes = [];
+    let promptMessages = [];
+    let internalSystems = [];
     const deviceModal = new bootstrap.Modal(document.getElementById('deviceModal'));
     const navCategoryModal = new bootstrap.Modal(document.getElementById('navCategoryModal'));
     const navLinkModal = new bootstrap.Modal(document.getElementById('navLinkModal'));
+    const famousQuoteModal = new bootstrap.Modal(document.getElementById('famousQuoteModal'));
+    const promptMessageModal = new bootstrap.Modal(document.getElementById('promptMessageModal'));
+    const internalSystemModal = new bootstrap.Modal(document.getElementById('internalSystemModal'));
 
     $(function () {
         checkAdmin();
@@ -445,6 +744,15 @@
         $('#addNavLinkBtn').on('click', openAddNavLinkModal);
         $('#navLinkForm').on('submit', saveNavLink);
         $('#navLinkFilter').on('change', loadNavLinks);
+        $('#addFamousQuoteBtn').on('click', openAddFamousQuoteModal);
+        $('#famousQuoteForm').on('submit', saveFamousQuote);
+        $('#addPromptMessageBtn').on('click', openAddPromptMessageModal);
+        $('#promptMessageForm').on('submit', savePromptMessage);
+        $('#addInternalSystemBtn').on('click', openAddInternalSystemModal);
+        $('#internalSystemForm').on('submit', saveInternalSystem);
+        $('#refreshOperationLogBtn').on('click', loadOperationLogs);
+        $('#refreshSecurityLogBtn').on('click', loadSecurityLogs);
+        $('#refreshSysLogBtn').on('click', loadSysLogs);
     });
 
     function checkAdmin() {
@@ -455,6 +763,12 @@
                 loadDevices();
                 loadConfigs();
                 loadNavCategories();
+                loadFamousQuotes();
+                loadPromptMessages();
+                loadInternalSystems();
+                loadOperationLogs();
+                loadSecurityLogs();
+                loadSysLogs();
             } else {
                 $('#forbiddenPanel').removeClass('d-none');
             }
@@ -853,6 +1167,387 @@
             return String(item.id) === String(categoryId);
         });
         return category ? category.name : '';
+    }
+
+    function loadFamousQuotes() {
+        getRequest('/backend/data/famous-quotes', function (list) {
+            famousQuotes = list || [];
+            renderFamousQuotes();
+        });
+    }
+
+    function renderFamousQuotes() {
+        const rows = famousQuotes.map(function (item) {
+            return '<tr>' +
+                '<td>' + escapeHtml(item.id) + '</td>' +
+                '<td class="text-truncate-cell" title="' + escapeHtml(item.famous) + '">' + escapeHtml(item.famous) + '</td>' +
+                '<td>' + escapeHtml(item.weight) + '</td>' +
+                '<td>' + renderDataSwitch('famous-quote-fixed', item.id, item.fixedDisplay) + '</td>' +
+                '<td class="text-truncate-cell" title="' + escapeHtml(item.remark) + '">' + escapeHtml(item.remark) + '</td>' +
+                '<td class="text-end">' +
+                '<button class="btn btn-outline-light btn-sm me-2" onclick="openEditFamousQuoteModal(' + item.id + ')">编辑</button>' +
+                '<button class="btn btn-outline-danger btn-sm" onclick="deleteFamousQuote(' + item.id + ')">删除</button>' +
+                '</td>' +
+                '</tr>';
+        });
+        $('#famousQuoteTableBody').html(rows.join('') || '<tr><td colspan="6" class="text-center text-white-50">暂无数据</td></tr>');
+        $('.data-switch-famous-quote-fixed').on('change', function () {
+            toggleFamousQuoteFixed($(this).data('id'), this.checked);
+        });
+    }
+
+    function openAddFamousQuoteModal() {
+        $('#famousQuoteModalTitle').text('新增名言');
+        $('#famousQuoteForm')[0].reset();
+        $('#famousQuoteId').val('');
+        $('#famousQuoteWeight').val('1');
+        $('#famousQuoteFixedDisplay').prop('checked', false);
+        famousQuoteModal.show();
+    }
+
+    function openEditFamousQuoteModal(id) {
+        const item = famousQuotes.find(function (quote) {
+            return quote.id === id;
+        });
+        if (!item) {
+            return;
+        }
+        $('#famousQuoteModalTitle').text('编辑名言');
+        $('#famousQuoteId').val(item.id);
+        $('#famousQuoteFamous').val(item.famous || '');
+        $('#famousQuoteWeight').val(item.weight == null ? 1 : item.weight);
+        $('#famousQuoteFixedDisplay').prop('checked', Boolean(item.fixedDisplay));
+        $('#famousQuoteRemark').val(item.remark || '');
+        famousQuoteModal.show();
+    }
+
+    function saveFamousQuote(event) {
+        event.preventDefault();
+        const id = $('#famousQuoteId').val();
+        const payload = {
+            id: id ? Number(id) : null,
+            famous: $.trim($('#famousQuoteFamous').val()),
+            weight: Number($('#famousQuoteWeight').val() || 0),
+            fixedDisplay: $('#famousQuoteFixedDisplay').is(':checked'),
+            deleted: false,
+            remark: $.trim($('#famousQuoteRemark').val())
+        };
+        request('/backend/data/famous-quote', {method: id ? 'PUT' : 'POST', body: payload}, function () {
+            famousQuoteModal.hide();
+            showToastSimple('名言已保存', MsgTypes.SUCCESS, Position.TopCenter);
+            loadFamousQuotes();
+        });
+    }
+
+    function deleteFamousQuote(id) {
+        showConfirm('删除名言', '确定删除该名言？', MsgTypes.WARNING, function () {
+            request('/backend/data/famous-quote/' + encodeURIComponent(id), {method: 'DELETE'}, function () {
+                showToastSimple('名言已删除', MsgTypes.SUCCESS, Position.TopCenter);
+                loadFamousQuotes();
+            });
+        });
+    }
+
+    function toggleFamousQuoteFixed(id, fixedDisplay) {
+        const item = famousQuotes.find(function (quote) {
+            return quote.id === id;
+        });
+        if (!item) {
+            return;
+        }
+        request('/backend/data/famous-quote', {
+            method: 'PUT',
+            body: Object.assign({}, item, {fixedDisplay: fixedDisplay})
+        }, function () {
+            item.fixedDisplay = fixedDisplay;
+            showToastSimple('名言状态已更新', MsgTypes.SUCCESS, Position.TopCenter);
+        }, loadFamousQuotes);
+    }
+
+    function loadPromptMessages() {
+        getRequest('/backend/data/prompt-messages', function (list) {
+            promptMessages = list || [];
+            renderPromptMessages();
+        });
+    }
+
+    function renderPromptMessages() {
+        const rows = promptMessages.map(function (item) {
+            return '<tr>' +
+                '<td>' + escapeHtml(item.id) + '</td>' +
+                '<td class="text-truncate-cell" title="' + escapeHtml(item.message) + '">' + escapeHtml(item.message) + '</td>' +
+                '<td>' + escapeHtml(item.weight) + '</td>' +
+                '<td>' + renderDataSwitch('prompt-message-show-only', item.id, item.showOnly) + '</td>' +
+                '<td>' + escapeHtml(item.expirationTime) + '</td>' +
+                '<td class="text-truncate-cell" title="' + escapeHtml(item.remark) + '">' + escapeHtml(item.remark) + '</td>' +
+                '<td class="text-end">' +
+                '<button class="btn btn-outline-light btn-sm me-2" onclick="openEditPromptMessageModal(' + item.id + ')">编辑</button>' +
+                '<button class="btn btn-outline-danger btn-sm" onclick="deletePromptMessage(' + item.id + ')">删除</button>' +
+                '</td>' +
+                '</tr>';
+        });
+        $('#promptMessageTableBody').html(rows.join('') || '<tr><td colspan="7" class="text-center text-white-50">暂无数据</td></tr>');
+        $('.data-switch-prompt-message-show-only').on('change', function () {
+            togglePromptMessageShowOnly($(this).data('id'), this.checked);
+        });
+    }
+
+    function openAddPromptMessageModal() {
+        $('#promptMessageModalTitle').text('新增消息');
+        $('#promptMessageForm')[0].reset();
+        $('#promptMessageId').val('');
+        $('#promptMessageWeight').val('1');
+        $('#promptMessageShowOnly').prop('checked', false);
+        promptMessageModal.show();
+    }
+
+    function openEditPromptMessageModal(id) {
+        const item = promptMessages.find(function (message) {
+            return message.id === id;
+        });
+        if (!item) {
+            return;
+        }
+        $('#promptMessageModalTitle').text('编辑消息');
+        $('#promptMessageId').val(item.id);
+        $('#promptMessageMessage').val(item.message || '');
+        $('#promptMessageWeight').val(item.weight == null ? 1 : item.weight);
+        $('#promptMessageShowOnly').prop('checked', Boolean(item.showOnly));
+        $('#promptMessageExpirationTime').val(toDatetimeLocalValue(item.expirationTime));
+        $('#promptMessageRemark').val(item.remark || '');
+        promptMessageModal.show();
+    }
+
+    function savePromptMessage(event) {
+        event.preventDefault();
+        const id = $('#promptMessageId').val();
+        const payload = {
+            id: id ? Number(id) : null,
+            message: $.trim($('#promptMessageMessage').val()),
+            weight: Number($('#promptMessageWeight').val() || 0),
+            showOnly: $('#promptMessageShowOnly').is(':checked'),
+            expirationTime: $('#promptMessageExpirationTime').val() ? new Date($('#promptMessageExpirationTime').val()).getTime() : null,
+            deleted: false,
+            remark: $.trim($('#promptMessageRemark').val())
+        };
+        request('/backend/data/prompt-message', {method: id ? 'PUT' : 'POST', body: payload}, function () {
+            promptMessageModal.hide();
+            showToastSimple('提示消息已保存', MsgTypes.SUCCESS, Position.TopCenter);
+            loadPromptMessages();
+        });
+    }
+
+    function deletePromptMessage(id) {
+        showConfirm('删除提示消息', '确定删除该提示消息？', MsgTypes.WARNING, function () {
+            request('/backend/data/prompt-message/' + encodeURIComponent(id), {method: 'DELETE'}, function () {
+                showToastSimple('提示消息已删除', MsgTypes.SUCCESS, Position.TopCenter);
+                loadPromptMessages();
+            });
+        });
+    }
+
+    function togglePromptMessageShowOnly(id, showOnly) {
+        const item = promptMessages.find(function (message) {
+            return message.id === id;
+        });
+        if (!item) {
+            return;
+        }
+        request('/backend/data/prompt-message', {
+            method: 'PUT',
+            body: Object.assign({}, item, {showOnly: showOnly})
+        }, function () {
+            item.showOnly = showOnly;
+            showToastSimple('提示消息状态已更新', MsgTypes.SUCCESS, Position.TopCenter);
+        }, loadPromptMessages);
+    }
+
+    function loadInternalSystems() {
+        getRequest('/backend/data/internal-systems', function (list) {
+            internalSystems = list || [];
+            renderInternalSystems();
+        });
+    }
+
+    function renderInternalSystems() {
+        const rows = internalSystems.map(function (item) {
+            return '<tr>' +
+                '<td>' + escapeHtml(item.sysName) + '</td>' +
+                '<td>' + escapeHtml(item.sysDomain) + '</td>' +
+                '<td class="text-truncate-cell" title="' + escapeHtml(item.sysDescription) + '">' + escapeHtml(item.sysDescription) + '</td>' +
+                '<td>' + escapeHtml(item.sysStatus) + '</td>' +
+                '<td>' + escapeHtml(item.icon) + '</td>' +
+                '<td class="text-truncate-cell" title="' + escapeHtml(item.internetUrl) + '">' + escapeHtml(item.internetUrl) + '</td>' +
+                '<td class="text-truncate-cell" title="' + escapeHtml(item.internalUrl) + '">' + escapeHtml(item.internalUrl) + '</td>' +
+                '<td>' + escapeHtml(item.sort) + '</td>' +
+                '<td>' + renderDataSwitch('internal-system-disabled', item.id, item.disabled) + '</td>' +
+                '<td class="text-end">' +
+                '<button class="btn btn-outline-light btn-sm me-2" onclick="openEditInternalSystemModal(' + item.id + ')">编辑</button>' +
+                '<button class="btn btn-outline-danger btn-sm" onclick="deleteInternalSystem(' + item.id + ')">删除</button>' +
+                '</td>' +
+                '</tr>';
+        });
+        $('#internalSystemTableBody').html(rows.join('') || '<tr><td colspan="10" class="text-center text-white-50">暂无数据</td></tr>');
+        $('.data-switch-internal-system-disabled').on('change', function () {
+            toggleInternalSystemDisabled($(this).data('id'), this.checked);
+        });
+    }
+
+    function openAddInternalSystemModal() {
+        $('#internalSystemModalTitle').text('新增系统');
+        $('#internalSystemForm')[0].reset();
+        $('#internalSystemId').val('');
+        $('#internalSystemSort').val('0');
+        $('#internalSystemDisabled').val('0');
+        internalSystemModal.show();
+    }
+
+    function openEditInternalSystemModal(id) {
+        const item = internalSystems.find(function (system) {
+            return system.id === id;
+        });
+        if (!item) {
+            return;
+        }
+        $('#internalSystemModalTitle').text('编辑系统');
+        $('#internalSystemId').val(item.id);
+        $('#internalSystemSysName').val(item.sysName || '');
+        $('#internalSystemSysDomain').val(item.sysDomain || '');
+        $('#internalSystemSysDescription').val(item.sysDescription || '');
+        $('#internalSystemSysStatus').val(item.sysStatus || '');
+        $('#internalSystemIcon').val(item.icon || '');
+        $('#internalSystemInternetUrl').val(item.internetUrl || '');
+        $('#internalSystemOpenInternetUrl').val(item.openInternetUrl || '');
+        $('#internalSystemInternalUrl').val(item.internalUrl || '');
+        $('#internalSystemConfig').val(item.config || '');
+        $('#internalSystemSort').val(item.sort == null ? 0 : item.sort);
+        $('#internalSystemRemark').val(item.remark || '');
+        $('#internalSystemDisabled').val(item.disabled ? '1' : '0');
+        internalSystemModal.show();
+    }
+
+    function saveInternalSystem(event) {
+        event.preventDefault();
+        const id = $('#internalSystemId').val();
+        const payload = {
+            id: id ? Number(id) : null,
+            sysName: $.trim($('#internalSystemSysName').val()),
+            sysDomain: $.trim($('#internalSystemSysDomain').val()),
+            sysDescription: $.trim($('#internalSystemSysDescription').val()),
+            sysStatus: $.trim($('#internalSystemSysStatus').val()),
+            icon: $.trim($('#internalSystemIcon').val()),
+            internetUrl: $.trim($('#internalSystemInternetUrl').val()),
+            openInternetUrl: $.trim($('#internalSystemOpenInternetUrl').val()),
+            internalUrl: $.trim($('#internalSystemInternalUrl').val()),
+            config: $.trim($('#internalSystemConfig').val()),
+            sort: Number($('#internalSystemSort').val() || 0),
+            remark: $.trim($('#internalSystemRemark').val()),
+            disabled: $('#internalSystemDisabled').val() === '1',
+            deleted: false
+        };
+        request('/backend/data/internal-system', {method: id ? 'PUT' : 'POST', body: payload}, function () {
+            internalSystemModal.hide();
+            showToastSimple('内部系统已保存', MsgTypes.SUCCESS, Position.TopCenter);
+            loadInternalSystems();
+        });
+    }
+
+    function deleteInternalSystem(id) {
+        showConfirm('删除内部系统', '确定删除该内部系统配置？', MsgTypes.WARNING, function () {
+            request('/backend/data/internal-system/' + encodeURIComponent(id), {method: 'DELETE'}, function () {
+                showToastSimple('内部系统已删除', MsgTypes.SUCCESS, Position.TopCenter);
+                loadInternalSystems();
+            });
+        });
+    }
+
+    function toggleInternalSystemDisabled(id, disabled) {
+        const item = internalSystems.find(function (system) {
+            return system.id === id;
+        });
+        if (!item) {
+            return;
+        }
+        request('/backend/data/internal-system', {
+            method: 'PUT',
+            body: Object.assign({}, item, {disabled: disabled})
+        }, function () {
+            item.disabled = disabled;
+            showToastSimple('内部系统状态已更新', MsgTypes.SUCCESS, Position.TopCenter);
+        }, loadInternalSystems);
+    }
+
+    function loadOperationLogs() {
+        getRequest('/backend/data/operation-logs', function (list) {
+            const rows = (list || []).map(function (item) {
+                const status = Number(item.status) === 1
+                    ? '<span class="text-danger">异常</span>'
+                    : '<span class="text-success">正常</span>';
+                return '<tr>' +
+                    '<td>' + escapeHtml(item.operTime) + '</td>' +
+                    '<td>' + escapeHtml(item.operType) + '</td>' +
+                    '<td>' + escapeHtml(item.module) + '</td>' +
+                    '<td>' + escapeHtml(item.userId) + '</td>' +
+                    '<td>' + status + '</td>' +
+                    '<td class="text-truncate-cell" title="' + escapeHtml(item.remark) + '">' + escapeHtml(item.remark) + '</td>' +
+                    '</tr>';
+            });
+            $('#operationLogTableBody').html(rows.join('') || '<tr><td colspan="6" class="text-center text-white-50">暂无数据</td></tr>');
+        });
+    }
+
+    function loadSecurityLogs() {
+        getRequest('/backend/data/security-logs', function (list) {
+            const rows = (list || []).map(function (item) {
+                return '<tr>' +
+                    '<td>' + escapeHtml(item.operationTime) + '</td>' +
+                    '<td>' + escapeHtml(item.username) + '</td>' +
+                    '<td>' + escapeHtml(item.ipAddress) + '</td>' +
+                    '<td>' + escapeHtml(item.operationType) + '</td>' +
+                    '<td>' + escapeHtml(item.operationResult) + '</td>' +
+                    '<td>' + escapeHtml(item.httpMethod) + '</td>' +
+                    '<td class="text-truncate-cell" title="' + escapeHtml(item.requestUrl) + '">' + escapeHtml(item.requestUrl) + '</td>' +
+                    '</tr>';
+            });
+            $('#securityLogTableBody').html(rows.join('') || '<tr><td colspan="7" class="text-center text-white-50">暂无数据</td></tr>');
+        });
+    }
+
+    function loadSysLogs() {
+        getRequest('/backend/data/sys-logs', function (list) {
+            const rows = (list || []).map(function (item) {
+                return '<tr>' +
+                    '<td>' + escapeHtml(item.sysTime) + '</td>' +
+                    '<td>' + escapeHtml(item.operatorName || item.operatorId) + '</td>' +
+                    '<td>' + escapeHtml(item.logType) + '</td>' +
+                    '<td class="text-truncate-cell" title="' + escapeHtml(item.content) + '">' + escapeHtml(item.content) + '</td>' +
+                    '<td>' + escapeHtml(item.ip) + '</td>' +
+                    '</tr>';
+            });
+            $('#sysLogTableBody').html(rows.join('') || '<tr><td colspan="5" class="text-center text-white-50">暂无数据</td></tr>');
+        });
+    }
+
+    function renderDataSwitch(type, id, value) {
+        const checked = value ? ' checked' : '';
+        return '<div class="form-check form-switch mb-0">' +
+            '<input class="form-check-input data-switch-' + type + '" type="checkbox" role="switch" data-id="' + id + '"' + checked + '>' +
+            '</div>';
+    }
+
+    function toDatetimeLocalValue(value) {
+        if (!value) {
+            return '';
+        }
+        if (typeof value === 'number' || /^\d+$/.test(String(value))) {
+            const date = new Date(Number(value));
+            const pad = function (number) {
+                return number < 10 ? '0' + number : String(number);
+            };
+            return date.getFullYear() + '-' + pad(date.getMonth() + 1) + '-' + pad(date.getDate()) +
+                'T' + pad(date.getHours()) + ':' + pad(date.getMinutes());
+        }
+        return String(value).replace(' ', 'T').substring(0, 16);
     }
 
     function escapeHtml(value) {

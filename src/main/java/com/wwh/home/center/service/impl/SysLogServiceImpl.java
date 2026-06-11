@@ -1,5 +1,6 @@
 package com.wwh.home.center.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.wwh.home.center.dao.mapper.SysLogMapper;
 import com.wwh.home.center.model.entity.SysLog;
 import com.wwh.home.center.service.SysLogService;
@@ -9,7 +10,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.Date;
+import java.util.List;
 
 /**
  * 系统日志
@@ -31,5 +32,12 @@ public class SysLogServiceImpl implements SysLogService {
         sysLog.setId(null);
         sysLog.setSysTime(LocalDateTime.now());
         sysLogMapper.insert(sysLog);
+    }
+
+    @Override
+    public List<SysLog> listAll() {
+        QueryWrapper<SysLog> queryWrapper = new QueryWrapper<>();
+        queryWrapper.orderByDesc("sys_time").last("limit 200");
+        return sysLogMapper.selectList(queryWrapper);
     }
 }

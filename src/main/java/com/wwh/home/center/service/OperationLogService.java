@@ -2,6 +2,8 @@ package com.wwh.home.center.service;
 
 import com.wwh.home.center.model.entity.OperationLog;
 
+import java.util.List;
+
 /**
  * 操作日志 服务类
  *
@@ -11,4 +13,6 @@ import com.wwh.home.center.model.entity.OperationLog;
 public interface OperationLogService {
 
     void saveOperationLog(OperationLog log);
+
+    List<OperationLog> listAll();
 }
