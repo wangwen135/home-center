@@ -2,6 +2,8 @@ package com.wwh.home.center.service;
 
 import com.wwh.home.center.model.entity.SysLog;
 
+import java.util.List;
+
 /**
  * 系统日志
  *
@@ -10,4 +12,6 @@ import com.wwh.home.center.model.entity.SysLog;
  */
 public interface SysLogService {
     void saveSysLog(SysLog log);
+
+    List<SysLog> listAll();
 }
