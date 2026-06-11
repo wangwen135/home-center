@@ -150,14 +150,15 @@
             border-color: var(--border-standard);
             font-size: 13px;
         }
-        .table-dark th {
+        .table-dark thead th {
             color: var(--text-muted);
-            font-weight: 500;
-            font-size: 12px;
-            letter-spacing: 0.02em;
+            font-weight: 600;
+            font-size: 11px;
+            letter-spacing: 0.05em;
             text-transform: uppercase;
             padding: 10px 12px;
             border-bottom: 1px solid var(--border-prominent);
+            background: rgba(255,255,255,0.025);
         }
         .table-dark td {
             padding: 10px 12px;
@@ -170,6 +171,9 @@
         }
 
         /* ── Buttons ── */
+        .btn { transition: all 0.15s ease; }
+        .btn-sm { padding: 4px 10px; font-size: 12px; }
+        .me-2 { margin-right: 4px !important; }
         .btn-primary {
             background: var(--accent);
             border-color: var(--accent);
@@ -404,6 +408,18 @@
             .toolbar { align-items: stretch; flex-direction: column; }
             .sidebar { position: static; }
         }
+
+        /* ── Micro-interactions ── */
+        .tab-pane.active { animation: fadeSlideIn 0.2s ease; }
+        @keyframes fadeSlideIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .table-dark tbody tr:hover td {
+            color: var(--text-primary);
+        }
+        .btn:active { transform: scale(0.97); }
+        .nav-link:active { transform: scale(0.97); }
     </style>
 </head>
 <body>
@@ -423,18 +439,18 @@
     <div id="manageLayout" class="layout d-none">
         <aside class="sidebar">
             <nav class="nav nav-pills flex-column" id="manageTabs" role="tablist">
-                <button class="nav-link active" data-bs-toggle="pill" data-bs-target="#userPane" type="button">用户管理</button>
-                <button class="nav-link" data-bs-toggle="pill" data-bs-target="#rolePane" type="button">角色管理</button>
-                <button class="nav-link" data-bs-toggle="pill" data-bs-target="#permissionPane" type="button">权限管理</button>
-                <button class="nav-link" data-bs-toggle="pill" data-bs-target="#devicePane" type="button">设备管理</button>
-                <button class="nav-link" data-bs-toggle="pill" data-bs-target="#configPane" type="button">系统配置</button>
-                <button class="nav-link" data-bs-toggle="pill" data-bs-target="#navPane" type="button">导航管理</button>
-                <button class="nav-link" data-bs-toggle="pill" data-bs-target="#famousQuotePane" type="button">名言管理</button>
-                <button class="nav-link" data-bs-toggle="pill" data-bs-target="#promptMessagePane" type="button">提示消息</button>
-                <button class="nav-link" data-bs-toggle="pill" data-bs-target="#internalSystemPane" type="button">内部系统</button>
-                <button class="nav-link" data-bs-toggle="pill" data-bs-target="#operationLogPane" type="button">操作日志</button>
-                <button class="nav-link" data-bs-toggle="pill" data-bs-target="#securityLogPane" type="button">安全日志</button>
-                <button class="nav-link" data-bs-toggle="pill" data-bs-target="#sysLogPane" type="button">系统日志</button>
+                <button class="nav-link active" data-bs-toggle="pill" data-bs-target="#userPane" type="button">👤 用户管理</button>
+                <button class="nav-link" data-bs-toggle="pill" data-bs-target="#rolePane" type="button">🛡️ 角色管理</button>
+                <button class="nav-link" data-bs-toggle="pill" data-bs-target="#permissionPane" type="button">🔑 权限管理</button>
+                <button class="nav-link" data-bs-toggle="pill" data-bs-target="#devicePane" type="button">💻 设备管理</button>
+                <button class="nav-link" data-bs-toggle="pill" data-bs-target="#configPane" type="button">⚙️ 系统配置</button>
+                <button class="nav-link" data-bs-toggle="pill" data-bs-target="#navPane" type="button">🧭 导航管理</button>
+                <button class="nav-link" data-bs-toggle="pill" data-bs-target="#famousQuotePane" type="button">💬 名言管理</button>
+                <button class="nav-link" data-bs-toggle="pill" data-bs-target="#promptMessagePane" type="button">📢 提示消息</button>
+                <button class="nav-link" data-bs-toggle="pill" data-bs-target="#internalSystemPane" type="button">🏗️ 内部系统</button>
+                <button class="nav-link" data-bs-toggle="pill" data-bs-target="#operationLogPane" type="button">📋 操作日志</button>
+                <button class="nav-link" data-bs-toggle="pill" data-bs-target="#securityLogPane" type="button">🔒 安全日志</button>
+                <button class="nav-link" data-bs-toggle="pill" data-bs-target="#sysLogPane" type="button">📝 系统日志</button>
             </nav>
         </aside>
 
@@ -1272,7 +1288,7 @@
 
     function renderUsers(list) {
         const rows = list.map(function (user) {
-            const status = user.disabled ? '禁用' : (user.locked ? '锁定' : '正常');
+            const status = user.disabled ? '<span style="color:var(--danger)">禁用</span>' : (user.locked ? '<span style="color:var(--warning)">锁定</span>' : '<span style="color:var(--success)">正常</span>');
             const disabledChecked = user.disabled ? ' checked' : '';
             return '<tr>' +
                 '<td>' + escapeHtml(user.username) + '</td>' +
@@ -1644,7 +1660,7 @@
 
     function renderDevices() {
         const rows = devices.map(function (device) {
-            const status = Number(device.status) === 1 ? '启用' : '停用';
+            const status = Number(device.status) === 1 ? '<span style="color:var(--success)">启用</span>' : '<span style="color:var(--danger)">停用</span>';
             return '<tr>' +
                 '<td>' + escapeHtml(device.name) + '</td>' +
                 '<td>' + escapeHtml(device.ipAddress) + '</td>' +
