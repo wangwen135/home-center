@@ -6,44 +6,80 @@
     <meta name="description" content="Home Center public navigation">
     <title>Home Center</title>
     <link rel="stylesheet" href="css/nav.css">
+    <style>
+        .category-section {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 0;
+            font-size: 22px;
+            line-height: 1.3;
+        }
+
+        .section-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 34px;
+            height: 34px;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.76);
+        }
+
+        .link-icon {
+            width: fit-content;
+            min-width: 38px;
+            height: 38px;
+            padding: 0 9px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            background: rgba(31, 122, 140, 0.12);
+            color: var(--accent-strong);
+            font-weight: 700;
+            font-size: 18px;
+        }
+
+        .nav-card {
+            justify-content: flex-start;
+            min-height: 168px;
+        }
+
+        .nav-card strong {
+            margin-top: 18px;
+        }
+
+        .empty-message {
+            padding: 28px;
+            border: 1px dashed var(--line);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.64);
+            color: var(--muted);
+            text-align: center;
+        }
+    </style>
 </head>
 <body>
 <main class="page-shell">
     <header class="topbar">
         <div>
-            <p class="eyebrow">Home Center</p>
-            <h1>导航</h1>
+            <p class="eyebrow">公开导航</p>
+            <h1>Home Center</h1>
         </div>
         <a class="login-link" href="/login.html">登录</a>
     </header>
 
-    <section class="nav-grid" aria-label="导航入口">
-        <a class="nav-card primary" href="/admin.html">
-            <span class="card-kicker">后台</span>
-            <strong>管理后台</strong>
-            <span>进入已登录功能、内部系统入口和个人信息。</span>
-        </a>
-        <a class="nav-card" href="/device/pc/power.html">
-            <span class="card-kicker">设备</span>
-            <strong>电脑远程控制</strong>
-            <span>查看 PC Agent 设备状态并执行电源相关操作。</span>
-        </a>
-        <a class="nav-card" href="/device/pc/monitor.html">
-            <span class="card-kicker">客户端</span>
-            <strong>客户端管理</strong>
-            <span>查看客户端截图、打开终端并进入电源控制。</span>
-        </a>
-        <a class="nav-card" href="/device/kindle/info.html">
-            <span class="card-kicker">屏幕</span>
-            <strong>Kindle 信息屏</strong>
-            <span>显示时间、天气、提示消息和每日内容。</span>
-        </a>
-        <a class="nav-card" href="/doc.html">
-            <span class="card-kicker">接口</span>
-            <strong>API 文档</strong>
-            <span>查看服务接口文档和调试入口。</span>
-        </a>
-    </section>
+    <div id="navContent" class="category-section">
+        <div class="empty-message">导航加载中...</div>
+    </div>
 
     <section class="status-strip" aria-label="系统信息">
         <div>
@@ -51,10 +87,80 @@
             <strong>无需登录即可访问本页</strong>
         </div>
         <div>
-            <span>后管功能</span>
-            <strong>访问受登录鉴权保护</strong>
+            <span>管理入口</span>
+            <strong>登录后可维护导航分组和链接</strong>
         </div>
     </section>
 </main>
+
+<script>
+    document.addEventListener('DOMContentLoaded', loadNavigation);
+
+    function loadNavigation() {
+        fetch('/api/nav/all')
+            .then(function (response) {
+                if (!response.ok) {
+                    throw new Error('加载失败');
+                }
+                return response.json();
+            })
+            .then(function (result) {
+                if (result.code !== 200) {
+                    throw new Error(result.message || '加载失败');
+                }
+                renderNavigation(result.data || {});
+            })
+            .catch(function () {
+                document.getElementById('navContent').innerHTML = '<div class="empty-message">导航数据暂时不可用</div>';
+            });
+    }
+
+    function renderNavigation(data) {
+        const categories = data.categories || [];
+        const links = data.links || [];
+        const content = document.getElementById('navContent');
+
+        if (!categories.length) {
+            content.innerHTML = '<div class="empty-message">暂无公开导航</div>';
+            return;
+        }
+
+        content.innerHTML = categories.map(function (category) {
+            const categoryLinks = links.filter(function (link) {
+                return String(link.categoryId) === String(category.id);
+            });
+            return '<section class="category-section">' +
+                '<h2 class="section-title"><span class="section-icon">' + escapeHtml(category.icon || '📁') + '</span>' + escapeHtml(category.name) + '</h2>' +
+                '<div class="nav-grid">' +
+                (categoryLinks.map(renderLink).join('') || '<div class="empty-message">该分组暂无链接</div>') +
+                '</div>' +
+                '</section>';
+        }).join('');
+    }
+
+    function renderLink(link) {
+        return '<a class="nav-card" href="' + escapeAttr(link.url) + '" target="_blank" rel="noopener noreferrer">' +
+            '<span class="link-icon">' + escapeHtml(link.icon || '🔗') + '</span>' +
+            '<strong>' + escapeHtml(link.title) + '</strong>' +
+            '<span>' + escapeHtml(link.description || '点击打开该入口') + '</span>' +
+            '</a>';
+    }
+
+    function escapeHtml(value) {
+        if (value === null || value === undefined) {
+            return '';
+        }
+        return String(value)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+
+    function escapeAttr(value) {
+        return escapeHtml(value || '#');
+    }
+</script>
 </body>
 </html>

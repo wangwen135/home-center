@@ -96,6 +96,16 @@
             word-break: break-all;
         }
 
+        .section-block + .section-block {
+            margin-top: 28px;
+            padding-top: 22px;
+            border-top: 1px solid rgba(255, 255, 255, .12);
+        }
+
+        .form-check-input {
+            cursor: pointer;
+        }
+
         .empty-state {
             display: none;
             padding: 42px 16px;
@@ -145,6 +155,7 @@
                 <button class="nav-link active" data-bs-toggle="pill" data-bs-target="#userPane" type="button">用户管理</button>
                 <button class="nav-link" data-bs-toggle="pill" data-bs-target="#devicePane" type="button">设备管理</button>
                 <button class="nav-link" data-bs-toggle="pill" data-bs-target="#configPane" type="button">系统配置</button>
+                <button class="nav-link" data-bs-toggle="pill" data-bs-target="#navPane" type="button">导航管理</button>
             </nav>
         </aside>
 
@@ -218,6 +229,56 @@
                         </table>
                     </div>
                 </section>
+
+                <section class="tab-pane fade" id="navPane">
+                    <div class="section-block">
+                        <div class="toolbar">
+                            <h5 class="mb-0">分组管理</h5>
+                            <button id="addNavCategoryBtn" class="btn btn-primary btn-sm" type="button">新增分组</button>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-dark table-striped table-hover align-middle">
+                                <thead>
+                                <tr>
+                                    <th>名称</th>
+                                    <th>图标</th>
+                                    <th>排序</th>
+                                    <th>状态</th>
+                                    <th class="text-end">操作</th>
+                                </tr>
+                                </thead>
+                                <tbody id="navCategoryTableBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="section-block">
+                        <div class="toolbar">
+                            <h5 class="mb-0">链接管理</h5>
+                            <div class="d-flex gap-2">
+                                <select id="navLinkFilter" class="form-select form-select-sm" style="min-width: 160px;">
+                                    <option value="">全部分组</option>
+                                </select>
+                                <button id="addNavLinkBtn" class="btn btn-primary btn-sm" type="button">新增链接</button>
+                            </div>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-dark table-striped table-hover align-middle">
+                                <thead>
+                                <tr>
+                                    <th>标题</th>
+                                    <th>URL</th>
+                                    <th>分组</th>
+                                    <th>排序</th>
+                                    <th>状态</th>
+                                    <th class="text-end">操作</th>
+                                </tr>
+                                </thead>
+                                <tbody id="navLinkTableBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
             </div>
         </main>
     </div>
@@ -268,12 +329,102 @@
     </div>
 </div>
 
+<div class="modal fade" id="navCategoryModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <form class="modal-content" id="navCategoryForm">
+            <div class="modal-header py-2">
+                <h6 class="modal-title" id="navCategoryModalTitle">新增分组</h6>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="navCategoryId">
+                <div class="mb-3">
+                    <label class="form-label" for="navCategoryName">名称</label>
+                    <input class="form-control" id="navCategoryName" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="navCategoryIcon">图标</label>
+                    <input class="form-control" id="navCategoryIcon" placeholder="例如：📁">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="navCategorySort">排序</label>
+                    <input class="form-control" id="navCategorySort" type="number" value="0">
+                </div>
+                <div>
+                    <label class="form-label" for="navCategoryStatus">状态</label>
+                    <select class="form-select" id="navCategoryStatus">
+                        <option value="1">启用</option>
+                        <option value="0">禁用</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer py-2">
+                <button type="submit" class="btn btn-primary">保存</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="modal fade" id="navLinkModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <form class="modal-content" id="navLinkForm">
+            <div class="modal-header py-2">
+                <h6 class="modal-title" id="navLinkModalTitle">新增链接</h6>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="navLinkId">
+                <div class="mb-3">
+                    <label class="form-label" for="navLinkTitle">标题</label>
+                    <input class="form-control" id="navLinkTitle" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="navLinkUrl">URL</label>
+                    <input class="form-control" id="navLinkUrl" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="navLinkCategory">分组</label>
+                    <select class="form-select" id="navLinkCategory" required></select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="navLinkIcon">图标</label>
+                    <input class="form-control" id="navLinkIcon" placeholder="例如：🔗">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="navLinkSort">排序</label>
+                    <input class="form-control" id="navLinkSort" type="number" value="0">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="navLinkStatus">状态</label>
+                    <select class="form-select" id="navLinkStatus">
+                        <option value="1">启用</option>
+                        <option value="0">禁用</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="form-label" for="navLinkDesc">描述</label>
+                    <textarea class="form-control" id="navLinkDesc" rows="3"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer py-2">
+                <button type="submit" class="btn btn-primary">保存</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <script src="/js/jquery-3.6.1.min.js"></script>
 <script src="/bootstrap/js/bootstrap.bundle.min.js"></script>
 <script src="/js/main.js"></script>
 <script>
     let devices = [];
+    let navCategories = [];
+    let navLinks = [];
     const deviceModal = new bootstrap.Modal(document.getElementById('deviceModal'));
+    const navCategoryModal = new bootstrap.Modal(document.getElementById('navCategoryModal'));
+    const navLinkModal = new bootstrap.Modal(document.getElementById('navLinkModal'));
 
     $(function () {
         checkAdmin();
@@ -289,6 +440,11 @@
         $('#addDeviceBtn').on('click', openAddDeviceModal);
         $('#deviceForm').on('submit', saveDevice);
         $('#refreshConfigBtn').on('click', loadConfigs);
+        $('#addNavCategoryBtn').on('click', openAddNavCategoryModal);
+        $('#navCategoryForm').on('submit', saveNavCategory);
+        $('#addNavLinkBtn').on('click', openAddNavLinkModal);
+        $('#navLinkForm').on('submit', saveNavLink);
+        $('#navLinkFilter').on('change', loadNavLinks);
     });
 
     function checkAdmin() {
@@ -298,6 +454,7 @@
                 loadUsers();
                 loadDevices();
                 loadConfigs();
+                loadNavCategories();
             } else {
                 $('#forbiddenPanel').removeClass('d-none');
             }
@@ -472,6 +629,230 @@
         }, function () {
             showToastSimple('配置已保存', MsgTypes.SUCCESS, Position.TopCenter);
         });
+    }
+
+    function loadNavCategories(callback) {
+        getRequest('/backend/nav/categories', function (list) {
+            navCategories = list || [];
+            renderNavCategories();
+            renderNavCategoryOptions();
+            loadNavLinks(callback);
+        });
+    }
+
+    function renderNavCategories() {
+        const rows = navCategories.map(function (category) {
+            return '<tr>' +
+                '<td>' + escapeHtml(category.name) + '</td>' +
+                '<td>' + escapeHtml(category.icon) + '</td>' +
+                '<td>' + escapeHtml(category.sortOrder) + '</td>' +
+                '<td>' + renderStatusSwitch('category', category.id, category.status) + '</td>' +
+                '<td class="text-end">' +
+                '<button class="btn btn-outline-light btn-sm me-2" onclick="openEditNavCategoryModal(' + category.id + ')">编辑</button>' +
+                '<button class="btn btn-outline-danger btn-sm" onclick="deleteNavCategory(' + category.id + ')">删除</button>' +
+                '</td>' +
+                '</tr>';
+        });
+        $('#navCategoryTableBody').html(rows.join('') || '<tr><td colspan="5" class="text-center text-white-50">暂无数据</td></tr>');
+        $('.nav-status-category').on('change', function () {
+            toggleNavCategoryStatus($(this).data('id'), this.checked ? 1 : 0);
+        });
+    }
+
+    function renderNavCategoryOptions() {
+        const options = navCategories.map(function (category) {
+            return '<option value="' + category.id + '">' + escapeHtml(category.name) + '</option>';
+        }).join('');
+        $('#navLinkFilter').html('<option value="">全部分组</option>' + options);
+        $('#navLinkCategory').html(options);
+    }
+
+    function openAddNavCategoryModal() {
+        $('#navCategoryModalTitle').text('新增分组');
+        $('#navCategoryForm')[0].reset();
+        $('#navCategoryId').val('');
+        $('#navCategorySort').val('0');
+        $('#navCategoryStatus').val('1');
+        navCategoryModal.show();
+    }
+
+    function openEditNavCategoryModal(id) {
+        const category = navCategories.find(function (item) {
+            return item.id === id;
+        });
+        if (!category) {
+            return;
+        }
+        $('#navCategoryModalTitle').text('编辑分组');
+        $('#navCategoryId').val(category.id);
+        $('#navCategoryName').val(category.name || '');
+        $('#navCategoryIcon').val(category.icon || '');
+        $('#navCategorySort').val(category.sortOrder == null ? 0 : category.sortOrder);
+        $('#navCategoryStatus').val(String(category.status == null ? 1 : category.status));
+        navCategoryModal.show();
+    }
+
+    function saveNavCategory(event) {
+        event.preventDefault();
+        const id = $('#navCategoryId').val();
+        const payload = {
+            id: id ? Number(id) : null,
+            name: $.trim($('#navCategoryName').val()),
+            icon: $.trim($('#navCategoryIcon').val()),
+            sortOrder: Number($('#navCategorySort').val() || 0),
+            status: Number($('#navCategoryStatus').val())
+        };
+        request('/backend/nav/category', {method: id ? 'PUT' : 'POST', body: payload}, function () {
+            navCategoryModal.hide();
+            showToastSimple('分组已保存', MsgTypes.SUCCESS, Position.TopCenter);
+            loadNavCategories();
+        });
+    }
+
+    function deleteNavCategory(id) {
+        showConfirm('删除分组', '确定删除该分组？分组下的所有链接也会被删除。', MsgTypes.WARNING, function () {
+            request('/backend/nav/category/' + encodeURIComponent(id), {method: 'DELETE'}, function () {
+                showToastSimple('分组已删除', MsgTypes.SUCCESS, Position.TopCenter);
+                loadNavCategories();
+            });
+        });
+    }
+
+    function toggleNavCategoryStatus(id, status) {
+        const category = navCategories.find(function (item) {
+            return item.id === id;
+        });
+        if (!category) {
+            return;
+        }
+        const payload = Object.assign({}, category, {status: status});
+        request('/backend/nav/category', {method: 'PUT', body: payload}, function () {
+            category.status = status;
+            showToastSimple('分组状态已更新', MsgTypes.SUCCESS, Position.TopCenter);
+        }, loadNavCategories);
+    }
+
+    function loadNavLinks(callback) {
+        const categoryId = $('#navLinkFilter').val();
+        const url = categoryId ? '/backend/nav/links?categoryId=' + encodeURIComponent(categoryId) : '/backend/nav/links';
+        getRequest(url, function (list) {
+            navLinks = list || [];
+            renderNavLinks();
+            if (typeof callback === 'function') {
+                callback();
+            }
+        });
+    }
+
+    function renderNavLinks() {
+        const rows = navLinks.map(function (link) {
+            return '<tr>' +
+                '<td>' + escapeHtml(link.title) + '</td>' +
+                '<td class="text-break"><a class="text-info" href="' + escapeHtml(link.url) + '" target="_blank" rel="noopener noreferrer">' + escapeHtml(link.url) + '</a></td>' +
+                '<td>' + escapeHtml(getNavCategoryName(link.categoryId)) + '</td>' +
+                '<td>' + escapeHtml(link.sortOrder) + '</td>' +
+                '<td>' + renderStatusSwitch('link', link.id, link.status) + '</td>' +
+                '<td class="text-end">' +
+                '<button class="btn btn-outline-light btn-sm me-2" onclick="openEditNavLinkModal(' + link.id + ')">编辑</button>' +
+                '<button class="btn btn-outline-danger btn-sm" onclick="deleteNavLink(' + link.id + ')">删除</button>' +
+                '</td>' +
+                '</tr>';
+        });
+        $('#navLinkTableBody').html(rows.join('') || '<tr><td colspan="6" class="text-center text-white-50">暂无数据</td></tr>');
+        $('.nav-status-link').on('change', function () {
+            toggleNavLinkStatus($(this).data('id'), this.checked ? 1 : 0);
+        });
+    }
+
+    function openAddNavLinkModal() {
+        if (!navCategories.length) {
+            showToastSimple('请先新增导航分组', MsgTypes.WARNING, Position.TopCenter);
+            return;
+        }
+        $('#navLinkModalTitle').text('新增链接');
+        $('#navLinkForm')[0].reset();
+        $('#navLinkId').val('');
+        $('#navLinkSort').val('0');
+        $('#navLinkStatus').val('1');
+        const filterCategoryId = $('#navLinkFilter').val();
+        $('#navLinkCategory').val(filterCategoryId || String(navCategories[0].id));
+        navLinkModal.show();
+    }
+
+    function openEditNavLinkModal(id) {
+        const link = navLinks.find(function (item) {
+            return item.id === id;
+        });
+        if (!link) {
+            return;
+        }
+        $('#navLinkModalTitle').text('编辑链接');
+        $('#navLinkId').val(link.id);
+        $('#navLinkTitle').val(link.title || '');
+        $('#navLinkUrl').val(link.url || '');
+        $('#navLinkCategory').val(String(link.categoryId));
+        $('#navLinkIcon').val(link.icon || '');
+        $('#navLinkSort').val(link.sortOrder == null ? 0 : link.sortOrder);
+        $('#navLinkStatus').val(String(link.status == null ? 1 : link.status));
+        $('#navLinkDesc').val(link.description || '');
+        navLinkModal.show();
+    }
+
+    function saveNavLink(event) {
+        event.preventDefault();
+        const id = $('#navLinkId').val();
+        const payload = {
+            id: id ? Number(id) : null,
+            title: $.trim($('#navLinkTitle').val()),
+            url: $.trim($('#navLinkUrl').val()),
+            categoryId: Number($('#navLinkCategory').val()),
+            icon: $.trim($('#navLinkIcon').val()),
+            sortOrder: Number($('#navLinkSort').val() || 0),
+            status: Number($('#navLinkStatus').val()),
+            description: $.trim($('#navLinkDesc').val())
+        };
+        request('/backend/nav/link', {method: id ? 'PUT' : 'POST', body: payload}, function () {
+            navLinkModal.hide();
+            showToastSimple('链接已保存', MsgTypes.SUCCESS, Position.TopCenter);
+            loadNavLinks();
+        });
+    }
+
+    function deleteNavLink(id) {
+        showConfirm('删除链接', '确定删除该链接？', MsgTypes.WARNING, function () {
+            request('/backend/nav/link/' + encodeURIComponent(id), {method: 'DELETE'}, function () {
+                showToastSimple('链接已删除', MsgTypes.SUCCESS, Position.TopCenter);
+                loadNavLinks();
+            });
+        });
+    }
+
+    function toggleNavLinkStatus(id, status) {
+        const link = navLinks.find(function (item) {
+            return item.id === id;
+        });
+        if (!link) {
+            return;
+        }
+        const payload = Object.assign({}, link, {status: status});
+        request('/backend/nav/link', {method: 'PUT', body: payload}, function () {
+            link.status = status;
+            showToastSimple('链接状态已更新', MsgTypes.SUCCESS, Position.TopCenter);
+        }, loadNavLinks);
+    }
+
+    function renderStatusSwitch(type, id, status) {
+        const checked = Number(status) === 1 ? ' checked' : '';
+        return '<div class="form-check form-switch mb-0">' +
+            '<input class="form-check-input nav-status-' + type + '" type="checkbox" role="switch" data-id="' + id + '"' + checked + '>' +
+            '</div>';
+    }
+
+    function getNavCategoryName(categoryId) {
+        const category = navCategories.find(function (item) {
+            return String(item.id) === String(categoryId);
+        });
+        return category ? category.name : '';
     }
 
     function escapeHtml(value) {
