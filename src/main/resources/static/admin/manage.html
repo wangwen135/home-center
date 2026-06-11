@@ -62,6 +62,17 @@
             margin-bottom: 24px;
             padding-bottom: 20px;
             border-bottom: 1px solid var(--border-subtle);
+            position: relative;
+        }
+        .manage-header::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 80px;
+            height: 2px;
+            background: linear-gradient(90deg, var(--accent-bright), transparent);
+            border-radius: 1px;
         }
         .manage-header h3 {
             font-weight: 510;
@@ -92,6 +103,17 @@
             height: fit-content;
             position: sticky;
             top: 24px;
+        }
+        .sidebar::after {
+            content: 'v1.0 · Home Center';
+            display: block;
+            text-align: center;
+            padding: 12px 0 4px;
+            margin-top: 8px;
+            border-top: 1px solid var(--border-subtle);
+            color: var(--text-muted);
+            font-size: 10px;
+            letter-spacing: 0.5px;
         }
         .nav-pills { gap: 2px; }
         .nav-pills .nav-link {
@@ -140,6 +162,19 @@
             letter-spacing: -0.16px;
             color: var(--text-primary);
             margin: 0;
+            padding-left: 12px;
+            position: relative;
+        }
+        .toolbar h5::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 3px;
+            height: 16px;
+            background: linear-gradient(180deg, var(--accent-bright), var(--accent));
+            border-radius: 2px;
         }
 
         /* ── Tables ── */
@@ -202,6 +237,7 @@
             background: var(--bg-hover);
             color: var(--text-primary);
             border-color: var(--border-prominent);
+            box-shadow: 0 0 0 1px rgba(94,106,210,0.15);
         }
         .btn-outline-warning {
             color: var(--warning);
@@ -320,6 +356,17 @@
             text-align: center;
             color: var(--text-muted);
             font-size: 13px;
+        }
+
+        /* ── Table Empty Row ── */
+        .table-dark td[colspan] {
+            text-align: center;
+            padding: 40px 16px;
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+        .table-dark td[colspan]::before {
+            content: '📭 ';
         }
 
         /* ── Misc ── */
