@@ -142,15 +142,25 @@
             font-weight: 500;
             transition: all var(--transition-fast);
             border: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .nav-pills .nav-link svg {
+            flex-shrink: 0;
+            opacity: 0.5;
+            transition: opacity var(--transition-fast);
         }
         .nav-pills .nav-link:hover {
             background: rgba(255,255,255,0.05);
             color: var(--foreground);
         }
+        .nav-pills .nav-link:hover svg { opacity: 0.7; }
         .nav-pills .nav-link.active {
             background: rgba(99,102,241,0.12);
             color: var(--accent-indigo);
         }
+        .nav-pills .nav-link.active svg { opacity: 1; }
 
         /* ── Content Panel ── */
         .content-panel {
@@ -194,32 +204,36 @@
         /* ── Tables (Tabler-inspired) ── */
         .table-dark {
             --bs-table-bg: transparent;
-            --bs-table-striped-bg: rgba(255,255,255,0.02);
-            --bs-table-hover-bg: rgba(255,255,255,0.04);
+            --bs-table-striped-bg: rgba(255,255,255,0.015);
+            --bs-table-hover-bg: rgba(255,255,255,0.05);
             border-color: transparent;
             font-size: 0.8125rem;
             margin-bottom: 0;
         }
         .table-dark thead th {
             color: var(--muted-foreground);
-            font-weight: 500;
+            font-weight: 600;
             font-size: 0.6875rem;
             letter-spacing: 0.06em;
             text-transform: uppercase;
-            padding: 8px 12px;
+            padding: 10px 14px;
             border-bottom: 1px solid var(--border);
-            background: transparent;
+            background: rgba(255,255,255,0.02);
             white-space: nowrap;
         }
         .table-dark td {
-            padding: 8px 12px;
-            border-bottom: 1px solid rgba(255,255,255,0.04);
-            color: var(--muted-foreground);
+            padding: 10px 14px;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            color: rgba(255,255,255,0.7);
             vertical-align: middle;
-            transition: color var(--transition-fast);
+            transition: all var(--transition-fast);
+        }
+        .table-dark tbody tr {
+            transition: all var(--transition-fast);
         }
         .table-dark tbody tr:hover td {
             color: var(--foreground);
+            background: rgba(255,255,255,0.03);
         }
         .table-dark td[colspan] {
             text-align: center;
@@ -233,6 +247,8 @@
             transition: all var(--transition-fast);
             font-weight: 500;
             cursor: pointer;
+            position: relative;
+            overflow: hidden;
         }
         .btn:active { transform: scale(0.97); }
         .btn-sm { padding: 4px 10px; font-size: 0.75rem; }
@@ -244,12 +260,14 @@
             color: var(--background);
             font-size: 0.8125rem;
             border-radius: var(--radius);
-            padding: 5px 14px;
+            padding: 6px 16px;
             letter-spacing: -0.01em;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.3);
         }
         .btn-primary:hover {
             background: #e4e4e7;
             border-color: #e4e4e7;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.4);
         }
 
         .btn-outline-light {
@@ -263,46 +281,50 @@
         .btn-outline-light:hover {
             background: rgba(255,255,255,0.06);
             color: var(--foreground);
-            border-color: var(--border);
+            border-color: rgba(255,255,255,0.15);
+            box-shadow: var(--shadow-border);
         }
 
         .btn-outline-warning {
             color: var(--warning);
-            border-color: rgba(234,179,8,0.25);
+            border-color: rgba(234,179,8,0.2);
             font-size: 0.8125rem;
             border-radius: var(--radius);
             padding: 4px 12px;
             background: transparent;
         }
         .btn-outline-warning:hover {
-            background: rgba(234,179,8,0.08);
-            border-color: rgba(234,179,8,0.4);
+            background: rgba(234,179,8,0.06);
+            border-color: rgba(234,179,8,0.35);
+            color: var(--warning);
         }
 
         .btn-outline-info {
             color: var(--info);
-            border-color: rgba(59,130,246,0.25);
+            border-color: rgba(59,130,246,0.2);
             font-size: 0.8125rem;
             border-radius: var(--radius);
             padding: 4px 12px;
             background: transparent;
         }
         .btn-outline-info:hover {
-            background: rgba(59,130,246,0.08);
-            border-color: rgba(59,130,246,0.4);
+            background: rgba(59,130,246,0.06);
+            border-color: rgba(59,130,246,0.35);
+            color: var(--info);
         }
 
         .btn-outline-danger {
             color: var(--danger);
-            border-color: rgba(239,68,68,0.25);
+            border-color: rgba(239,68,68,0.2);
             font-size: 0.8125rem;
             border-radius: var(--radius);
             padding: 4px 12px;
             background: transparent;
         }
         .btn-outline-danger:hover {
-            background: rgba(239,68,68,0.08);
-            border-color: rgba(239,68,68,0.4);
+            background: rgba(239,68,68,0.06);
+            border-color: rgba(239,68,68,0.35);
+            color: var(--danger);
         }
 
         .btn-secondary {
@@ -311,6 +333,10 @@
             color: var(--secondary-foreground);
             font-size: 0.8125rem;
             border-radius: var(--radius);
+        }
+        .btn-secondary:hover {
+            background: #3f3f46;
+            border-color: #3f3f46;
         }
 
         /* ── Form Controls ── */
@@ -474,18 +500,18 @@
     <div id="manageLayout" class="layout d-none">
         <aside class="sidebar">
             <nav class="nav nav-pills flex-column" id="manageTabs" role="tablist">
-                <button class="nav-link active" data-bs-toggle="pill" data-bs-target="#userPane" type="button">👤 用户管理</button>
-                <button class="nav-link" data-bs-toggle="pill" data-bs-target="#rolePane" type="button">🛡️ 角色管理</button>
-                <button class="nav-link" data-bs-toggle="pill" data-bs-target="#permissionPane" type="button">🔑 权限管理</button>
-                <button class="nav-link" data-bs-toggle="pill" data-bs-target="#devicePane" type="button">💻 设备管理</button>
-                <button class="nav-link" data-bs-toggle="pill" data-bs-target="#configPane" type="button">⚙️ 系统配置</button>
-                <button class="nav-link" data-bs-toggle="pill" data-bs-target="#navPane" type="button">🧭 导航管理</button>
-                <button class="nav-link" data-bs-toggle="pill" data-bs-target="#famousQuotePane" type="button">💬 名言管理</button>
-                <button class="nav-link" data-bs-toggle="pill" data-bs-target="#promptMessagePane" type="button">📢 提示消息</button>
-                <button class="nav-link" data-bs-toggle="pill" data-bs-target="#internalSystemPane" type="button">🏗️ 内部系统</button>
-                <button class="nav-link" data-bs-toggle="pill" data-bs-target="#operationLogPane" type="button">📋 操作日志</button>
-                <button class="nav-link" data-bs-toggle="pill" data-bs-target="#securityLogPane" type="button">🔒 安全日志</button>
-                <button class="nav-link" data-bs-toggle="pill" data-bs-target="#sysLogPane" type="button">📝 系统日志</button>
+                <button class="nav-link active" data-bs-toggle="pill" data-bs-target="#userPane" type="button"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> 用户管理</button>
+                <button class="nav-link" data-bs-toggle="pill" data-bs-target="#rolePane" type="button"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> 角色管理</button>
+                <button class="nav-link" data-bs-toggle="pill" data-bs-target="#permissionPane" type="button"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> 权限管理</button>
+                <button class="nav-link" data-bs-toggle="pill" data-bs-target="#devicePane" type="button"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg> 设备管理</button>
+                <button class="nav-link" data-bs-toggle="pill" data-bs-target="#configPane" type="button"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg> 系统配置</button>
+                <button class="nav-link" data-bs-toggle="pill" data-bs-target="#navPane" type="button"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg> 导航管理</button>
+                <button class="nav-link" data-bs-toggle="pill" data-bs-target="#famousQuotePane" type="button"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> 名言管理</button>
+                <button class="nav-link" data-bs-toggle="pill" data-bs-target="#promptMessagePane" type="button"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg> 提示消息</button>
+                <button class="nav-link" data-bs-toggle="pill" data-bs-target="#internalSystemPane" type="button"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/></svg> 内部系统</button>
+                <button class="nav-link" data-bs-toggle="pill" data-bs-target="#operationLogPane" type="button"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg> 操作日志</button>
+                <button class="nav-link" data-bs-toggle="pill" data-bs-target="#securityLogPane" type="button"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> 安全日志</button>
+                <button class="nav-link" data-bs-toggle="pill" data-bs-target="#sysLogPane" type="button"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg> 系统日志</button>
             </nav>
         </aside>
 
