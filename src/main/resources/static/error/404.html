@@ -1,25 +1,28 @@
-<html>
+<!DOCTYPE html>
+<html lang="zh-CN">
 <head>
-    <meta charset="utf-8"/>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>404</title>
-    <style>
-        body {
-            background-color: rgba(143, 143, 143, 0.6);
-            color: #FFF;
-            text-align: center;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-    </style>
+    <link rel="stylesheet" href="/css/app-theme.css">
+    <script src="/js/app-theme.js"></script>
 </head>
-<body>
-
-<div>
-    <h2>404</h2>
-    <h3>页面没找到</h3>
-</div>
-
+<body class="hc-app">
+<main class="hc-shell hc-stack">
+    <section class="hc-topbar">
+        <div class="hc-title-block">
+            <p class="hc-eyebrow">404</p>
+            <h1 class="hc-title">页面没找到</h1>
+            <p class="hc-subtitle">访问地址不存在，或页面已经被移动。</p>
+        </div>
+        <div class="hc-actions">
+            <button class="hc-theme-toggle" type="button" aria-label="切换深浅色主题">
+                <span class="hc-theme-toggle-icon" aria-hidden="true"></span>
+                <span data-theme-toggle-text>深色</span>
+            </button>
+            <a class="hc-button" href="/">返回导航</a>
+        </div>
+    </section>
+</main>
 </body>
-
 </html>

@@ -1,27 +1,28 @@
-<html>
+<!DOCTYPE html>
+<html lang="zh-CN">
 <head>
-    <meta charset="utf-8"/>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>403</title>
-    <style>
-        body {
-            background-color: rgba(143, 143, 143, 0.6);
-            color: #FFF;
-            text-align: center;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-    </style>
+    <link rel="stylesheet" href="/css/app-theme.css">
+    <script src="/js/app-theme.js"></script>
 </head>
-<body>
-
-<div>
-    <h2>403</h2>
-    <h3>请求被拒绝</h3>
-    <p>
-    <li>权限不足，请检查您的身份验证凭据</li>
-    </p>
-</div>
+<body class="hc-app">
+<main class="hc-shell hc-stack">
+    <section class="hc-topbar">
+        <div class="hc-title-block">
+            <p class="hc-eyebrow">403</p>
+            <h1 class="hc-title">请求被拒绝</h1>
+            <p class="hc-subtitle">权限不足，请检查您的身份验证凭据。</p>
+        </div>
+        <div class="hc-actions">
+            <button class="hc-theme-toggle" type="button" aria-label="切换深浅色主题">
+                <span class="hc-theme-toggle-icon" aria-hidden="true"></span>
+                <span data-theme-toggle-text>深色</span>
+            </button>
+            <a class="hc-button" href="/login.html">重新登录</a>
+        </div>
+    </section>
+</main>
 </body>
-
 </html>

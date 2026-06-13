@@ -1,171 +1,101 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-
 <head>
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-KW3KSFY9WM"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-
-        gtag('config', 'G-KW3KSFY9WM');
-    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>登录</title>
+    <link rel="stylesheet" href="/css/app-theme.css">
+    <script src="/js/app-theme.js"></script>
     <style>
+        .login-page {
+            min-height: 100vh;
+            display: grid;
+            grid-template-rows: auto 1fr auto;
+        }
 
-        body {
-            background-color: #121212ba; /* 深色背景色 */
-            color: #fff; /* 文字颜色 */
-            font-family: 'Arial', sans-serif;
+        .login-header,
+        .login-footer {
+            width: min(100% - 32px, 1120px);
+            margin: 0 auto;
+            padding: 22px 0;
+        }
+
+        .login-main {
             display: flex;
-            flex-direction: column;
             align-items: center;
-            justify-content: space-between;
-            height: 100vh;
-            margin: 0;
+            justify-content: center;
+            padding: 24px 16px;
         }
 
-        header {
-            opacity: 0.5;
+        .login-card {
+            width: min(380px, 100%);
+            padding: 26px;
         }
 
-        footer {
-            font-size: small;
-            color: rgba(0, 0, 0, 0.5);
+        .login-card h1 {
+            margin: 0 0 20px;
+            font-size: 24px;
+            line-height: 1.35;
         }
 
-        .login-container {
-            background-color: #1e1e1e; /* 登录框背景色 */
-            padding: 6px 36px 16px 36px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-            width: 280px;
-            text-align: center;
+        .login-form {
+            display: grid;
+            gap: 16px;
         }
-
-        .login-container h2 {
-            margin-bottom: 25px;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-size: 14px;
-        }
-
-        .form-group input {
-            box-sizing: border-box;
-            width: 100%;
-            padding: 8px;
-            border: 1px solid #444;
-            border-radius: 4px;
-            background-color: #333;
-            color: #fff;
-        }
-
-        .form-group button {
-            width: 100%;
-            margin-top: 15px;
-            padding: 10px;
-            border: none;
-            border-radius: 4px;
-            background-color: #4CAF50; /* 按钮颜色 */
-            color: #fff;
-            cursor: pointer;
-        }
-
-        .form-group button:hover {
-            background-color: #45a049; /* 鼠标悬停时的按钮颜色 */
-        }
-
-
     </style>
 </head>
-
-<body>
-<header>
-    <h3>Home Center</h3>
+<body class="hc-app login-page">
+<header class="login-header hc-actions">
+    <strong>Home Center</strong>
+    <button class="hc-theme-toggle" type="button" aria-label="切换深浅色主题">
+        <span class="hc-theme-toggle-icon" aria-hidden="true"></span>
+        <span data-theme-toggle-text>深色</span>
+    </button>
 </header>
-<main class="login-container">
-    <h3>用户登录</h3>
-    <br>
-    <form onsubmit="return login()">
-        <div class="form-group">
-            <label for="username">用户名</label>
-            <input type="text" id="username" name="username" required>
-        </div>
-        <div class="form-group">
-            <label for="password">密 &nbsp; 码</label>
-            <input type="password" id="password" name="password" required>
-        </div>
-        <div class="form-group">
-            <button type="submit">登 &nbsp;&nbsp; 录</button>
-        </div>
-    </form>
+
+<main class="login-main">
+    <section class="hc-panel login-card">
+        <p class="hc-eyebrow">Sign In</p>
+        <h1>用户登录</h1>
+        <form class="login-form" onsubmit="return login()">
+            <label>
+                <span class="hc-form-label">用户名</span>
+                <input type="text" class="hc-input" id="username" name="username" required>
+            </label>
+            <label>
+                <span class="hc-form-label">密码</span>
+                <input type="password" class="hc-input" id="password" name="password" required>
+            </label>
+            <button type="submit" class="hc-button hc-button-primary">登录</button>
+        </form>
+    </section>
 </main>
-<footer>
-    <p>
-        个人学习测试用
-    </p>
-</footer>
+
+<footer class="login-footer hc-muted">个人学习测试用</footer>
 
 <script>
     function login() {
-        // 阻止表单默认提交行为
-        //event.preventDefault();
+        var formData = new FormData();
+        formData.append('username', document.getElementById('username').value);
+        formData.append('password', document.getElementById('password').value);
 
-        // 获取用户名和密码
-        const username = document.getElementById("username").value;
-        const password = document.getElementById("password").value;
-
-        // 创建一个 FormData 对象，用于发送表单数据
-        const formData = new FormData();
-        formData.append('username', username);
-        formData.append('password', password);
-
-        // 发送登录请求
-        fetch('/login', {
+        window.HomeCenter.request('/login', {
             method: 'POST',
-            body: formData,
-        })
-            .then(response => response.json())
-            .then(result => {
-                // 检查登录是否成功
-                if (result.code == 200) {
-                    // 登录成功，存储 token 到本地存储
-                    sessionStorage.setItem('token', result.data);
-
-                    //跳转地址控制
-                    // 获取当前页面 URL 中的参数
-                    const urlParams = new URLSearchParams(window.location.search);
-                    // 获取名为 "ref" 的参数的值
-                    const ref = urlParams.get('ref');
-                    if (ref != null && ref.length > 8) {
-                        //跳转到指定地址
-                        window.location.href = ref;
-                    } else {
-                        //跳转到后台首页
-                        window.location.href = '/admin.html';
-                    }
-                } else {
-                    alert(result.message);
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('发生错误，请稍后重试');
-            });
+            body: formData
+        }).then(function (result) {
+            if (result.code === 200) {
+                sessionStorage.setItem('token', result.data);
+                var ref = new URLSearchParams(window.location.search).get('ref');
+                window.location.href = ref && ref.length > 8 ? ref : '/admin.html';
+                return;
+            }
+            window.HomeCenter.toast(result.message || '登录失败', 'error');
+        }).catch(function () {
+            window.HomeCenter.toast('发生错误，请稍后重试', 'error');
+        });
 
         return false;
     }
 </script>
 </body>
-
 </html>

@@ -51,14 +51,14 @@ class LoginInterceptorTest {
     }
 
     @Test
-    void 静态资源未登录时重定向登录页() throws Exception {
+    void 静态资源未登录时直接放行() throws Exception {
         MockHttpServletRequest request = new MockHttpServletRequest("GET", "/js/app.js");
         MockHttpServletResponse response = new MockHttpServletResponse();
 
         boolean allowed = interceptor.preHandle(request, response, new ResourceHttpRequestHandler());
 
-        assertTrue(!allowed);
-        assertEquals("/login.html", response.getRedirectedUrl());
+        assertTrue(allowed);
+        assertEquals(null, response.getRedirectedUrl());
     }
 
     @Test

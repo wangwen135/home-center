@@ -3,7 +3,8 @@
 <head>
     <meta charset="utf-8"/>
     <title>时间日期天气</title>
-    <script src="/js/jquery-3.6.1.min.js"></script>
+    <link rel="stylesheet" href="/css/app-theme.css">
+    <script src="/js/app-theme.js"></script>
     <style>
         html {
             width: 100%;
@@ -12,8 +13,8 @@
 
         /*kindle屏幕显示区域 高度：413 宽度：600*/
         body {
-            color: #000000;
-            background-color: #ffffff;
+            color: var(--hc-text);
+            background-color: var(--hc-bg);
             width: 100%;
             height: 100%;
             margin: 0px;
@@ -78,7 +79,7 @@
             margin-bottom: 2px;
             width: 100%;
             height: 3px;
-            background-color: #000000
+            background-color: var(--hc-text)
         }
 
         .famous {
@@ -99,10 +100,27 @@
             text-align: center;
         }
 
+        .screen-theme-toggle {
+            position: fixed;
+            top: 6px;
+            right: 6px;
+            z-index: 5;
+            min-height: 28px;
+            padding: 0 8px;
+            opacity: 0.32;
+        }
+
+        .screen-theme-toggle:hover {
+            opacity: 1;
+        }
+
     </style>
 </head>
 
-<body>
+<body class="hc-app">
+<button class="hc-theme-toggle screen-theme-toggle" type="button" aria-label="切换深浅色主题">
+    <span data-theme-toggle-text>深色</span>
+</button>
 <div class="page">
     <div id="top" class="top">
         <div class="date_container">
@@ -173,7 +191,7 @@
     updateDateAndWeek();
 
     function updateNongLi() {
-        $.get("/smartScreen/getNongLiShort", function (result) {
+        getData("/smartScreen/getNongLiShort", function (result) {
             if (result) {
                 document.getElementById("nongli").innerHTML = result;
             }
@@ -183,7 +201,7 @@
     updateNongLi();
 
     function updateFamous() {
-        $.get("/smartScreen/getRandomFamous", function (result) {
+        getData("/smartScreen/getRandomFamous", function (result) {
             if (result) {
                 document.getElementById("famous").innerHTML = result;
             }
@@ -193,7 +211,7 @@
     updateFamous();
 
     function updatePromptMessage() {
-        $.get("/smartScreen/getPromptMessage", function (result) {
+        getData("/smartScreen/getPromptMessage", function (result) {
             document.getElementById("msg").innerHTML = result && result.message ? result.message : "";
         });
     }
@@ -201,7 +219,7 @@
     updatePromptMessage();
 
     function updateWeather() {
-        $.get("/weather/getWeather", function (result) {
+        getData("/weather/getWeather", function (result) {
             if (!result) {
                 return;
             }
@@ -214,6 +232,14 @@
     }
 
     updateWeather();
+
+    function getData(url, callback) {
+        window.HomeCenter.get(url)
+            .then(callback)
+            .catch(function () {
+                callback(null);
+            });
+    }
 
     function refPreMinute() {
         updateTime();

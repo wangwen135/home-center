@@ -37,7 +37,8 @@ public class LoginInterceptor implements HandlerInterceptor {
      * **：匹配零个或多个目录或文件
      * </pre>
      */
-    private static final List<String> WHITE_LIST = Arrays.asList("/", "/index.html", "/css/nav.css",
+    private static final List<String> WHITE_LIST = Arrays.asList("/", "/index.html",
+            "/css/**", "/js/**",
             "/login", "/logout", "/preLogin", "/login.html", "/favicon.ico", "/error", "/user/changePassword",
             "/admin/manage.html", "/api/screenshot", "/api/version", "/api/download/latest", "/api/nav/**");
 

@@ -3,6 +3,306 @@
  * 2. 各种弹出框
  */
 
+(function () {
+    var navState = {
+        categories: [],
+        links: [],
+        query: ''
+    };
+
+    function hasPublicNav() {
+        return Boolean(document.getElementById('navContent'));
+    }
+
+    function syncBodyThemeClass() {
+        var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        if (document.body) {
+            document.body.classList.toggle('dark-theme', isDark);
+        }
+    }
+
+    function bindThemeSync() {
+        syncBodyThemeClass();
+        if (!window.MutationObserver) {
+            return;
+        }
+        var observer = new MutationObserver(syncBodyThemeClass);
+        observer.observe(document.documentElement, {
+            attributes: true,
+            attributeFilter: ['data-theme']
+        });
+        window.addEventListener('beforeunload', function () {
+            observer.disconnect();
+        }, {once: true});
+    }
+
+    function normalizeText(value) {
+        return value === null || value === undefined ? '' : String(value);
+    }
+
+    function compareSort(a, b) {
+        var left = Number(a.sortOrder || 0);
+        var right = Number(b.sortOrder || 0);
+        if (left !== right) {
+            return left - right;
+        }
+        return Number(a.id || 0) - Number(b.id || 0);
+    }
+
+    function hashColor(str) {
+        var text = normalizeText(str) || 'Home';
+        var h = 0;
+        var palettes = [
+            ['#d9ecff', '#8fc7ff', '#0f4f82'],
+            ['#d8f5f2', '#80d8cf', '#0a5a52'],
+            ['#e4edff', '#9bb8f4', '#274a87'],
+            ['#ddf7e8', '#8bdcae', '#145a35'],
+            ['#e7eef5', '#b9c9d8', '#32485d'],
+            ['#e1f4ff', '#98d6ee', '#155a73']
+        ];
+        for (var i = 0; i < text.length; i++) {
+            h = (h << 5) - h + text.charCodeAt(i);
+            h = h & h;
+        }
+        var color = palettes[Math.abs(h) % palettes.length];
+        return 'linear-gradient(135deg,' + color[0] + ',' + color[1] + ')';
+    }
+
+    function makeText(value) {
+        var text = normalizeText(value).trim();
+        if (!text) {
+            return 'HC';
+        }
+        var chars = Array.prototype.slice.call(text);
+        if (/[\u4e00-\u9fff]/.test(chars[0])) {
+            return chars.slice(0, 2).join('');
+        }
+        return text.replace(/\s+/g, '').slice(0, 4).toUpperCase();
+    }
+
+    function isImageIcon(value) {
+        var text = normalizeText(value).trim();
+        return /^(https?:)?\/\//i.test(text) ||
+            /^data:image\//i.test(text) ||
+            /\.(png|jpe?g|gif|webp|svg)(\?.*)?$/i.test(text);
+    }
+
+    function clearNode(node) {
+        while (node.firstChild) {
+            node.removeChild(node.firstChild);
+        }
+    }
+
+    function createEmptyMessage(text) {
+        var empty = document.createElement('div');
+        empty.className = 'empty-message';
+        empty.textContent = text;
+        return empty;
+    }
+
+    function renderTile(link) {
+        var titleText = normalizeText(link.title) || '未命名入口';
+        var descText = normalizeText(link.description) || '点击打开该入口';
+        var href = normalizeText(link.url) || '#';
+
+        var tile = document.createElement('a');
+        tile.className = 'tile';
+        tile.href = href;
+        tile.target = '_blank';
+        tile.rel = 'noopener noreferrer';
+        tile.setAttribute('aria-label', titleText + ': ' + descText);
+
+        var front = document.createElement('div');
+        front.className = 'tile-front';
+
+        var icon = document.createElement('div');
+        icon.className = 'icon';
+        if (isImageIcon(link.icon)) {
+            var img = document.createElement('img');
+            img.src = normalizeText(link.icon);
+            img.alt = '';
+            icon.appendChild(img);
+        } else {
+            icon.style.background = hashColor(link.icon || titleText);
+            icon.style.color = '#10384f';
+            icon.textContent = makeText(link.icon || titleText);
+        }
+        icon.setAttribute('aria-hidden', 'true');
+
+        var title = document.createElement('div');
+        title.className = 'title';
+        title.textContent = titleText;
+
+        front.appendChild(icon);
+        front.appendChild(title);
+
+        var back = document.createElement('div');
+        back.className = 'tile-back';
+
+        var backTitle = document.createElement('div');
+        backTitle.className = 'title';
+        backTitle.textContent = titleText;
+
+        var desc = document.createElement('div');
+        desc.className = 'desc';
+        desc.textContent = descText;
+
+        back.appendChild(backTitle);
+        back.appendChild(desc);
+        tile.appendChild(front);
+        tile.appendChild(back);
+        return tile;
+    }
+
+    function renderGroup(category, links) {
+        var group = document.createElement('section');
+        group.className = 'group';
+
+        var title = document.createElement('h2');
+        title.className = 'group-title';
+
+        var icon = document.createElement('span');
+        icon.className = 'group-icon';
+        icon.textContent = normalizeText(category.icon) || '◆';
+        icon.setAttribute('aria-hidden', 'true');
+
+        var name = document.createElement('span');
+        name.textContent = normalizeText(category.name) || '未命名分组';
+
+        title.appendChild(icon);
+        title.appendChild(name);
+
+        var grid = document.createElement('div');
+        grid.className = 'grid';
+
+        if (links.length) {
+            links.forEach(function (link) {
+                grid.appendChild(renderTile(link));
+            });
+        } else {
+            grid.appendChild(createEmptyMessage('该分组暂无链接'));
+        }
+
+        group.appendChild(title);
+        group.appendChild(grid);
+        return group;
+    }
+
+    function matchesQuery(link, category, query) {
+        if (!query) {
+            return true;
+        }
+        var haystack = [
+            link.title,
+            link.description,
+            link.url,
+            link.icon,
+            category && category.name,
+            category && category.icon
+        ].map(function (value) {
+            return normalizeText(value).toLowerCase();
+        }).join(' ');
+        return haystack.indexOf(query) !== -1;
+    }
+
+    function renderNavigation() {
+        var content = document.getElementById('navContent');
+        if (!content) {
+            return;
+        }
+
+        clearNode(content);
+
+        var query = navState.query.trim().toLowerCase();
+        var categories = navState.categories.slice().sort(compareSort);
+        var links = navState.links.slice().sort(compareSort);
+
+        if (!categories.length) {
+            content.appendChild(createEmptyMessage('暂无公开导航'));
+            return;
+        }
+
+        var renderedCount = 0;
+        categories.forEach(function (category) {
+            var categoryLinks = links.filter(function (link) {
+                return String(link.categoryId) === String(category.id) && matchesQuery(link, category, query);
+            });
+
+            if (query && !categoryLinks.length) {
+                return;
+            }
+
+            content.appendChild(renderGroup(category, categoryLinks));
+            renderedCount += categoryLinks.length;
+        });
+
+        if (query && renderedCount === 0) {
+            content.appendChild(createEmptyMessage('未找到匹配的导航链接'));
+        }
+    }
+
+    function loadNavigation() {
+        var content = document.getElementById('navContent');
+        fetch('/api/nav/all')
+            .then(function (response) {
+                if (!response.ok) {
+                    throw new Error('加载失败');
+                }
+                return response.json();
+            })
+            .then(function (result) {
+                if (result.code !== 200) {
+                    throw new Error(result.message || '加载失败');
+                }
+                var data = result.data || {};
+                navState.categories = (data.categories || []).filter(function (category) {
+                    return category.status === undefined || Number(category.status) === 1;
+                });
+                navState.links = (data.links || []).filter(function (link) {
+                    return link.status === undefined || Number(link.status) === 1;
+                });
+                renderNavigation();
+            })
+            .catch(function () {
+                if (content) {
+                    clearNode(content);
+                    content.appendChild(createEmptyMessage('导航数据暂时不可用'));
+                }
+            });
+    }
+
+    function bindSearch() {
+        var input = document.getElementById('navSearch');
+        if (!input) {
+            return;
+        }
+
+        var timer = null;
+        input.addEventListener('input', function () {
+            window.clearTimeout(timer);
+            timer = window.setTimeout(function () {
+                navState.query = input.value || '';
+                renderNavigation();
+            }, 200);
+        });
+    }
+
+    function initPublicNav() {
+        bindThemeSync();
+        if (!hasPublicNav()) {
+            return;
+        }
+        bindSearch();
+        loadNavigation();
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initPublicNav);
+    } else {
+        initPublicNav();
+    }
+})();
+
 
 /**
  * 发送get请求
@@ -213,16 +513,16 @@ function showModalMessage(title, message, type = MsgTypes.INFO) {
     const style = createMsgStyle(type);
 
     let modal = document.createElement('div');
-    modal.className = 'modal fade text-black';
+    modal.className = 'hc-dialog-backdrop';
     modal.tabIndex = -1;
     modal.innerHTML = `
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header py-2">
-          <h6 class="modal-title ${style.titleStyle}">${style.icon} ${title}</h6>
-          <button type="button" class="btn-close btn-sm" data-bs-dismiss="modal" aria-label="Close"></button>
+    <div class="hc-dialog">
+      <div class="hc-dialog-content">
+        <div class="hc-dialog-header">
+          <h6 class="hc-dialog-title ${style.titleStyle}">${style.icon} ${title}</h6>
+          <button type="button" class="hc-close-button" aria-label="Close">×</button>
         </div>
-        <div class="modal-body text-break">
+        <div class="hc-dialog-body">
           ${message}
         </div>
       </div>
@@ -231,17 +531,14 @@ function showModalMessage(title, message, type = MsgTypes.INFO) {
 
     // 将 Modal 元素添加到 body 中
     document.body.appendChild(modal);
-
-    // 初始化 Bootstrap Modal
-    const modalInstance = new bootstrap.Modal(modal);
-
-    // 显示 Modal
-    modalInstance.show();
-
-    // 监听 Modal 关闭事件，确保在关闭后移除 Modal 元素
-    modal.addEventListener('hidden.bs.modal', function () {
-        document.body.removeChild(modal);
-        modalInstance.dispose();
+    modal.classList.add('show');
+    modal.querySelector('.hc-close-button').addEventListener('click', function () {
+        closeHcDialog(modal);
+    });
+    modal.addEventListener('click', function (event) {
+        if (event.target === modal) {
+            closeHcDialog(modal);
+        }
     });
 }
 
@@ -261,7 +558,7 @@ function showConfirm(title, message, type = MsgTypes.QUESTION, callbackTrue, cal
     const style = createMsgStyle(type);
 
     let modal = document.createElement('div');
-    modal.className = 'modal fade text-black';
+    modal.className = 'hc-dialog-backdrop';
     modal.tabIndex = -1;
 
     const defOptions = {
@@ -269,23 +566,21 @@ function showConfirm(title, message, type = MsgTypes.QUESTION, callbackTrue, cal
         focus: true,
         keyboard: false
     };
-
-    const mergedOpts = {...defOptions, ...options};
-
+    options = Object.assign({}, defOptions, options || {});
 
     modal.innerHTML = `
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header py-2">
-          <h6 class="modal-title ${style.titleStyle}">${style.icon} ${title}</h6>
-          <button type="button" class="btn-close btn-sm cancel-button" data-bs-dismiss="modal" aria-label="Close"></button>
+    <div class="hc-dialog">
+      <div class="hc-dialog-content">
+        <div class="hc-dialog-header">
+          <h6 class="hc-dialog-title ${style.titleStyle}">${style.icon} ${title}</h6>
+          <button type="button" class="hc-close-button cancel-button" aria-label="Close">×</button>
         </div>
-        <div class="modal-body text-break">
+        <div class="hc-dialog-body">
           ${message}
         </div>
-        <div class="modal-footer py-2">
-          <button type="button" class="btn btn-primary confirm-button" data-bs-dismiss="modal">确  定</button>
-          <button type="button" class="btn btn-secondary cancel-button" data-bs-dismiss="modal">取  消</button>
+        <div class="hc-dialog-footer">
+          <button type="button" class="hc-button hc-button-primary confirm-button">确  定</button>
+          <button type="button" class="hc-button cancel-button">取  消</button>
         </div>
       </div>
     </div>
@@ -293,12 +588,10 @@ function showConfirm(title, message, type = MsgTypes.QUESTION, callbackTrue, cal
 
     // 将 Modal 元素添加到 body 中
     document.body.appendChild(modal);
-
-    // 初始化 Bootstrap Modal
-    const modalInstance = new bootstrap.Modal(modal, mergedOpts);
-
-    // 显示 Modal
-    modalInstance.show();
+    modal.classList.add('show');
+    if (options.focus) {
+        modal.focus();
+    }
 
     let executed = false;
 
@@ -307,29 +600,54 @@ function showConfirm(title, message, type = MsgTypes.QUESTION, callbackTrue, cal
         modal.querySelector('.confirm-button').addEventListener('click', function () {
             executed = true;
             callbackTrue();
+            closeHcDialog(modal, executed, hiddenCallback);
+        });
+    } else {
+        modal.querySelector('.confirm-button').addEventListener('click', function () {
+            executed = true;
+            closeHcDialog(modal, executed, hiddenCallback);
         });
     }
 
     //为“取消”按钮添加事件监听
-    if (typeof callbackFalse === 'function') {
-        modal.querySelectorAll('.cancel-button').forEach(function (button) {
-            button.addEventListener('click', function () {
+    Array.prototype.forEach.call(modal.querySelectorAll('.cancel-button'), function (button) {
+        button.addEventListener('click', function () {
+            if (typeof callbackFalse === 'function') {
                 executed = true;
                 callbackFalse();
-            });
-        });
-    }
-
-    // 监听 Modal 关闭事件，确保在关闭后移除 Modal 元素
-    modal.addEventListener('hidden.bs.modal', function () {
-        document.body.removeChild(modal);
-        modalInstance.dispose();
-        if (!executed) {
-            if (typeof hiddenCallback === 'function') {
-                hiddenCallback();
             }
+            closeHcDialog(modal, executed, hiddenCallback);
+        });
+    });
+
+    modal.addEventListener('click', function (event) {
+        if (event.target === modal && options.backdrop !== 'static') {
+            closeHcDialog(modal, executed, hiddenCallback);
         }
     });
+
+    if (options.keyboard !== false) {
+        modal.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape') {
+                closeHcDialog(modal, executed, hiddenCallback);
+            }
+        });
+    }
+}
+
+function closeHcDialog(modal, executed, hiddenCallback) {
+    if (!modal || !modal.parentNode) {
+        return;
+    }
+    modal.classList.remove('show');
+    setTimeout(function () {
+        if (modal.parentNode) {
+            modal.parentNode.removeChild(modal);
+        }
+        if (!executed && typeof hiddenCallback === 'function') {
+            hiddenCallback();
+        }
+    }, 120);
 }
 
 /**
@@ -377,7 +695,7 @@ function createToastContainer(position = Position.BottomRight) {
     let toastContainer = document.getElementById(containerId);
     if (!toastContainer) {
         toastContainer = document.createElement('div');
-        toastContainer.className = 'toast-container position-fixed p-3 text-black ' + position.style;
+        toastContainer.className = 'hc-toast-container hc-toast-position-' + position.id;
         toastContainer.id = containerId;
         document.body.appendChild(toastContainer);
     }
@@ -398,27 +716,27 @@ function showToast(message, title = '提示', smallTitle = '', type = MsgTypes.N
 
     // 创建 Toast 元素
     const toastElement = document.createElement('div');
-    toastElement.className = 'toast';
+    toastElement.className = 'hc-toast';
 
     let htmlContent;
 
     if ((title == null || title == '') && (smallTitle == null || smallTitle == '')) {
         htmlContent = `
-          <div class="d-flex">
-            <div class="toast-body ${style.titleStyle}">
+          <div class="hc-toast-line">
+            <div class="hc-toast-body ${style.titleStyle}">
               ${style.icon} ${message}
             </div>
-            <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            <button type="button" class="hc-toast-close" aria-label="Close">×</button>
           </div>
           `;
     } else {
         htmlContent = `
-            <div class="toast-header">
-              <strong class="me-auto ${style.titleStyle}">${style.icon} ${title}</strong>
+            <div class="hc-toast-header">
+              <strong class="${style.titleStyle}">${style.icon} ${title}</strong>
               <small>${smallTitle}</small>
-              <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+              <button type="button" class="hc-toast-close" aria-label="Close">×</button>
             </div>
-            <div class="toast-body">
+            <div class="hc-toast-body">
               ${message}
             </div>
           `;
@@ -427,17 +745,74 @@ function showToast(message, title = '提示', smallTitle = '', type = MsgTypes.N
     toastElement.innerHTML = htmlContent;
 
     toastContainer.appendChild(toastElement);
+    setTimeout(function () {
+        toastElement.classList.add('show');
+    }, 0);
 
-    // 初始化 Bootstrap Toast
-    const toast = new bootstrap.Toast(toastElement);
+    function closeToast() {
+        toastElement.classList.remove('show');
+        setTimeout(function () {
+            if (toastElement.parentNode) {
+                toastElement.parentNode.removeChild(toastElement);
+            }
+        }, 160);
+    }
 
-    // 显示 Toast
-    toast.show();
+    const closeButton = toastElement.querySelector('.hc-toast-close');
+    if (closeButton) {
+        closeButton.addEventListener('click', closeToast);
+    }
+    setTimeout(closeToast, 5200);
+}
 
-    // 监听 Toast 隐藏事件，确保在隐藏后移除 Toast 元素
-    toastElement.addEventListener('hidden.bs.toast', function () {
-        toastContainer.removeChild(toastElement);
-    });
+function removeFloatingTip(element) {
+    const id = element && element.getAttribute('data-hc-tip-id');
+    if (!id) {
+        return;
+    }
+    const oldTip = document.getElementById(id);
+    if (oldTip && oldTip.parentNode) {
+        oldTip.parentNode.removeChild(oldTip);
+    }
+    element.removeAttribute('data-hc-tip-id');
+}
+
+function positionFloatingTip(tip, element, placement) {
+    const rect = element.getBoundingClientRect();
+    const tipRect = tip.getBoundingClientRect();
+    const gap = 8;
+    let left = rect.left + (rect.width - tipRect.width) / 2;
+    let top = rect.bottom + gap;
+    if (placement === 'top') {
+        top = rect.top - tipRect.height - gap;
+    } else if (placement === 'left') {
+        left = rect.left - tipRect.width - gap;
+        top = rect.top + (rect.height - tipRect.height) / 2;
+    } else if (placement === 'right') {
+        left = rect.right + gap;
+        top = rect.top + (rect.height - tipRect.height) / 2;
+    }
+    tip.style.left = Math.max(8, Math.min(left, window.innerWidth - tipRect.width - 8)) + 'px';
+    tip.style.top = Math.max(8, Math.min(top, window.innerHeight - tipRect.height - 8)) + 'px';
+}
+
+function showFloatingTip(element, content, title, placement, timeout, className) {
+    if (!element) {
+        return;
+    }
+    removeFloatingTip(element);
+    const tip = document.createElement('div');
+    const id = 'hc-tip-' + Date.now() + '-' + Math.floor(Math.random() * 1000);
+    tip.id = id;
+    tip.className = className;
+    tip.innerHTML = (title ? '<strong>' + title + '</strong>' : '') + '<div>' + content + '</div>';
+    document.body.appendChild(tip);
+    element.setAttribute('data-hc-tip-id', id);
+    positionFloatingTip(tip, element, placement);
+    setTimeout(function () {
+        removeFloatingTip(element);
+    }, timeout);
+    return tip;
 }
 
 /**
@@ -458,19 +833,7 @@ function showToastSimple(message, type = MsgTypes.NONE, position = Position.Bott
  * @param timeout 消失时间，默认3秒
  */
 function showTooltips(element, content, placement = 'bottom', timeout = 3000) {
-    const tooltip = new bootstrap.Tooltip(element, {
-        title: content,
-        placement: placement,
-        trigger: 'manual',
-        customClass: 'wide-tooltips',
-        html: true
-    });
-    tooltip.show();
-    setTimeout(() => {
-        // tooltip.hide();
-        // 销毁
-        tooltip.dispose();
-    }, timeout);
+    showFloatingTip(element, content, '', placement, timeout, 'hc-floating-tip hc-tooltip');
 }
 
 /**
@@ -482,19 +845,7 @@ function showTooltips(element, content, placement = 'bottom', timeout = 3000) {
  * @param timeout 消失时间，默认3秒
  */
 function showPopover(element, content, title = '', placement = 'right', timeout = 3000) {
-    const popover = new bootstrap.Popover(element, {
-        title: title,
-        content: content,
-        placement: placement,
-        trigger: 'manual',
-        html: true
-    });
-    popover.show()
-    setTimeout(() => {
-        //popover.hide();
-        // 销毁 直接隐藏没有动画
-        popover.dispose();
-    }, timeout);
+    showFloatingTip(element, content, title, placement, timeout, 'hc-floating-tip hc-popover');
 }
 
 // ###############################################################
@@ -727,4 +1078,3 @@ function scrollElementIntoView(container, element) {
     }
     // 如果元素已经在可见范围内，则不需要滚动
 }
-
