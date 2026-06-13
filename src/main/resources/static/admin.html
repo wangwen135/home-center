@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="zh_CN" class="h-100">
+<html lang="zh-CN">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -7,15 +7,15 @@
     <meta name="author" content="wwh">
     <title>Home Center Admin</title>
 
-    <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
-    <link rel="stylesheet" href="css/common.css">
-    <link rel="stylesheet" href="css/index.css">
-    <script src="bootstrap/js/bootstrap.bundle.min.js"></script>
-    <script src="js/main.js"></script>
-    <script src="js/index.js"></script>
+    <link rel="stylesheet" href="/css/app-theme.css">
+    <link rel="stylesheet" href="/css/common.css">
+    <link rel="stylesheet" href="/css/index.css">
+    <script src="/js/app-theme.js"></script>
+    <script src="/js/main.js"></script>
+    <script src="/js/index.js"></script>
 </head>
 
-<body class="d-flex h-100 text-center text-white ">
+<body class="hc-app admin-page">
 <div class="d-flex w-100 h-100 p-3 mx-auto flex-column">
     <header class="mb-2 header">
         <h3 class="float-md-start mb-0">Home Center Admin</h3>
@@ -26,10 +26,10 @@
             <a class="nav-link active" aria-current="page" href="#">快速入口</a>
             <a class="nav-link" href="/admin/manage.html">后台管理</a>
 
-            <a class="nav-link dropdown-toggle" href="#" id="hardwareDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <button class="nav-link admin-menu-button" type="button" data-menu-target="hardwareMenu" aria-expanded="false">
                 设备
-            </a>
-            <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="hardwareDropdown">
+            </button>
+            <ul id="hardwareMenu" class="dropdown-menu admin-dropdown">
                 <li><a class="dropdown-item" href="/device/pc/power.html" target="_blank">电脑远程控制</a></li>
             </ul>
             <div class="ms-2"></div>
@@ -38,15 +38,19 @@
         </nav>
 
         <div class="avatar-container">
+            <button class="hc-theme-toggle admin-theme-toggle" type="button" aria-label="切换深浅色主题">
+                <span class="hc-theme-toggle-icon" aria-hidden="true"></span>
+                <span data-theme-toggle-text>深色</span>
+            </button>
             <a href="profile.html" target="_blank" class="text-decoration-none">
                 <img id="avatar" class="avatar-icon" src="favicon.ico" alt="头像">
             </a>
-            <div class="dropdown d-inline-block">
-                <button id="userName" class="btn btn-dark dropdown-toggle py-1" type="button" data-bs-toggle="dropdown"
+            <div class="d-inline-block">
+                <button id="userName" class="btn btn-dark py-1 admin-menu-button" type="button" data-menu-target="userMenu"
                         aria-expanded="false">
                     user name
                 </button>
-                <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuLink">
+                <ul id="userMenu" class="dropdown-menu admin-dropdown admin-dropdown-right">
                     <li><span class="dropdown-item-text">角色：
                         <span id="roleName" class="text-primary">管理员</span>
                     </span></li>
@@ -113,5 +117,34 @@
         </p>
     </footer>
 </div>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        Array.prototype.forEach.call(document.querySelectorAll('.admin-menu-button'), function (button) {
+            button.addEventListener('click', function (event) {
+                event.stopPropagation();
+                var target = document.getElementById(button.getAttribute('data-menu-target'));
+                if (!target) {
+                    return;
+                }
+                var open = target.classList.contains('open');
+                closeAdminMenus();
+                if (!open) {
+                    target.classList.add('open');
+                    button.setAttribute('aria-expanded', 'true');
+                }
+            });
+        });
+        document.addEventListener('click', closeAdminMenus);
+    });
+
+    function closeAdminMenus() {
+        Array.prototype.forEach.call(document.querySelectorAll('.admin-dropdown.open'), function (menu) {
+            menu.classList.remove('open');
+        });
+        Array.prototype.forEach.call(document.querySelectorAll('.admin-menu-button[aria-expanded="true"]'), function (button) {
+            button.setAttribute('aria-expanded', 'false');
+        });
+    }
+</script>
 </body>
 </html>

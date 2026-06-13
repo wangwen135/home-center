@@ -4,13 +4,13 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>后台管理 - Home Center</title>
-    <link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/app-theme.css">
     <link rel="stylesheet" href="/css/common.css">
     <link rel="stylesheet" href="/css/index.css">
+    <script src="/js/app-theme.js"></script>
     <style>
         body {
-            background: #05070a;
-            color: #e8eef6;
+            color: var(--hc-text);
         }
 
         .manage-shell {
@@ -33,37 +33,42 @@
         }
 
         .sidebar {
-            border: 1px solid rgba(255, 255, 255, .14);
-            background: rgba(255, 255, 255, .05);
-            border-radius: 8px;
+            border: 1px solid var(--hc-line);
+            background: var(--hc-surface);
+            border-radius: 12px;
             padding: 12px;
             height: fit-content;
+            box-shadow: var(--hc-shadow-soft);
         }
 
         .content-panel {
-            border: 1px solid rgba(255, 255, 255, .14);
-            background: rgba(255, 255, 255, .05);
-            border-radius: 8px;
+            border: 1px solid var(--hc-line);
+            background: var(--hc-surface);
+            border-radius: 12px;
             padding: 18px;
             min-height: 620px;
+            box-shadow: var(--hc-shadow-soft);
         }
 
         .nav-pills .nav-link {
-            color: rgba(255, 255, 255, .72);
+            color: var(--hc-muted);
             text-align: left;
-            border-radius: 6px;
+            border-radius: 8px;
         }
 
         .nav-pills .nav-link.active {
-            background: #0d6efd;
+            background: var(--hc-accent-gradient);
             color: #fff;
         }
 
         .table-dark {
             --bs-table-bg: transparent;
-            --bs-table-striped-bg: rgba(255, 255, 255, .04);
-            --bs-table-hover-bg: rgba(13, 110, 253, .12);
-            border-color: rgba(255, 255, 255, .12);
+            --bs-table-color: var(--hc-text);
+            --bs-table-striped-color: var(--hc-text);
+            --bs-table-hover-color: var(--hc-text);
+            --bs-table-striped-bg: rgba(37, 99, 235, .045);
+            --bs-table-hover-bg: rgba(37, 99, 235, .09);
+            border-color: var(--hc-line);
         }
 
         .toolbar {
@@ -75,31 +80,31 @@
         }
 
         .form-control, .form-select {
-            background: rgba(255, 255, 255, .08);
-            border-color: rgba(255, 255, 255, .18);
-            color: #fff;
+            background: var(--hc-surface-strong);
+            border-color: var(--hc-line);
+            color: var(--hc-text);
         }
 
         .form-control:focus, .form-select:focus {
-            background: rgba(255, 255, 255, .1);
-            color: #fff;
+            background: var(--hc-surface-strong);
+            color: var(--hc-text);
         }
 
         .form-control::placeholder {
-            color: rgba(255, 255, 255, .45);
+            color: var(--hc-muted);
         }
 
         .config-value {
             cursor: text;
             min-width: 160px;
-            border-bottom: 1px dashed rgba(255, 255, 255, .35);
+            border-bottom: 1px dashed var(--hc-line);
             word-break: break-all;
         }
 
         .section-block + .section-block {
             margin-top: 28px;
             padding-top: 22px;
-            border-top: 1px solid rgba(255, 255, 255, .12);
+            border-top: 1px solid var(--hc-line);
         }
 
         .form-check-input {
@@ -110,7 +115,7 @@
             display: none;
             padding: 42px 16px;
             text-align: center;
-            color: rgba(255, 255, 255, .6);
+            color: var(--hc-muted);
         }
 
         .text-truncate-cell {
@@ -128,16 +133,16 @@
         .permission-check-list {
             max-height: 420px;
             overflow: auto;
-            border: 1px solid rgba(255, 255, 255, .14);
+            border: 1px solid var(--hc-line);
             border-radius: 8px;
             padding: 10px;
-            background: rgba(255, 255, 255, .04);
+            background: var(--hc-surface-strong);
         }
 
         .modal-content {
-            background: #121821;
-            color: #e8eef6;
-            border: 1px solid rgba(255, 255, 255, .16);
+            background: var(--hc-surface-strong);
+            color: var(--hc-text);
+            border: 1px solid var(--hc-line);
         }
 
         @media (max-width: 768px) {
@@ -156,14 +161,20 @@
         }
     </style>
 </head>
-<body>
+<body class="hc-app">
 <div class="manage-shell">
     <header class="manage-header">
         <div>
             <h3 class="mb-1">后台管理</h3>
             <div class="text-white-50 small">Home Center</div>
         </div>
-        <a class="btn btn-outline-light btn-sm" href="/admin.html">返回首页</a>
+        <div class="hc-actions">
+            <button class="hc-theme-toggle" type="button" aria-label="切换深浅色主题">
+                <span class="hc-theme-toggle-icon" aria-hidden="true"></span>
+                <span data-theme-toggle-text>深色</span>
+            </button>
+            <a class="btn btn-outline-light btn-sm" href="/admin.html">返回首页</a>
+        </div>
     </header>
 
     <div id="forbiddenPanel" class="alert alert-warning d-none">
@@ -918,8 +929,7 @@
     </div>
 </div>
 
-<script src="/js/jquery-3.6.1.min.js"></script>
-<script src="/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="/js/dom-lite.js"></script>
 <script src="/js/main.js"></script>
 <script>
     let users = [];
@@ -931,17 +941,17 @@
     let famousQuotes = [];
     let promptMessages = [];
     let internalSystems = [];
-    const userModal = new bootstrap.Modal(document.getElementById('userModal'));
-    const assignUserRoleModal = new bootstrap.Modal(document.getElementById('assignUserRoleModal'));
-    const roleModal = new bootstrap.Modal(document.getElementById('roleModal'));
-    const rolePermissionModal = new bootstrap.Modal(document.getElementById('rolePermissionModal'));
-    const permissionModal = new bootstrap.Modal(document.getElementById('permissionModal'));
-    const deviceModal = new bootstrap.Modal(document.getElementById('deviceModal'));
-    const navCategoryModal = new bootstrap.Modal(document.getElementById('navCategoryModal'));
-    const navLinkModal = new bootstrap.Modal(document.getElementById('navLinkModal'));
-    const famousQuoteModal = new bootstrap.Modal(document.getElementById('famousQuoteModal'));
-    const promptMessageModal = new bootstrap.Modal(document.getElementById('promptMessageModal'));
-    const internalSystemModal = new bootstrap.Modal(document.getElementById('internalSystemModal'));
+    const userModal = new HcModal(document.getElementById('userModal'));
+    const assignUserRoleModal = new HcModal(document.getElementById('assignUserRoleModal'));
+    const roleModal = new HcModal(document.getElementById('roleModal'));
+    const rolePermissionModal = new HcModal(document.getElementById('rolePermissionModal'));
+    const permissionModal = new HcModal(document.getElementById('permissionModal'));
+    const deviceModal = new HcModal(document.getElementById('deviceModal'));
+    const navCategoryModal = new HcModal(document.getElementById('navCategoryModal'));
+    const navLinkModal = new HcModal(document.getElementById('navLinkModal'));
+    const famousQuoteModal = new HcModal(document.getElementById('famousQuoteModal'));
+    const promptMessageModal = new HcModal(document.getElementById('promptMessageModal'));
+    const internalSystemModal = new HcModal(document.getElementById('internalSystemModal'));
 
     $(function () {
         checkAdmin();

@@ -1,73 +1,98 @@
 <!DOCTYPE html>
-<html lang="zh_CN" class="h-100">
-
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>个人信息</title>
-    <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
-    <script src="bootstrap/js/bootstrap.bundle.min.js"></script>
-    <script src="js/jquery-3.6.1.min.js"></script>
+    <link rel="stylesheet" href="/css/app-theme.css">
+    <script src="/js/app-theme.js"></script>
+    <style>
+        .profile-form {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 16px;
+        }
+
+        .profile-form .full {
+            grid-column: 1 / -1;
+        }
+
+        @media (max-width: 720px) {
+            .profile-form {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
-<body>
-<div class="container mt-5">
-    <h2>个人信息</h2>
-    <form>
-        <div class="form-group">
-            <label for="username">用户名:</label>
-            <input type="text" class="form-control" id="username" placeholder="用户名" readonly>
+<body class="hc-app">
+<main class="hc-shell hc-stack">
+    <header class="hc-topbar">
+        <div class="hc-title-block">
+            <p class="hc-eyebrow">Profile</p>
+            <h1 class="hc-title">个人信息</h1>
+            <p class="hc-subtitle">查看和维护当前登录账号的基础信息。</p>
         </div>
-        <div class="form-group">
-            <label for="role">角色:</label>
-            <input type="text" class="form-control" id="role" placeholder="角色" readonly>
+        <div class="hc-actions">
+            <button class="hc-theme-toggle" type="button" aria-label="切换深浅色主题">
+                <span class="hc-theme-toggle-icon" aria-hidden="true"></span>
+                <span data-theme-toggle-text>深色</span>
+            </button>
+            <a class="hc-button" href="/admin.html">返回首页</a>
         </div>
-        <div class="form-group">
-            <label for="nickname">昵称:</label>
-            <input type="text" class="form-control" id="nickname" placeholder="昵称">
-        </div>
-        <div class="form-group">
-            <label for="gender">性别:</label>
-            <select class="form-control" id="gender">
-                <option>男</option>
-                <option>女</option>
-                <option>其他</option>
-            </select>
-        </div>
-        <div class="form-group">
-            <label for="avatar">头像:</label>
-            <div class="input-group">
-                <div class="custom-file">
-                    <input type="file" class="custom-file-input" id="avatar" aria-describedby="avatarHelp">
-                    <label class="custom-file-label" for="avatar">选择文件</label>
-                </div>
-                <div class="input-group-append">
-                    <span class="input-group-text">上传</span>
-                </div>
+    </header>
+
+    <section class="hc-panel hc-panel-pad">
+        <form class="profile-form">
+            <label>
+                <span class="hc-form-label">用户名</span>
+                <input type="text" class="hc-input" id="username" placeholder="用户名" readonly>
+            </label>
+            <label>
+                <span class="hc-form-label">角色</span>
+                <input type="text" class="hc-input" id="role" placeholder="角色" readonly>
+            </label>
+            <label>
+                <span class="hc-form-label">昵称</span>
+                <input type="text" class="hc-input" id="nickname" placeholder="昵称">
+            </label>
+            <label>
+                <span class="hc-form-label">性别</span>
+                <select class="hc-select" id="gender">
+                    <option>男</option>
+                    <option>女</option>
+                    <option>其他</option>
+                </select>
+            </label>
+            <label class="full">
+                <span class="hc-form-label">头像</span>
+                <input type="file" class="hc-input" id="avatar" aria-describedby="avatarHelp">
+                <span id="avatarHelp" class="hc-help-text">支持 JPEG、PNG 格式，文件大小不超过 2MB。</span>
+            </label>
+            <label>
+                <span class="hc-form-label">手机号码</span>
+                <input type="tel" class="hc-input" id="phone" placeholder="手机号码">
+            </label>
+            <label>
+                <span class="hc-form-label">邮箱</span>
+                <input type="email" class="hc-input" id="email" placeholder="邮箱">
+            </label>
+            <label>
+                <span class="hc-form-label">过期时间</span>
+                <input type="datetime-local" class="hc-input" id="expire-time">
+            </label>
+            <label>
+                <span class="hc-form-label">创建时间</span>
+                <input type="datetime-local" class="hc-input" id="create-time" readonly>
+            </label>
+            <label>
+                <span class="hc-form-label">修改时间</span>
+                <input type="datetime-local" class="hc-input" id="modify-time" readonly>
+            </label>
+            <div class="full hc-actions">
+                <button type="submit" class="hc-button hc-button-primary">保存修改</button>
             </div>
-            <small id="avatarHelp" class="form-text text-muted">支持JPEG、PNG格式，文件大小不超过2MB。</small>
-        </div>
-        <div class="form-group">
-            <label for="phone">手机号码:</label>
-            <input type="tel" class="form-control" id="phone" placeholder="手机号码">
-        </div>
-        <div class="form-group">
-            <label for="email">邮箱:</label>
-            <input type="email" class="form-control" id="email" placeholder="邮箱">
-        </div>
-        <div class="form-group">
-            <label for="expire-time">过期时间:</label>
-            <input type="datetime-local" class="form-control" id="expire-time">
-        </div>
-        <div class="form-group">
-            <label for="create-time">创建时间:</label>
-            <input type="datetime-local" class="form-control" id="create-time" readonly>
-        </div>
-        <div class="form-group">
-            <label for="modify-time">修改时间:</label>
-            <input type="datetime-local" class="form-control" id="modify-time" readonly>
-        </div>
-        <button type="submit" class="btn btn-primary">保存修改</button>
-    </form>
-</div>
+        </form>
+    </section>
+</main>
 </body>
 </html>
