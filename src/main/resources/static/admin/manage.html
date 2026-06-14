@@ -4,177 +4,625 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>后台管理 - Home Center</title>
-    <link rel="stylesheet" href="/css/app-theme.css">
+    <link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="/css/common.css">
     <link rel="stylesheet" href="/css/index.css">
-    <script src="/js/app-theme.js"></script>
     <style>
-        body {
-            color: var(--hc-text);
+        /* ═══════════════════════════════════════════════════════════
+           Home Center 后台管理 — shadcn/ui + Tabler inspired
+           Design tokens from: shadcn/ui (83k★), Tabler (41k★)
+           ═══════════════════════════════════════════════════════════ */
+
+        /* ── Design Tokens (shadcn/ui pattern) ── */
+        :root {
+            --background: #09090b;
+            --foreground: #fafafa;
+            --card: #0a0a0c;
+            --card-foreground: #fafafa;
+            --popover: #0a0a0c;
+            --popover-foreground: #fafafa;
+            --primary: #fafafa;
+            --primary-foreground: #18181b;
+            --secondary: #27272a;
+            --secondary-foreground: #fafafa;
+            --muted: #27272a;
+            --muted-foreground: #a1a1aa;
+            --accent: #27272a;
+            --accent-foreground: #fafafa;
+            --destructive: #7f1d1d;
+            --border: rgba(255,255,255,0.10);
+            --input: rgba(255,255,255,0.15);
+            --ring: #a1a1aa;
+            --radius: 0.5rem;
+            /* Custom semantic */
+            --accent-blue: #3b82f6;
+            --accent-indigo: #6366f1;
+            --success: #22c55e;
+            --warning: #eab308;
+            --danger: #ef4444;
+            --info: #3b82f6;
+            /* Shadows (Tabler border-as-shadow) */
+            --shadow-border: 0 0 0 1px rgba(255,255,255,0.06);
+            --shadow-card: 0 0 0 1px rgba(255,255,255,0.06), 0 1px 3px rgba(0,0,0,0.4);
+            --shadow-card-hover: 0 0 0 1px rgba(255,255,255,0.10), 0 4px 12px rgba(0,0,0,0.5);
+            --shadow-modal: 0 0 0 1px rgba(255,255,255,0.08), 0 24px 48px rgba(0,0,0,0.6);
+            /* Transition */
+            --transition-fast: 120ms ease;
+            --transition-base: 200ms ease;
         }
 
+        [data-theme="light"] {
+            --background: #ffffff;
+            --foreground: #09090b;
+            --card: #ffffff;
+            --card-foreground: #09090b;
+            --popover: #ffffff;
+            --popover-foreground: #09090b;
+            --primary: #18181b;
+            --primary-foreground: #fafafa;
+            --secondary: #f4f4f5;
+            --secondary-foreground: #18181b;
+            --muted: #f4f4f5;
+            --muted-foreground: #71717a;
+            --accent: #f4f4f5;
+            --accent-foreground: #18181b;
+            --destructive: #fef2f2;
+            --border: rgba(0,0,0,0.10);
+            --input: rgba(0,0,0,0.12);
+            --ring: #a1a1aa;
+            --accent-blue: #2563eb;
+            --accent-indigo: #4f46e5;
+            --success: #16a34a;
+            --warning: #ca8a04;
+            --danger: #dc2626;
+            --info: #2563eb;
+            --shadow-border: 0 0 0 1px rgba(0,0,0,0.06);
+            --shadow-card: 0 0 0 1px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.08);
+            --shadow-card-hover: 0 0 0 1px rgba(0,0,0,0.10), 0 4px 12px rgba(0,0,0,0.10);
+            --shadow-modal: 0 0 0 1px rgba(0,0,0,0.08), 0 24px 48px rgba(0,0,0,0.12);
+        }
+
+        * { box-sizing: border-box; margin: 0; }
+
+        body {
+            background: var(--background);
+            color: var(--foreground);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', Roboto, sans-serif;
+            font-size: 0.875rem;
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* ── Shell ── */
         .manage-shell {
             min-height: 100vh;
-            padding: 20px;
+            padding: 20px 24px;
+            max-width: 1400px;
+            margin: 0 auto;
         }
 
+        /* ── Header ── */
         .manage-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
             gap: 16px;
             margin-bottom: 20px;
+            padding-bottom: 16px;
+            position: relative;
         }
+        .manage-header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, var(--accent-indigo), var(--accent-blue), transparent);
+        }
+        .manage-header h3 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--foreground);
+            letter-spacing: -0.02em;
+        }
+        .manage-header .text-white-50 {
+            color: var(--muted-foreground);
+            font-size: 0.75rem;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+        .theme-toggle {
+            width: 30px;
+            height: 30px;
+            padding: 0;
+            margin-left: auto;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--muted-foreground);
+            background: transparent;
+            border: none;
+            border-radius: 9999px;
+            transition: all var(--transition-fast);
+        }
+        .theme-toggle:hover {
+            color: var(--foreground);
+            background: rgba(255,255,255,0.06);
+        }
+        .theme-toggle:focus-visible {
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(99,102,241,0.2);
+        }
+        .theme-toggle svg { display: none; }
+        [data-theme="dark"] .theme-toggle .theme-icon-moon,
+        [data-theme="light"] .theme-toggle .theme-icon-sun { display: block; }
 
+        /* ── Layout ── */
         .layout {
             display: grid;
-            grid-template-columns: 220px minmax(0, 1fr);
-            gap: 18px;
+            grid-template-columns: 208px minmax(0, 1fr);
+            gap: 16px;
         }
 
+        /* ── Sidebar ── */
         .sidebar {
-            border: 1px solid var(--hc-line);
-            background: var(--hc-surface);
-            border-radius: 12px;
-            padding: 12px;
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 6px;
             height: fit-content;
-            box-shadow: var(--hc-shadow-soft);
+            position: sticky;
+            top: 20px;
+            box-shadow: var(--shadow-card);
         }
-
-        .content-panel {
-            border: 1px solid var(--hc-line);
-            background: var(--hc-surface);
-            border-radius: 12px;
-            padding: 18px;
-            min-height: 620px;
-            box-shadow: var(--hc-shadow-soft);
+        .sidebar::after {
+            content: 'v1.0 · Home Center';
+            display: block;
+            text-align: center;
+            padding: 10px 0 2px;
+            margin-top: 6px;
+            border-top: 1px solid var(--border);
+            color: var(--muted-foreground);
+            font-size: 0.625rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
         }
-
+        .nav-pills { gap: 1px; }
         .nav-pills .nav-link {
-            color: var(--hc-muted);
+            color: var(--muted-foreground);
             text-align: left;
-            border-radius: 8px;
+            border-radius: calc(var(--radius) - 2px);
+            padding: 6px 10px;
+            font-size: 0.8125rem;
+            font-weight: 500;
+            transition: all var(--transition-fast);
+            border: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
-
+        .nav-pills .nav-link svg {
+            flex-shrink: 0;
+            opacity: 0.5;
+            transition: opacity var(--transition-fast);
+        }
+        .nav-pills .nav-link:hover {
+            background: rgba(255,255,255,0.05);
+            color: var(--foreground);
+        }
+        .nav-pills .nav-link:hover svg { opacity: 0.7; }
         .nav-pills .nav-link.active {
-            background: var(--hc-accent-gradient);
-            color: #fff;
+            background: rgba(99,102,241,0.12);
+            color: var(--accent-indigo);
+        }
+        .nav-pills .nav-link.active svg { opacity: 1; }
+
+        /* ── Content Panel ── */
+        .content-panel {
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 24px;
+            min-height: 600px;
+            box-shadow: var(--shadow-card);
         }
 
-        .table-dark {
-            --bs-table-bg: transparent;
-            --bs-table-color: var(--hc-text);
-            --bs-table-striped-color: var(--hc-text);
-            --bs-table-hover-color: var(--hc-text);
-            --bs-table-striped-bg: rgba(37, 99, 235, .045);
-            --bs-table-hover-bg: rgba(37, 99, 235, .09);
-            border-color: var(--hc-line);
-        }
-
+        /* ── Toolbar ── */
         .toolbar {
             display: flex;
             align-items: center;
             justify-content: space-between;
             gap: 12px;
-            margin-bottom: 14px;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+        .toolbar h5 {
+            font-size: 0.9375rem;
+            font-weight: 600;
+            color: var(--foreground);
+            letter-spacing: -0.01em;
+            padding-left: 10px;
+            position: relative;
+        }
+        .toolbar h5::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 3px;
+            height: 14px;
+            background: var(--accent-indigo);
+            border-radius: 1.5px;
         }
 
+        /* ── Tables (Tabler-inspired) ── */
+        .table-dark {
+            --bs-table-bg: transparent;
+            --bs-table-striped-bg: rgba(255,255,255,0.02);
+            --bs-table-hover-bg: rgba(255,255,255,0.06);
+            border-color: transparent;
+            font-size: 0.8125rem;
+            margin-bottom: 0;
+        }
+        .table-dark thead th {
+            color: #d4d4d8;
+            font-weight: 600;
+            font-size: 0.6875rem;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            padding: 10px 14px;
+            border-bottom: 1px solid rgba(255,255,255,0.12);
+            background: rgba(255,255,255,0.03);
+            white-space: nowrap;
+        }
+        .table-dark td {
+            padding: 10px 14px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            color: rgba(255,255,255,0.82);
+            vertical-align: middle;
+            transition: all var(--transition-fast);
+        }
+        .table-dark tbody tr {
+            transition: all var(--transition-fast);
+        }
+        .table-dark tbody tr:hover td {
+            color: var(--foreground);
+            background: rgba(255,255,255,0.04);
+        }
+        .table-dark td[colspan] {
+            text-align: center;
+            padding: 32px 16px;
+            color: var(--muted-foreground);
+            font-size: 0.8125rem;
+        }
+
+        /* ── Buttons (shadcn/ui ghost style) ── */
+        .btn {
+            transition: all var(--transition-fast);
+            font-weight: 500;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        .btn:active { transform: scale(0.97); }
+        .btn-sm { padding: 4px 10px; font-size: 0.75rem; }
+        .me-2 { margin-right: 6px !important; }
+
+        .btn-primary {
+            background: var(--foreground);
+            border-color: var(--foreground);
+            color: var(--background);
+            font-size: 0.8125rem;
+            border-radius: var(--radius);
+            padding: 6px 16px;
+            letter-spacing: -0.01em;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.3);
+        }
+        .btn-primary:hover {
+            background: #e4e4e7;
+            border-color: #e4e4e7;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.4);
+        }
+
+        .btn-outline-light {
+            color: var(--muted-foreground);
+            border-color: var(--border);
+            font-size: 0.8125rem;
+            border-radius: var(--radius);
+            padding: 4px 12px;
+            background: transparent;
+        }
+        .btn-outline-light:hover {
+            background: rgba(255,255,255,0.06);
+            color: var(--foreground);
+            border-color: rgba(255,255,255,0.15);
+            box-shadow: var(--shadow-border);
+        }
+
+        .btn-outline-warning {
+            color: var(--warning);
+            border-color: rgba(234,179,8,0.2);
+            font-size: 0.8125rem;
+            border-radius: var(--radius);
+            padding: 4px 12px;
+            background: transparent;
+        }
+        .btn-outline-warning:hover {
+            background: rgba(234,179,8,0.06);
+            border-color: rgba(234,179,8,0.35);
+            color: var(--warning);
+        }
+
+        .btn-outline-info {
+            color: var(--info);
+            border-color: rgba(59,130,246,0.2);
+            font-size: 0.8125rem;
+            border-radius: var(--radius);
+            padding: 4px 12px;
+            background: transparent;
+        }
+        .btn-outline-info:hover {
+            background: rgba(59,130,246,0.06);
+            border-color: rgba(59,130,246,0.35);
+            color: var(--info);
+        }
+
+        .btn-outline-danger {
+            color: var(--danger);
+            border-color: rgba(239,68,68,0.2);
+            font-size: 0.8125rem;
+            border-radius: var(--radius);
+            padding: 4px 12px;
+            background: transparent;
+        }
+        .btn-outline-danger:hover {
+            background: rgba(239,68,68,0.06);
+            border-color: rgba(239,68,68,0.35);
+            color: var(--danger);
+        }
+
+        .btn-secondary {
+            background: var(--secondary);
+            border-color: var(--secondary);
+            color: var(--secondary-foreground);
+            font-size: 0.8125rem;
+            border-radius: var(--radius);
+        }
+        .btn-secondary:hover {
+            background: #3f3f46;
+            border-color: #3f3f46;
+        }
+
+        /* ── Form Controls ── */
         .form-control, .form-select {
-            background: var(--hc-surface-strong);
-            border-color: var(--hc-line);
-            color: var(--hc-text);
+            background: rgba(255,255,255,0.04);
+            border: 1px solid var(--input);
+            color: var(--foreground);
+            font-size: 0.8125rem;
+            border-radius: var(--radius);
+            transition: all var(--transition-fast);
         }
-
         .form-control:focus, .form-select:focus {
-            background: var(--hc-surface-strong);
-            color: var(--hc-text);
+            background: rgba(255,255,255,0.06);
+            border-color: var(--ring);
+            color: var(--foreground);
+            box-shadow: 0 0 0 2px rgba(99,102,241,0.15);
+            outline: none;
+        }
+        .form-control::placeholder { color: var(--muted-foreground); opacity: 0.6; }
+        .form-label {
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: var(--muted-foreground);
         }
 
-        .form-control::placeholder {
-            color: var(--hc-muted);
+        /* ── Switches ── */
+        .form-check-input {
+            cursor: pointer;
+            background-color: var(--input);
+            border-color: transparent;
+            transition: all var(--transition-fast);
         }
+        .form-check-input:checked {
+            background-color: var(--accent-indigo);
+            border-color: transparent;
+        }
+        .form-check-input:focus {
+            box-shadow: 0 0 0 2px rgba(99,102,241,0.2);
+        }
+        .form-switch .form-check-input { width: 34px; height: 18px; }
 
+        /* ── Config editable ── */
         .config-value {
             cursor: text;
             min-width: 160px;
-            border-bottom: 1px dashed var(--hc-line);
+            border-bottom: 1px dashed rgba(99,102,241,0.4);
             word-break: break-all;
+            color: var(--foreground);
         }
+        .config-value:focus { border-bottom-color: var(--accent-indigo); outline: none; }
 
+        /* ── Section Block ── */
         .section-block + .section-block {
             margin-top: 28px;
-            padding-top: 22px;
-            border-top: 1px solid var(--hc-line);
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
         }
 
-        .form-check-input {
-            cursor: pointer;
-        }
-
+        /* ── Empty State ── */
         .empty-state {
             display: none;
-            padding: 42px 16px;
+            padding: 40px 16px;
             text-align: center;
-            color: var(--hc-muted);
+            color: var(--muted-foreground);
+            font-size: 0.8125rem;
         }
 
+        /* ── Misc ── */
         .text-truncate-cell {
-            max-width: 280px;
+            max-width: 260px;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
         }
+        .tree-name { display: inline-block; white-space: nowrap; }
 
-        .tree-name {
-            display: inline-block;
-            white-space: nowrap;
-        }
-
+        /* ── Permission Check List ── */
         .permission-check-list {
-            max-height: 420px;
+            max-height: 400px;
             overflow: auto;
-            border: 1px solid var(--hc-line);
-            border-radius: 8px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
             padding: 10px;
-            background: var(--hc-surface-strong);
+            background: rgba(255,255,255,0.02);
         }
 
+        /* ── Modal ── */
         .modal-content {
-            background: var(--hc-surface-strong);
-            color: var(--hc-text);
-            border: 1px solid var(--hc-line);
+            background: var(--card);
+            color: var(--foreground);
+            border: none;
+            border-radius: 0.75rem;
+            box-shadow: var(--shadow-modal);
+        }
+        .modal-header { border-bottom: 1px solid var(--border); }
+        .modal-footer { border-top: 1px solid var(--border); }
+        .modal-title { font-size: 0.9375rem; font-weight: 600; letter-spacing: -0.01em; }
+        .modal-backdrop { background: rgba(0,0,0,0.6) !important; backdrop-filter: blur(4px); }
+
+        /* ── Badge ── */
+        .badge.bg-warning.text-dark {
+            font-size: 0.625rem;
+            font-weight: 600;
+            letter-spacing: 0.04em;
+            padding: 2px 8px;
+            border-radius: 9999px;
         }
 
+        /* ── Links ── */
+        .text-info { color: var(--info) !important; text-decoration: none; }
+        .text-info:hover { color: var(--accent-indigo) !important; }
+        .text-danger { color: var(--danger) !important; }
+        .text-success { color: var(--success) !important; }
+
+        /* ── Alert ── */
+        .alert-warning {
+            background: rgba(234,179,8,0.08);
+            border-color: rgba(234,179,8,0.2);
+            color: var(--warning);
+            font-size: 0.8125rem;
+            border-radius: var(--radius);
+        }
+
+        /* ── Scrollbar ── */
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.18); }
+
+        [data-theme="light"] body { background: #fafafa; }
+        [data-theme="light"] .table-dark {
+            --bs-table-bg: transparent;
+            --bs-table-color: rgba(0,0,0,0.75);
+            --bs-table-striped-bg: rgba(0,0,0,0.02);
+            --bs-table-striped-color: rgba(0,0,0,0.75);
+            --bs-table-hover-bg: rgba(0,0,0,0.02);
+            --bs-table-hover-color: var(--foreground);
+            border-color: transparent;
+        }
+        [data-theme="light"] .table-dark thead th {
+            color: #71717a;
+            border-bottom: 1px solid rgba(0,0,0,0.10);
+            background: rgba(0,0,0,0.02);
+        }
+        [data-theme="light"] .table-dark td {
+            color: rgba(0,0,0,0.75);
+            border-bottom: 1px solid rgba(0,0,0,0.06);
+        }
+        [data-theme="light"] .table-dark tbody tr:hover td {
+            color: var(--foreground);
+            background: rgba(0,0,0,0.02);
+        }
+        [data-theme="light"] .nav-pills .nav-link:hover,
+        [data-theme="light"] .theme-toggle:hover {
+            background: rgba(0,0,0,0.04);
+        }
+        [data-theme="light"] .nav-pills .nav-link.active {
+            background: rgba(79,70,229,0.08);
+        }
+        [data-theme="light"] .btn-primary {
+            background: #18181b;
+            color: #fafafa;
+            border-color: #18181b;
+        }
+        [data-theme="light"] .btn-primary:hover {
+            background: #27272a;
+            border-color: #27272a;
+        }
+        [data-theme="light"] .btn-outline-light:hover {
+            background: rgba(0,0,0,0.04);
+            border-color: rgba(0,0,0,0.15);
+        }
+        [data-theme="light"] .btn-secondary {
+            background: #f4f4f5;
+            border-color: #f4f4f5;
+            color: #18181b;
+        }
+        [data-theme="light"] .btn-secondary:hover {
+            background: #e4e4e7;
+            border-color: #e4e4e7;
+        }
+        [data-theme="light"] .form-control,
+        [data-theme="light"] .form-select {
+            background: #ffffff;
+        }
+        [data-theme="light"] .form-control:focus,
+        [data-theme="light"] .form-select:focus {
+            background: #ffffff;
+            box-shadow: 0 0 0 2px rgba(79,70,229,0.12);
+        }
+        [data-theme="light"] .form-check-input { background-color: #e4e4e7; }
+        [data-theme="light"] .form-check-input:checked { background-color: var(--accent-indigo); }
+        [data-theme="light"] .modal-content { background: #ffffff; }
+        [data-theme="light"] ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); }
+        [data-theme="light"] ::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.25); }
+        [data-theme="light"] .permission-check-list { background: rgba(0,0,0,0.02); }
+        [data-theme="light"] .alert-warning {
+            background: rgba(202,138,4,0.06);
+            border-color: rgba(202,138,4,0.15);
+        }
+
+        /* ── Animations ── */
+        .tab-pane.active { animation: fadeIn 0.15s ease; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .nav-link:active { transform: scale(0.97); }
+
+        /* ── Responsive ── */
         @media (max-width: 768px) {
-            .manage-shell {
-                padding: 14px;
-            }
-
-            .layout {
-                grid-template-columns: 1fr;
-            }
-
-            .toolbar {
-                align-items: stretch;
-                flex-direction: column;
-            }
+            .manage-shell { padding: 12px; }
+            .layout { grid-template-columns: 1fr; }
+            .toolbar { flex-direction: column; align-items: stretch; }
+            .sidebar { position: static; }
         }
     </style>
 </head>
-<body class="hc-app">
+<body>
 <div class="manage-shell">
     <header class="manage-header">
         <div>
             <h3 class="mb-1">后台管理</h3>
             <div class="text-white-50 small">Home Center</div>
         </div>
-        <div class="hc-actions">
-            <button class="hc-theme-toggle" type="button" aria-label="切换深浅色主题">
-                <span class="hc-theme-toggle-icon" aria-hidden="true"></span>
-                <span data-theme-toggle-text>深色</span>
-            </button>
-            <a class="btn btn-outline-light btn-sm" href="/admin.html">返回首页</a>
-        </div>
+        <button id="themeToggleBtn" class="theme-toggle" type="button" title="切换主题">
+            <svg class="theme-icon-sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+            <svg class="theme-icon-moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </button>
+        <a class="btn btn-outline-light btn-sm" href="/admin.html">返回首页</a>
     </header>
 
     <div id="forbiddenPanel" class="alert alert-warning d-none">
@@ -184,18 +632,18 @@
     <div id="manageLayout" class="layout d-none">
         <aside class="sidebar">
             <nav class="nav nav-pills flex-column" id="manageTabs" role="tablist">
-                <button class="nav-link active" data-bs-toggle="pill" data-bs-target="#userPane" type="button">用户管理</button>
-                <button class="nav-link" data-bs-toggle="pill" data-bs-target="#rolePane" type="button">角色管理</button>
-                <button class="nav-link" data-bs-toggle="pill" data-bs-target="#permissionPane" type="button">权限管理</button>
-                <button class="nav-link" data-bs-toggle="pill" data-bs-target="#devicePane" type="button">设备管理</button>
-                <button class="nav-link" data-bs-toggle="pill" data-bs-target="#configPane" type="button">系统配置</button>
-                <button class="nav-link" data-bs-toggle="pill" data-bs-target="#navPane" type="button">导航管理</button>
-                <button class="nav-link" data-bs-toggle="pill" data-bs-target="#famousQuotePane" type="button">名言管理</button>
-                <button class="nav-link" data-bs-toggle="pill" data-bs-target="#promptMessagePane" type="button">提示消息</button>
-                <button class="nav-link" data-bs-toggle="pill" data-bs-target="#internalSystemPane" type="button">内部系统</button>
-                <button class="nav-link" data-bs-toggle="pill" data-bs-target="#operationLogPane" type="button">操作日志</button>
-                <button class="nav-link" data-bs-toggle="pill" data-bs-target="#securityLogPane" type="button">安全日志</button>
-                <button class="nav-link" data-bs-toggle="pill" data-bs-target="#sysLogPane" type="button">系统日志</button>
+                <button class="nav-link active" data-bs-toggle="pill" data-bs-target="#userPane" type="button"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> 用户管理</button>
+                <button class="nav-link" data-bs-toggle="pill" data-bs-target="#rolePane" type="button"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> 角色管理</button>
+                <button class="nav-link" data-bs-toggle="pill" data-bs-target="#permissionPane" type="button"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> 权限管理</button>
+                <button class="nav-link" data-bs-toggle="pill" data-bs-target="#devicePane" type="button"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg> 设备管理</button>
+                <button class="nav-link" data-bs-toggle="pill" data-bs-target="#configPane" type="button"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg> 系统配置</button>
+                <button class="nav-link" data-bs-toggle="pill" data-bs-target="#navPane" type="button"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg> 导航管理</button>
+                <button class="nav-link" data-bs-toggle="pill" data-bs-target="#famousQuotePane" type="button"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> 名言管理</button>
+                <button class="nav-link" data-bs-toggle="pill" data-bs-target="#promptMessagePane" type="button"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg> 提示消息</button>
+                <button class="nav-link" data-bs-toggle="pill" data-bs-target="#internalSystemPane" type="button"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/></svg> 内部系统</button>
+                <button class="nav-link" data-bs-toggle="pill" data-bs-target="#operationLogPane" type="button"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg> 操作日志</button>
+                <button class="nav-link" data-bs-toggle="pill" data-bs-target="#securityLogPane" type="button"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> 安全日志</button>
+                <button class="nav-link" data-bs-toggle="pill" data-bs-target="#sysLogPane" type="button"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg> 系统日志</button>
             </nav>
         </aside>
 
@@ -929,9 +1377,44 @@
     </div>
 </div>
 
-<script src="/js/dom-lite.js"></script>
+<script src="/js/jquery-3.6.1.min.js"></script>
+<script src="/bootstrap/js/bootstrap.bundle.min.js"></script>
 <script src="/js/main.js"></script>
 <script>
+    const THEME_STORAGE_KEY = 'home-center-admin-theme';
+
+    function getInitialTheme() {
+        let savedTheme = null;
+        try {
+            savedTheme = localStorage.getItem(THEME_STORAGE_KEY);
+        } catch (e) {
+            savedTheme = null;
+        }
+        if (savedTheme === 'light' || savedTheme === 'dark') {
+            return savedTheme;
+        }
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
+            return 'light';
+        }
+        return 'dark';
+    }
+
+    function applyTheme(theme) {
+        const nextTheme = theme === 'light' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', nextTheme);
+        $('#themeToggleBtn').attr('title', nextTheme === 'light' ? '切换为暗色模式' : '切换为明亮模式');
+    }
+
+    function saveTheme(theme) {
+        try {
+            localStorage.setItem(THEME_STORAGE_KEY, theme);
+        } catch (e) {
+            // localStorage may be unavailable in private or restricted contexts.
+        }
+    }
+
+    applyTheme(getInitialTheme());
+
     let users = [];
     let roles = [];
     let permissions = [];
@@ -941,19 +1424,25 @@
     let famousQuotes = [];
     let promptMessages = [];
     let internalSystems = [];
-    const userModal = new HcModal(document.getElementById('userModal'));
-    const assignUserRoleModal = new HcModal(document.getElementById('assignUserRoleModal'));
-    const roleModal = new HcModal(document.getElementById('roleModal'));
-    const rolePermissionModal = new HcModal(document.getElementById('rolePermissionModal'));
-    const permissionModal = new HcModal(document.getElementById('permissionModal'));
-    const deviceModal = new HcModal(document.getElementById('deviceModal'));
-    const navCategoryModal = new HcModal(document.getElementById('navCategoryModal'));
-    const navLinkModal = new HcModal(document.getElementById('navLinkModal'));
-    const famousQuoteModal = new HcModal(document.getElementById('famousQuoteModal'));
-    const promptMessageModal = new HcModal(document.getElementById('promptMessageModal'));
-    const internalSystemModal = new HcModal(document.getElementById('internalSystemModal'));
+    const userModal = new bootstrap.Modal(document.getElementById('userModal'));
+    const assignUserRoleModal = new bootstrap.Modal(document.getElementById('assignUserRoleModal'));
+    const roleModal = new bootstrap.Modal(document.getElementById('roleModal'));
+    const rolePermissionModal = new bootstrap.Modal(document.getElementById('rolePermissionModal'));
+    const permissionModal = new bootstrap.Modal(document.getElementById('permissionModal'));
+    const deviceModal = new bootstrap.Modal(document.getElementById('deviceModal'));
+    const navCategoryModal = new bootstrap.Modal(document.getElementById('navCategoryModal'));
+    const navLinkModal = new bootstrap.Modal(document.getElementById('navLinkModal'));
+    const famousQuoteModal = new bootstrap.Modal(document.getElementById('famousQuoteModal'));
+    const promptMessageModal = new bootstrap.Modal(document.getElementById('promptMessageModal'));
+    const internalSystemModal = new bootstrap.Modal(document.getElementById('internalSystemModal'));
 
     $(function () {
+        applyTheme(document.documentElement.getAttribute('data-theme'));
+        $('#themeToggleBtn').on('click', function () {
+            const nextTheme = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+            applyTheme(nextTheme);
+            saveTheme(nextTheme);
+        });
         checkAdmin();
         $('#userSearchBtn').on('click', loadUsers);
         $('#userSearchInput').on('keydown', function (event) {
@@ -1032,7 +1521,7 @@
 
     function renderUsers(list) {
         const rows = list.map(function (user) {
-            const status = user.disabled ? '禁用' : (user.locked ? '锁定' : '正常');
+            const status = user.disabled ? '<span style="color:var(--danger)">禁用</span>' : (user.locked ? '<span style="color:var(--warning)">锁定</span>' : '<span style="color:var(--success)">正常</span>');
             const disabledChecked = user.disabled ? ' checked' : '';
             return '<tr>' +
                 '<td>' + escapeHtml(user.username) + '</td>' +
@@ -1404,7 +1893,7 @@
 
     function renderDevices() {
         const rows = devices.map(function (device) {
-            const status = Number(device.status) === 1 ? '启用' : '停用';
+            const status = Number(device.status) === 1 ? '<span style="color:var(--success)">启用</span>' : '<span style="color:var(--danger)">停用</span>';
             return '<tr>' +
                 '<td>' + escapeHtml(device.name) + '</td>' +
                 '<td>' + escapeHtml(device.ipAddress) + '</td>' +
