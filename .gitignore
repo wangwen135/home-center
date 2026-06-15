@@ -16,3 +16,6 @@ logs/
 config/application-*.yml
 config/application-*.yaml
 config/application-*.properties
+
+# AI dev script (local only)
+dev-restart.sh
