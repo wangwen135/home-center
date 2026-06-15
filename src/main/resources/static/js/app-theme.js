@@ -32,11 +32,15 @@
 
     function updateToggleText(theme) {
         var text = theme === 'dark' ? '浅色' : '深色';
+        var label = theme === 'dark' ? '切换为浅色主题' : '切换为深色主题';
         Array.prototype.forEach.call(document.querySelectorAll('[data-theme-toggle-text]'), function (node) {
             node.textContent = text;
         });
+        Array.prototype.forEach.call(document.querySelectorAll('.hc-theme-toggle'), function (button) {
+            button.setAttribute('title', label);
+            button.setAttribute('aria-label', label);
+        });
     }
-
     function bindToggles() {
         Array.prototype.forEach.call(document.querySelectorAll('.hc-theme-toggle'), function (button) {
             if (button.getAttribute('data-theme-bound') === 'true') {

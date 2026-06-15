@@ -5,6 +5,7 @@ logs/
 .classpath
 .project
 .idea
+.vscode/
 *.log
 *.class
 *.jar

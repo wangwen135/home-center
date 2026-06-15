@@ -200,6 +200,42 @@ body.hc-app {
     box-shadow: 0 0 0 4px var(--hc-soft-accent);
 }
 
+.hc-theme-toggle {
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    z-index: 1095;
+    width: 40px;
+    height: 40px;
+    min-height: 40px;
+    flex: 0 0 auto;
+    gap: 0;
+    padding: 0;
+}
+
+.hc-theme-toggle::before {
+    content: "☾";
+    font-size: 19px;
+    line-height: 1;
+}
+
+:root[data-theme="dark"] .hc-theme-toggle::before {
+    content: "☀";
+}
+
+.hc-theme-toggle-icon {
+    display: none;
+}
+
+.hc-theme-toggle [data-theme-toggle-text] {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+}
+
 .hc-close-button {
     width: 34px;
     height: 34px;
