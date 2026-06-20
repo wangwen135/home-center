@@ -1,3 +1,8 @@
 spring:
   profiles:
     active: ${SPRING_PROFILES_ACTIVE:dev}
+  servlet:
+    multipart:
+      # 单文件上限 5MB（图片接口限制 2MB，留余量），默认 1MB 会把合规上传拦掉
+      max-file-size: 5MB
+      max-request-size: 10MB

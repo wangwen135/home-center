@@ -28,6 +28,11 @@ public class NavLink {
 
     private String icon;
 
+    /**
+     * 图标 emoji 或文字（与图片 icon 二选一，渲染时图片优先）
+     */
+    private String iconEmoji;
+
     private Integer sortOrder;
 
     private Integer status;

@@ -17,6 +17,35 @@
             grid-column: 1 / -1;
         }
 
+        .avatar-preview {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 10px;
+        }
+
+        .avatar-preview img {
+            width: 64px;
+            height: 64px;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 1px solid var(--hc-border, rgba(255, 255, 255, .15));
+        }
+
+        .profile-msg {
+            display: inline-block;
+            margin-left: 12px;
+            font-size: 14px;
+        }
+
+        .profile-msg-ok {
+            color: #1f9d55;
+        }
+
+        .profile-msg-err {
+            color: #d64545;
+        }
+
         @media (max-width: 720px) {
             .profile-form {
                 grid-template-columns: 1fr;
@@ -65,8 +94,11 @@
             </label>
             <label class="full">
                 <span class="hc-form-label">头像</span>
-                <input type="file" class="hc-input" id="avatar" aria-describedby="avatarHelp">
-                <span id="avatarHelp" class="hc-help-text">支持 JPEG、PNG 格式，文件大小不超过 2MB。</span>
+                <input type="file" class="hc-input" id="avatar" accept="image/png,image/jpeg,image/gif,image/webp,image/svg+xml" aria-describedby="avatarHelp">
+                <span id="avatarHelp" class="hc-help-text">支持 PNG/JPEG/GIF/WebP/SVG，文件大小不超过 2MB，选择后立即上传。</span>
+                <span id="avatarPreviewWrap" class="avatar-preview" style="display:none;">
+                    <img id="avatarPreview" src="" alt="头像预览">
+                </span>
             </label>
             <label>
                 <span class="hc-form-label">手机号码</span>
@@ -78,7 +110,7 @@
             </label>
             <label>
                 <span class="hc-form-label">过期时间</span>
-                <input type="datetime-local" class="hc-input" id="expire-time">
+                <input type="datetime-local" class="hc-input" id="expire-time" readonly>
             </label>
             <label>
                 <span class="hc-form-label">创建时间</span>
@@ -90,9 +122,11 @@
             </label>
             <div class="full hc-actions">
                 <button type="submit" class="hc-button hc-button-primary">保存修改</button>
+                <span id="profileMsg" class="hc-help-text profile-msg"></span>
             </div>
         </form>
     </section>
 </main>
+<script src="/js/profile.js?v=20260620"></script>
 </body>
 </html>

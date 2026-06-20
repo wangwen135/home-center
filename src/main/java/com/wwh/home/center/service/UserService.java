@@ -3,6 +3,7 @@ package com.wwh.home.center.service;
 
 import com.wwh.home.center.common.model.PageInfo;
 import com.wwh.home.center.model.entity.UserInfo;
+import com.wwh.home.center.model.qo.UserProfileRequest;
 import com.wwh.home.center.model.qo.UserQuery;
 import com.wwh.home.center.model.vo.UserInfoVo;
 
@@ -72,6 +73,22 @@ public interface UserService {
     void createUser(UserInfo user);
 
     void updateUser(UserInfo user);
+
+    /**
+     * 当前登录用户修改自己的资料（昵称、性别、手机、邮箱）
+     *
+     * @param userId  当前用户ID
+     * @param request 待更新字段
+     */
+    void updateProfile(Integer userId, UserProfileRequest request);
+
+    /**
+     * 更新用户头像
+     *
+     * @param userId  用户ID
+     * @param avatar  头像相对路径
+     */
+    void updateAvatar(Integer userId, String avatar);
 
     void toggleUserStatus(Long userId, Boolean disabled);
 }

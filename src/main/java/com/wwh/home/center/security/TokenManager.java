@@ -1,6 +1,7 @@
 package com.wwh.home.center.security;
 
 import com.wwh.home.center.model.entity.SysRole;
+import com.wwh.home.center.model.entity.UserInfo;
 import com.wwh.home.center.model.vo.TokenVo;
 import com.wwh.home.center.security.model.LoggedUserAllInfo;
 import lombok.extern.slf4j.Slf4j;
@@ -16,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
 
 /**
  * Token
@@ -128,6 +130,27 @@ public class TokenManager {
         TokenInfo tokenInfo = tokenMap.get(token);
         return (tokenInfo != null && tokenInfo.getExpirationTime() > System.currentTimeMillis()) ? tokenInfo.getUserAllInfo() :
                 null;
+    }
+
+    /**
+     * 刷新某用户在所有有效 token 中的缓存信息。
+     *
+     * <p>因为登录用户信息缓存在内存中，DB 变更后需主动同步，
+     * 否则修改头像、昵称等要等重新登录后才生效。</p>
+     *
+     * @param userId   用户ID
+     * @param updater  对缓存 UserInfo 的更新动作
+     */
+    public static void refreshUserInfo(Integer userId, Consumer<UserInfo> updater) {
+        if (userId == null || updater == null) {
+            return;
+        }
+        tokenMap.values().forEach(tokenInfo -> {
+            UserInfo userInfo = tokenInfo.getUserAllInfo().getUserInfo();
+            if (userInfo != null && userId.equals(userInfo.getId())) {
+                updater.accept(userInfo);
+            }
+        });
     }
 
     // 每分钟执行1次

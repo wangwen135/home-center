@@ -1,6 +1,7 @@
 package com.wwh.home.center.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.wwh.home.center.common.util.ImgUtils;
 import com.wwh.home.center.dao.mapper.NavLinkMapper;
 import com.wwh.home.center.model.entity.NavLink;
 import com.wwh.home.center.service.NavLinkService;
@@ -28,7 +29,10 @@ public class NavLinkServiceImpl implements NavLinkService {
         if (categoryId != null) {
             wrapper.eq(NavLink::getCategoryId, categoryId);
         }
-        return navLinkMapper.selectList(wrapper);
+        List<NavLink> links = navLinkMapper.selectList(wrapper);
+        // 公开接口返回时，把图片相对路径拼成可访问 URL；emoji 字段原样返回
+        links.forEach(link -> link.setIcon(ImgUtils.formatImagePath(link.getIcon())));
+        return links;
     }
 
     @Override

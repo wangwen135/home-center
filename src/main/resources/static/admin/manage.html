@@ -1210,8 +1210,20 @@
                     <select class="form-select" id="navLinkCategory" required></select>
                 </div>
                 <div class="mb-3">
-                    <label class="form-label" for="navLinkIcon">图标</label>
-                    <input class="form-control" id="navLinkIcon" placeholder="例如：🔗">
+                    <label class="form-label" for="navLinkIconEmoji">图标 Emoji</label>
+                    <input class="form-control" id="navLinkIconEmoji" placeholder="例如：🔗，与图片二选一">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="navLinkIcon">图标图片</label>
+                    <div class="input-group">
+                        <input class="form-control" id="navLinkIcon" placeholder="上传后自动填入相对路径，或填外链地址">
+                        <button type="button" class="btn btn-outline-light" id="navLinkIconUploadBtn">上传图片</button>
+                    </div>
+                    <input type="file" id="navLinkIconFile" accept="image/png,image/jpeg,image/gif,image/webp,image/svg+xml" hidden>
+                    <div id="navLinkIconPreview" class="mt-2" style="display:none;">
+                        <img id="navLinkIconPreviewImg" src="" alt="图标预览" style="width:40px;height:40px;object-fit:contain;border-radius:6px;background:rgba(255,255,255,.08);">
+                    </div>
+                    <div class="form-text text-white-50">支持上传 PNG/JPG/GIF/WebP/SVG（≤2MB）或外链地址；与 Emoji 二选一，渲染时图片优先。</div>
                 </div>
                 <div class="mb-3">
                     <label class="form-label" for="navLinkSort">排序</label>
@@ -1472,6 +1484,12 @@
         $('#addNavLinkBtn').on('click', openAddNavLinkModal);
         $('#navLinkForm').on('submit', saveNavLink);
         $('#navLinkFilter').on('change', loadNavLinks);
+        $('#navLinkIconUploadBtn').on('click', function () {
+            $('#navLinkIconFile').val('');
+            $('#navLinkIconFile').click();
+        });
+        $('#navLinkIconFile').on('change', uploadNavLinkIcon);
+        $('#navLinkIcon').on('input', updateNavLinkIconPreview);
         $('#addFamousQuoteBtn').on('click', openAddFamousQuoteModal);
         $('#famousQuoteForm').on('submit', saveFamousQuote);
         $('#addPromptMessageBtn').on('click', openAddPromptMessageModal);
@@ -2151,6 +2169,34 @@
         });
     }
 
+    function uploadNavLinkIcon() {
+        const fileInput = $('#navLinkIconFile')[0];
+        if (!fileInput || !fileInput.files || !fileInput.files.length) {
+            return;
+        }
+        const formData = new FormData();
+        formData.append('file', fileInput.files[0]);
+        postRequest('/common/img/upload', formData, function (relativePath) {
+            // 存相对路径，公开接口返回时会自动拼前缀
+            $('#navLinkIcon').val(relativePath);
+            updateNavLinkIconPreview();
+            showToastSimple('图标上传成功', MsgTypes.SUCCESS, Position.TopCenter);
+        });
+    }
+
+    function updateNavLinkIconPreview() {
+        const value = $.trim($('#navLinkIcon').val());
+        if (!value) {
+            $('#navLinkIconPreviewImg').attr('src', '');
+            $('#navLinkIconPreview').hide();
+            return;
+        }
+        // 相对路径补前缀用于预览，外链地址原样使用
+        const display = /^https?:\/\//i.test(value) ? value : ('/common/img/view/' + value);
+        $('#navLinkIconPreviewImg').attr('src', display);
+        $('#navLinkIconPreview').show();
+    }
+
     function openAddNavLinkModal() {
         if (!navCategories.length) {
             showToastSimple('请先新增导航分组', MsgTypes.WARNING, Position.TopCenter);
@@ -2163,6 +2209,7 @@
         $('#navLinkStatus').val('1');
         const filterCategoryId = $('#navLinkFilter').val();
         $('#navLinkCategory').val(filterCategoryId || String(navCategories[0].id));
+        updateNavLinkIconPreview();
         navLinkModal.show();
     }
 
@@ -2178,7 +2225,9 @@
         $('#navLinkTitle').val(link.title || '');
         $('#navLinkUrl').val(link.url || '');
         $('#navLinkCategory').val(String(link.categoryId));
+        $('#navLinkIconEmoji').val(link.iconEmoji || '');
         $('#navLinkIcon').val(link.icon || '');
+        updateNavLinkIconPreview();
         $('#navLinkSort').val(link.sortOrder == null ? 0 : link.sortOrder);
         $('#navLinkStatus').val(String(link.status == null ? 1 : link.status));
         $('#navLinkDesc').val(link.description || '');
@@ -2194,6 +2243,7 @@
             url: $.trim($('#navLinkUrl').val()),
             categoryId: Number($('#navLinkCategory').val()),
             icon: $.trim($('#navLinkIcon').val()),
+            iconEmoji: $.trim($('#navLinkIconEmoji').val()),
             sortOrder: Number($('#navLinkSort').val() || 0),
             status: Number($('#navLinkStatus').val()),
             description: $.trim($('#navLinkDesc').val())
