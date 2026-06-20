@@ -284,14 +284,23 @@
         window.HcModal = HcModal;
     }
 
+    function ensureBootstrapCompat() {
+        window.bootstrap = window.bootstrap || {};
+        if (!window.bootstrap.Modal) {
+            window.bootstrap.Modal = window.HcModal;
+        }
+    }
+
     function initCompatLayer() {
         ensureModalApi();
+        ensureBootstrapCompat();
         initDismissButtons();
         initTabs();
     }
 
     applyTheme(getSavedTheme());
     ensureModalApi();
+    ensureBootstrapCompat();
 
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', function () {

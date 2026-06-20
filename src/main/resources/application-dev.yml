@@ -9,9 +9,9 @@ spring:
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: ${DB_URL:jdbc:mysql://localhost:3306/home_center?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf8&useSSL=false}
-    username: ${DB_USERNAME:home_center}
-    password: ${DB_PASSWORD:change-me}
+    url: ${DB_URL:jdbc:mysql://192.168.31.71:3306/home_center_dev?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf8&useSSL=false}
+    username: ${DB_USERNAME:home}
+    password: ${DB_PASSWORD:123456}
     type: com.alibaba.druid.pool.DruidDataSource
   redis:
     host: ${REDIS_HOST:localhost}
@@ -34,7 +34,7 @@ image:
 
 agent:
   screenshot-dir: ${AGENT_SCREENSHOT_DIR:/tmp/home-center/screenshots}
-  release-dir: ${AGENT_RELEASE_DIR:/tmp/home-center/releases}
+  release-dir: ${AGENT_RELEASE_DIR:/opt/home-center/releases}
   access-token: ${AGENT_ACCESS_TOKEN:changeme}
   connect-timeout-seconds: ${AGENT_CONNECT_TIMEOUT_SECONDS:5}
   socket-timeout-seconds: ${AGENT_SOCKET_TIMEOUT_SECONDS:10}

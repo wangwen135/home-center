@@ -118,6 +118,15 @@
         });
     };
 
+    DomLite.prototype.attr = function (name, value) {
+        if (value === undefined) {
+            return this.length ? this[0].getAttribute(name) : undefined;
+        }
+        return this.each(function () {
+            this.setAttribute(name, value);
+        });
+    };
+
     DomLite.prototype.data = function (name) {
         if (!this.length) {
             return undefined;
