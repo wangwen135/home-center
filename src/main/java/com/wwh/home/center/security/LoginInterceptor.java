@@ -40,7 +40,7 @@ public class LoginInterceptor implements HandlerInterceptor {
     private static final List<String> WHITE_LIST = Arrays.asList("/", "/index.html",
             "/css/**", "/js/**",
             "/login", "/logout", "/preLogin", "/login.html", "/favicon.ico", "/error", "/user/changePassword",
-            "/admin/manage.html", "/api/screenshot", "/api/version", "/api/download/latest", "/api/nav/**");
+            "/admin/manage.html", "/api/agent/ws", "/api/screenshot", "/api/version", "/api/download/latest", "/api/nav/**");
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)

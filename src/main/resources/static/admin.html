@@ -7,37 +7,229 @@
     <meta name="author" content="wwh">
     <title>Home Center Admin</title>
 
-    <link rel="stylesheet" href="/css/app-theme.css?v=20260614-theme-icon">
-    <link rel="stylesheet" href="/css/common.css">
-    <link rel="stylesheet" href="/css/index.css">
-    <script src="/js/app-theme.js?v=20260614-theme-icon"></script>
+    <link rel="stylesheet" href="/css/app-theme.css?v=20260620-admin-home">
+    <link rel="stylesheet" href="/css/common.css?v=20260620-admin-home">
+    <link rel="stylesheet" href="/css/index.css?v=20260620-admin-home">
+    <script src="/js/app-theme.js?v=20260620-admin-home"></script>
     <script src="/js/main.js"></script>
     <script src="/js/index.js"></script>
+    <style>
+        .admin-home-shell {
+            width: min(1320px, calc(100% - 28px));
+            min-height: 100vh;
+            margin: 0 auto;
+            padding: 20px 0 36px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .admin-home-header {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto auto;
+            align-items: start;
+            gap: 16px;
+            padding: 18px 20px;
+            border: 1px solid var(--hc-line);
+            border-radius: 12px;
+            background: var(--hc-surface);
+            box-shadow: var(--hc-shadow-soft);
+        }
+
+        .admin-home-title h1 {
+            margin: 0;
+            font-size: 28px;
+            line-height: 1.15;
+        }
+
+        .admin-home-title p {
+            margin: 10px 0 0;
+            color: var(--hc-muted);
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .admin-home-nav {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .admin-home-nav a,
+        .admin-home-nav button,
+        .admin-user-button {
+            min-height: 38px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 14px;
+            border: 1px solid var(--hc-line);
+            border-radius: 8px;
+            background: var(--hc-surface-strong);
+            color: var(--hc-text);
+            text-decoration: none;
+            font: inherit;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .admin-home-nav a:hover,
+        .admin-home-nav button:hover,
+        .admin-user-button:hover {
+            border-color: rgba(37, 99, 235, 0.32);
+            background: var(--hc-soft-accent);
+            color: var(--hc-accent);
+        }
+
+        .admin-user-wrap {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            justify-self: end;
+        }
+
+        .avatar-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            border: 1px solid var(--hc-line);
+            background: #ffffff;
+            object-fit: cover;
+        }
+
+        #systemLabContainer {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: flex-start;
+            gap: 10px 12px;
+            min-height: 120px;
+            padding: 10px 0;
+        }
+
+        .admin-home-panel {
+            border: 1px solid var(--hc-line);
+            border-radius: 12px;
+            background: var(--hc-surface);
+            box-shadow: var(--hc-shadow-soft);
+            padding: 20px;
+        }
+
+        .sys-desc-container {
+            max-width: 100%;
+            margin: 0;
+            padding: 22px 22px 14px 22px;
+            border: 1px solid var(--hc-line);
+            border-radius: 12px;
+            background: var(--hc-surface-strong);
+            color: var(--hc-text);
+            display: none;
+        }
+
+        .sys-desc-container code {
+            display: block;
+            margin-top: 8px;
+            padding: 12px;
+            border-radius: 10px;
+            background: rgba(15, 23, 42, 0.06);
+            color: var(--hc-text);
+            white-space: pre-wrap;
+        }
+
+        .sys-desc-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            border: 1px solid var(--hc-line);
+            background: #ffffff;
+        }
+
+        .sys-desc-close {
+            position: absolute;
+            top: 18px;
+            right: 18px;
+        }
+
+        .sys-access-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 14px;
+            margin-top: 18px;
+        }
+
+        .sys-access-card {
+            display: grid;
+            gap: 8px;
+            padding: 14px;
+            border: 1px solid var(--hc-line);
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.42);
+        }
+
+        :root[data-theme="dark"] .sys-access-card {
+            background: rgba(15, 23, 42, 0.22);
+        }
+
+        .sys-access-card span {
+            color: var(--hc-muted);
+            overflow-wrap: anywhere;
+        }
+
+        .progress-bar {
+            margin-top: 16px;
+        }
+
+        @media (max-width: 920px) {
+            .admin-home-header {
+                grid-template-columns: 1fr;
+            }
+
+            .admin-home-nav,
+            .admin-user-wrap {
+                justify-self: stretch;
+                justify-content: flex-start;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .admin-home-shell {
+                width: min(100% - 18px, 1320px);
+                padding-top: 14px;
+            }
+
+            .admin-home-header,
+            .admin-home-panel {
+                padding: 16px;
+            }
+
+            .sys-access-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
-
 <body class="hc-app admin-page">
-<div class="d-flex w-100 h-100 p-3 mx-auto flex-column">
-    <header class="mb-2 header">
-        <h3 class="float-md-start mb-0">Home Center Admin</h3>
+<div class="admin-home-shell">
+    <header class="admin-home-header">
+        <div class="admin-home-title">
+            <h1>Home Center Admin</h1>
+            <p>保留快速入口展示方式，只修布局、菜单、响应式和详情面板的交互问题。</p>
+        </div>
 
-        <div class="ms-auto"></div>
-
-        <nav class="nav nav-masthead justify-content-center float-md-end">
-            <a class="nav-link active" aria-current="page" href="#">快速入口</a>
-            <a class="nav-link" href="/admin/manage.html">后台管理</a>
-
-            <button class="nav-link admin-menu-button" type="button" data-menu-target="hardwareMenu" aria-expanded="false">
-                设备
-            </button>
-            <ul id="hardwareMenu" class="dropdown-menu admin-dropdown">
+        <nav class="admin-home-nav">
+            <a aria-current="page" href="#">快速入口</a>
+            <a href="/admin/manage.html">后台管理</a>
+            <button class="admin-menu-button" type="button" data-menu-target="hardwareMenu" aria-expanded="false">设备</button>
+            <ul id="hardwareMenu" class="admin-dropdown">
                 <li><a class="dropdown-item" href="/device/pc/power.html" target="_blank">电脑远程控制</a></li>
             </ul>
-            <div class="ms-2"></div>
-            <a class="nav-link" href="#">资料</a>
-            <a class="nav-link" href="#">软件</a>
+            <a href="#">资料</a>
+            <a href="#">软件</a>
         </nav>
 
-        <div class="avatar-container">
+        <div class="admin-user-wrap">
             <button class="hc-theme-toggle admin-theme-toggle" type="button" aria-label="切换深浅色主题">
                 <span class="hc-theme-toggle-icon" aria-hidden="true"></span>
                 <span data-theme-toggle-text>深色</span>
@@ -46,76 +238,50 @@
                 <img id="avatar" class="avatar-icon" src="favicon.ico" alt="头像">
             </a>
             <div class="d-inline-block">
-                <button id="userName" class="btn btn-dark py-1 admin-menu-button" type="button" data-menu-target="userMenu"
+                <button id="userName" class="admin-user-button admin-menu-button" type="button" data-menu-target="userMenu"
                         aria-expanded="false">
                     user name
                 </button>
-                <ul id="userMenu" class="dropdown-menu admin-dropdown admin-dropdown-right">
-                    <li><span class="dropdown-item-text">角色：
-                        <span id="roleName" class="text-primary">管理员</span>
-                    </span></li>
+                <ul id="userMenu" class="admin-dropdown admin-dropdown-right">
+                    <li><span class="dropdown-item-text">角色：<span id="roleName" class="text-primary">管理员</span></span></li>
                     <li><a class="dropdown-item" href="profile.html" target="_blank">个人信息</a></li>
                     <li><a class="dropdown-item" href="/">公开导航</a></li>
                     <li><a class="dropdown-item" href="/doc.html" target="_blank">API文档</a></li>
-                    <li>
-                        <hr class="dropdown-divider">
-                    </li>
+                    <li><hr class="dropdown-divider"></li>
                     <li><a class="dropdown-item" href="/logout">退出</a></li>
-
                 </ul>
             </div>
         </div>
-
     </header>
 
-    <div id="systemLabContainer" class="mb-auto flex-row">
-        <!--
-                <div class="sys-lab status-dot" tabindex="0" data-status="online" data-select="true">
-                    <img src="/common/img/view/icon/pve.png" alt="..." class="sys-icon">
-                    <span class="sys-text">PVE 1</span>
-                </div>
-         -->
+    <section class="admin-home-panel">
+        <div id="systemLabContainer">
+            <div class="hc-notion-empty" style="width:100%;">系统入口加载中...</div>
+        </div>
+    </section>
 
-    </div>
-
-    <main class="px-3">
-        <div id="sysDescContainer" class="mx-auto shadow sys-desc-container">
-            <img id="sysIcon" src="/common/img/view/icon/pve.png" alt="" class="sys-desc-icon"/>
-            <button type="button" class="btn-close btn-close-white sys-desc-close" aria-label="Close"
-                    onclick="closeSysDesc()"></button>
-            <h3 id="sysName">
-                系统名称
-            </h3>
+    <main class="admin-home-panel">
+        <div id="sysDescContainer" class="sys-desc-container">
+            <img id="sysIcon" src="/common/img/view/icon/pve.png" alt="" class="sys-desc-icon">
+            <button type="button" class="btn-close sys-desc-close" aria-label="Close" onclick="closeSysDesc()"></button>
+            <h3 id="sysName">系统名称</h3>
             <p id="sysDesc" class="lead">系统说明A系统说明</p>
-            <p>
-                <code id="sysRemark">这个地方是其他的说明信息，比如用户名，密码，注意事项等</code>
-            </p>
+            <p><code id="sysRemark">这个地方是其他的说明信息，比如用户名，密码，注意事项等</code></p>
 
-            <div class="lead d-flex justify-content-center m-3">
-                <div class="w-100">
-                    <a id="sysInternalAddr-A" href="#" target="_blank" class="btn text-success fw-bold bg-white">
-                        内网地址访问</a>
-                    <span id="sysInternalAddr" class="d-block text-break">http://localhost:8080</span>
+            <div class="sys-access-grid">
+                <div class="sys-access-card">
+                    <a id="sysInternalAddr-A" href="#" target="_blank" class="hc-button">内网地址访问</a>
+                    <span id="sysInternalAddr">http://localhost:8080</span>
                 </div>
-                <span class="bg-light w-3px mx-3"></span>
-                <div class="w-100">
-                    <a id="sysInternetAddr-A" href="#" target="_blank" class="btn text-primary fw-bold bg-white">公网地址访问</a>
-                    <span id="sysInternetAddr" class="d-block text-break">https://example.com</span>
+                <div class="sys-access-card">
+                    <a id="sysInternetAddr-A" href="#" target="_blank" class="hc-button hc-button-primary">公网地址访问</a>
+                    <span id="sysInternetAddr">https://example.com</span>
                 </div>
             </div>
 
             <div class="progress-bar"></div>
-
         </div>
     </main>
-
-    <footer class="mt-auto text-white-50 ">
-        <p class="mb-0">
-            <!--由
-            <a href="https://example.com/" class="text-white">作者</a>
-            创建于2024年-->
-        </p>
-    </footer>
 </div>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
@@ -123,10 +289,11 @@
             button.addEventListener('click', function (event) {
                 event.stopPropagation();
                 var target = document.getElementById(button.getAttribute('data-menu-target'));
+                var open;
                 if (!target) {
                     return;
                 }
-                var open = target.classList.contains('open');
+                open = target.classList.contains('open');
                 closeAdminMenus();
                 if (!open) {
                     target.classList.add('open');

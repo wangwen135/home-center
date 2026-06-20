@@ -4,62 +4,68 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>电脑远程控制</title>
-    <link rel="stylesheet" href="/css/app-theme.css?v=20260614-theme-icon">
-    <script src="/js/app-theme.js?v=20260614-theme-icon"></script>
+    <link rel="stylesheet" href="/css/app-theme.css?v=20260620-pc-power">
+    <link rel="stylesheet" href="/css/notion-theme.css?v=20260620-pc-power">
+    <script src="/js/app-theme.js?v=20260620-pc-power"></script>
     <style>
-        .power-layout {
+        .power-summary {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            grid-template-columns: repeat(3, minmax(0, 1fr));
             gap: 16px;
         }
 
+        .power-layout {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 18px;
+        }
+
         .pc-card {
-            min-width: 0;
-            padding: 18px;
+            display: grid;
+            gap: 16px;
         }
 
         .pc-card h2 {
-            margin: 0 0 10px;
-            font-size: 18px;
-            line-height: 1.4;
+            margin: 0;
+            color: var(--notion-text);
+            font-size: 24px;
+            line-height: 1.24;
+            font-family: "Times New Roman", Georgia, "Noto Serif SC", serif;
         }
 
         .pc-meta {
             display: grid;
-            gap: 6px;
-            margin: 0 0 16px;
-            color: var(--hc-muted);
-            font-size: 14px;
-            line-height: 1.55;
+            gap: 10px;
         }
 
         .pc-status {
-            min-height: 22px;
-            margin-top: 12px;
-            color: var(--hc-accent);
+            min-height: 24px;
+            color: var(--notion-text-soft);
             font-size: 14px;
             line-height: 1.5;
+            font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
         }
 
         .pc-status.error {
-            color: var(--hc-danger);
+            color: var(--notion-danger);
         }
 
-        .empty-state {
-            padding: 44px 18px;
-            text-align: center;
+        @media (max-width: 900px) {
+            .power-summary {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
-<body class="hc-app">
-<main class="hc-shell hc-stack">
-    <header class="hc-topbar">
-        <div class="hc-title-block">
-            <p class="hc-eyebrow">PC Control</p>
-            <h1 class="hc-title">电脑远程控制</h1>
-            <p class="hc-subtitle">统一管理客户端开机、关机指令，适配桌面和移动端操作。</p>
+<body class="hc-app hc-notion-page">
+<main class="hc-notion-shell hc-notion-stack">
+    <header class="hc-notion-header">
+        <div>
+            <p class="hc-notion-kicker">PC Control</p>
+            <h1>电脑远程控制</h1>
+            <p class="hc-notion-subtitle">集中管理电脑设备的开机和关机指令，补齐批量操作确认、空状态和错误反馈。</p>
         </div>
-        <div class="hc-actions">
+        <div class="hc-notion-actions">
             <button class="hc-theme-toggle" type="button" aria-label="切换深浅色主题">
                 <span class="hc-theme-toggle-icon" aria-hidden="true"></span>
                 <span data-theme-toggle-text>深色</span>
@@ -70,8 +76,29 @@
         </div>
     </header>
 
+    <section class="power-summary">
+        <article class="hc-notion-card">
+            <div class="hc-notion-stat">
+                <strong id="summaryTotal">0</strong>
+                <span>设备总数</span>
+            </div>
+        </article>
+        <article class="hc-notion-card">
+            <div class="hc-notion-stat">
+                <strong id="summaryOnline">0</strong>
+                <span>启用设备</span>
+            </div>
+        </article>
+        <article class="hc-notion-card">
+            <div class="hc-notion-stat">
+                <strong id="summaryOffline">0</strong>
+                <span>停用设备</span>
+            </div>
+        </article>
+    </section>
+
     <section id="deviceList" class="power-layout" aria-live="polite">
-        <div class="hc-panel empty-state hc-muted">设备加载中...</div>
+        <div class="hc-notion-empty">设备加载中...</div>
     </section>
 </main>
 
@@ -86,20 +113,38 @@
             return window.HomeCenter.escapeHtml(value);
         }
 
+        function updateSummary() {
+            var online = devices.filter(function (device) {
+                return Number(device.status) === 1;
+            }).length;
+            document.getElementById('summaryTotal').textContent = String(devices.length);
+            document.getElementById('summaryOnline').textContent = String(online);
+            document.getElementById('summaryOffline').textContent = String(Math.max(0, devices.length - online));
+        }
+
+        function badge(type, text) {
+            return '<span class="hc-notion-badge ' + escapeHtml(type) + '">' + escapeHtml(text) + '</span>';
+        }
+
         function render() {
+            updateSummary();
             if (!devices.length) {
-                list.innerHTML = '<div class="hc-panel empty-state hc-muted">暂无电脑设备</div>';
+                list.innerHTML = '<div class="hc-notion-empty">暂无电脑设备</div>';
                 return;
             }
             list.innerHTML = devices.map(function (device) {
-                return '<article class="hc-panel pc-card" data-device-id="' + escapeHtml(device.id) + '">' +
+                var enabled = Number(device.status) === 1;
+                return '<article class="hc-notion-card pc-card" data-device-id="' + escapeHtml(device.id) + '">' +
+                    '<div class="hc-notion-toolbar">' +
                     '<h2>' + escapeHtml(device.name || '未命名电脑') + '</h2>' +
-                    '<div class="pc-meta">' +
-                    '<span>' + escapeHtml(device.description || '暂无描述') + '</span>' +
-                    '<span>IP: ' + escapeHtml(device.ipAddress || '-') + '</span>' +
-                    '<span>MAC: ' + escapeHtml(device.macAddress || '-') + '</span>' +
+                    badge(enabled ? 'success' : 'warning', enabled ? '启用' : '停用') +
                     '</div>' +
-                    '<div class="hc-actions">' +
+                    '<div class="pc-meta">' +
+                    '<div><span class="hc-notion-label">描述</span><div class="hc-notion-value">' + escapeHtml(device.description || '暂无描述') + '</div></div>' +
+                    '<div><span class="hc-notion-label">IP</span><div class="hc-notion-value">' + escapeHtml(device.ipAddress || '-') + '</div></div>' +
+                    '<div><span class="hc-notion-label">MAC</span><div class="hc-notion-value">' + escapeHtml(device.macAddress || '-') + '</div></div>' +
+                    '</div>' +
+                    '<div class="hc-notion-actions">' +
                     '<button class="hc-button hc-button-primary" type="button" data-action="on">开机</button>' +
                     '<button class="hc-button" type="button" data-action="off">关机</button>' +
                     '</div>' +
@@ -120,50 +165,78 @@
             status.classList.toggle('error', Boolean(error));
         }
 
+        function confirmAction(title, message) {
+            return window.HomeCenter.confirm(message, {
+                title: title,
+                okText: '确认',
+                cancelText: '取消'
+            });
+        }
+
         function sendPowerCommand(action, deviceId) {
             var card = list.querySelector('[data-device-id="' + deviceId + '"]');
+            var actionText = action === 'on' ? '开机' : '关机';
             if (!card) {
                 return Promise.resolve();
             }
-            setCardLoading(card, true);
-            setStatus(card, '正在发送指令...', false);
-            return window.HomeCenter.post('/device/pc/power/' + deviceId + '/' + action)
-                .then(function (result) {
-                    if (result.status !== 'success') {
-                        throw new Error(result.message || '操作失败');
-                    }
-                    setStatus(card, result.message || '指令已发送', false);
-                    window.HomeCenter.toast(result.message || '指令已发送', 'success');
-                })
-                .catch(function (error) {
-                    var message = '操作失败: ' + (error.message || '未知错误');
-                    setStatus(card, message, true);
-                    window.HomeCenter.toast(message, 'error');
-                })
-                .finally(function () {
-                    setCardLoading(card, false);
-                });
+            return confirmAction(actionText + '确认', '确认向该设备发送' + actionText + '指令？').then(function (confirmed) {
+                if (!confirmed) {
+                    return;
+                }
+                setCardLoading(card, true);
+                setStatus(card, '正在发送' + actionText + '指令...', false);
+                return window.HomeCenter.post('/device/pc/power/' + deviceId + '/' + action)
+                    .then(function (result) {
+                        if (result.status !== 'success') {
+                            throw new Error(result.message || '操作失败');
+                        }
+                        setStatus(card, result.message || '指令已发送', false);
+                        window.HomeCenter.toast(result.message || '指令已发送', 'success');
+                    })
+                    .catch(function (error) {
+                        var message = '操作失败: ' + (error.message || '未知错误');
+                        setStatus(card, message, true);
+                        window.HomeCenter.toast(message, 'error');
+                    })
+                    .finally(function () {
+                        setCardLoading(card, false);
+                    });
+            });
         }
 
         function handleGlobalAction(action) {
-            allOn.disabled = true;
-            allOff.disabled = true;
-            Promise.all(devices.map(function (device) {
-                return sendPowerCommand(action, device.id);
-            })).then(function () {
-                window.HomeCenter.toast('已发送' + (action === 'on' ? '开机' : '关机') + '指令到所有电脑', 'success');
-            }).finally(function () {
-                allOn.disabled = false;
-                allOff.disabled = false;
+            var actionText = action === 'on' ? '全部开机' : '全部关机';
+            return confirmAction(actionText, '确认向所有设备发送' + actionText + '指令？').then(function (confirmed) {
+                if (!confirmed) {
+                    return;
+                }
+                allOn.disabled = true;
+                allOff.disabled = true;
+                Promise.all(devices.map(function (device) {
+                    return window.HomeCenter.post('/device/pc/power/' + device.id + '/' + action)
+                        .then(function (result) {
+                            if (result.status !== 'success') {
+                                throw new Error(result.message || '操作失败');
+                            }
+                        });
+                })).then(function () {
+                    window.HomeCenter.toast(actionText + '指令已发送', 'success');
+                }).catch(function (error) {
+                    window.HomeCenter.toast(error.message || '批量操作失败', 'error');
+                }).finally(function () {
+                    allOn.disabled = false;
+                    allOff.disabled = false;
+                });
             });
         }
 
         list.addEventListener('click', function (event) {
             var button = event.target.closest('button[data-action]');
+            var card;
             if (!button) {
                 return;
             }
-            var card = button.closest('[data-device-id]');
+            card = button.closest('[data-device-id]');
             sendPowerCommand(button.getAttribute('data-action'), card.getAttribute('data-device-id'));
         });
 
@@ -179,9 +252,9 @@
                 devices = result.data || [];
                 render();
             })
-            .catch(function () {
-                list.innerHTML = '<div class="hc-panel empty-state hc-muted">设备加载失败</div>';
-                window.HomeCenter.toast('加载设备列表失败', 'error');
+            .catch(function (error) {
+                list.innerHTML = '<div class="hc-notion-feedback error">设备加载失败</div>';
+                window.HomeCenter.toast(error.message || '加载设备列表失败', 'error');
             });
     })();
 </script>

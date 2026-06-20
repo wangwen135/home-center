@@ -4,35 +4,55 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>个人信息</title>
-    <link rel="stylesheet" href="/css/app-theme.css?v=20260614-theme-icon">
-    <script src="/js/app-theme.js?v=20260614-theme-icon"></script>
+    <link rel="stylesheet" href="/css/app-theme.css?v=20260620-profile">
+    <link rel="stylesheet" href="/css/notion-theme.css?v=20260620-profile">
+    <script src="/js/app-theme.js?v=20260620-profile"></script>
     <style>
-        .profile-form {
+        .profile-layout {
             display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
+            grid-template-columns: minmax(0, 1.1fr) minmax(320px, 0.9fr);
+            gap: 24px;
+        }
+
+        .profile-hero {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            padding-bottom: 18px;
+            border-bottom: 1px solid var(--notion-border);
+            margin-bottom: 18px;
+        }
+
+        .profile-avatar {
+            width: 84px;
+            height: 84px;
+            border-radius: 50%;
+            border: 1px solid var(--notion-border);
+            object-fit: cover;
+            background: var(--notion-alt-bg);
+        }
+
+        .profile-password-form {
+            display: grid;
             gap: 16px;
         }
 
-        .profile-form .full {
-            grid-column: 1 / -1;
-        }
-
-        @media (max-width: 720px) {
-            .profile-form {
+        @media (max-width: 900px) {
+            .profile-layout {
                 grid-template-columns: 1fr;
             }
         }
     </style>
 </head>
-<body class="hc-app">
-<main class="hc-shell hc-stack">
-    <header class="hc-topbar">
-        <div class="hc-title-block">
-            <p class="hc-eyebrow">Profile</p>
-            <h1 class="hc-title">个人信息</h1>
-            <p class="hc-subtitle">查看和维护当前登录账号的基础信息。</p>
+<body class="hc-app hc-notion-page">
+<main class="hc-notion-shell hc-notion-stack">
+    <header class="hc-notion-header">
+        <div>
+            <p class="hc-notion-kicker">Profile</p>
+            <h1>个人信息</h1>
+            <p class="hc-notion-subtitle">查看当前登录账号的基础资料，并在需要时修改自己的密码。</p>
         </div>
-        <div class="hc-actions">
+        <div class="hc-notion-actions">
             <button class="hc-theme-toggle" type="button" aria-label="切换深浅色主题">
                 <span class="hc-theme-toggle-icon" aria-hidden="true"></span>
                 <span data-theme-toggle-text>深色</span>
@@ -41,58 +61,195 @@
         </div>
     </header>
 
-    <section class="hc-panel hc-panel-pad">
-        <form class="profile-form">
-            <label>
-                <span class="hc-form-label">用户名</span>
-                <input type="text" class="hc-input" id="username" placeholder="用户名" readonly>
-            </label>
-            <label>
-                <span class="hc-form-label">角色</span>
-                <input type="text" class="hc-input" id="role" placeholder="角色" readonly>
-            </label>
-            <label>
-                <span class="hc-form-label">昵称</span>
-                <input type="text" class="hc-input" id="nickname" placeholder="昵称">
-            </label>
-            <label>
-                <span class="hc-form-label">性别</span>
-                <select class="hc-select" id="gender">
-                    <option>男</option>
-                    <option>女</option>
-                    <option>其他</option>
-                </select>
-            </label>
-            <label class="full">
-                <span class="hc-form-label">头像</span>
-                <input type="file" class="hc-input" id="avatar" aria-describedby="avatarHelp">
-                <span id="avatarHelp" class="hc-help-text">支持 JPEG、PNG 格式，文件大小不超过 2MB。</span>
-            </label>
-            <label>
-                <span class="hc-form-label">手机号码</span>
-                <input type="tel" class="hc-input" id="phone" placeholder="手机号码">
-            </label>
-            <label>
-                <span class="hc-form-label">邮箱</span>
-                <input type="email" class="hc-input" id="email" placeholder="邮箱">
-            </label>
-            <label>
-                <span class="hc-form-label">过期时间</span>
-                <input type="datetime-local" class="hc-input" id="expire-time">
-            </label>
-            <label>
-                <span class="hc-form-label">创建时间</span>
-                <input type="datetime-local" class="hc-input" id="create-time" readonly>
-            </label>
-            <label>
-                <span class="hc-form-label">修改时间</span>
-                <input type="datetime-local" class="hc-input" id="modify-time" readonly>
-            </label>
-            <div class="full hc-actions">
-                <button type="submit" class="hc-button hc-button-primary">保存修改</button>
+    <section class="profile-layout">
+        <section class="hc-notion-panel">
+            <div class="profile-hero">
+                <img id="profileAvatar" class="profile-avatar" src="/favicon.ico" alt="头像">
+                <div class="hc-notion-stat">
+                    <strong id="displayName">加载中</strong>
+                    <span id="displayRole">正在读取角色信息...</span>
+                </div>
             </div>
-        </form>
+
+            <div id="profileFeedback" class="hc-notion-feedback" hidden></div>
+
+            <div class="hc-notion-meta-list">
+                <div class="hc-notion-meta-item">
+                    <span class="hc-notion-label">用户名</span>
+                    <span id="usernameValue" class="hc-notion-value">-</span>
+                </div>
+                <div class="hc-notion-meta-item">
+                    <span class="hc-notion-label">昵称</span>
+                    <span id="nicknameValue" class="hc-notion-value">-</span>
+                </div>
+                <div class="hc-notion-meta-item">
+                    <span class="hc-notion-label">手机号码</span>
+                    <span id="phoneValue" class="hc-notion-value">-</span>
+                </div>
+                <div class="hc-notion-meta-item">
+                    <span class="hc-notion-label">邮箱</span>
+                    <span id="emailValue" class="hc-notion-value">-</span>
+                </div>
+                <div class="hc-notion-meta-item">
+                    <span class="hc-notion-label">账号状态</span>
+                    <span id="statusValue" class="hc-notion-value">-</span>
+                </div>
+                <div class="hc-notion-meta-item">
+                    <span class="hc-notion-label">过期时间</span>
+                    <span id="expireValue" class="hc-notion-value">-</span>
+                </div>
+                <div class="hc-notion-meta-item">
+                    <span class="hc-notion-label">创建时间</span>
+                    <span id="createValue" class="hc-notion-value">-</span>
+                </div>
+                <div class="hc-notion-meta-item">
+                    <span class="hc-notion-label">修改时间</span>
+                    <span id="updateValue" class="hc-notion-value">-</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="hc-notion-panel">
+            <div class="hc-notion-toolbar">
+                <div>
+                    <h2 class="hc-notion-section-title">修改密码</h2>
+                    <p class="hc-notion-toolbar-copy">密码修改走现有 `/user/changePassword` 接口，不保留无后端支撑的伪保存操作。</p>
+                </div>
+            </div>
+
+            <form id="passwordForm" class="profile-password-form" novalidate>
+                <label>
+                    <span class="hc-form-label">旧密码</span>
+                    <input type="password" class="hc-input" id="oldPassword" autocomplete="current-password" required>
+                </label>
+                <label>
+                    <span class="hc-form-label">新密码</span>
+                    <input type="password" class="hc-input" id="newPassword" autocomplete="new-password" required>
+                </label>
+                <label>
+                    <span class="hc-form-label">确认新密码</span>
+                    <input type="password" class="hc-input" id="confirmPassword" autocomplete="new-password" required>
+                </label>
+                <div id="passwordFeedback" class="hc-notion-feedback" hidden></div>
+                <div class="hc-notion-actions">
+                    <button id="passwordSubmit" type="submit" class="hc-button hc-button-primary">更新密码</button>
+                </div>
+            </form>
+        </section>
     </section>
 </main>
+
+<script>
+    (function () {
+        var profileFeedback = document.getElementById('profileFeedback');
+        var passwordFeedback = document.getElementById('passwordFeedback');
+        var passwordSubmit = document.getElementById('passwordSubmit');
+        var statusValue = document.getElementById('statusValue');
+
+        function safeText(value) {
+            return value === null || value === undefined || value === '' ? '-' : String(value);
+        }
+
+        function showMessage(node, message, error) {
+            node.hidden = !message;
+            node.textContent = message || '';
+            node.classList.toggle('error', Boolean(error));
+        }
+
+        function setText(id, value) {
+            document.getElementById(id).textContent = safeText(value);
+        }
+
+        function renderStatus(user) {
+            var labels = [];
+            if (!user) {
+                statusValue.textContent = '-';
+                return;
+            }
+            if (user.disabled) {
+                labels.push('已禁用');
+            } else {
+                labels.push('正常');
+            }
+            if (user.locked) {
+                labels.push('已锁定');
+            }
+            if (user.expired) {
+                labels.push('已过期');
+            }
+            statusValue.textContent = labels.join(' / ');
+        }
+
+        function loadProfile() {
+            Promise.all([
+                window.HomeCenter.get('/user/info'),
+                window.HomeCenter.get('/user/role')
+            ]).then(function (results) {
+                var userResult = results[0] || {};
+                var roleResult = results[1] || {};
+                var user = userResult.data || {};
+                var role = roleResult.data || {};
+
+                document.getElementById('displayName').textContent = safeText(user.nickname || user.username || '当前用户');
+                document.getElementById('displayRole').textContent = safeText(role.name || '未分配角色');
+                document.getElementById('profileAvatar').src = user.avatar || '/favicon.ico';
+                setText('usernameValue', user.username);
+                setText('nicknameValue', user.nickname);
+                setText('phoneValue', user.phone);
+                setText('emailValue', user.email);
+                setText('expireValue', user.expirationTime);
+                setText('createValue', user.createTime);
+                setText('updateValue', user.updateTime);
+                renderStatus(user);
+            }).catch(function (error) {
+                showMessage(profileFeedback, error.message || '用户信息加载失败。', true);
+            });
+        }
+
+        document.getElementById('passwordForm').addEventListener('submit', function (event) {
+            var oldPassword = document.getElementById('oldPassword').value;
+            var newPassword = document.getElementById('newPassword').value;
+            var confirmPassword = document.getElementById('confirmPassword').value;
+
+            event.preventDefault();
+            showMessage(passwordFeedback, '');
+
+            if (!oldPassword || !newPassword || !confirmPassword) {
+                showMessage(passwordFeedback, '请完整填写密码信息。', true);
+                return;
+            }
+            if (newPassword !== confirmPassword) {
+                showMessage(passwordFeedback, '两次输入的新密码不一致。', true);
+                return;
+            }
+            if (newPassword.length < 6) {
+                showMessage(passwordFeedback, '新密码长度至少为 6 位。', true);
+                return;
+            }
+
+            passwordSubmit.disabled = true;
+            passwordSubmit.textContent = '更新中...';
+            window.HomeCenter.request('/user/changePassword?oldPassword=' + encodeURIComponent(oldPassword) +
+                '&newPassword=' + encodeURIComponent(newPassword), {
+                method: 'PUT'
+            }).then(function (result) {
+                if (result.code !== 200) {
+                    throw new Error(result.message || '修改失败');
+                }
+                document.getElementById('passwordForm').reset();
+                showMessage(passwordFeedback, '密码已更新。');
+                window.HomeCenter.toast('密码已更新', 'success');
+            }).catch(function (error) {
+                showMessage(passwordFeedback, error.message || '修改密码失败。', true);
+                window.HomeCenter.toast(error.message || '修改密码失败', 'error');
+            }).finally(function () {
+                passwordSubmit.disabled = false;
+                passwordSubmit.textContent = '更新密码';
+            });
+        });
+
+        loadProfile();
+    })();
+</script>
 </body>
 </html>

@@ -84,6 +84,45 @@ input {
     min-height: 0;
 }
 
+.top-actions .hc-theme-toggle {
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    z-index: 1095;
+    width: 40px;
+    min-width: 40px;
+    height: 40px;
+    min-height: 40px;
+    padding: 0;
+    border-radius: 999px;
+    border: 1px solid var(--nav-border);
+    background: var(--nav-panel);
+    color: var(--nav-text);
+    box-shadow: var(--nav-shadow-soft);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+.top-actions .hc-theme-toggle:hover {
+    border-color: var(--nav-accent);
+    background: var(--nav-panel-strong);
+    color: var(--nav-text);
+    box-shadow: var(--nav-shadow-soft);
+}
+
+.top-actions .hc-theme-toggle::before {
+    color: var(--nav-text);
+}
+
+.top-actions .hc-theme-toggle [data-theme-toggle-text] {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+}
+
 .login-link {
     position: fixed;
     top: 16px;
@@ -386,7 +425,7 @@ input {
     }
 
     .login-link {
-        right: 66px;
+        right: 64px;
     }
 
     .site-header {
@@ -432,6 +471,7 @@ input {
     }
 
     .login-link {
+        right: 64px;
         width: 40px;
         min-width: 40px;
         padding: 0;
@@ -462,5 +502,12 @@ input {
         width: 56px;
         height: 56px;
         font-size: 18px;
+    }
+
+    .site-footer {
+        position: static;
+        margin-top: 24px;
+        padding-bottom: 16px;
+        pointer-events: auto;
     }
 }

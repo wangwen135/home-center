@@ -3,6 +3,7 @@ package com.wwh.home.center.controller.device;
 import com.wwh.home.center.common.model.Result;
 import com.wwh.home.center.dao.mapper.PcDeviceMapper;
 import com.wwh.home.center.model.entity.PcDevice;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +23,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -66,7 +68,7 @@ public class PcAgentController {
         try {
             // 按日期创建子目录
             String dateDir = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
-            Path dirPath = Paths.get(screenshotDir, dateDir);
+            Path dirPath = Paths.get(screenshotDir, dateDir).toAbsolutePath().normalize();
             Files.createDirectories(dirPath);
 
             // 生成文件名：screenshot-yyyyMMdd-HHmmss.png
@@ -81,7 +83,7 @@ public class PcAgentController {
             String filename = devicePrefix + "screenshot-" + timestamp + "." + ext;
 
             Path filePath = dirPath.resolve(filename);
-            file.transferTo(filePath.toFile());
+            Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
 
             log.info("截图已保存: {}", filePath);
 
@@ -101,6 +103,16 @@ public class PcAgentController {
     }
 
     private PcDevice findDeviceByRequestIp(HttpServletRequest request) {
+        String agentId = request.getHeader("X-Agent-Id");
+        if (agentId != null && agentId.trim().length() > 0) {
+            PcDevice device = pcDeviceMapper.selectOne(new LambdaQueryWrapper<PcDevice>()
+                    .eq(PcDevice::getAgentId, agentId.trim())
+                    .last("limit 1"));
+            if (device != null) {
+                return device;
+            }
+        }
+
         String ipAddress = getClientIp(request);
         if (ipAddress == null) {
             return null;

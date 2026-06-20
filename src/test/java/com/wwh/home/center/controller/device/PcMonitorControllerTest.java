@@ -1,7 +1,7 @@
 package com.wwh.home.center.controller.device;
 
 import com.wwh.home.center.dao.mapper.PcDeviceMapper;
-import com.wwh.home.center.device.tools.SimpleSocketSender;
+import com.wwh.home.center.device.agent.AgentConnectionManager;
 import com.wwh.home.center.model.common.ApiResponse;
 import com.wwh.home.center.model.entity.PcDevice;
 import org.junit.jupiter.api.BeforeEach;
@@ -30,16 +30,16 @@ class PcMonitorControllerTest {
     Path screenshotDir;
 
     private PcDeviceMapper pcDeviceMapper;
-    private SimpleSocketSender simpleSocketSender;
+    private AgentConnectionManager agentConnectionManager;
     private PcMonitorController controller;
 
     @BeforeEach
     void 初始化控制器依赖() {
         pcDeviceMapper = mock(PcDeviceMapper.class);
-        simpleSocketSender = mock(SimpleSocketSender.class);
+        agentConnectionManager = mock(AgentConnectionManager.class);
         controller = new PcMonitorController();
         ReflectionTestUtils.setField(controller, "pcDeviceMapper", pcDeviceMapper);
-        ReflectionTestUtils.setField(controller, "simpleSocketSender", simpleSocketSender);
+        ReflectionTestUtils.setField(controller, "agentConnectionManager", agentConnectionManager);
         ReflectionTestUtils.setField(controller, "screenshotDir", screenshotDir.toString());
         ReflectionTestUtils.setField(controller, "screenshotWaitSeconds", 1);
     }
@@ -57,7 +57,7 @@ class PcMonitorControllerTest {
         assertEquals("截图已更新", response.getMessage());
         assertEquals("/device/pc/8/screenshot/latest", response.getData().get("url"));
         assertEquals(screenshot.toString(), response.getData().get("path"));
-        verify(simpleSocketSender).sendCommand(device, "screenshot");
+        verify(agentConnectionManager).sendCommand(device, "screenshot", 1);
     }
 
     @Test
@@ -69,7 +69,7 @@ class PcMonitorControllerTest {
 
         assertEquals("error", response.getStatus());
         assertEquals("已发送截图指令，但未等到截图上传", response.getMessage());
-        verify(simpleSocketSender).sendCommand(device, "screenshot");
+        verify(agentConnectionManager).sendCommand(device, "screenshot", 1);
     }
 
     @Test
@@ -82,7 +82,7 @@ class PcMonitorControllerTest {
 
         assertEquals("error", response.getStatus());
         assertEquals("设备不存在或已禁用", response.getMessage());
-        verify(simpleSocketSender, never()).sendCommand(disabled, "screenshot");
+        verify(agentConnectionManager, never()).sendCommand(disabled, "screenshot", 1);
     }
 
     @Test
@@ -114,7 +114,6 @@ class PcMonitorControllerTest {
         PcDevice device = new PcDevice();
         device.setId(8L);
         device.setIpAddress("127.0.0.1");
-        device.setSocketPort(9000);
         device.setStatus(1);
         return device;
     }

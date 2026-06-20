@@ -1,0 +1,1250 @@
+const THEME_STORAGE_KEY = 'home-center-admin-theme';
+
+    function getInitialTheme() {
+        let savedTheme = null;
+        try {
+            savedTheme = localStorage.getItem(THEME_STORAGE_KEY);
+        } catch (e) {
+            savedTheme = null;
+        }
+        if (savedTheme === 'light' || savedTheme === 'dark') {
+            return savedTheme;
+        }
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
+            return 'light';
+        }
+        return 'dark';
+    }
+
+    function applyTheme(theme) {
+        const nextTheme = theme === 'light' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', nextTheme);
+        $('#themeToggleBtn').attr('title', nextTheme === 'light' ? '切换为暗色模式' : '切换为明亮模式');
+    }
+
+    function saveTheme(theme) {
+        try {
+            localStorage.setItem(THEME_STORAGE_KEY, theme);
+        } catch (e) {
+            // localStorage may be unavailable in private or restricted contexts.
+        }
+    }
+
+    applyTheme(getInitialTheme());
+
+    let users = [];
+    let roles = [];
+    let permissions = [];
+    let devices = [];
+    let navCategories = [];
+    let navLinks = [];
+    let famousQuotes = [];
+    let promptMessages = [];
+    let internalSystems = [];
+    const userModal = new bootstrap.Modal(document.getElementById('userModal'));
+    const assignUserRoleModal = new bootstrap.Modal(document.getElementById('assignUserRoleModal'));
+    const roleModal = new bootstrap.Modal(document.getElementById('roleModal'));
+    const rolePermissionModal = new bootstrap.Modal(document.getElementById('rolePermissionModal'));
+    const permissionModal = new bootstrap.Modal(document.getElementById('permissionModal'));
+    const deviceModal = new bootstrap.Modal(document.getElementById('deviceModal'));
+    const navCategoryModal = new bootstrap.Modal(document.getElementById('navCategoryModal'));
+    const navLinkModal = new bootstrap.Modal(document.getElementById('navLinkModal'));
+    const famousQuoteModal = new bootstrap.Modal(document.getElementById('famousQuoteModal'));
+    const promptMessageModal = new bootstrap.Modal(document.getElementById('promptMessageModal'));
+    const internalSystemModal = new bootstrap.Modal(document.getElementById('internalSystemModal'));
+
+    $(function () {
+        applyTheme(document.documentElement.getAttribute('data-theme'));
+        $('#themeToggleBtn').on('click', function () {
+            const nextTheme = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+            applyTheme(nextTheme);
+            saveTheme(nextTheme);
+        });
+        checkAdmin();
+        $('#userSearchBtn').on('click', loadUsers);
+        $('#userSearchInput').on('keydown', function (event) {
+            if (event.key === 'Enter') {
+                loadUsers();
+            }
+        });
+        $('#addUserBtn').on('click', openAddUserModal);
+        $('#userForm').on('submit', saveUser);
+        $('#assignUserRoleForm').on('submit', saveUserRole);
+        $('#userTableBody').on('click', '.reset-password-btn', function () {
+            resetPassword($(this).data('user-id'), $(this).data('username'));
+        });
+        $('#addRoleBtn').on('click', openAddRoleModal);
+        $('#roleForm').on('submit', saveRole);
+        $('#rolePermissionForm').on('submit', saveRolePermissions);
+        $('#addPermissionBtn').on('click', openAddPermissionModal);
+        $('#permissionForm').on('submit', savePermission);
+        $('#addDeviceBtn').on('click', openAddDeviceModal);
+        $('#deviceForm').on('submit', saveDevice);
+        $('#refreshConfigBtn').on('click', loadConfigs);
+        $('#addNavCategoryBtn').on('click', openAddNavCategoryModal);
+        $('#navCategoryForm').on('submit', saveNavCategory);
+        $('#addNavLinkBtn').on('click', openAddNavLinkModal);
+        $('#navLinkForm').on('submit', saveNavLink);
+        $('#navLinkFilter').on('change', loadNavLinks);
+        $('#addFamousQuoteBtn').on('click', openAddFamousQuoteModal);
+        $('#famousQuoteForm').on('submit', saveFamousQuote);
+        $('#addPromptMessageBtn').on('click', openAddPromptMessageModal);
+        $('#promptMessageForm').on('submit', savePromptMessage);
+        $('#addInternalSystemBtn').on('click', openAddInternalSystemModal);
+        $('#internalSystemForm').on('submit', saveInternalSystem);
+        $('#refreshOperationLogBtn').on('click', loadOperationLogs);
+        $('#refreshSecurityLogBtn').on('click', loadSecurityLogs);
+        $('#refreshSysLogBtn').on('click', loadSysLogs);
+    });
+
+    function checkAdmin() {
+        getRequest('/user/role', function (role) {
+            if (role && role.id === 1) {
+                $('#manageLayout').removeClass('d-none');
+                loadUsers();
+                loadRoles();
+                loadPermissions();
+                loadDevices();
+                loadConfigs();
+                loadNavCategories();
+                loadFamousQuotes();
+                loadPromptMessages();
+                loadInternalSystems();
+                loadOperationLogs();
+                loadSecurityLogs();
+                loadSysLogs();
+            } else {
+                $('#forbiddenPanel').removeClass('d-none');
+            }
+        }, function () {
+            $('#forbiddenPanel').removeClass('d-none').text('请先登录超级管理员账号。');
+        });
+    }
+
+    function loadUsers() {
+        const username = $.trim($('#userSearchInput').val());
+        const body = {
+            pageNum: 1,
+            pageSize: 100,
+            condition: {
+                username: username
+            }
+        };
+        postRequest('/backend/user/findPage2', body, function (page) {
+            users = (page && page.data) || [];
+            renderUsers(users);
+        });
+    }
+
+    function renderUsers(list) {
+        const rows = list.map(function (user) {
+            const status = user.disabled ? '<span style="color:var(--danger)">禁用</span>' : (user.locked ? '<span style="color:var(--warning)">锁定</span>' : '<span style="color:var(--success)">正常</span>');
+            const disabledChecked = user.disabled ? ' checked' : '';
+            return '<tr>' +
+                '<td>' + escapeHtml(user.username) + '</td>' +
+                '<td>' + escapeHtml(user.nickname) + '</td>' +
+                '<td>' + escapeHtml(user.phone) + '</td>' +
+                '<td>' + escapeHtml(user.roleName || '-') + '</td>' +
+                '<td>' + status + '</td>' +
+                '<td>' + escapeHtml(user.createTime) + '</td>' +
+                '<td class="text-end">' +
+                '<button class="btn btn-outline-light btn-sm me-2" onclick="openAssignUserRoleModal(' + user.id + ')">分配角色</button>' +
+                '<button class="btn btn-outline-light btn-sm me-2" onclick="openEditUserModal(' + user.id + ')">编辑</button>' +
+                '<button class="btn btn-outline-warning btn-sm me-2 reset-password-btn" data-user-id="' + user.id + '" data-username="' + escapeHtml(user.username) + '">重置密码</button>' +
+                '<div class="form-check form-switch d-inline-block align-middle mb-0" title="禁用/启用">' +
+                '<input class="form-check-input" type="checkbox" role="switch" onchange="toggleUserStatus(' + user.id + ', this.checked)"' + disabledChecked + '>' +
+                '</div>' +
+                '</td>' +
+                '</tr>';
+        });
+        $('#userTableBody').html(rows.join('') || '<tr><td colspan="7" class="text-center text-white-50">暂无数据</td></tr>');
+    }
+
+    function resetPassword(userId, username) {
+        showConfirm('重置密码', '确定将用户 ' + escapeHtml(username) + ' 的密码重置为 123456？', MsgTypes.WARNING, function () {
+            request('/backend/user/resetPassword?userId=' + encodeURIComponent(userId), {method: 'PUT'}, function () {
+                showToastSimple('密码已重置为 123456', MsgTypes.SUCCESS, Position.TopCenter);
+            });
+        });
+    }
+
+    function openAddUserModal() {
+        $('#userModalTitle').text('创建用户');
+        $('#userForm')[0].reset();
+        $('#userId').val('');
+        $('.user-create-field').show();
+        $('#userUsername, #userPassword, #userRole').prop('required', true);
+        fillRoleSelect('#userRole');
+        userModal.show();
+    }
+
+    function openEditUserModal(id) {
+        const user = users.find(function (item) {
+            return item.id === id;
+        });
+        if (!user) {
+            return;
+        }
+        $('#userModalTitle').text('编辑用户');
+        $('#userForm')[0].reset();
+        $('#userId').val(user.id);
+        $('#userNickname').val(user.nickname || '');
+        $('#userPhone').val(user.phone || '');
+        $('.user-create-field').hide();
+        $('#userUsername, #userPassword, #userRole').prop('required', false);
+        userModal.show();
+    }
+
+    function saveUser(event) {
+        event.preventDefault();
+        const id = $('#userId').val();
+        const payload = {
+            id: id ? Number(id) : null,
+            username: $.trim($('#userUsername').val()),
+            password: $('#userPassword').val(),
+            nickname: $.trim($('#userNickname').val()),
+            phone: $.trim($('#userPhone').val()),
+            roleId: Number($('#userRole').val())
+        };
+        const url = id ? '/backend/user/update' : '/backend/user/create';
+        request(url, {method: id ? 'PUT' : 'POST', body: payload}, function () {
+            userModal.hide();
+            showToastSimple('用户已保存', MsgTypes.SUCCESS, Position.TopCenter);
+            loadUsers();
+        });
+    }
+
+    function openAssignUserRoleModal(userId) {
+        $('#assignUserRoleUserId').val(userId);
+        getRequest('/backend/user/' + encodeURIComponent(userId) + '/roles', function (roleIds) {
+            const checkedRoleId = roleIds && roleIds.length ? roleIds[0] : null;
+            const rows = roles.map(function (role) {
+                const checked = role.id === checkedRoleId ? ' checked' : '';
+                return '<div class="form-check mb-2">' +
+                    '<input class="form-check-input" type="radio" name="assignUserRole" id="assignUserRole' + role.id + '" value="' + role.id + '"' + checked + '>' +
+                    '<label class="form-check-label" for="assignUserRole' + role.id + '">' + escapeHtml(role.name) + '</label>' +
+                    '</div>';
+            });
+            $('#assignUserRoleList').html(rows.join('') || '<div class="text-white-50">暂无角色</div>');
+            assignUserRoleModal.show();
+        });
+    }
+
+    function saveUserRole(event) {
+        event.preventDefault();
+        const userId = $('#assignUserRoleUserId').val();
+        const roleId = $('input[name="assignUserRole"]:checked').val();
+        if (!roleId) {
+            showToastSimple('请选择角色', MsgTypes.WARNING, Position.TopCenter);
+            return;
+        }
+        request('/backend/user/' + encodeURIComponent(userId) + '/roles?roleId=' + encodeURIComponent(roleId), {method: 'PUT'}, function () {
+            assignUserRoleModal.hide();
+            showToastSimple('角色已分配', MsgTypes.SUCCESS, Position.TopCenter);
+            loadUsers();
+        });
+    }
+
+    function toggleUserStatus(userId, disabled) {
+        request('/backend/user/' + encodeURIComponent(userId) + '/status?disabled=' + encodeURIComponent(disabled), {method: 'PUT'}, function () {
+            showToastSimple(disabled ? '用户已禁用' : '用户已启用', MsgTypes.SUCCESS, Position.TopCenter);
+            loadUsers();
+        }, function () {
+            loadUsers();
+        });
+    }
+
+    function loadRoles() {
+        getRequest('/backend/role/list', function (list) {
+            roles = list || [];
+            renderRoles();
+        });
+    }
+
+    function renderRoles() {
+        const rows = roles.map(function (role) {
+            const superAdmin = role.id === 1;
+            return '<tr>' +
+                '<td>' + escapeHtml(role.name) + (superAdmin ? ' <span class="badge bg-warning text-dark">超管</span>' : '') + '</td>' +
+                '<td>' + escapeHtml(role.remark) + '</td>' +
+                '<td>' + escapeHtml(role.createTime) + '</td>' +
+                '<td class="text-end">' +
+                (superAdmin ? '' : '<button class="btn btn-outline-light btn-sm me-2" onclick="openEditRoleModal(' + role.id + ')">编辑</button>') +
+                '<button class="btn btn-outline-info btn-sm me-2" onclick="openRolePermissionModal(' + role.id + ')">分配权限</button>' +
+                (superAdmin ? '' : '<button class="btn btn-outline-danger btn-sm" onclick="deleteRole(' + role.id + ')">删除</button>') +
+                '</td>' +
+                '</tr>';
+        });
+        $('#roleTableBody').html(rows.join('') || '<tr><td colspan="4" class="text-center text-white-50">暂无数据</td></tr>');
+        fillRoleSelect('#userRole');
+    }
+
+    function openAddRoleModal() {
+        $('#roleModalTitle').text('新建角色');
+        $('#roleForm')[0].reset();
+        $('#roleId').val('');
+        roleModal.show();
+    }
+
+    function openEditRoleModal(id) {
+        const role = roles.find(function (item) {
+            return item.id === id;
+        });
+        if (!role) {
+            return;
+        }
+        $('#roleModalTitle').text('编辑角色');
+        $('#roleId').val(role.id);
+        $('#roleName').val(role.name || '');
+        $('#roleRemark').val(role.remark || '');
+        roleModal.show();
+    }
+
+    function saveRole(event) {
+        event.preventDefault();
+        const id = $('#roleId').val();
+        const payload = {
+            id: id ? Number(id) : null,
+            name: $.trim($('#roleName').val()),
+            remark: $.trim($('#roleRemark').val())
+        };
+        request(id ? '/backend/role/update' : '/backend/role/create', {method: id ? 'PUT' : 'POST', body: payload}, function () {
+            roleModal.hide();
+            showToastSimple('角色已保存', MsgTypes.SUCCESS, Position.TopCenter);
+            loadRoles();
+        });
+    }
+
+    function deleteRole(id) {
+        showConfirm('删除角色', '确定删除该角色？', MsgTypes.WARNING, function () {
+            request('/backend/role/' + encodeURIComponent(id), {method: 'DELETE'}, function () {
+                showToastSimple('角色已删除', MsgTypes.SUCCESS, Position.TopCenter);
+                loadRoles();
+            });
+        });
+    }
+
+    function openRolePermissionModal(roleId) {
+        $('#rolePermissionRoleId').val(roleId);
+        const role = roles.find(function (item) {
+            return item.id === roleId;
+        });
+        $('#rolePermissionModalTitle').text('分配权限' + (role ? ' - ' + role.name : ''));
+        getRequest('/backend/role/' + encodeURIComponent(roleId) + '/permissions', function (permissionIds) {
+            renderRolePermissionList(permissionIds || []);
+            rolePermissionModal.show();
+        });
+    }
+
+    function renderRolePermissionList(permissionIds) {
+        const selected = {};
+        permissionIds.forEach(function (id) {
+            selected[id] = true;
+        });
+        const rows = buildPermissionTree(permissions).map(function (item) {
+            const checked = selected[item.id] ? ' checked' : '';
+            return '<div class="form-check mb-2" style="padding-left:' + (24 + item.level * 24) + 'px;">' +
+                '<input class="form-check-input role-permission-check" type="checkbox" value="' + item.id + '" id="rolePermission' + item.id + '"' + checked + '>' +
+                '<label class="form-check-label" for="rolePermission' + item.id + '">' +
+                escapeHtml(item.name) + ' <span class="text-white-50">(' + permissionTypeName(item.type) + ')</span>' +
+                '</label>' +
+                '</div>';
+        });
+        $('#rolePermissionList').html(rows.join('') || '<div class="text-white-50">暂无权限</div>');
+    }
+
+    function saveRolePermissions(event) {
+        event.preventDefault();
+        const roleId = $('#rolePermissionRoleId').val();
+        const permissionIds = $('.role-permission-check:checked').map(function () {
+            return Number($(this).val());
+        }).get();
+        request('/backend/role/' + encodeURIComponent(roleId) + '/permissions', {method: 'PUT', body: permissionIds}, function () {
+            rolePermissionModal.hide();
+            showToastSimple('权限已分配', MsgTypes.SUCCESS, Position.TopCenter);
+        });
+    }
+
+    function loadPermissions() {
+        getRequest('/backend/permission/list', function (list) {
+            permissions = list || [];
+            renderPermissions();
+        });
+    }
+
+    function renderPermissions() {
+        const rows = buildPermissionTree(permissions).map(function (permission) {
+            return '<tr>' +
+                '<td><span class="tree-name" style="padding-left:' + (permission.level * 24) + 'px;">' + escapeHtml(permission.name) + '</span></td>' +
+                '<td>' + permissionTypeName(permission.type) + '</td>' +
+                '<td class="text-truncate-cell" title="' + escapeHtml(permission.urls) + '">' + escapeHtml(permission.urls) + '</td>' +
+                '<td>' + escapeHtml(permission.icon) + '</td>' +
+                '<td>' + escapeHtml(permission.sort) + '</td>' +
+                '<td class="text-end">' +
+                '<button class="btn btn-outline-light btn-sm me-2" onclick="openEditPermissionModal(' + permission.id + ')">编辑</button>' +
+                '<button class="btn btn-outline-danger btn-sm" onclick="deletePermission(' + permission.id + ')">删除</button>' +
+                '</td>' +
+                '</tr>';
+        });
+        $('#permissionTableBody').html(rows.join('') || '<tr><td colspan="6" class="text-center text-white-50">暂无数据</td></tr>');
+        fillPermissionParentSelect();
+    }
+
+    function openAddPermissionModal() {
+        $('#permissionModalTitle').text('新建权限');
+        $('#permissionForm')[0].reset();
+        $('#permissionId').val('');
+        $('#permissionType').val('2');
+        $('#permissionSort').val('0');
+        fillPermissionParentSelect();
+        permissionModal.show();
+    }
+
+    function openEditPermissionModal(id) {
+        const permission = permissions.find(function (item) {
+            return item.id === id;
+        });
+        if (!permission) {
+            return;
+        }
+        $('#permissionModalTitle').text('编辑权限');
+        fillPermissionParentSelect(id);
+        $('#permissionId').val(permission.id);
+        $('#permissionPid').val(permission.pid || 0);
+        $('#permissionName').val(permission.name || '');
+        $('#permissionType').val(permission.type || 2);
+        $('#permissionUrls').val(permission.urls || '');
+        $('#permissionIcon').val(permission.icon || '');
+        $('#permissionSort').val(permission.sort || 0);
+        permissionModal.show();
+    }
+
+    function savePermission(event) {
+        event.preventDefault();
+        const id = $('#permissionId').val();
+        const payload = {
+            id: id ? Number(id) : null,
+            pid: Number($('#permissionPid').val() || 0),
+            name: $.trim($('#permissionName').val()),
+            type: Number($('#permissionType').val()),
+            urls: $.trim($('#permissionUrls').val()),
+            icon: $.trim($('#permissionIcon').val()),
+            sort: Number($('#permissionSort').val() || 0)
+        };
+        request(id ? '/backend/permission/update' : '/backend/permission/create', {method: id ? 'PUT' : 'POST', body: payload}, function () {
+            permissionModal.hide();
+            showToastSimple('权限已保存', MsgTypes.SUCCESS, Position.TopCenter);
+            loadPermissions();
+        });
+    }
+
+    function deletePermission(id) {
+        showConfirm('删除权限', '确定删除该权限？如果存在子权限，请先删除子权限。', MsgTypes.WARNING, function () {
+            request('/backend/permission/' + encodeURIComponent(id), {method: 'DELETE'}, function () {
+                showToastSimple('权限已删除', MsgTypes.SUCCESS, Position.TopCenter);
+                loadPermissions();
+            });
+        });
+    }
+
+    function fillRoleSelect(selector) {
+        const options = roles.map(function (role) {
+            return '<option value="' + role.id + '">' + escapeHtml(role.name) + '</option>';
+        });
+        $(selector).html(options.join(''));
+    }
+
+    function fillPermissionParentSelect(excludeId) {
+        const options = ['<option value="0">顶级权限</option>'];
+        buildPermissionTree(permissions).forEach(function (permission) {
+            if (permission.id === excludeId) {
+                return;
+            }
+            options.push('<option value="' + permission.id + '">' + '&nbsp;'.repeat(permission.level * 4) + escapeHtml(permission.name) + '</option>');
+        });
+        $('#permissionPid').html(options.join(''));
+    }
+
+    function buildPermissionTree(list) {
+        const childrenMap = {};
+        (list || []).forEach(function (item) {
+            const pid = item.pid || 0;
+            if (!childrenMap[pid]) {
+                childrenMap[pid] = [];
+            }
+            childrenMap[pid].push(item);
+        });
+        Object.keys(childrenMap).forEach(function (pid) {
+            childrenMap[pid].sort(function (a, b) {
+                return (a.sort || 0) - (b.sort || 0) || (a.id || 0) - (b.id || 0);
+            });
+        });
+        const result = [];
+        const walk = function (pid, level) {
+            (childrenMap[pid] || []).forEach(function (item) {
+                const copy = Object.assign({}, item, {level: level});
+                result.push(copy);
+                walk(item.id, level + 1);
+            });
+        };
+        walk(0, 0);
+        return result;
+    }
+
+    function permissionTypeName(type) {
+        if (Number(type) === 1) {
+            return '目录';
+        }
+        if (Number(type) === 3) {
+            return '按钮';
+        }
+        return '菜单';
+    }
+
+    function loadDevices() {
+        getRequest('/backend/device/pc/list', function (list) {
+            devices = list || [];
+            renderDevices();
+        });
+    }
+
+    function renderDevices() {
+        const rows = devices.map(function (device) {
+            const status = Number(device.status) === 1 ? '<span style="color:var(--success)">启用</span>' : '<span style="color:var(--danger)">停用</span>';
+            return '<tr>' +
+                '<td>' + escapeHtml(device.name) + '</td>' +
+                '<td>' + escapeHtml(device.ipAddress) + '</td>' +
+                '<td>' + escapeHtml(device.socketPort) + '</td>' +
+                '<td>' + escapeHtml(device.macAddress) + '</td>' +
+                '<td>' + status + '</td>' +
+                '<td class="text-end">' +
+                '<button class="btn btn-outline-light btn-sm me-2" onclick="openEditDeviceModal(' + device.id + ')">编辑</button>' +
+                '<button class="btn btn-outline-danger btn-sm" onclick="deleteDevice(' + device.id + ')">删除</button>' +
+                '</td>' +
+                '</tr>';
+        });
+        $('#deviceTableBody').html(rows.join('') || '<tr><td colspan="6" class="text-center text-white-50">暂无数据</td></tr>');
+    }
+
+    function openAddDeviceModal() {
+        $('#deviceModalTitle').text('添加设备');
+        $('#deviceForm')[0].reset();
+        $('#deviceId').val('');
+        $('#deviceStatus').val('1');
+        deviceModal.show();
+    }
+
+    function openEditDeviceModal(id) {
+        const device = devices.find(function (item) {
+            return item.id === id;
+        });
+        if (!device) {
+            return;
+        }
+        $('#deviceModalTitle').text('编辑设备');
+        $('#deviceId').val(device.id);
+        $('#deviceName').val(device.name || '');
+        $('#deviceIp').val(device.ipAddress || '');
+        $('#devicePort').val(device.socketPort || '');
+        $('#deviceMac').val(device.macAddress || '');
+        $('#deviceStatus').val(String(device.status == null ? 1 : device.status));
+        $('#deviceDesc').val(device.description || '');
+        deviceModal.show();
+    }
+
+    function saveDevice(event) {
+        event.preventDefault();
+        const id = $('#deviceId').val();
+        const payload = {
+            id: id ? Number(id) : null,
+            name: $.trim($('#deviceName').val()),
+            ipAddress: $.trim($('#deviceIp').val()),
+            socketPort: $('#devicePort').val() ? Number($('#devicePort').val()) : null,
+            macAddress: $.trim($('#deviceMac').val()),
+            status: Number($('#deviceStatus').val()),
+            description: $.trim($('#deviceDesc').val())
+        };
+        const url = id ? '/backend/device/pc/update' : '/backend/device/pc/add';
+        const method = id ? 'PUT' : 'POST';
+        request(url, {method: method, body: payload}, function () {
+            deviceModal.hide();
+            showToastSimple('设备已保存', MsgTypes.SUCCESS, Position.TopCenter);
+            loadDevices();
+        });
+    }
+
+    function deleteDevice(id) {
+        showConfirm('删除设备', '确定删除该设备？', MsgTypes.WARNING, function () {
+            request('/backend/device/pc/delete?id=' + encodeURIComponent(id), {method: 'DELETE'}, function () {
+                showToastSimple('设备已删除', MsgTypes.SUCCESS, Position.TopCenter);
+                loadDevices();
+            });
+        });
+    }
+
+    function loadConfigs() {
+        getRequest('/backend/config/list', function (list) {
+            renderConfigs(list || []);
+        }, function () {
+            $('#configTableWrap').hide();
+            $('#configEmptyState').show();
+        });
+    }
+
+    function renderConfigs(list) {
+        if (!list.length) {
+            $('#configTableWrap').hide();
+            $('#configEmptyState').show();
+            $('#configTableBody').empty();
+            return;
+        }
+        $('#configEmptyState').hide();
+        $('#configTableWrap').show();
+        const rows = list.map(function (item) {
+            return '<tr>' +
+                '<td><code>' + escapeHtml(item.configKey) + '</code></td>' +
+                '<td class="config-value" contenteditable="true" data-key="' + escapeHtml(item.configKey) + '">' + escapeHtml(item.configValue) + '</td>' +
+                '<td>' + escapeHtml(item.description) + '</td>' +
+                '</tr>';
+        });
+        $('#configTableBody').html(rows.join(''));
+        $('.config-value').on('blur', saveConfigValue);
+        $('.config-value').on('keydown', function (event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                $(this).blur();
+            }
+        });
+    }
+
+    function saveConfigValue() {
+        const cell = $(this);
+        const key = cell.data('key');
+        const value = cell.text();
+        request('/backend/config/update', {
+            method: 'PUT',
+            body: {
+                key: key,
+                value: value
+            }
+        }, function () {
+            showToastSimple('配置已保存', MsgTypes.SUCCESS, Position.TopCenter);
+        });
+    }
+
+    function loadNavCategories(callback) {
+        getRequest('/backend/nav/categories', function (list) {
+            navCategories = list || [];
+            renderNavCategories();
+            renderNavCategoryOptions();
+            loadNavLinks(callback);
+        });
+    }
+
+    function renderNavCategories() {
+        const rows = navCategories.map(function (category) {
+            return '<tr>' +
+                '<td>' + escapeHtml(category.name) + '</td>' +
+                '<td>' + escapeHtml(category.icon) + '</td>' +
+                '<td>' + escapeHtml(category.sortOrder) + '</td>' +
+                '<td>' + renderStatusSwitch('category', category.id, category.status) + '</td>' +
+                '<td class="text-end">' +
+                '<button class="btn btn-outline-light btn-sm me-2" onclick="openEditNavCategoryModal(' + category.id + ')">编辑</button>' +
+                '<button class="btn btn-outline-danger btn-sm" onclick="deleteNavCategory(' + category.id + ')">删除</button>' +
+                '</td>' +
+                '</tr>';
+        });
+        $('#navCategoryTableBody').html(rows.join('') || '<tr><td colspan="5" class="text-center text-white-50">暂无数据</td></tr>');
+        $('.nav-status-category').on('change', function () {
+            toggleNavCategoryStatus($(this).data('id'), this.checked ? 1 : 0);
+        });
+    }
+
+    function renderNavCategoryOptions() {
+        const options = navCategories.map(function (category) {
+            return '<option value="' + category.id + '">' + escapeHtml(category.name) + '</option>';
+        }).join('');
+        $('#navLinkFilter').html('<option value="">全部分组</option>' + options);
+        $('#navLinkCategory').html(options);
+    }
+
+    function openAddNavCategoryModal() {
+        $('#navCategoryModalTitle').text('新增分组');
+        $('#navCategoryForm')[0].reset();
+        $('#navCategoryId').val('');
+        $('#navCategorySort').val('0');
+        $('#navCategoryStatus').val('1');
+        navCategoryModal.show();
+    }
+
+    function openEditNavCategoryModal(id) {
+        const category = navCategories.find(function (item) {
+            return item.id === id;
+        });
+        if (!category) {
+            return;
+        }
+        $('#navCategoryModalTitle').text('编辑分组');
+        $('#navCategoryId').val(category.id);
+        $('#navCategoryName').val(category.name || '');
+        $('#navCategoryIcon').val(category.icon || '');
+        $('#navCategorySort').val(category.sortOrder == null ? 0 : category.sortOrder);
+        $('#navCategoryStatus').val(String(category.status == null ? 1 : category.status));
+        navCategoryModal.show();
+    }
+
+    function saveNavCategory(event) {
+        event.preventDefault();
+        const id = $('#navCategoryId').val();
+        const payload = {
+            id: id ? Number(id) : null,
+            name: $.trim($('#navCategoryName').val()),
+            icon: $.trim($('#navCategoryIcon').val()),
+            sortOrder: Number($('#navCategorySort').val() || 0),
+            status: Number($('#navCategoryStatus').val())
+        };
+        request('/backend/nav/category', {method: id ? 'PUT' : 'POST', body: payload}, function () {
+            navCategoryModal.hide();
+            showToastSimple('分组已保存', MsgTypes.SUCCESS, Position.TopCenter);
+            loadNavCategories();
+        });
+    }
+
+    function deleteNavCategory(id) {
+        showConfirm('删除分组', '确定删除该分组？分组下的所有链接也会被删除。', MsgTypes.WARNING, function () {
+            request('/backend/nav/category/' + encodeURIComponent(id), {method: 'DELETE'}, function () {
+                showToastSimple('分组已删除', MsgTypes.SUCCESS, Position.TopCenter);
+                loadNavCategories();
+            });
+        });
+    }
+
+    function toggleNavCategoryStatus(id, status) {
+        const category = navCategories.find(function (item) {
+            return item.id === id;
+        });
+        if (!category) {
+            return;
+        }
+        const payload = Object.assign({}, category, {status: status});
+        request('/backend/nav/category', {method: 'PUT', body: payload}, function () {
+            category.status = status;
+            showToastSimple('分组状态已更新', MsgTypes.SUCCESS, Position.TopCenter);
+        }, loadNavCategories);
+    }
+
+    function loadNavLinks(callback) {
+        const categoryId = $('#navLinkFilter').val();
+        const url = categoryId ? '/backend/nav/links?categoryId=' + encodeURIComponent(categoryId) : '/backend/nav/links';
+        getRequest(url, function (list) {
+            navLinks = list || [];
+            renderNavLinks();
+            if (typeof callback === 'function') {
+                callback();
+            }
+        });
+    }
+
+    function renderNavLinks() {
+        const rows = navLinks.map(function (link) {
+            return '<tr>' +
+                '<td>' + escapeHtml(link.title) + '</td>' +
+                '<td class="text-break"><a class="text-info" href="' + escapeHtml(link.url) + '" target="_blank" rel="noopener noreferrer">' + escapeHtml(link.url) + '</a></td>' +
+                '<td>' + escapeHtml(getNavCategoryName(link.categoryId)) + '</td>' +
+                '<td>' + escapeHtml(link.sortOrder) + '</td>' +
+                '<td>' + renderStatusSwitch('link', link.id, link.status) + '</td>' +
+                '<td class="text-end">' +
+                '<button class="btn btn-outline-light btn-sm me-2" onclick="openEditNavLinkModal(' + link.id + ')">编辑</button>' +
+                '<button class="btn btn-outline-danger btn-sm" onclick="deleteNavLink(' + link.id + ')">删除</button>' +
+                '</td>' +
+                '</tr>';
+        });
+        $('#navLinkTableBody').html(rows.join('') || '<tr><td colspan="6" class="text-center text-white-50">暂无数据</td></tr>');
+        $('.nav-status-link').on('change', function () {
+            toggleNavLinkStatus($(this).data('id'), this.checked ? 1 : 0);
+        });
+    }
+
+    function openAddNavLinkModal() {
+        if (!navCategories.length) {
+            showToastSimple('请先新增导航分组', MsgTypes.WARNING, Position.TopCenter);
+            return;
+        }
+        $('#navLinkModalTitle').text('新增链接');
+        $('#navLinkForm')[0].reset();
+        $('#navLinkId').val('');
+        $('#navLinkSort').val('0');
+        $('#navLinkStatus').val('1');
+        const filterCategoryId = $('#navLinkFilter').val();
+        $('#navLinkCategory').val(filterCategoryId || String(navCategories[0].id));
+        navLinkModal.show();
+    }
+
+    function openEditNavLinkModal(id) {
+        const link = navLinks.find(function (item) {
+            return item.id === id;
+        });
+        if (!link) {
+            return;
+        }
+        $('#navLinkModalTitle').text('编辑链接');
+        $('#navLinkId').val(link.id);
+        $('#navLinkTitle').val(link.title || '');
+        $('#navLinkUrl').val(link.url || '');
+        $('#navLinkCategory').val(String(link.categoryId));
+        $('#navLinkIcon').val(link.icon || '');
+        $('#navLinkSort').val(link.sortOrder == null ? 0 : link.sortOrder);
+        $('#navLinkStatus').val(String(link.status == null ? 1 : link.status));
+        $('#navLinkDesc').val(link.description || '');
+        navLinkModal.show();
+    }
+
+    function saveNavLink(event) {
+        event.preventDefault();
+        const id = $('#navLinkId').val();
+        const payload = {
+            id: id ? Number(id) : null,
+            title: $.trim($('#navLinkTitle').val()),
+            url: $.trim($('#navLinkUrl').val()),
+            categoryId: Number($('#navLinkCategory').val()),
+            icon: $.trim($('#navLinkIcon').val()),
+            sortOrder: Number($('#navLinkSort').val() || 0),
+            status: Number($('#navLinkStatus').val()),
+            description: $.trim($('#navLinkDesc').val())
+        };
+        request('/backend/nav/link', {method: id ? 'PUT' : 'POST', body: payload}, function () {
+            navLinkModal.hide();
+            showToastSimple('链接已保存', MsgTypes.SUCCESS, Position.TopCenter);
+            loadNavLinks();
+        });
+    }
+
+    function deleteNavLink(id) {
+        showConfirm('删除链接', '确定删除该链接？', MsgTypes.WARNING, function () {
+            request('/backend/nav/link/' + encodeURIComponent(id), {method: 'DELETE'}, function () {
+                showToastSimple('链接已删除', MsgTypes.SUCCESS, Position.TopCenter);
+                loadNavLinks();
+            });
+        });
+    }
+
+    function toggleNavLinkStatus(id, status) {
+        const link = navLinks.find(function (item) {
+            return item.id === id;
+        });
+        if (!link) {
+            return;
+        }
+        const payload = Object.assign({}, link, {status: status});
+        request('/backend/nav/link', {method: 'PUT', body: payload}, function () {
+            link.status = status;
+            showToastSimple('链接状态已更新', MsgTypes.SUCCESS, Position.TopCenter);
+        }, loadNavLinks);
+    }
+
+    function renderStatusSwitch(type, id, status) {
+        const checked = Number(status) === 1 ? ' checked' : '';
+        return '<div class="form-check form-switch mb-0">' +
+            '<input class="form-check-input nav-status-' + type + '" type="checkbox" role="switch" data-id="' + id + '"' + checked + '>' +
+            '</div>';
+    }
+
+    function getNavCategoryName(categoryId) {
+        const category = navCategories.find(function (item) {
+            return String(item.id) === String(categoryId);
+        });
+        return category ? category.name : '';
+    }
+
+    function loadFamousQuotes() {
+        getRequest('/backend/data/famous-quotes', function (list) {
+            famousQuotes = list || [];
+            renderFamousQuotes();
+        });
+    }
+
+    function renderFamousQuotes() {
+        const rows = famousQuotes.map(function (item) {
+            return '<tr>' +
+                '<td>' + escapeHtml(item.id) + '</td>' +
+                '<td class="text-truncate-cell" title="' + escapeHtml(item.famous) + '">' + escapeHtml(item.famous) + '</td>' +
+                '<td>' + escapeHtml(item.weight) + '</td>' +
+                '<td>' + renderDataSwitch('famous-quote-fixed', item.id, item.fixedDisplay) + '</td>' +
+                '<td class="text-truncate-cell" title="' + escapeHtml(item.remark) + '">' + escapeHtml(item.remark) + '</td>' +
+                '<td class="text-end">' +
+                '<button class="btn btn-outline-light btn-sm me-2" onclick="openEditFamousQuoteModal(' + item.id + ')">编辑</button>' +
+                '<button class="btn btn-outline-danger btn-sm" onclick="deleteFamousQuote(' + item.id + ')">删除</button>' +
+                '</td>' +
+                '</tr>';
+        });
+        $('#famousQuoteTableBody').html(rows.join('') || '<tr><td colspan="6" class="text-center text-white-50">暂无数据</td></tr>');
+        $('.data-switch-famous-quote-fixed').on('change', function () {
+            toggleFamousQuoteFixed($(this).data('id'), this.checked);
+        });
+    }
+
+    function openAddFamousQuoteModal() {
+        $('#famousQuoteModalTitle').text('新增名言');
+        $('#famousQuoteForm')[0].reset();
+        $('#famousQuoteId').val('');
+        $('#famousQuoteWeight').val('1');
+        $('#famousQuoteFixedDisplay').prop('checked', false);
+        famousQuoteModal.show();
+    }
+
+    function openEditFamousQuoteModal(id) {
+        const item = famousQuotes.find(function (quote) {
+            return quote.id === id;
+        });
+        if (!item) {
+            return;
+        }
+        $('#famousQuoteModalTitle').text('编辑名言');
+        $('#famousQuoteId').val(item.id);
+        $('#famousQuoteFamous').val(item.famous || '');
+        $('#famousQuoteWeight').val(item.weight == null ? 1 : item.weight);
+        $('#famousQuoteFixedDisplay').prop('checked', Boolean(item.fixedDisplay));
+        $('#famousQuoteRemark').val(item.remark || '');
+        famousQuoteModal.show();
+    }
+
+    function saveFamousQuote(event) {
+        event.preventDefault();
+        const id = $('#famousQuoteId').val();
+        const payload = {
+            id: id ? Number(id) : null,
+            famous: $.trim($('#famousQuoteFamous').val()),
+            weight: Number($('#famousQuoteWeight').val() || 0),
+            fixedDisplay: $('#famousQuoteFixedDisplay').is(':checked'),
+            deleted: false,
+            remark: $.trim($('#famousQuoteRemark').val())
+        };
+        request('/backend/data/famous-quote', {method: id ? 'PUT' : 'POST', body: payload}, function () {
+            famousQuoteModal.hide();
+            showToastSimple('名言已保存', MsgTypes.SUCCESS, Position.TopCenter);
+            loadFamousQuotes();
+        });
+    }
+
+    function deleteFamousQuote(id) {
+        showConfirm('删除名言', '确定删除该名言？', MsgTypes.WARNING, function () {
+            request('/backend/data/famous-quote/' + encodeURIComponent(id), {method: 'DELETE'}, function () {
+                showToastSimple('名言已删除', MsgTypes.SUCCESS, Position.TopCenter);
+                loadFamousQuotes();
+            });
+        });
+    }
+
+    function toggleFamousQuoteFixed(id, fixedDisplay) {
+        const item = famousQuotes.find(function (quote) {
+            return quote.id === id;
+        });
+        if (!item) {
+            return;
+        }
+        request('/backend/data/famous-quote', {
+            method: 'PUT',
+            body: Object.assign({}, item, {fixedDisplay: fixedDisplay})
+        }, function () {
+            item.fixedDisplay = fixedDisplay;
+            showToastSimple('名言状态已更新', MsgTypes.SUCCESS, Position.TopCenter);
+        }, loadFamousQuotes);
+    }
+
+    function loadPromptMessages() {
+        getRequest('/backend/data/prompt-messages', function (list) {
+            promptMessages = list || [];
+            renderPromptMessages();
+        });
+    }
+
+    function renderPromptMessages() {
+        const rows = promptMessages.map(function (item) {
+            return '<tr>' +
+                '<td>' + escapeHtml(item.id) + '</td>' +
+                '<td class="text-truncate-cell" title="' + escapeHtml(item.message) + '">' + escapeHtml(item.message) + '</td>' +
+                '<td>' + escapeHtml(item.weight) + '</td>' +
+                '<td>' + renderDataSwitch('prompt-message-show-only', item.id, item.showOnly) + '</td>' +
+                '<td>' + escapeHtml(item.expirationTime) + '</td>' +
+                '<td class="text-truncate-cell" title="' + escapeHtml(item.remark) + '">' + escapeHtml(item.remark) + '</td>' +
+                '<td class="text-end">' +
+                '<button class="btn btn-outline-light btn-sm me-2" onclick="openEditPromptMessageModal(' + item.id + ')">编辑</button>' +
+                '<button class="btn btn-outline-danger btn-sm" onclick="deletePromptMessage(' + item.id + ')">删除</button>' +
+                '</td>' +
+                '</tr>';
+        });
+        $('#promptMessageTableBody').html(rows.join('') || '<tr><td colspan="7" class="text-center text-white-50">暂无数据</td></tr>');
+        $('.data-switch-prompt-message-show-only').on('change', function () {
+            togglePromptMessageShowOnly($(this).data('id'), this.checked);
+        });
+    }
+
+    function openAddPromptMessageModal() {
+        $('#promptMessageModalTitle').text('新增消息');
+        $('#promptMessageForm')[0].reset();
+        $('#promptMessageId').val('');
+        $('#promptMessageWeight').val('1');
+        $('#promptMessageShowOnly').prop('checked', false);
+        promptMessageModal.show();
+    }
+
+    function openEditPromptMessageModal(id) {
+        const item = promptMessages.find(function (message) {
+            return message.id === id;
+        });
+        if (!item) {
+            return;
+        }
+        $('#promptMessageModalTitle').text('编辑消息');
+        $('#promptMessageId').val(item.id);
+        $('#promptMessageMessage').val(item.message || '');
+        $('#promptMessageWeight').val(item.weight == null ? 1 : item.weight);
+        $('#promptMessageShowOnly').prop('checked', Boolean(item.showOnly));
+        $('#promptMessageExpirationTime').val(toDatetimeLocalValue(item.expirationTime));
+        $('#promptMessageRemark').val(item.remark || '');
+        promptMessageModal.show();
+    }
+
+    function savePromptMessage(event) {
+        event.preventDefault();
+        const id = $('#promptMessageId').val();
+        const payload = {
+            id: id ? Number(id) : null,
+            message: $.trim($('#promptMessageMessage').val()),
+            weight: Number($('#promptMessageWeight').val() || 0),
+            showOnly: $('#promptMessageShowOnly').is(':checked'),
+            expirationTime: $('#promptMessageExpirationTime').val() ? new Date($('#promptMessageExpirationTime').val()).getTime() : null,
+            deleted: false,
+            remark: $.trim($('#promptMessageRemark').val())
+        };
+        request('/backend/data/prompt-message', {method: id ? 'PUT' : 'POST', body: payload}, function () {
+            promptMessageModal.hide();
+            showToastSimple('提示消息已保存', MsgTypes.SUCCESS, Position.TopCenter);
+            loadPromptMessages();
+        });
+    }
+
+    function deletePromptMessage(id) {
+        showConfirm('删除提示消息', '确定删除该提示消息？', MsgTypes.WARNING, function () {
+            request('/backend/data/prompt-message/' + encodeURIComponent(id), {method: 'DELETE'}, function () {
+                showToastSimple('提示消息已删除', MsgTypes.SUCCESS, Position.TopCenter);
+                loadPromptMessages();
+            });
+        });
+    }
+
+    function togglePromptMessageShowOnly(id, showOnly) {
+        const item = promptMessages.find(function (message) {
+            return message.id === id;
+        });
+        if (!item) {
+            return;
+        }
+        request('/backend/data/prompt-message', {
+            method: 'PUT',
+            body: Object.assign({}, item, {showOnly: showOnly})
+        }, function () {
+            item.showOnly = showOnly;
+            showToastSimple('提示消息状态已更新', MsgTypes.SUCCESS, Position.TopCenter);
+        }, loadPromptMessages);
+    }
+
+    function loadInternalSystems() {
+        getRequest('/backend/data/internal-systems', function (list) {
+            internalSystems = list || [];
+            renderInternalSystems();
+        });
+    }
+
+    function renderInternalSystems() {
+        const rows = internalSystems.map(function (item) {
+            return '<tr>' +
+                '<td>' + escapeHtml(item.sysName) + '</td>' +
+                '<td>' + escapeHtml(item.sysDomain) + '</td>' +
+                '<td class="text-truncate-cell" title="' + escapeHtml(item.sysDescription) + '">' + escapeHtml(item.sysDescription) + '</td>' +
+                '<td>' + escapeHtml(item.sysStatus) + '</td>' +
+                '<td>' + escapeHtml(item.icon) + '</td>' +
+                '<td class="text-truncate-cell" title="' + escapeHtml(item.internetUrl) + '">' + escapeHtml(item.internetUrl) + '</td>' +
+                '<td class="text-truncate-cell" title="' + escapeHtml(item.internalUrl) + '">' + escapeHtml(item.internalUrl) + '</td>' +
+                '<td>' + escapeHtml(item.sort) + '</td>' +
+                '<td>' + renderDataSwitch('internal-system-disabled', item.id, item.disabled) + '</td>' +
+                '<td class="text-end">' +
+                '<button class="btn btn-outline-light btn-sm me-2" onclick="openEditInternalSystemModal(' + item.id + ')">编辑</button>' +
+                '<button class="btn btn-outline-danger btn-sm" onclick="deleteInternalSystem(' + item.id + ')">删除</button>' +
+                '</td>' +
+                '</tr>';
+        });
+        $('#internalSystemTableBody').html(rows.join('') || '<tr><td colspan="10" class="text-center text-white-50">暂无数据</td></tr>');
+        $('.data-switch-internal-system-disabled').on('change', function () {
+            toggleInternalSystemDisabled($(this).data('id'), this.checked);
+        });
+    }
+
+    function openAddInternalSystemModal() {
+        $('#internalSystemModalTitle').text('新增系统');
+        $('#internalSystemForm')[0].reset();
+        $('#internalSystemId').val('');
+        $('#internalSystemSort').val('0');
+        $('#internalSystemDisabled').val('0');
+        internalSystemModal.show();
+    }
+
+    function openEditInternalSystemModal(id) {
+        const item = internalSystems.find(function (system) {
+            return system.id === id;
+        });
+        if (!item) {
+            return;
+        }
+        $('#internalSystemModalTitle').text('编辑系统');
+        $('#internalSystemId').val(item.id);
+        $('#internalSystemSysName').val(item.sysName || '');
+        $('#internalSystemSysDomain').val(item.sysDomain || '');
+        $('#internalSystemSysDescription').val(item.sysDescription || '');
+        $('#internalSystemSysStatus').val(item.sysStatus || '');
+        $('#internalSystemIcon').val(item.icon || '');
+        $('#internalSystemInternetUrl').val(item.internetUrl || '');
+        $('#internalSystemOpenInternetUrl').val(item.openInternetUrl || '');
+        $('#internalSystemInternalUrl').val(item.internalUrl || '');
+        $('#internalSystemConfig').val(item.config || '');
+        $('#internalSystemSort').val(item.sort == null ? 0 : item.sort);
+        $('#internalSystemRemark').val(item.remark || '');
+        $('#internalSystemDisabled').val(item.disabled ? '1' : '0');
+        internalSystemModal.show();
+    }
+
+    function saveInternalSystem(event) {
+        event.preventDefault();
+        const id = $('#internalSystemId').val();
+        const payload = {
+            id: id ? Number(id) : null,
+            sysName: $.trim($('#internalSystemSysName').val()),
+            sysDomain: $.trim($('#internalSystemSysDomain').val()),
+            sysDescription: $.trim($('#internalSystemSysDescription').val()),
+            sysStatus: $.trim($('#internalSystemSysStatus').val()),
+            icon: $.trim($('#internalSystemIcon').val()),
+            internetUrl: $.trim($('#internalSystemInternetUrl').val()),
+            openInternetUrl: $.trim($('#internalSystemOpenInternetUrl').val()),
+            internalUrl: $.trim($('#internalSystemInternalUrl').val()),
+            config: $.trim($('#internalSystemConfig').val()),
+            sort: Number($('#internalSystemSort').val() || 0),
+            remark: $.trim($('#internalSystemRemark').val()),
+            disabled: $('#internalSystemDisabled').val() === '1',
+            deleted: false
+        };
+        request('/backend/data/internal-system', {method: id ? 'PUT' : 'POST', body: payload}, function () {
+            internalSystemModal.hide();
+            showToastSimple('内部系统已保存', MsgTypes.SUCCESS, Position.TopCenter);
+            loadInternalSystems();
+        });
+    }
+
+    function deleteInternalSystem(id) {
+        showConfirm('删除内部系统', '确定删除该内部系统配置？', MsgTypes.WARNING, function () {
+            request('/backend/data/internal-system/' + encodeURIComponent(id), {method: 'DELETE'}, function () {
+                showToastSimple('内部系统已删除', MsgTypes.SUCCESS, Position.TopCenter);
+                loadInternalSystems();
+            });
+        });
+    }
+
+    function toggleInternalSystemDisabled(id, disabled) {
+        const item = internalSystems.find(function (system) {
+            return system.id === id;
+        });
+        if (!item) {
+            return;
+        }
+        request('/backend/data/internal-system', {
+            method: 'PUT',
+            body: Object.assign({}, item, {disabled: disabled})
+        }, function () {
+            item.disabled = disabled;
+            showToastSimple('内部系统状态已更新', MsgTypes.SUCCESS, Position.TopCenter);
+        }, loadInternalSystems);
+    }
+
+    function loadOperationLogs() {
+        getRequest('/backend/data/operation-logs', function (list) {
+            const rows = (list || []).map(function (item) {
+                const status = Number(item.status) === 1
+                    ? '<span class="text-danger">异常</span>'
+                    : '<span class="text-success">正常</span>';
+                return '<tr>' +
+                    '<td>' + escapeHtml(item.operTime) + '</td>' +
+                    '<td>' + escapeHtml(item.operType) + '</td>' +
+                    '<td>' + escapeHtml(item.module) + '</td>' +
+                    '<td>' + escapeHtml(item.userId) + '</td>' +
+                    '<td>' + status + '</td>' +
+                    '<td class="text-truncate-cell" title="' + escapeHtml(item.remark) + '">' + escapeHtml(item.remark) + '</td>' +
+                    '</tr>';
+            });
+            $('#operationLogTableBody').html(rows.join('') || '<tr><td colspan="6" class="text-center text-white-50">暂无数据</td></tr>');
+        });
+    }
+
+    function loadSecurityLogs() {
+        getRequest('/backend/data/security-logs', function (list) {
+            const rows = (list || []).map(function (item) {
+                return '<tr>' +
+                    '<td>' + escapeHtml(item.operationTime) + '</td>' +
+                    '<td>' + escapeHtml(item.username) + '</td>' +
+                    '<td>' + escapeHtml(item.ipAddress) + '</td>' +
+                    '<td>' + escapeHtml(item.operationType) + '</td>' +
+                    '<td>' + escapeHtml(item.operationResult) + '</td>' +
+                    '<td>' + escapeHtml(item.httpMethod) + '</td>' +
+                    '<td class="text-truncate-cell" title="' + escapeHtml(item.requestUrl) + '">' + escapeHtml(item.requestUrl) + '</td>' +
+                    '</tr>';
+            });
+            $('#securityLogTableBody').html(rows.join('') || '<tr><td colspan="7" class="text-center text-white-50">暂无数据</td></tr>');
+        });
+    }
+
+    function loadSysLogs() {
+        getRequest('/backend/data/sys-logs', function (list) {
+            const rows = (list || []).map(function (item) {
+                return '<tr>' +
+                    '<td>' + escapeHtml(item.sysTime) + '</td>' +
+                    '<td>' + escapeHtml(item.operatorName || item.operatorId) + '</td>' +
+                    '<td>' + escapeHtml(item.logType) + '</td>' +
+                    '<td class="text-truncate-cell" title="' + escapeHtml(item.content) + '">' + escapeHtml(item.content) + '</td>' +
+                    '<td>' + escapeHtml(item.ip) + '</td>' +
+                    '</tr>';
+            });
+            $('#sysLogTableBody').html(rows.join('') || '<tr><td colspan="5" class="text-center text-white-50">暂无数据</td></tr>');
+        });
+    }
+
+    function renderDataSwitch(type, id, value) {
+        const checked = value ? ' checked' : '';
+        return '<div class="form-check form-switch mb-0">' +
+            '<input class="form-check-input data-switch-' + type + '" type="checkbox" role="switch" data-id="' + id + '"' + checked + '>' +
+            '</div>';
+    }
+
+    function toDatetimeLocalValue(value) {
+        if (!value) {
+            return '';
+        }
+        if (typeof value === 'number' || /^\d+$/.test(String(value))) {
+            const date = new Date(Number(value));
+            const pad = function (number) {
+                return number < 10 ? '0' + number : String(number);
+            };
+            return date.getFullYear() + '-' + pad(date.getMonth() + 1) + '-' + pad(date.getDate()) +
+                'T' + pad(date.getHours()) + ':' + pad(date.getMinutes());
+        }
+        return String(value).replace(' ', 'T').substring(0, 16);
+    }
+
+    function escapeHtml(value) {
+        if (value === null || value === undefined) {
+            return '';
+        }
+        return String(value)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }

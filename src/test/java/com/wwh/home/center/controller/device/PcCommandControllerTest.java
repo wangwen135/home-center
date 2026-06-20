@@ -1,7 +1,7 @@
 package com.wwh.home.center.controller.device;
 
 import com.wwh.home.center.dao.mapper.PcDeviceMapper;
-import com.wwh.home.center.device.tools.SimpleSocketSender;
+import com.wwh.home.center.device.agent.AgentConnectionManager;
 import com.wwh.home.center.model.CmdResult;
 import com.wwh.home.center.model.common.ApiResponse;
 import com.wwh.home.center.model.entity.PcDevice;
@@ -24,16 +24,16 @@ import static org.mockito.Mockito.when;
 class PcCommandControllerTest {
 
     private PcDeviceMapper pcDeviceMapper;
-    private SimpleSocketSender simpleSocketSender;
+    private AgentConnectionManager agentConnectionManager;
     private PcCommandController controller;
 
     @BeforeEach
     void 初始化控制器依赖() {
         pcDeviceMapper = mock(PcDeviceMapper.class);
-        simpleSocketSender = mock(SimpleSocketSender.class);
+        agentConnectionManager = mock(AgentConnectionManager.class);
         controller = new PcCommandController();
         ReflectionTestUtils.setField(controller, "pcDeviceMapper", pcDeviceMapper);
-        ReflectionTestUtils.setField(controller, "simpleSocketSender", simpleSocketSender);
+        ReflectionTestUtils.setField(controller, "agentConnectionManager", agentConnectionManager);
         ReflectionTestUtils.setField(controller, "defaultCommandTimeoutSeconds", 30);
     }
 
@@ -48,14 +48,14 @@ class PcCommandControllerTest {
         cmdResult.setSuccess(true);
         cmdResult.setExitCode(0);
         when(pcDeviceMapper.selectById(1L)).thenReturn(device);
-        when(simpleSocketSender.executeCommand(device, "dir", 5)).thenReturn(cmdResult);
+        when(agentConnectionManager.executeCommand(device, "dir", 5)).thenReturn(cmdResult);
 
         ApiResponse<CmdResult> response = controller.executeCommand(1L, request);
 
         assertEquals("success", response.getStatus());
         assertEquals("命令执行完成", response.getMessage());
         assertSame(cmdResult, response.getData());
-        verify(simpleSocketSender).executeCommand(device, "dir", 5);
+        verify(agentConnectionManager).executeCommand(device, "dir", 5);
     }
 
     @Test
@@ -64,12 +64,12 @@ class PcCommandControllerTest {
         PcCommandRequest request = new PcCommandRequest();
         request.setCommand("whoami");
         when(pcDeviceMapper.selectById(2L)).thenReturn(device);
-        when(simpleSocketSender.executeCommand(eq(device), eq("whoami"), eq(30))).thenReturn(new CmdResult());
+        when(agentConnectionManager.executeCommand(eq(device), eq("whoami"), eq(30))).thenReturn(new CmdResult());
 
         ApiResponse<CmdResult> response = controller.executeCommand(2L, request);
 
         assertEquals("success", response.getStatus());
-        verify(simpleSocketSender).executeCommand(device, "whoami", 30);
+        verify(agentConnectionManager).executeCommand(device, "whoami", 30);
     }
 
     @Test
@@ -82,7 +82,7 @@ class PcCommandControllerTest {
         assertEquals("error", response.getStatus());
         assertEquals("命令不能为空", response.getMessage());
         verify(pcDeviceMapper, never()).selectById(1L);
-        verify(simpleSocketSender, never()).executeCommand(eq(enabledDevice()), eq(""), eq(1));
+        verify(agentConnectionManager, never()).executeCommand(eq(enabledDevice()), eq(""), eq(1));
     }
 
     @Test
@@ -97,7 +97,7 @@ class PcCommandControllerTest {
 
         assertEquals("error", response.getStatus());
         assertEquals("设备不存在或已禁用", response.getMessage());
-        verify(simpleSocketSender, never()).executeCommand(eq(disabled), eq("dir"), eq(30));
+        verify(agentConnectionManager, never()).executeCommand(eq(disabled), eq("dir"), eq(30));
     }
 
     @Test
@@ -106,7 +106,7 @@ class PcCommandControllerTest {
         PcCommandRequest request = new PcCommandRequest();
         request.setCommand("dir");
         when(pcDeviceMapper.selectById(4L)).thenReturn(device);
-        when(simpleSocketSender.executeCommand(device, "dir", 30)).thenThrow(new IOException("连接失败"));
+        when(agentConnectionManager.executeCommand(device, "dir", 30)).thenThrow(new IOException("连接失败"));
 
         ApiResponse<CmdResult> response = controller.executeCommand(4L, request);
 
@@ -118,7 +118,6 @@ class PcCommandControllerTest {
         PcDevice device = new PcDevice();
         device.setId(1L);
         device.setIpAddress("127.0.0.1");
-        device.setSocketPort(9000);
         device.setStatus(1);
         return device;
     }

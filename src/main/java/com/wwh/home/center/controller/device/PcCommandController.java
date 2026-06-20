@@ -1,7 +1,7 @@
 package com.wwh.home.center.controller.device;
 
 import com.wwh.home.center.dao.mapper.PcDeviceMapper;
-import com.wwh.home.center.device.tools.SimpleSocketSender;
+import com.wwh.home.center.device.agent.AgentConnectionManager;
 import com.wwh.home.center.model.CmdResult;
 import com.wwh.home.center.model.common.ApiResponse;
 import com.wwh.home.center.model.entity.PcDevice;
@@ -21,7 +21,7 @@ public class PcCommandController {
     private PcDeviceMapper pcDeviceMapper;
 
     @Autowired
-    private SimpleSocketSender simpleSocketSender;
+    private AgentConnectionManager agentConnectionManager;
 
     @Value("${agent.command-timeout-seconds:30}")
     private int defaultCommandTimeoutSeconds;
@@ -43,7 +43,7 @@ public class PcCommandController {
             int timeoutSeconds = request.getTimeoutSeconds() == null
                     ? defaultCommandTimeoutSeconds
                     : request.getTimeoutSeconds();
-            CmdResult result = simpleSocketSender.executeCommand(device, request.getCommand(), timeoutSeconds);
+            CmdResult result = agentConnectionManager.executeCommand(device, request.getCommand(), timeoutSeconds);
             return ApiResponse.success("命令执行完成", result);
         } catch (Exception e) {
             log.error("执行PC远程命令失败: deviceId={}", deviceId, e);

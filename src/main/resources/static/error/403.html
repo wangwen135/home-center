@@ -4,24 +4,30 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>403</title>
-    <link rel="stylesheet" href="/css/app-theme.css?v=20260614-theme-icon">
-    <script src="/js/app-theme.js?v=20260614-theme-icon"></script>
+    <link rel="stylesheet" href="/css/app-theme.css?v=20260620-error">
+    <link rel="stylesheet" href="/css/notion-theme.css?v=20260620-error">
+    <script src="/js/app-theme.js?v=20260620-error"></script>
 </head>
-<body class="hc-app">
-<main class="hc-shell hc-stack">
-    <section class="hc-topbar">
-        <div class="hc-title-block">
-            <p class="hc-eyebrow">403</p>
-            <h1 class="hc-title">请求被拒绝</h1>
-            <p class="hc-subtitle">权限不足，请检查您的身份验证凭据。</p>
-        </div>
-        <div class="hc-actions">
-            <button class="hc-theme-toggle" type="button" aria-label="切换深浅色主题">
-                <span class="hc-theme-toggle-icon" aria-hidden="true"></span>
-                <span data-theme-toggle-text>深色</span>
-            </button>
-            <a class="hc-button" href="/login.html">重新登录</a>
-        </div>
+<body class="hc-app hc-notion-page">
+<main class="hc-notion-shell hc-notion-stack">
+    <section class="hc-notion-auth-shell">
+        <section class="hc-notion-panel">
+            <div class="hc-notion-toolbar">
+                <span class="hc-notion-badge danger">403</span>
+                <div class="hc-notion-actions">
+                    <button class="hc-theme-toggle" type="button" aria-label="切换深浅色主题">
+                        <span class="hc-theme-toggle-icon" aria-hidden="true"></span>
+                        <span data-theme-toggle-text>深色</span>
+                    </button>
+                </div>
+            </div>
+            <h1 class="hc-notion-title">请求被拒绝</h1>
+            <p class="hc-notion-subtitle">当前账号没有访问该页面的权限。请检查登录身份，或重新使用有权限的账号进入。</p>
+            <div class="hc-notion-actions">
+                <a class="hc-button hc-button-primary" href="/login.html">重新登录</a>
+                <a class="hc-button" href="/">返回导航</a>
+            </div>
+        </section>
     </section>
 </main>
 </body>

@@ -18,13 +18,21 @@ public class PcDevice {
 
     private String description;
 
+    private String agentId;
+
     private String ipAddress;
 
     private String macAddress;
 
-    private Integer socketPort;
+    private String hostname;
+
+    private String osName;
+
+    private String agentVersion;
 
     private Integer status;
+
+    private LocalDateTime lastSeenTime;
 
     private LocalDateTime createTime;
 

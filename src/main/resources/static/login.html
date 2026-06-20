@@ -4,199 +4,114 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>登录</title>
-    <link rel="stylesheet" href="/css/app-theme.css?v=20260614-back-label">
-    <script src="/js/app-theme.js?v=20260614-back-label"></script>
-    <style>
-        .login-page {
-            min-height: 100vh;
-            display: grid;
-            grid-template-rows: auto 1fr auto;
-            overflow-x: hidden;
-        }
-
-        #bg-canvas {
-            position: fixed;
-            inset: 0;
-            z-index: 0;
-            width: 100%;
-            height: 100%;
-        }
-
-        .login-header,
-        .login-footer {
-            position: relative;
-            z-index: 2;
-            width: min(100% - 32px, 1120px);
-            margin: 0 auto;
-            padding: 22px 0;
-        }
-
-        .login-header {
-            display: flex;
-            justify-content: center;
-        }
-
-        .login-brand {
-            margin: 0;
-            color: var(--hc-text);
-            font-size: 36px;
-            font-weight: 800;
-            line-height: 1.12;
-            letter-spacing: 0;
-            text-shadow: 0 0 28px var(--hc-soft-accent);
-        }
-
-        .login-back-link {
-            position: fixed;
-            top: 16px;
-            left: 16px;
-            z-index: 1095;
-            width: auto;
-            min-width: 40px;
-            height: 40px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            padding: 0 14px 0 12px;
-            border: 1px solid var(--hc-line);
-            border-radius: 8px;
-            background: var(--hc-surface-strong);
-            color: var(--hc-text);
-            font-size: 14px;
-            font-weight: 800;
-            line-height: 1;
-            text-decoration: none;
-            box-shadow: var(--hc-shadow-soft);
-            transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease, background 0.18s ease;
-        }
-
-        .login-back-link:hover {
-            border-color: rgba(37, 99, 235, 0.32);
-            box-shadow: 0 16px 42px rgba(37, 99, 235, 0.18);
-            color: var(--hc-text);
-            transform: translateY(-2px);
-        }
-
-        .login-back-icon {
-            font-size: 18px;
-            line-height: 1;
-        }
-
-        .login-back-text {
-            white-space: nowrap;
-        }
-
-        .login-main {
-            position: relative;
-            z-index: 2;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 24px 16px;
-        }
-
-        .login-card {
-            width: min(380px, 100%);
-            padding: 26px;
-        }
-
-        .login-card h1 {
-            margin: 0 0 20px;
-            font-size: 24px;
-            line-height: 1.35;
-        }
-
-        .login-form {
-            display: grid;
-            gap: 16px;
-        }
-
-        .login-footer {
-            position: fixed;
-            z-index: 2;
-            left: 0;
-            right: 0;
-            bottom: 10px;
-            width: auto;
-            padding: 0;
-            color: var(--hc-muted);
-            font-size: 12px;
-            text-align: center;
-            pointer-events: none;
-        }
-
-        @media (max-width: 768px) {
-            .login-brand {
-                font-size: 28px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .login-brand {
-                font-size: 24px;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="/css/app-theme.css?v=20260620-login">
+    <link rel="stylesheet" href="/css/notion-theme.css?v=20260620-login">
+    <script src="/js/app-theme.js?v=20260620-login"></script>
 </head>
-<body class="hc-app login-page">
-<canvas id="bg-canvas" aria-hidden="true"></canvas>
-<a class="login-back-link" href="/" title="返回导航页" aria-label="返回导航页">
-    <span class="login-back-icon" aria-hidden="true">⌂</span>
-    <span class="login-back-text">返回导航页</span>
-</a>
-<header class="login-header hc-actions">
-    <strong class="login-brand">Home Center</strong>
-    <button class="hc-theme-toggle" type="button" aria-label="切换深浅色主题">
-        <span class="hc-theme-toggle-icon" aria-hidden="true"></span>
-        <span data-theme-toggle-text>深色</span>
-    </button>
-</header>
+<body class="hc-app hc-notion-page">
+<main class="hc-notion-shell hc-notion-stack">
+    <section class="hc-notion-auth-shell">
+        <a class="hc-notion-back-link" href="/" title="返回导航页" aria-label="返回导航页">
+            <span aria-hidden="true">←</span>
+            <span>返回导航页</span>
+        </a>
+        <div class="hc-notion-actions" style="justify-content:flex-end; margin-bottom:12px;">
+            <button class="hc-theme-toggle" type="button" aria-label="切换深浅色主题">
+                <span class="hc-theme-toggle-icon" aria-hidden="true"></span>
+                <span data-theme-toggle-text>深色</span>
+            </button>
+        </div>
 
-<main class="login-main">
-    <section class="hc-panel login-card">
-        <p class="hc-eyebrow">Sign In</p>
-        <h1>用户登录</h1>
-        <form class="login-form" onsubmit="return login()">
-            <label>
-                <span class="hc-form-label">用户名</span>
-                <input type="text" class="hc-input" id="username" name="username" required>
-            </label>
-            <label>
-                <span class="hc-form-label">密码</span>
-                <input type="password" class="hc-input" id="password" name="password" required>
-            </label>
-            <button type="submit" class="hc-button hc-button-primary">登录</button>
-        </form>
+        <section class="hc-notion-panel">
+            <div class="hc-notion-toolbar">
+                <div>
+                    <p class="hc-notion-kicker">Sign In</p>
+                    <h1 class="hc-notion-title">登录 Home Center</h1>
+                    <p class="hc-notion-subtitle">使用现有账号进入管理入口、设备控制和后台配置页面。</p>
+                </div>
+            </div>
+
+            <form id="loginForm" class="hc-notion-grid" novalidate>
+                <label>
+                    <span class="hc-form-label">用户名</span>
+                    <input type="text" class="hc-input" id="username" name="username" autocomplete="username" required>
+                </label>
+                <label>
+                    <span class="hc-form-label">密码</span>
+                    <input type="password" class="hc-input" id="password" name="password" autocomplete="current-password" required>
+                </label>
+                <div id="loginFeedback" class="hc-notion-feedback" hidden></div>
+                <div class="hc-notion-actions">
+                    <button id="loginSubmit" type="submit" class="hc-button hc-button-primary">登录</button>
+                </div>
+            </form>
+        </section>
+
+        <p class="hc-notion-footer">© Home Center | Auth wwh</p>
     </section>
 </main>
 
-<footer class="login-footer" role="contentinfo">© Home Center | Auth wwh</footer>
-
 <script>
-    function login() {
-        var formData = new FormData();
-        formData.append('username', document.getElementById('username').value);
-        formData.append('password', document.getElementById('password').value);
+    (function () {
+        var form = document.getElementById('loginForm');
+        var submitButton = document.getElementById('loginSubmit');
+        var feedback = document.getElementById('loginFeedback');
 
-        window.HomeCenter.request('/login', {
-            method: 'POST',
-            body: formData
-        }).then(function (result) {
-            if (result.code === 200) {
-                sessionStorage.setItem('token', result.data);
-                var ref = new URLSearchParams(window.location.search).get('ref');
-                window.location.href = ref && ref.length > 8 ? ref : '/admin.html';
+        function setBusy(busy) {
+            submitButton.disabled = busy;
+            submitButton.textContent = busy ? '登录中...' : '登录';
+        }
+
+        function showFeedback(message, error) {
+            feedback.hidden = !message;
+            feedback.textContent = message || '';
+            feedback.classList.toggle('error', Boolean(error));
+        }
+
+        function resolveRedirectRef() {
+            var ref = new URLSearchParams(window.location.search).get('ref');
+            if (!ref || ref.charAt(0) !== '/' || ref.indexOf('//') === 0) {
+                return '/admin.html';
+            }
+            if (ref.indexOf('/login.html') === 0) {
+                return '/admin.html';
+            }
+            return ref;
+        }
+
+        form.addEventListener('submit', function (event) {
+            var username = document.getElementById('username').value.trim();
+            var password = document.getElementById('password').value;
+            var formData;
+
+            event.preventDefault();
+            if (!username || !password) {
+                showFeedback('请输入用户名和密码。', true);
                 return;
             }
-            window.HomeCenter.toast(result.message || '登录失败', 'error');
-        }).catch(function () {
-            window.HomeCenter.toast('发生错误，请稍后重试', 'error');
-        });
 
-        return false;
-    }
+            formData = new FormData();
+            formData.append('username', username);
+            formData.append('password', password);
+
+            setBusy(true);
+            showFeedback('');
+            window.HomeCenter.request('/login', {
+                method: 'POST',
+                body: formData
+            }).then(function (result) {
+                if (result.code !== 200) {
+                    throw new Error(result.message || '登录失败');
+                }
+                window.location.href = resolveRedirectRef();
+            }).catch(function (error) {
+                showFeedback(error.message || '发生错误，请稍后重试。', true);
+                window.HomeCenter.toast(error.message || '登录失败', 'error');
+            }).finally(function () {
+                setBusy(false);
+            });
+        });
+    })();
 </script>
-<script src="/js/bg-particles.js?v=20260614-login-bg"></script>
 </body>
 </html>
