@@ -6,11 +6,14 @@ import com.wwh.home.center.model.entity.InternalSystemConfig;
 import com.wwh.home.center.model.entity.SysPermission;
 import com.wwh.home.center.model.entity.SysRole;
 import com.wwh.home.center.model.entity.UserInfo;
+import com.wwh.home.center.model.qo.UserProfileRequest;
 import com.wwh.home.center.model.vo.InternalSystemConfigVo;
 import com.wwh.home.center.model.vo.SysPermissionVo;
 import com.wwh.home.center.model.vo.SysRoleVo;
 import com.wwh.home.center.model.vo.UserInfoVo;
+import com.wwh.home.center.security.TokenManager;
 import com.wwh.home.center.security.UserContextHolder;
+import com.wwh.home.center.service.ImageService;
 import com.wwh.home.center.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -19,10 +22,13 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.constraints.NotEmpty;
 import java.util.ArrayList;
@@ -43,6 +49,9 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private ImageService imageService;
 
     @ApiOperation("获取登录用户信息")
     @GetMapping("/info")
@@ -110,6 +119,34 @@ public class UserController {
     public Result<Void> changePassword(@RequestParam @NotEmpty(message = "旧密码不能为空") String oldPassword,
                                        @RequestParam @NotEmpty(message = "新密码不能为空") String newPassword) {
         userService.changePassword(oldPassword, newPassword);
+        return Result.success();
+    }
+
+    @ApiOperation("上传/更新当前登录用户的头像")
+    @PostMapping("/avatar")
+    public Result<String> uploadAvatar(@RequestParam("file") MultipartFile file) {
+        Integer userId = UserContextHolder.isLoggedIn();
+        // 落盘并拿到相对路径
+        String relativePath = imageService.upload(file);
+        // 写库
+        userService.updateAvatar(userId, relativePath);
+        // 同步刷新登录态缓存，避免重新登录才看到新头像
+        TokenManager.refreshUserInfo(userId, info -> info.setAvatar(relativePath));
+        return Result.success(ImgUtils.formatImagePath(relativePath));
+    }
+
+    @ApiOperation("当前登录用户修改自己的资料")
+    @PutMapping("/profile")
+    public Result<Void> updateProfile(@RequestBody UserProfileRequest request) {
+        Integer userId = UserContextHolder.isLoggedIn();
+        userService.updateProfile(userId, request);
+        // 同步刷新缓存中的资料字段
+        TokenManager.refreshUserInfo(userId, info -> {
+            info.setNickname(request.getNickname());
+            info.setGender(request.getGender());
+            info.setPhone(request.getPhone());
+            info.setEmail(request.getEmail());
+        });
         return Result.success();
     }
 }

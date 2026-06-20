@@ -40,6 +40,8 @@ public class LoginInterceptor implements HandlerInterceptor {
     private static final List<String> WHITE_LIST = Arrays.asList("/", "/index.html",
             "/css/**", "/js/**",
             "/login", "/logout", "/preLogin", "/login.html", "/favicon.ico", "/error", "/user/changePassword",
+            "/user/avatar", "/user/profile",
+            "/common/img/view/**",
             "/admin/manage.html", "/api/screenshot", "/api/version", "/api/download/latest", "/api/nav/**");
 
     @Override

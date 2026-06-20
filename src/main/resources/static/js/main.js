@@ -123,9 +123,10 @@
             img.alt = '';
             icon.appendChild(img);
         } else {
-            icon.style.background = hashColor(link.icon || titleText);
+            var emojiText = normalizeText(link.iconEmoji);
+            icon.style.background = hashColor(emojiText || titleText);
             icon.style.color = '#10384f';
-            icon.textContent = makeText(link.icon || titleText);
+            icon.textContent = makeText(emojiText || titleText);
         }
         icon.setAttribute('aria-hidden', 'true');
 
@@ -197,6 +198,7 @@
             link.description,
             link.url,
             link.icon,
+            link.iconEmoji,
             category && category.name,
             category && category.icon
         ].map(function (value) {

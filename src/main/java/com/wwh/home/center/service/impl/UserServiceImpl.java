@@ -13,6 +13,7 @@ import com.wwh.home.center.dao.mapper.UserRoleMapper;
 import com.wwh.home.center.model.entity.SysRole;
 import com.wwh.home.center.model.entity.UserInfo;
 import com.wwh.home.center.model.entity.UserRole;
+import com.wwh.home.center.model.qo.UserProfileRequest;
 import com.wwh.home.center.model.qo.UserQuery;
 import com.wwh.home.center.model.vo.UserInfoVo;
 import com.wwh.home.center.security.UserContextHolder;
@@ -314,6 +315,31 @@ public class UserServiceImpl implements UserService {
         update.setUpdateBy(UserContextHolder.getUserId());
         update.setUpdateTime(LocalDateTime.now());
         userInfoMapper.updateById(update);
+    }
+
+    @Override
+    public void updateProfile(Integer userId, UserProfileRequest request) {
+        UserInfo update = new UserInfo();
+        update.setId(userId);
+        update.setNickname(request.getNickname());
+        update.setGender(request.getGender());
+        update.setPhone(request.getPhone());
+        update.setEmail(request.getEmail());
+        update.setUpdateBy(UserContextHolder.getUserId());
+        update.setUpdateTime(LocalDateTime.now());
+        userInfoMapper.updateById(update);
+        log.info("用户修改个人资料成功，userId={}", userId);
+    }
+
+    @Override
+    public void updateAvatar(Integer userId, String avatar) {
+        UserInfo update = new UserInfo();
+        update.setId(userId);
+        update.setAvatar(avatar);
+        update.setUpdateBy(UserContextHolder.getUserId());
+        update.setUpdateTime(LocalDateTime.now());
+        userInfoMapper.updateById(update);
+        log.info("用户更新头像成功，userId={}", userId);
     }
 
     @Override
