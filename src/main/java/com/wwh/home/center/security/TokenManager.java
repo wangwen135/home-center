@@ -69,6 +69,10 @@ public class TokenManager {
      */
     public static String generateToken(LoggedUserAllInfo userAllInfo) {
         Assert.notNull(userAllInfo, "用户相关信息不能为空");
+        UserInfo userInfo = userAllInfo.getUserInfo();
+        if (userInfo != null) {
+            removeTokensByUserId(userInfo.getId(), "NEW_LOGIN");
+        }
 
         String token = UUID.randomUUID().toString().replace("-", "");
         long expirationTime = System.currentTimeMillis() + TOKEN_EXPIRATION_TIME_MS;
@@ -102,7 +106,13 @@ public class TokenManager {
         }
         TokenInfo tokenInfo = tokenMap.get(token);
         if (tokenInfo != null) {
-            tokenInfo.setExpirationTime(System.currentTimeMillis() + TOKEN_EXPIRATION_TIME_MS);
+            long currentTime = System.currentTimeMillis();
+            if (!isAlive(tokenInfo, currentTime)) {
+                tokenMap.remove(token);
+                return;
+            }
+            long maxExpireAt = tokenInfo.getCreateTime() + TOKEN_MAX_LIVE_TIME_MS;
+            tokenInfo.setExpirationTime(Math.min(currentTime + TOKEN_EXPIRATION_TIME_MS, maxExpireAt));
         }
     }
 
@@ -114,7 +124,14 @@ public class TokenManager {
      */
     public static boolean isValidToken(String token) {
         TokenInfo tokenInfo = tokenMap.get(token);
-        return tokenInfo != null && tokenInfo.getExpirationTime() > System.currentTimeMillis();
+        if (tokenInfo == null) {
+            return false;
+        }
+        if (!isAlive(tokenInfo, System.currentTimeMillis())) {
+            tokenMap.remove(token);
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -128,8 +145,27 @@ public class TokenManager {
             return null;
         }
         TokenInfo tokenInfo = tokenMap.get(token);
-        return (tokenInfo != null && tokenInfo.getExpirationTime() > System.currentTimeMillis()) ? tokenInfo.getUserAllInfo() :
-                null;
+        if (tokenInfo == null) {
+            return null;
+        }
+        if (!isAlive(tokenInfo, System.currentTimeMillis())) {
+            tokenMap.remove(token);
+            return null;
+        }
+        return tokenInfo.getUserAllInfo();
+    }
+
+    public static void removeTokensByUserId(Integer userId, String reason) {
+        if (userId == null) {
+            return;
+        }
+        tokenMap.forEach((token, tokenInfo) -> {
+            UserInfo userInfo = tokenInfo.getUserAllInfo().getUserInfo();
+            if (userInfo != null && userId.equals(userInfo.getId())) {
+                tokenMap.remove(token);
+                log.info("移除用户会话：userId={}, reason={}", userId, reason);
+            }
+        });
     }
 
     /**
@@ -174,6 +210,11 @@ public class TokenManager {
                 }
             });
         });
+    }
+
+    private static boolean isAlive(TokenInfo tokenInfo, long currentTime) {
+        return currentTime < tokenInfo.getExpirationTime()
+                && currentTime < tokenInfo.getCreateTime() + TOKEN_MAX_LIVE_TIME_MS;
     }
 
     private static class TokenInfo {

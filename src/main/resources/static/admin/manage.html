@@ -733,9 +733,13 @@
                             <thead>
                             <tr>
                                 <th>名称</th>
-                                <th>IP</th>
-                                <th>端口</th>
-                                <th>MAC</th>
+                                <th>在线</th>
+                                <th>最后连接 IP</th>
+                                <th>Agent ID</th>
+                                <th>主机</th>
+                                <th>Agent 版本</th>
+                                <th>最后在线</th>
+                                <th>主 MAC / WOL MAC</th>
                                 <th>状态</th>
                                 <th class="text-end">操作</th>
                             </tr>
@@ -1120,15 +1124,19 @@
                     <input class="form-control" id="deviceName" required>
                 </div>
                 <div class="mb-3">
-                    <label class="form-label" for="deviceIp">IP</label>
-                    <input class="form-control" id="deviceIp" required>
+                    <label class="form-label" for="deviceIp">最后连接 IP</label>
+                    <input class="form-control" id="deviceIp">
                 </div>
                 <div class="mb-3">
-                    <label class="form-label" for="devicePort">端口</label>
-                    <input class="form-control" id="devicePort" type="number" min="1">
+                    <label class="form-label" for="deviceAgentId">Agent ID</label>
+                    <input class="form-control" id="deviceAgentId">
                 </div>
                 <div class="mb-3">
-                    <label class="form-label" for="deviceMac">MAC</label>
+                    <label class="form-label" for="deviceHostname">主机名</label>
+                    <input class="form-control" id="deviceHostname">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="deviceMac">主 MAC / WOL MAC</label>
                     <input class="form-control" id="deviceMac">
                 </div>
                 <div class="mb-3">
@@ -1915,10 +1923,15 @@
     function renderDevices() {
         const rows = devices.map(function (device) {
             const status = Number(device.status) === 1 ? '<span style="color:var(--success)">启用</span>' : '<span style="color:var(--danger)">停用</span>';
+            const online = device.online ? '<span style="color:var(--success)">在线</span>' : '<span style="color:var(--muted)">离线</span>';
             return '<tr>' +
                 '<td>' + escapeHtml(device.name) + '</td>' +
+                '<td>' + online + '</td>' +
                 '<td>' + escapeHtml(device.ipAddress) + '</td>' +
-                '<td>' + escapeHtml(device.socketPort) + '</td>' +
+                '<td>' + escapeHtml(device.agentId) + '</td>' +
+                '<td>' + escapeHtml(device.hostname) + '</td>' +
+                '<td>' + escapeHtml(device.agentVersion) + '</td>' +
+                '<td>' + escapeHtml(device.lastSeenTime) + '</td>' +
                 '<td>' + escapeHtml(device.macAddress) + '</td>' +
                 '<td>' + status + '</td>' +
                 '<td class="text-end">' +
@@ -1927,7 +1940,7 @@
                 '</td>' +
                 '</tr>';
         });
-        $('#deviceTableBody').html(rows.join('') || '<tr><td colspan="6" class="text-center text-white-50">暂无数据</td></tr>');
+        $('#deviceTableBody').html(rows.join('') || '<tr><td colspan="9" class="text-center text-white-50">暂无数据</td></tr>');
     }
 
     function openAddDeviceModal() {
@@ -1949,7 +1962,8 @@
         $('#deviceId').val(device.id);
         $('#deviceName').val(device.name || '');
         $('#deviceIp').val(device.ipAddress || '');
-        $('#devicePort').val(device.socketPort || '');
+        $('#deviceAgentId').val(device.agentId || '');
+        $('#deviceHostname').val(device.hostname || '');
         $('#deviceMac').val(device.macAddress || '');
         $('#deviceStatus').val(String(device.status == null ? 1 : device.status));
         $('#deviceDesc').val(device.description || '');
@@ -1963,7 +1977,8 @@
             id: id ? Number(id) : null,
             name: $.trim($('#deviceName').val()),
             ipAddress: $.trim($('#deviceIp').val()),
-            socketPort: $('#devicePort').val() ? Number($('#devicePort').val()) : null,
+            agentId: $.trim($('#deviceAgentId').val()),
+            hostname: $.trim($('#deviceHostname').val()),
             macAddress: $.trim($('#deviceMac').val()),
             status: Number($('#deviceStatus').val()),
             description: $.trim($('#deviceDesc').val())

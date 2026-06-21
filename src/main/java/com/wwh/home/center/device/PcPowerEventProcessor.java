@@ -83,6 +83,23 @@ public class PcPowerEventProcessor {
         }
     }
 
+    public void handleRestart(Long deviceId) throws Exception {
+        PcDevice device = pcDeviceMapper.selectById(deviceId);
+        if (device == null || device.getStatus() != 1) {
+            throw new IllegalArgumentException("设备不存在或已禁用");
+        }
+
+        try {
+            String response = agentConnectionManager.sendCommand(device, "restart", 30);
+            log.info("## 已发送重启指令到设备: {}, IP: {}, 响应: {}",
+                    device.getName(), device.getIpAddress(), response);
+        } catch (Exception e) {
+            String error = String.format("发送重启指令到设备[%s]异常：%s", device.getName(), e.getMessage());
+            log.error(error, e);
+            throw new RuntimeException(error, e);
+        }
+    }
+
     /**
      * 异步启动指定电脑
      */
@@ -105,6 +122,16 @@ public class PcPowerEventProcessor {
                 handlePowerOff(deviceId);
             } catch (Exception e) {
                 log.error("异步关闭设备[{}]异常", deviceId, e);
+            }
+        });
+    }
+
+    public void handleRestartAsync(Long deviceId) {
+        CompletableFuture.runAsync(() -> {
+            try {
+                handleRestart(deviceId);
+            } catch (Exception e) {
+                log.error("异步重启设备[{}]异常", deviceId, e);
             }
         });
     }

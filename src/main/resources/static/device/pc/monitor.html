@@ -282,6 +282,11 @@
         var terminalDevice = null;
         var terminalLines = [];
         var terminalLoading = false;
+        var devicePermissions = {
+            webShell: false,
+            screenshot: false,
+            power: false
+        };
         var commandHistory = [];
         var historyIndex = -1;
         var grid = document.getElementById('deviceGrid');
@@ -307,23 +312,36 @@
                 return;
             }
             grid.innerHTML = devices.map(function (device) {
-                var online = Number(device.status) === 1;
+                var enabled = Number(device.status) === 1;
+                var online = Boolean(device.online);
                 var image = device.screenshotUrl && !device.noScreenshot ?
                     '<img src="' + escapeHtml(device.screenshotUrl) + '" alt="' + escapeHtml((device.name || '') + ' 截图') + '" data-screenshot="' + escapeHtml(device.id) + '">' : '';
                 var empty = device.noScreenshot ? '<div class="screen-empty"><span class="pc-icon"></span><span>暂无截图</span></div>' : '';
                 var loading = device.loading ? '<div class="screen-loading"><span class="spinner"></span><span>截图加载中</span></div>' : '';
-                var menu = activeDeviceId === device.id ? '<div class="action-menu">' +
-                    '<button class="menu-item" type="button" data-action="screenshot">刷新该设备截图</button>' +
-                    '<button class="menu-item" type="button" data-action="terminal">打开终端</button>' +
-                    '<a class="menu-item" href="/device/pc/power.html">前往电源控制</a>' +
-                    '</div>' : '';
+                var menu = '';
+                var menuItems = [];
+                if (devicePermissions.screenshot) {
+                    menuItems.push('<button class="menu-item" type="button" data-action="screenshot">刷新该设备截图</button>');
+                }
+                if (devicePermissions.webShell) {
+                    menuItems.push('<button class="menu-item" type="button" data-action="terminal">打开终端</button>');
+                }
+                if (devicePermissions.power) {
+                    menuItems.push('<a class="menu-item" href="/device/pc/power.html">前往电源控制</a>');
+                }
+                menu = activeDeviceId === device.id && menuItems.length
+                    ? '<div class="action-menu">' + menuItems.join('') + '</div>'
+                    : '';
 
                 return '<article class="hc-notion-card monitor-card" data-device-id="' + escapeHtml(device.id) + '">' +
                     '<div class="screen-frame"><div class="screen">' + image + empty + loading + '</div></div>' +
                     '<div class="hc-notion-toolbar">' +
                     '<div class="device-meta"><h2 class="device-name" title="' + escapeHtml(device.name || '') + '">' + escapeHtml(device.name || '未命名设备') + '</h2>' +
                     '<div class="device-ip">' + escapeHtml(device.ipAddress || '未配置 IP') + '</div></div>' +
+                    '<div class="hc-notion-actions">' +
+                    '<span class="hc-notion-badge ' + (enabled ? 'success' : 'warning') + '">' + (enabled ? '启用' : '停用') + '</span>' +
                     '<span class="hc-notion-badge ' + (online ? 'success' : 'warning') + '">' + (online ? '在线' : '离线') + '</span>' +
+                    '</div>' +
                     '</div>' + menu + '</article>';
             }).join('');
 
@@ -408,53 +426,64 @@
             }, 30);
         }
 
+        function requestOpenTerminal(device) {
+            window.HomeCenter.confirm('即将在 ' + device.name + ' 上进入 Web Shell。进入后执行单条命令不再重复确认，请确认目标设备无误。', {
+                title: '进入 Web Shell',
+                okText: '进入',
+                cancelText: '取消'
+            }).then(function (confirmed) {
+                if (confirmed) {
+                    openTerminal(device);
+                }
+            });
+        }
+
         function executeTerminalCommand() {
             var command = terminalInput.value.trim();
             if (!command || !terminalDevice || terminalLoading) {
                 return;
             }
-            window.HomeCenter.confirm('确认在 ' + terminalDevice.name + ' 上执行以下命令？\n\n' + command, {
-                title: '执行命令确认',
-                okText: '执行',
-                cancelText: '取消'
-            }).then(function (confirmed) {
-                if (!confirmed) {
-                    return;
-                }
-                terminalLines.push({type: 'command', text: '$ ' + command});
-                commandHistory.push(command);
-                historyIndex = commandHistory.length;
-                terminalInput.value = '';
-                terminalLoading = true;
-                renderTerminal();
+            terminalLines.push({type: 'command', text: '$ ' + command});
+            commandHistory.push(command);
+            historyIndex = commandHistory.length;
+            terminalInput.value = '';
+            terminalLoading = true;
+            terminalLines.push({type: 'system', text: '执行中...'});
+            renderTerminal();
 
-                window.HomeCenter.post('/device/pc/command/' + terminalDevice.id, {
-                    command: command,
-                    timeoutSeconds: 60
-                }).then(function (result) {
-                    if (result.status !== 'success') {
-                        throw new Error(result.message || '命令执行失败');
-                    }
-                    var data = result.data || {};
-                    if (data.stdout) {
-                        terminalLines.push({type: 'stdout', text: data.stdout});
-                    }
-                    if (data.stderr) {
-                        terminalLines.push({type: 'stderr', text: data.stderr});
-                    }
-                    if (data.error) {
-                        terminalLines.push({type: 'stderr', text: data.error});
-                    }
-                    if (!data.stdout && !data.stderr && !data.error) {
-                        terminalLines.push({type: 'system', text: 'exitCode=' + data.exitCode});
-                    }
-                }).catch(function (error) {
-                    terminalLines.push({type: 'stderr', text: error.message || '命令执行失败'});
-                }).finally(function () {
-                    terminalLoading = false;
-                    renderTerminal();
-                    terminalInput.focus();
-                });
+            window.HomeCenter.post('/device/pc/command/' + terminalDevice.id, {
+                command: command,
+                timeoutSeconds: 60
+            }).then(function (result) {
+                if (result.status !== 'success') {
+                    throw new Error(result.message || '命令执行失败');
+                }
+                var data = result.data || {};
+                if (data.stdout) {
+                    terminalLines.push({type: 'stdout', text: data.stdout});
+                }
+                if (data.stderr) {
+                    terminalLines.push({type: 'stderr', text: data.stderr});
+                }
+                if (data.error) {
+                    terminalLines.push({type: 'stderr', text: data.error});
+                }
+                if (!data.stdout && !data.stderr && !data.error) {
+                    terminalLines.push({type: 'system', text: 'exitCode=' + data.exitCode});
+                }
+                if (data.timedOut) {
+                    terminalLines.push({type: 'stderr', text: '命令执行超时'});
+                } else if (data.success === false) {
+                    terminalLines.push({type: 'stderr', text: '命令执行失败'});
+                } else {
+                    terminalLines.push({type: 'system', text: '命令执行成功'});
+                }
+            }).catch(function (error) {
+                terminalLines.push({type: 'stderr', text: error.message || '命令执行失败'});
+            }).finally(function () {
+                terminalLoading = false;
+                renderTerminal();
+                terminalInput.focus();
             });
         }
 
@@ -476,7 +505,7 @@
                     captureScreenshot(device);
                 }
                 if (action.getAttribute('data-action') === 'terminal') {
-                    openTerminal(device);
+                    requestOpenTerminal(device);
                 }
                 return;
             }
@@ -507,9 +536,12 @@
             }
         });
 
-        window.HomeCenter.get('/device/pc/devices')
-            .then(function (result) {
-                devices = (result.data || []).map(function (device) {
+        Promise.all([
+            window.HomeCenter.get('/device/pc/permissions'),
+            window.HomeCenter.get('/device/pc/devices')
+        ]).then(function (results) {
+                devicePermissions = results[0].data || devicePermissions;
+                devices = (results[1].data || []).map(function (device) {
                     device.loading = true;
                     device.noScreenshot = false;
                     device.screenshotUrl = latestScreenshotUrl(device.id);

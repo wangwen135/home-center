@@ -114,12 +114,15 @@
         }
 
         function updateSummary() {
-            var online = devices.filter(function (device) {
+            var enabled = devices.filter(function (device) {
                 return Number(device.status) === 1;
+            }).length;
+            var online = devices.filter(function (device) {
+                return Boolean(device.online);
             }).length;
             document.getElementById('summaryTotal').textContent = String(devices.length);
             document.getElementById('summaryOnline').textContent = String(online);
-            document.getElementById('summaryOffline').textContent = String(Math.max(0, devices.length - online));
+            document.getElementById('summaryOffline').textContent = String(Math.max(0, enabled - online));
         }
 
         function badge(type, text) {
@@ -134,19 +137,25 @@
             }
             list.innerHTML = devices.map(function (device) {
                 var enabled = Number(device.status) === 1;
+                var online = Boolean(device.online);
                 return '<article class="hc-notion-card pc-card" data-device-id="' + escapeHtml(device.id) + '">' +
                     '<div class="hc-notion-toolbar">' +
                     '<h2>' + escapeHtml(device.name || '未命名电脑') + '</h2>' +
+                    '<div class="hc-notion-actions">' +
                     badge(enabled ? 'success' : 'warning', enabled ? '启用' : '停用') +
+                    badge(online ? 'success' : 'warning', online ? '在线' : '离线') +
+                    '</div>' +
                     '</div>' +
                     '<div class="pc-meta">' +
                     '<div><span class="hc-notion-label">描述</span><div class="hc-notion-value">' + escapeHtml(device.description || '暂无描述') + '</div></div>' +
-                    '<div><span class="hc-notion-label">IP</span><div class="hc-notion-value">' + escapeHtml(device.ipAddress || '-') + '</div></div>' +
-                    '<div><span class="hc-notion-label">MAC</span><div class="hc-notion-value">' + escapeHtml(device.macAddress || '-') + '</div></div>' +
+                    '<div><span class="hc-notion-label">最后连接 IP</span><div class="hc-notion-value">' + escapeHtml(device.ipAddress || '-') + '</div></div>' +
+                    '<div><span class="hc-notion-label">主 MAC / WOL MAC</span><div class="hc-notion-value">' + escapeHtml(device.macAddress || '-') + '</div></div>' +
+                    '<div><span class="hc-notion-label">最后在线</span><div class="hc-notion-value">' + escapeHtml(device.lastSeenTime || '-') + '</div></div>' +
                     '</div>' +
                     '<div class="hc-notion-actions">' +
                     '<button class="hc-button hc-button-primary" type="button" data-action="on">开机</button>' +
                     '<button class="hc-button" type="button" data-action="off">关机</button>' +
+                    '<button class="hc-button" type="button" data-action="restart">重启</button>' +
                     '</div>' +
                     '<div class="pc-status" data-status></div>' +
                     '</article>';
@@ -175,7 +184,7 @@
 
         function sendPowerCommand(action, deviceId) {
             var card = list.querySelector('[data-device-id="' + deviceId + '"]');
-            var actionText = action === 'on' ? '开机' : '关机';
+            var actionText = action === 'on' ? '开机' : (action === 'restart' ? '重启' : '关机');
             if (!card) {
                 return Promise.resolve();
             }

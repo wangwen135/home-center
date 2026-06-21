@@ -4,6 +4,7 @@ import com.wwh.home.center.dao.mapper.PcDeviceMapper;
 import com.wwh.home.center.device.agent.AgentConnectionManager;
 import com.wwh.home.center.model.common.ApiResponse;
 import com.wwh.home.center.model.entity.PcDevice;
+import com.wwh.home.center.service.PcAgentAuditService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,6 +23,7 @@ import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
@@ -39,6 +41,9 @@ public class PcMonitorController {
     @Autowired
     private AgentConnectionManager agentConnectionManager;
 
+    @Autowired
+    private PcAgentAuditService pcAgentAuditService;
+
     @Value("${agent.screenshot-dir:/opt/home-center/screenshots}")
     private String screenshotDir;
 
@@ -47,10 +52,16 @@ public class PcMonitorController {
 
     @PostMapping("/{deviceId}/screenshot")
     public ApiResponse<Map<String, String>> captureScreenshot(@PathVariable Long deviceId) {
+        String requestId = pcAgentAuditService.newRequestId();
+        LocalDateTime requestTime = LocalDateTime.now();
+        PcDevice device = null;
         try {
-            PcDevice device = pcDeviceMapper.selectById(deviceId);
+            device = pcDeviceMapper.selectById(deviceId);
             if (device == null || !Integer.valueOf(1).equals(device.getStatus())) {
-                return ApiResponse.error("设备不存在或已禁用");
+                String message = "设备不存在或已禁用";
+                pcAgentAuditService.recordCommandOperation(requestId, device, "SCREENSHOT", null,
+                        requestTime, LocalDateTime.now(), false, message, null);
+                return ApiResponse.error(message);
             }
 
             long startMillis = System.currentTimeMillis();
@@ -58,15 +69,22 @@ public class PcMonitorController {
 
             Path screenshot = waitLatestScreenshot(deviceId, startMillis);
             if (screenshot == null) {
-                return ApiResponse.error("已发送截图指令，但未等到截图上传");
+                String message = "已发送截图指令，但未等到截图上传";
+                pcAgentAuditService.recordCommandOperation(requestId, device, "SCREENSHOT", null,
+                        requestTime, LocalDateTime.now(), false, message, null);
+                return ApiResponse.error(message);
             }
 
             Map<String, String> data = new HashMap<>();
             data.put("url", "/device/pc/" + deviceId + "/screenshot/latest");
             data.put("path", screenshot.toString());
+            pcAgentAuditService.recordCommandOperation(requestId, device, "SCREENSHOT", null,
+                    requestTime, LocalDateTime.now(), true, null, "url=" + data.get("url"));
             return ApiResponse.success("截图已更新", data);
         } catch (Exception e) {
             log.error("触发PC截图失败: deviceId={}", deviceId, e);
+            pcAgentAuditService.recordCommandOperation(requestId, device, "SCREENSHOT", null,
+                    requestTime, LocalDateTime.now(), false, e.getMessage(), null);
             return ApiResponse.error(e.getMessage());
         }
     }

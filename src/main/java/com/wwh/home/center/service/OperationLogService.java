@@ -2,6 +2,7 @@ package com.wwh.home.center.service;
 
 import com.wwh.home.center.model.entity.OperationLog;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -15,4 +16,10 @@ public interface OperationLogService {
     void saveOperationLog(OperationLog log);
 
     List<OperationLog> listAll();
+
+    List<OperationLog> listPcAgentAudit(String operator, Long deviceId, String operationType, Integer status,
+                                        LocalDateTime startTime, LocalDateTime endTime);
+
+    List<OperationLog> listSsoAudit(String appId, String user, Integer status,
+                                    LocalDateTime startTime, LocalDateTime endTime);
 }

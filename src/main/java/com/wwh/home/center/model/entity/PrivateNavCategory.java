@@ -8,32 +8,18 @@ import lombok.Data;
 
 import java.time.LocalDateTime;
 
-/**
- * 导航链接
- */
 @Data
-@TableName("nav_link")
-public class NavLink {
+@TableName("private_nav_category")
+public class PrivateNavCategory {
 
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;
 
-    private Long categoryId;
+    private Integer userId;
 
-    private String title;
-
-    private String url;
-
-    private String description;
+    private String name;
 
     private String icon;
-
-    private String openType;
-
-    /**
-     * 图标 emoji 或文字（与图片 icon 二选一，渲染时图片优先）
-     */
-    private String iconEmoji;
 
     private Integer sortOrder;
 

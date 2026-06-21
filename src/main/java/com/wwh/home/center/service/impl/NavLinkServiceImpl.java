@@ -16,6 +16,8 @@ import java.util.List;
 @Service
 public class NavLinkServiceImpl implements NavLinkService {
 
+    private static final String DEFAULT_OPEN_TYPE = "blank";
+
     @Autowired
     private NavLinkMapper navLinkMapper;
 
@@ -57,6 +59,9 @@ public class NavLinkServiceImpl implements NavLinkService {
         if (link.getSortOrder() == null) {
             link.setSortOrder(0);
         }
+        if (link.getOpenType() == null) {
+            link.setOpenType(DEFAULT_OPEN_TYPE);
+        }
         link.setCreateTime(now);
         link.setUpdateTime(now);
         navLinkMapper.insert(link);
@@ -65,6 +70,9 @@ public class NavLinkServiceImpl implements NavLinkService {
 
     @Override
     public void updateLink(NavLink link) {
+        if (link.getOpenType() == null) {
+            link.setOpenType(DEFAULT_OPEN_TYPE);
+        }
         link.setUpdateTime(LocalDateTime.now());
         navLinkMapper.updateById(link);
         log.info("更新导航链接成功，id={}", link.getId());

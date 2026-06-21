@@ -131,6 +131,30 @@ class LoginInterceptorTest {
         TokenManager.removeToken(token);
     }
 
+    @Test
+    void deviceViewPermissionDoesNotAllowWebShellCommand() {
+        String token = TokenManager.generateToken(buildLoggedUser(2, PermissionCodes.DEVICE_PC_VIEW, null));
+        MockHttpServletRequest request = new MockHttpServletRequest("POST", "/device/pc/command/1");
+        request.addHeader(SysConstants.TOKEN_NAME, token);
+        MockHttpServletResponse response = new MockHttpServletResponse();
+
+        assertThrows(ForbiddenException.class, () -> interceptor.preHandle(request, response, new Object()));
+        TokenManager.removeToken(token);
+    }
+
+    @Test
+    void webShellPermissionAllowsCommandEndpoint() throws Exception {
+        String token = TokenManager.generateToken(buildLoggedUser(2, null, PermissionCodes.DEVICE_PC_WEB_SHELL));
+        MockHttpServletRequest request = new MockHttpServletRequest("POST", "/device/pc/command/1");
+        request.addHeader(SysConstants.TOKEN_NAME, token);
+        MockHttpServletResponse response = new MockHttpServletResponse();
+
+        boolean allowed = interceptor.preHandle(request, response, new Object());
+
+        assertTrue(allowed);
+        TokenManager.removeToken(token);
+    }
+
     private LoggedUserAllInfo buildLoggedUser(int roleId, String plainUrl, String antUrl) {
         UserInfo userInfo = new UserInfo();
         userInfo.setId(6);

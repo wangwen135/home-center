@@ -2,13 +2,16 @@ package com.wwh.home.center.controller.backend;
 
 import com.wwh.home.center.common.exception.ForbiddenException;
 import com.wwh.home.center.common.model.Result;
+import com.wwh.home.center.model.entity.OperationLog;
 import com.wwh.home.center.model.entity.PcDevice;
 import com.wwh.home.center.security.UserContextHolder;
+import com.wwh.home.center.service.OperationLogService;
 import com.wwh.home.center.service.PcDeviceService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.constraints.NotNull;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Slf4j
@@ -31,6 +35,9 @@ public class PcDeviceManageController {
 
     @Autowired
     private PcDeviceService pcDeviceService;
+
+    @Autowired
+    private OperationLogService operationLogService;
 
     @ApiOperation("设备列表")
     @GetMapping("/list")
@@ -61,6 +68,21 @@ public class PcDeviceManageController {
         checkSuperAdmin();
         pcDeviceService.deleteDevice(id);
         return Result.success();
+    }
+
+    @ApiOperation("PC Agent操作审计列表")
+    @GetMapping("/audit")
+    public Result<List<OperationLog>> audit(@RequestParam(required = false) String operator,
+                                            @RequestParam(required = false) Long deviceId,
+                                            @RequestParam(required = false) String operationType,
+                                            @RequestParam(required = false) Integer status,
+                                            @RequestParam(required = false)
+                                            @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime startTime,
+                                            @RequestParam(required = false)
+                                            @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime endTime) {
+        checkSuperAdmin();
+        return Result.success(operationLogService.listPcAgentAudit(operator, deviceId, operationType, status,
+                startTime, endTime));
     }
 
     private void checkSuperAdmin() {

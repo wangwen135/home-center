@@ -16,6 +16,7 @@ import com.wwh.home.center.model.entity.UserRole;
 import com.wwh.home.center.model.qo.UserProfileRequest;
 import com.wwh.home.center.model.qo.UserQuery;
 import com.wwh.home.center.model.vo.UserInfoVo;
+import com.wwh.home.center.security.TokenManager;
 import com.wwh.home.center.security.UserContextHolder;
 import com.wwh.home.center.service.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -210,6 +211,7 @@ public class UserServiceImpl implements UserService {
             throw new BusinessException("用户不存在");
         }
         updatePassword(user, DEFAULT_PASSWORD);
+        TokenManager.removeTokensByUserId(user.getId(), "PASSWORD_RESET");
         log.info("管理员重置用户密码成功，userId={}", userId);
     }
 
@@ -225,6 +227,7 @@ public class UserServiceImpl implements UserService {
             throw new BusinessException("旧密码不正确");
         }
         updatePassword(user, newPassword);
+        TokenManager.removeTokensByUserId(userId, "PASSWORD_CHANGED");
         log.info("用户修改自己的密码成功，userId={}", userId);
     }
 
@@ -273,6 +276,7 @@ public class UserServiceImpl implements UserService {
         userRole.setUserId(intUserId);
         userRole.setRoleId(roleId);
         userRoleMapper.insert(userRole);
+        TokenManager.removeTokensByUserId(intUserId, "ROLE_CHANGED");
     }
 
     @Override
@@ -315,6 +319,7 @@ public class UserServiceImpl implements UserService {
         update.setUpdateBy(UserContextHolder.getUserId());
         update.setUpdateTime(LocalDateTime.now());
         userInfoMapper.updateById(update);
+        TokenManager.removeTokensByUserId(update.getId(), "USER_STATUS_CHANGED");
     }
 
     @Override

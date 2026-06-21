@@ -55,6 +55,7 @@ public class InternalSysAccessController {
         }
 
         //判断用户是否有访问这个域名的权限
+        TokenManager.refreshToken(token);
         List<InternalSystemConfig> systemList = userAllInfo.getUserSystem();
         for (InternalSystemConfig systemConfig : systemList) {
             if (systemConfig.getSysDomain().equals(domain)) {

@@ -52,6 +52,10 @@ public class LoggedUserAllInfo {
             //分号分隔的多个权限
             String[] parts = sp.getUrls().split(";");
             for (String part : parts) {
+                part = StringUtils.trimToEmpty(part);
+                if (StringUtils.isBlank(part)) {
+                    continue;
+                }
                 if (part.contains("*") || part.contains("?")) {
                     antUrls.add(part);
                 } else {

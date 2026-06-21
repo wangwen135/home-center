@@ -6,8 +6,11 @@ import com.wwh.home.center.common.constant.SysConstants;
 import com.wwh.home.center.common.exception.BusinessException;
 import com.wwh.home.center.dao.mapper.SysRoleMapper;
 import com.wwh.home.center.dao.mapper.SysRolePermissionMapper;
+import com.wwh.home.center.dao.mapper.UserRoleMapper;
 import com.wwh.home.center.model.entity.SysRole;
 import com.wwh.home.center.model.entity.SysRolePermission;
+import com.wwh.home.center.model.entity.UserRole;
+import com.wwh.home.center.security.TokenManager;
 import com.wwh.home.center.security.UserContextHolder;
 import com.wwh.home.center.service.SysRoleService;
 import lombok.extern.slf4j.Slf4j;
@@ -34,6 +37,9 @@ public class SysRoleServiceImpl implements SysRoleService {
 
     @Autowired
     private SysRolePermissionMapper sysRolePermissionMapper;
+
+    @Autowired
+    private UserRoleMapper userRoleMapper;
 
     @Override
     public SysRole getRoleByUserId(Integer userId) {
@@ -105,6 +111,7 @@ public class SysRoleServiceImpl implements SysRoleService {
         deleteWrapper.eq("role_id", roleId);
         sysRolePermissionMapper.delete(deleteWrapper);
         if (permissionIds == null || permissionIds.isEmpty()) {
+            invalidateRoleSessions(roleId);
             return;
         }
         for (Integer permissionId : permissionIds) {
@@ -112,6 +119,19 @@ public class SysRoleServiceImpl implements SysRoleService {
             rolePermission.setRoleId(roleId);
             rolePermission.setPermissionId(permissionId);
             sysRolePermissionMapper.insert(rolePermission);
+        }
+        invalidateRoleSessions(roleId);
+    }
+
+    private void invalidateRoleSessions(Integer roleId) {
+        QueryWrapper<UserRole> wrapper = Wrappers.query();
+        wrapper.eq("role_id", roleId);
+        List<UserRole> userRoles = userRoleMapper.selectList(wrapper);
+        if (userRoles == null || userRoles.isEmpty()) {
+            return;
+        }
+        for (UserRole userRole : userRoles) {
+            TokenManager.removeTokensByUserId(userRole.getUserId(), "PERMISSION_CHANGED");
         }
     }
 }

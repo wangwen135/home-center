@@ -511,10 +511,15 @@ const THEME_STORAGE_KEY = 'home-center-admin-theme';
     function renderDevices() {
         const rows = devices.map(function (device) {
             const status = Number(device.status) === 1 ? '<span style="color:var(--success)">启用</span>' : '<span style="color:var(--danger)">停用</span>';
+            const online = device.online ? '<span style="color:var(--success)">在线</span>' : '<span style="color:var(--muted)">离线</span>';
             return '<tr>' +
                 '<td>' + escapeHtml(device.name) + '</td>' +
+                '<td>' + online + '</td>' +
                 '<td>' + escapeHtml(device.ipAddress) + '</td>' +
-                '<td>' + escapeHtml(device.socketPort) + '</td>' +
+                '<td>' + escapeHtml(device.agentId) + '</td>' +
+                '<td>' + escapeHtml(device.hostname) + '</td>' +
+                '<td>' + escapeHtml(device.agentVersion) + '</td>' +
+                '<td>' + escapeHtml(device.lastSeenTime) + '</td>' +
                 '<td>' + escapeHtml(device.macAddress) + '</td>' +
                 '<td>' + status + '</td>' +
                 '<td class="text-end">' +
@@ -523,7 +528,7 @@ const THEME_STORAGE_KEY = 'home-center-admin-theme';
                 '</td>' +
                 '</tr>';
         });
-        $('#deviceTableBody').html(rows.join('') || '<tr><td colspan="6" class="text-center text-white-50">暂无数据</td></tr>');
+        $('#deviceTableBody').html(rows.join('') || '<tr><td colspan="9" class="text-center text-white-50">暂无数据</td></tr>');
     }
 
     function openAddDeviceModal() {
@@ -545,7 +550,8 @@ const THEME_STORAGE_KEY = 'home-center-admin-theme';
         $('#deviceId').val(device.id);
         $('#deviceName').val(device.name || '');
         $('#deviceIp').val(device.ipAddress || '');
-        $('#devicePort').val(device.socketPort || '');
+        $('#deviceAgentId').val(device.agentId || '');
+        $('#deviceHostname').val(device.hostname || '');
         $('#deviceMac').val(device.macAddress || '');
         $('#deviceStatus').val(String(device.status == null ? 1 : device.status));
         $('#deviceDesc').val(device.description || '');
@@ -559,7 +565,8 @@ const THEME_STORAGE_KEY = 'home-center-admin-theme';
             id: id ? Number(id) : null,
             name: $.trim($('#deviceName').val()),
             ipAddress: $.trim($('#deviceIp').val()),
-            socketPort: $('#devicePort').val() ? Number($('#devicePort').val()) : null,
+            agentId: $.trim($('#deviceAgentId').val()),
+            hostname: $.trim($('#deviceHostname').val()),
             macAddress: $.trim($('#deviceMac').val()),
             status: Number($('#deviceStatus').val()),
             description: $.trim($('#deviceDesc').val())

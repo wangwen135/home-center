@@ -1,6 +1,7 @@
 package com.wwh.home.center.service.impl;
 
 import com.wwh.home.center.dao.mapper.PcDeviceMapper;
+import com.wwh.home.center.device.agent.AgentConnectionManager;
 import com.wwh.home.center.model.entity.PcDevice;
 import com.wwh.home.center.service.PcDeviceService;
 import lombok.extern.slf4j.Slf4j;
@@ -17,9 +18,16 @@ public class PcDeviceServiceImpl implements PcDeviceService {
     @Autowired
     private PcDeviceMapper pcDeviceMapper;
 
+    @Autowired
+    private AgentConnectionManager agentConnectionManager;
+
     @Override
     public List<PcDevice> getAllDevices() {
-        return pcDeviceMapper.selectList(null);
+        List<PcDevice> devices = pcDeviceMapper.selectList(null);
+        for (PcDevice device : devices) {
+            device.setOnline(agentConnectionManager.isOnline(device.getId()));
+        }
+        return devices;
     }
 
     @Override

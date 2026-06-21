@@ -6,6 +6,7 @@ import com.wwh.home.center.model.CmdResult;
 import com.wwh.home.center.model.common.ApiResponse;
 import com.wwh.home.center.model.entity.PcDevice;
 import com.wwh.home.center.model.qo.PcCommandRequest;
+import com.wwh.home.center.service.PcAgentAuditService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -25,15 +26,19 @@ class PcCommandControllerTest {
 
     private PcDeviceMapper pcDeviceMapper;
     private AgentConnectionManager agentConnectionManager;
+    private PcAgentAuditService pcAgentAuditService;
     private PcCommandController controller;
 
     @BeforeEach
     void 初始化控制器依赖() {
         pcDeviceMapper = mock(PcDeviceMapper.class);
         agentConnectionManager = mock(AgentConnectionManager.class);
+        pcAgentAuditService = mock(PcAgentAuditService.class);
+        when(pcAgentAuditService.newRequestId()).thenReturn("test-request-id");
         controller = new PcCommandController();
         ReflectionTestUtils.setField(controller, "pcDeviceMapper", pcDeviceMapper);
         ReflectionTestUtils.setField(controller, "agentConnectionManager", agentConnectionManager);
+        ReflectionTestUtils.setField(controller, "pcAgentAuditService", pcAgentAuditService);
         ReflectionTestUtils.setField(controller, "defaultCommandTimeoutSeconds", 30);
     }
 

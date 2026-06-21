@@ -4,6 +4,7 @@ import com.wwh.home.center.dao.mapper.PcDeviceMapper;
 import com.wwh.home.center.device.agent.AgentConnectionManager;
 import com.wwh.home.center.model.common.ApiResponse;
 import com.wwh.home.center.model.entity.PcDevice;
+import com.wwh.home.center.service.PcAgentAuditService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -31,15 +32,19 @@ class PcMonitorControllerTest {
 
     private PcDeviceMapper pcDeviceMapper;
     private AgentConnectionManager agentConnectionManager;
+    private PcAgentAuditService pcAgentAuditService;
     private PcMonitorController controller;
 
     @BeforeEach
     void 初始化控制器依赖() {
         pcDeviceMapper = mock(PcDeviceMapper.class);
         agentConnectionManager = mock(AgentConnectionManager.class);
+        pcAgentAuditService = mock(PcAgentAuditService.class);
+        when(pcAgentAuditService.newRequestId()).thenReturn("test-request-id");
         controller = new PcMonitorController();
         ReflectionTestUtils.setField(controller, "pcDeviceMapper", pcDeviceMapper);
         ReflectionTestUtils.setField(controller, "agentConnectionManager", agentConnectionManager);
+        ReflectionTestUtils.setField(controller, "pcAgentAuditService", pcAgentAuditService);
         ReflectionTestUtils.setField(controller, "screenshotDir", screenshotDir.toString());
         ReflectionTestUtils.setField(controller, "screenshotWaitSeconds", 1);
     }

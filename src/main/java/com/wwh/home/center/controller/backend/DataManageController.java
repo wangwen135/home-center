@@ -23,6 +23,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,9 +32,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.constraints.NotNull;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Slf4j
@@ -199,6 +202,19 @@ public class DataManageController {
     public Result<List<SysLog>> sysLogs() {
         checkSuperAdmin();
         return Result.success(sysLogService.listAll());
+    }
+
+    @ApiOperation("SSO审计日志列表")
+    @GetMapping("/sso-audit")
+    public Result<List<OperationLog>> ssoAudit(@RequestParam(required = false) String appId,
+                                               @RequestParam(required = false) String user,
+                                               @RequestParam(required = false) Integer status,
+                                               @RequestParam(required = false)
+                                               @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime startTime,
+                                               @RequestParam(required = false)
+                                               @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime endTime) {
+        checkSuperAdmin();
+        return Result.success(operationLogService.listSsoAudit(appId, user, status, startTime, endTime));
     }
 
     private void checkSuperAdmin() {

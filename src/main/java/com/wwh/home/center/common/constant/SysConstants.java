@@ -40,6 +40,11 @@ public class SysConstants {
     public static final int SUPER_ADMIN_ROLE_ID = 1;
 
     /**
+     * 普通用户角色ID
+     */
+    public static final int NORMAL_USER_ROLE_ID = 2;
+
+    /**
      * 超级管理员用户ID
      */
     //public static final int SUPER_ADMIN_USER_ID = 1;

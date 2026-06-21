@@ -378,8 +378,8 @@ codex/agent-websocket
 仓库：
 
 ```text
-D:\develop\code\wwh\home-center
-D:\develop\code\wwh\home-center-pc-agent
+<server-repo-path>
+<pc-agent-repo-path>
 ```
 
 创建分支前需要先确认两个仓库未提交改动是否带入分支。
