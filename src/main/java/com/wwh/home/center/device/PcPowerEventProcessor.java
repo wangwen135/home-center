@@ -1,7 +1,7 @@
 package com.wwh.home.center.device;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.wwh.home.center.device.tools.SimpleSocketSender;
+import com.wwh.home.center.device.agent.AgentConnectionManager;
 import com.wwh.home.center.device.tools.WakeOnLan;
 import com.wwh.home.center.model.entity.PcDevice;
 import com.wwh.home.center.dao.mapper.PcDeviceMapper;
@@ -24,7 +24,7 @@ public class PcPowerEventProcessor {
     private PcDeviceMapper pcDeviceMapper;
 
     @Autowired
-    private SimpleSocketSender simpleSocketSender;
+    private AgentConnectionManager agentConnectionManager;
 
     public void handlePowerOnAll() throws Exception {
         List<PcDevice> devices = listDevices();
@@ -73,7 +73,7 @@ public class PcPowerEventProcessor {
         }
 
         try {
-            String response = simpleSocketSender.sendCommand(device, "shutdown");
+            String response = agentConnectionManager.sendCommand(device, "shutdown", 30);
             log.info("## 已发送关机指令到设备: {}, IP: {}, 响应: {}",
                     device.getName(), device.getIpAddress(), response);
         } catch (Exception e) {

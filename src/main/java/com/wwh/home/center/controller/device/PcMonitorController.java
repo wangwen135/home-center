@@ -1,7 +1,7 @@
 package com.wwh.home.center.controller.device;
 
 import com.wwh.home.center.dao.mapper.PcDeviceMapper;
-import com.wwh.home.center.device.tools.SimpleSocketSender;
+import com.wwh.home.center.device.agent.AgentConnectionManager;
 import com.wwh.home.center.model.common.ApiResponse;
 import com.wwh.home.center.model.entity.PcDevice;
 import lombok.extern.slf4j.Slf4j;
@@ -37,7 +37,7 @@ public class PcMonitorController {
     private PcDeviceMapper pcDeviceMapper;
 
     @Autowired
-    private SimpleSocketSender simpleSocketSender;
+    private AgentConnectionManager agentConnectionManager;
 
     @Value("${agent.screenshot-dir:/opt/home-center/screenshots}")
     private String screenshotDir;
@@ -54,7 +54,7 @@ public class PcMonitorController {
             }
 
             long startMillis = System.currentTimeMillis();
-            simpleSocketSender.sendCommand(device, "screenshot");
+            agentConnectionManager.sendCommand(device, "screenshot", screenshotWaitSeconds);
 
             Path screenshot = waitLatestScreenshot(deviceId, startMillis);
             if (screenshot == null) {
@@ -111,7 +111,7 @@ public class PcMonitorController {
     }
 
     private Path findLatestScreenshot(Long deviceId) throws IOException {
-        Path root = Paths.get(screenshotDir);
+        Path root = Paths.get(screenshotDir).toAbsolutePath().normalize();
         if (!Files.exists(root)) {
             return null;
         }

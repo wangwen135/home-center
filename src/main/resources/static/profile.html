@@ -126,7 +126,93 @@
             </div>
         </form>
     </section>
+
+    <section class="hc-panel hc-panel-pad">
+        <div class="hc-title-block" style="margin-bottom:16px;">
+            <h2 class="hc-section-title">修改密码</h2>
+            <p class="hc-muted">密码修改走现有接口，不保留无后端支撑的伪保存操作。</p>
+        </div>
+        <form id="passwordForm" class="profile-form" novalidate>
+            <label>
+                <span class="hc-form-label">旧密码</span>
+                <input type="password" class="hc-input" id="oldPassword" autocomplete="current-password" required>
+            </label>
+            <label>
+                <span class="hc-form-label">新密码</span>
+                <input type="password" class="hc-input" id="newPassword" autocomplete="new-password" required>
+            </label>
+            <label>
+                <span class="hc-form-label">确认新密码</span>
+                <input type="password" class="hc-input" id="confirmPassword" autocomplete="new-password" required>
+            </label>
+            <div class="full hc-actions">
+                <button id="passwordSubmit" type="submit" class="hc-button hc-button-primary">更新密码</button>
+                <span id="passwordMsg" class="hc-help-text profile-msg"></span>
+            </div>
+        </form>
+    </section>
 </main>
 <script src="/js/profile.js?v=20260620"></script>
+<script>
+    (function () {
+        var form = document.getElementById('passwordForm');
+        var submit = document.getElementById('passwordSubmit');
+        var msg = document.getElementById('passwordMsg');
+
+        function setMessage(text, ok) {
+            if (!msg) {
+                return;
+            }
+            msg.textContent = text || '';
+            msg.className = 'hc-help-text profile-msg ' + (ok ? 'profile-msg-ok' : 'profile-msg-err');
+        }
+
+        if (!form) {
+            return;
+        }
+
+        form.addEventListener('submit', function (event) {
+            var oldPassword = document.getElementById('oldPassword').value;
+            var newPassword = document.getElementById('newPassword').value;
+            var confirmPassword = document.getElementById('confirmPassword').value;
+
+            event.preventDefault();
+            setMessage('', true);
+
+            if (!oldPassword || !newPassword || !confirmPassword) {
+                setMessage('请完整填写密码信息。', false);
+                return;
+            }
+            if (newPassword !== confirmPassword) {
+                setMessage('两次输入的新密码不一致。', false);
+                return;
+            }
+            if (newPassword.length < 6) {
+                setMessage('新密码长度至少为 6 位。', false);
+                return;
+            }
+
+            submit.disabled = true;
+            submit.textContent = '更新中...';
+            window.HomeCenter.request('/user/changePassword?oldPassword=' + encodeURIComponent(oldPassword) +
+                '&newPassword=' + encodeURIComponent(newPassword), {
+                method: 'PUT'
+            }).then(function (result) {
+                if (result.code !== 200) {
+                    throw new Error(result.message || '修改失败');
+                }
+                form.reset();
+                setMessage('密码已更新。', true);
+                window.HomeCenter.toast('密码已更新', 'success');
+            }).catch(function (error) {
+                setMessage(error.message || '修改密码失败。', false);
+                window.HomeCenter.toast(error.message || '修改密码失败', 'error');
+            }).finally(function () {
+                submit.disabled = false;
+                submit.textContent = '更新密码';
+            });
+        });
+    })();
+</script>
 </body>
 </html>

@@ -42,7 +42,7 @@ public class LoginInterceptor implements HandlerInterceptor {
             "/login", "/logout", "/preLogin", "/login.html", "/favicon.ico", "/error", "/user/changePassword",
             "/user/avatar", "/user/profile",
             "/common/img/view/**",
-            "/admin/manage.html", "/api/screenshot", "/api/version", "/api/download/latest", "/api/nav/**");
+            "/admin/manage.html", "/api/agent/ws", "/api/screenshot", "/api/version", "/api/download/latest", "/api/nav/**");
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
