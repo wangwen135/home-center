@@ -6,6 +6,7 @@ import com.wwh.home.center.common.util.ImgUtils;
 import com.wwh.home.center.dao.mapper.PrivateNavLinkMapper;
 import com.wwh.home.center.model.entity.PrivateNavLink;
 import com.wwh.home.center.security.UserContextHolder;
+import com.wwh.home.center.service.ImageService;
 import com.wwh.home.center.service.PrivateNavLinkService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -24,6 +25,9 @@ public class PrivateNavLinkServiceImpl implements PrivateNavLinkService {
 
     @Autowired
     private PrivateNavLinkMapper privateNavLinkMapper;
+
+    @Autowired
+    private ImageService imageService;
 
     @Override
     public List<PrivateNavLink> listCurrentUserEnabled(Long categoryId) {
@@ -64,16 +68,31 @@ public class PrivateNavLinkServiceImpl implements PrivateNavLinkService {
         link.setUserId(null);
         link.setCreateTime(null);
         applyDefaults(link);
+        // 图标替换或清空时，清理旧的本地图片文件
+        PrivateNavLink old = privateNavLinkMapper.selectOne(new LambdaQueryWrapper<PrivateNavLink>()
+                .eq(PrivateNavLink::getId, link.getId())
+                .eq(PrivateNavLink::getUserId, userId));
+        String oldIcon = old == null ? null : old.getIcon();
         link.setUpdateTime(LocalDateTime.now());
         privateNavLinkMapper.update(link, new LambdaUpdateWrapper<PrivateNavLink>()
                 .eq(PrivateNavLink::getId, link.getId())
                 .eq(PrivateNavLink::getUserId, userId));
+        if (ImgUtils.isLocalStoredPath(oldIcon)
+                && !equalsValue(oldIcon, link.getIcon())) {
+            imageService.deleteQuietly(oldIcon);
+        }
         log.info("更新私有导航入口成功，userId={}, id={}", userId, link.getId());
     }
 
     @Override
     public void deleteCurrentUserLink(Long id) {
         Integer userId = currentUserId();
+        PrivateNavLink old = privateNavLinkMapper.selectOne(new LambdaQueryWrapper<PrivateNavLink>()
+                .eq(PrivateNavLink::getId, id)
+                .eq(PrivateNavLink::getUserId, userId));
+        if (old != null && ImgUtils.isLocalStoredPath(old.getIcon())) {
+            imageService.deleteQuietly(old.getIcon());
+        }
         privateNavLinkMapper.delete(new LambdaQueryWrapper<PrivateNavLink>()
                 .eq(PrivateNavLink::getId, id)
                 .eq(PrivateNavLink::getUserId, userId));
@@ -82,9 +101,22 @@ public class PrivateNavLinkServiceImpl implements PrivateNavLinkService {
 
     @Override
     public void deleteCurrentUserByCategoryId(Long categoryId) {
+        Integer userId = currentUserId();
+        List<PrivateNavLink> links = privateNavLinkMapper.selectList(new LambdaQueryWrapper<PrivateNavLink>()
+                .eq(PrivateNavLink::getCategoryId, categoryId)
+                .eq(PrivateNavLink::getUserId, userId));
+        links.forEach(link -> {
+            if (ImgUtils.isLocalStoredPath(link.getIcon())) {
+                imageService.deleteQuietly(link.getIcon());
+            }
+        });
         privateNavLinkMapper.delete(new LambdaQueryWrapper<PrivateNavLink>()
                 .eq(PrivateNavLink::getCategoryId, categoryId)
-                .eq(PrivateNavLink::getUserId, currentUserId()));
+                .eq(PrivateNavLink::getUserId, userId));
+    }
+
+    private static boolean equalsValue(String a, String b) {
+        return a == null ? b == null : a.equals(b);
     }
 
     private LambdaQueryWrapper<PrivateNavLink> baseWrapper(Long categoryId) {

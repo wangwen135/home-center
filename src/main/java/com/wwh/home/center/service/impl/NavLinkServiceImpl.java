@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.wwh.home.center.common.util.ImgUtils;
 import com.wwh.home.center.dao.mapper.NavLinkMapper;
 import com.wwh.home.center.model.entity.NavLink;
+import com.wwh.home.center.service.ImageService;
 import com.wwh.home.center.service.NavLinkService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +21,9 @@ public class NavLinkServiceImpl implements NavLinkService {
 
     @Autowired
     private NavLinkMapper navLinkMapper;
+
+    @Autowired
+    private ImageService imageService;
 
     @Override
     public List<NavLink> listEnabled(Long categoryId) {
@@ -73,21 +77,43 @@ public class NavLinkServiceImpl implements NavLinkService {
         if (link.getOpenType() == null) {
             link.setOpenType(DEFAULT_OPEN_TYPE);
         }
+        // 图标替换或清空时，清理旧的本地图片文件
+        NavLink old = link.getId() == null ? null : navLinkMapper.selectById(link.getId());
+        String oldIcon = old == null ? null : old.getIcon();
         link.setUpdateTime(LocalDateTime.now());
         navLinkMapper.updateById(link);
+        if (ImgUtils.isLocalStoredPath(oldIcon)
+                && !equalsValue(oldIcon, link.getIcon())) {
+            imageService.deleteQuietly(oldIcon);
+        }
         log.info("更新导航链接成功，id={}", link.getId());
     }
 
     @Override
     public void deleteLink(Long id) {
+        NavLink old = navLinkMapper.selectById(id);
+        if (old != null && ImgUtils.isLocalStoredPath(old.getIcon())) {
+            imageService.deleteQuietly(old.getIcon());
+        }
         navLinkMapper.deleteById(id);
         log.info("删除导航链接成功，id={}", id);
     }
 
     @Override
     public void deleteByCategoryId(Long categoryId) {
+        List<NavLink> links = navLinkMapper.selectList(new LambdaQueryWrapper<NavLink>()
+                .eq(NavLink::getCategoryId, categoryId));
+        links.forEach(link -> {
+            if (ImgUtils.isLocalStoredPath(link.getIcon())) {
+                imageService.deleteQuietly(link.getIcon());
+            }
+        });
         navLinkMapper.delete(new LambdaQueryWrapper<NavLink>()
                 .eq(NavLink::getCategoryId, categoryId));
         log.info("删除分组下导航链接成功，categoryId={}", categoryId);
+    }
+
+    private static boolean equalsValue(String a, String b) {
+        return a == null ? b == null : a.equals(b);
     }
 }
