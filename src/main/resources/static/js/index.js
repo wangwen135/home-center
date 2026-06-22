@@ -5,7 +5,10 @@ window.onload = function () {
 
 function init() {
     loadUserInfo();
-    loadRoleInfo();
+    // 角色加载完成后再加载菜单权限，避免读取 sessionStorage 时的竞态
+    loadRoleInfo(function () {
+        loadMenuPermissions();
+    });
     loadSystemLab();
 
     initProgressBar();
@@ -23,12 +26,84 @@ function loadUserInfo() {
     });
 }
 
-function loadRoleInfo() {
+function loadRoleInfo(onDone) {
     getRequest('/user/role', data => {
         document.getElementById("roleName").textContent = data.name;
 
         sessionStorage.setItem('roleInfo', JSON.stringify(data));
+        if (typeof onDone === 'function') {
+            onDone();
+        }
     });
+}
+
+/**
+ * 根据当前用户角色与权限动态展示顶部功能菜单。
+ * 超管展示全部；普通用户仅展示其拥有对应权限编码的菜单（后端仍会做权限校验）。
+ */
+function loadMenuPermissions() {
+    const roleRaw = sessionStorage.getItem('roleInfo');
+    const role = roleRaw ? JSON.parse(roleRaw) : null;
+    const isSuperAdmin = role && role.id === 1;
+
+    getRequest('/user/permission', function (permissions) {
+        applyMenuVisibility(isSuperAdmin, flattenPermissionUrls(permissions || []));
+    }, function () {
+        // 权限接口不可用时降级：超管展示全部，普通用户隐藏需权限的菜单
+        applyMenuVisibility(isSuperAdmin, []);
+    });
+}
+
+function flattenPermissionUrls(permissions) {
+    const set = {};
+    permissions.forEach(function (p) {
+        String(p.urls || '').split(';').forEach(function (part) {
+            const code = part.trim();
+            if (code) {
+                set[code] = true;
+            }
+        });
+    });
+    return set;
+}
+
+function applyMenuVisibility(isSuperAdmin, permittedCodes) {
+    const nodes = document.querySelectorAll('.admin-home-nav [data-perm]');
+    Array.prototype.forEach.call(nodes, function (node) {
+        const code = node.getAttribute('data-perm');
+        const visible = isSuperAdmin || hasMenuPermission(code, permittedCodes);
+        node.style.display = visible ? '' : 'none';
+    });
+}
+
+function hasMenuPermission(code, permittedCodes) {
+    if (!code) {
+        return true;
+    }
+    if (permittedCodes[code]) {
+        return true;
+    }
+    // 支持通配符权限编码匹配，例如 /device/pc/** 命中 /device/pc/power.html
+    const keys = Object.keys(permittedCodes);
+    for (let i = 0; i < keys.length; i++) {
+        if (matchesAntPath(keys[i], code)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+function matchesAntPath(pattern, path) {
+    if (!pattern || pattern.indexOf('*') === -1) {
+        return pattern === path;
+    }
+    // 将 ant 风格通配符转为正则：** 匹配任意（含 /），* 匹配不含 / 的段
+    const regex = '^' + pattern
+        .replace(/[.+^${}()|[\]\\]/g, '\\$&')
+        .replace(/\*\*/g, '::DS::')
+        .replace(/\*/g, '[^/]*')
+        .replace(/::DS::/g, '.*') + '$';
+    return new RegExp(regex).test(path);
 }
 
 function loadSystemLab() {

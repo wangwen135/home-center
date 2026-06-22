@@ -1,0 +1,358 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Home Center 在线会话管理">
+    <title>在线会话管理 - Home Center</title>
+    <link rel="stylesheet" href="/css/app-theme.css?v=20260622-sessions">
+    <style>
+        body.hc-app {
+            min-height: 100vh;
+            background: var(--hc-bg);
+            color: var(--hc-text);
+        }
+
+        .ss-shell {
+            width: min(1280px, calc(100% - 28px));
+            margin: 0 auto;
+            padding: 20px 0 48px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .ss-topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+            padding: 16px 20px;
+            border: 1px solid var(--hc-line);
+            border-radius: 12px;
+            background: var(--hc-surface);
+            box-shadow: var(--hc-shadow-soft);
+        }
+
+        .ss-topbar h1 {
+            margin: 0;
+            font-size: 22px;
+        }
+
+        .ss-topbar .ss-subtitle {
+            margin: 6px 0 0;
+            color: var(--hc-muted);
+            font-size: 13px;
+        }
+
+        .ss-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .ss-actions a,
+        .ss-actions button {
+            min-height: 38px;
+            display: inline-flex;
+            align-items: center;
+            padding: 0 14px;
+            border: 1px solid var(--hc-line);
+            border-radius: 8px;
+            background: var(--hc-surface-strong);
+            color: var(--hc-text);
+            text-decoration: none;
+            font: inherit;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .ss-actions a:hover,
+        .ss-actions button:hover {
+            border-color: rgba(37, 99, 235, 0.32);
+            background: var(--hc-soft-accent);
+            color: var(--hc-accent);
+        }
+
+        .ss-actions button.is-danger {
+            color: var(--hc-danger);
+            border-color: rgba(220, 38, 38, 0.32);
+        }
+
+        .ss-toolbar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            padding: 14px 18px;
+            border: 1px solid var(--hc-line);
+            border-radius: 12px;
+            background: var(--hc-surface);
+        }
+
+        .ss-toolbar input {
+            height: 36px;
+            padding: 0 12px;
+            border: 1px solid var(--hc-line);
+            border-radius: 8px;
+            background: var(--hc-surface-strong);
+            color: var(--hc-text);
+            font: inherit;
+            min-width: 180px;
+            box-sizing: border-box;
+        }
+
+        .ss-panel {
+            border: 1px solid var(--hc-line);
+            border-radius: 12px;
+            background: var(--hc-surface);
+            box-shadow: var(--hc-shadow-soft);
+            overflow: auto;
+        }
+
+        table.ss-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            min-width: 1080px;
+        }
+
+        table.ss-table th,
+        table.ss-table td {
+            padding: 10px 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--hc-line);
+            vertical-align: middle;
+        }
+
+        table.ss-table th {
+            font-weight: 700;
+            color: var(--hc-muted);
+            background: var(--hc-surface-strong);
+            white-space: nowrap;
+        }
+
+        table.ss-table td {
+            overflow-wrap: anywhere;
+        }
+
+        table.ss-table tr:hover td {
+            background: var(--hc-soft-accent);
+        }
+
+        .ss-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+            background: rgba(22, 163, 74, 0.14);
+            color: var(--hc-success);
+        }
+
+        .ss-ua {
+            max-width: 240px;
+            display: inline-block;
+            color: var(--hc-muted);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .ss-empty {
+            padding: 48px 0;
+            text-align: center;
+            color: var(--hc-muted);
+        }
+
+        .ss-kick-btn {
+            height: 30px;
+            padding: 0 10px;
+            border: 1px solid rgba(220, 38, 38, 0.32);
+            border-radius: 6px;
+            background: transparent;
+            color: var(--hc-danger);
+            font: inherit;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .ss-kick-btn:hover {
+            background: rgba(220, 38, 38, 0.1);
+        }
+    </style>
+</head>
+<body class="hc-app">
+<div class="ss-shell">
+    <header class="ss-topbar">
+        <div>
+            <h1>在线会话管理</h1>
+            <p class="ss-subtitle">查看当前在线会话，超管可踢出指定会话。被踢出的用户再次访问时表现为未登录。</p>
+        </div>
+        <div class="ss-actions">
+            <button class="hc-theme-toggle" type="button" aria-label="切换深浅色主题">
+                <span class="hc-theme-toggle-icon" aria-hidden="true"></span>
+                <span data-theme-toggle-text>深色</span>
+            </button>
+            <a href="/admin/manage.html">返回后台</a>
+        </div>
+    </header>
+
+    <div class="ss-toolbar">
+        <input id="ssFilterUser" type="search" placeholder="按用户名筛选..." aria-label="按用户名筛选">
+        <input id="ssFilterIp" type="search" placeholder="按 IP 筛选..." aria-label="按 IP 筛选">
+        <button id="ssRefreshBtn" type="button">刷新</button>
+        <button id="ssKickBatchBtn" class="is-danger" type="button">批量踢出选中</button>
+    </div>
+
+    <div class="ss-panel">
+        <table class="ss-table">
+            <thead>
+            <tr>
+                <th style="width:36px;"><input id="ssSelectAll" type="checkbox" aria-label="全选"></th>
+                <th>用户</th>
+                <th>角色</th>
+                <th>登录时间</th>
+                <th>最近访问</th>
+                <th>登录IP</th>
+                <th>最近IP</th>
+                <th>User-Agent</th>
+                <th>过期时间</th>
+                <th>最长截止</th>
+                <th>状态</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody id="ssTableBody">
+            <tr><td colspan="12" class="ss-empty">加载中...</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script src="/js/app-theme.js?v=20260622-sessions"></script>
+<script src="/js/main.js"></script>
+<script>
+    (function () {
+        var sessions = [];
+
+        function escapeHtml(value) {
+            return (value === null || value === undefined ? '' : String(value))
+                .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+        }
+
+        function loadSessions() {
+            getRequest('/backend/token/list', function (list) {
+                sessions = list || [];
+                render();
+            }, function () {
+                sessions = [];
+                render();
+                showToastSimple('在线会话加载失败，请确认你是否是超级管理员', MsgTypes.DANGER, Position.TopCenter);
+            });
+        }
+
+        function render() {
+            var tbody = document.getElementById('ssTableBody');
+            var userFilter = (document.getElementById('ssFilterUser').value || '').trim().toLowerCase();
+            var ipFilter = (document.getElementById('ssFilterIp').value || '').trim().toLowerCase();
+
+            var rows = sessions.filter(function (s) {
+                var user = (s.userName || '').toLowerCase();
+                var lip = (s.loginIp || '').toLowerCase();
+                var rip = (s.lastAccessIp || '').toLowerCase();
+                return (!userFilter || user.indexOf(userFilter) !== -1)
+                    && (!ipFilter || lip.indexOf(ipFilter) !== -1 || rip.indexOf(ipFilter) !== -1);
+            });
+
+            if (!rows.length) {
+                tbody.innerHTML = '<tr><td colspan="12" class="ss-empty">暂无在线会话</td></tr>';
+                document.getElementById('ssSelectAll').checked = false;
+                return;
+            }
+
+            tbody.innerHTML = rows.map(function (s) {
+                return '<tr>' +
+                    '<td><input type="checkbox" class="ss-row-check" data-user-id="' + escapeHtml(s.userId) + '"></td>' +
+                    '<td>' + escapeHtml(s.userName) + '</td>' +
+                    '<td>' + escapeHtml(s.roleName) + '</td>' +
+                    '<td>' + escapeHtml(s.createTime) + '</td>' +
+                    '<td>' + escapeHtml(s.lastAccessTime) + '</td>' +
+                    '<td>' + escapeHtml(s.loginIp) + '</td>' +
+                    '<td>' + escapeHtml(s.lastAccessIp) + '</td>' +
+                    '<td><span class="ss-ua" title="' + escapeHtml(s.userAgent) + '">' + escapeHtml(s.userAgent) + '</span></td>' +
+                    '<td>' + escapeHtml(s.expirationTime) + '</td>' +
+                    '<td>' + escapeHtml(s.maxExpirationTime) + '</td>' +
+                    '<td><span class="ss-badge">' + escapeHtml(s.status || 'online') + '</span></td>' +
+                    '<td><button class="ss-kick-btn" data-user-id="' + escapeHtml(s.userId) + '" data-user-name="' + escapeHtml(s.userName) + '">踢出</button></td>' +
+                    '</tr>';
+            }).join('');
+        }
+
+        function kickUser(userId, userName) {
+            showConfirm('踢出会话', '确定踢出用户【' + userName + '】的当前会话？该用户再次访问时需要重新登录。',
+                MsgTypes.WARNING, function () {
+                    request('/backend/token/user/' + encodeURIComponent(userId), {method: 'DELETE'}, function () {
+                        showToastSimple('已踢出会话', MsgTypes.SUCCESS, Position.TopCenter);
+                        loadSessions();
+                    });
+                });
+        }
+
+        function kickBatch() {
+            var ids = Array.prototype.map.call(document.querySelectorAll('.ss-row-check:checked'), function (cb) {
+                return Number(cb.getAttribute('data-user-id'));
+            }).filter(function (id) {
+                return id;
+            });
+            if (!ids.length) {
+                showToastSimple('请先勾选要踢出的会话', MsgTypes.WARNING, Position.TopCenter);
+                return;
+            }
+            showConfirm('批量踢出', '确定踢出选中的 ' + ids.length + ' 个会话？', MsgTypes.WARNING, function () {
+                request('/backend/token/kick-batch', {method: 'POST', body: ids}, function () {
+                    showToastSimple('已批量踢出', MsgTypes.SUCCESS, Position.TopCenter);
+                    loadSessions();
+                });
+            });
+        }
+
+        function bind() {
+            document.getElementById('ssRefreshBtn').addEventListener('click', loadSessions);
+            document.getElementById('ssKickBatchBtn').addEventListener('click', kickBatch);
+            document.getElementById('ssFilterUser').addEventListener('input', render);
+            document.getElementById('ssFilterIp').addEventListener('input', render);
+            document.getElementById('ssSelectAll').addEventListener('change', function () {
+                var checked = this.checked;
+                Array.prototype.forEach.call(document.querySelectorAll('.ss-row-check'), function (cb) {
+                    cb.checked = checked;
+                });
+            });
+            // 事件委托：踢出按钮
+            document.getElementById('ssTableBody').addEventListener('click', function (event) {
+                var btn = event.target.closest('.ss-kick-btn');
+                if (!btn) {
+                    return;
+                }
+                kickUser(btn.getAttribute('data-user-id'), btn.getAttribute('data-user-name'));
+            });
+        }
+
+        function init() {
+            bind();
+            loadSessions();
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
+    })();
+</script>
+</body>
+</html>

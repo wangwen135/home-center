@@ -433,8 +433,10 @@ function globalErrorHandle(error) {
  */
 function reLoginHandle(error) {
     if (error.code == 401) {
-        showConfirm("请重新登录", error.message, MsgTypes.INFO, function () {
-            location.href = '/login.html';
+        showConfirm("登录已失效", error.message || "登录已失效，请重新登录", MsgTypes.INFO, function () {
+            // 保留当前访问地址作为返回目标，登录成功后回到原页面
+            var ref = location.pathname + location.search;
+            location.href = '/login.html?ref=' + encodeURIComponent(ref);
         });
         return true;
     }

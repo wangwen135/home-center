@@ -625,6 +625,7 @@
             <svg class="theme-icon-sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
             <svg class="theme-icon-moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
         </button>
+        <a class="btn btn-outline-light btn-sm" href="/admin/sessions.html">在线会话</a>
         <a class="btn btn-outline-light btn-sm" href="/admin.html">返回首页</a>
     </header>
 
@@ -801,6 +802,7 @@
                                     <option value="">全部分组</option>
                                 </select>
                                 <button id="addNavLinkBtn" class="btn btn-primary btn-sm" type="button">新增链接</button>
+                                <button id="batchHealthCheckBtn" class="btn btn-outline-info btn-sm" type="button">批量健康检查</button>
                             </div>
                         </div>
                         <div class="table-responsive">
@@ -812,6 +814,7 @@
                                     <th>分组</th>
                                     <th>排序</th>
                                     <th>状态</th>
+                                    <th>健康</th>
                                     <th class="text-end">操作</th>
                                 </tr>
                                 </thead>
@@ -1492,6 +1495,7 @@
         $('#addNavLinkBtn').on('click', openAddNavLinkModal);
         $('#navLinkForm').on('submit', saveNavLink);
         $('#navLinkFilter').on('change', loadNavLinks);
+        $('#batchHealthCheckBtn').on('click', checkAllNavHealth);
         $('#navLinkIconUploadBtn').on('click', function () {
             $('#navLinkIconFile').val('');
             $('#navLinkIconFile').click();
@@ -2172,15 +2176,65 @@
                 '<td>' + escapeHtml(getNavCategoryName(link.categoryId)) + '</td>' +
                 '<td>' + escapeHtml(link.sortOrder) + '</td>' +
                 '<td>' + renderStatusSwitch('link', link.id, link.status) + '</td>' +
+                '<td>' + renderHealthCell(link) + '</td>' +
                 '<td class="text-end">' +
+                '<button class="btn btn-outline-info btn-sm me-1" onclick="checkNavLinkHealth(' + link.id + ')" title="健康检查">检查</button>' +
                 '<button class="btn btn-outline-light btn-sm me-2" onclick="openEditNavLinkModal(' + link.id + ')">编辑</button>' +
                 '<button class="btn btn-outline-danger btn-sm" onclick="deleteNavLink(' + link.id + ')">删除</button>' +
                 '</td>' +
                 '</tr>';
         });
-        $('#navLinkTableBody').html(rows.join('') || '<tr><td colspan="6" class="text-center text-white-50">暂无数据</td></tr>');
+        $('#navLinkTableBody').html(rows.join('') || '<tr><td colspan="7" class="text-center text-white-50">暂无数据</td></tr>');
         $('.nav-status-link').on('change', function () {
             toggleNavLinkStatus($(this).data('id'), this.checked ? 1 : 0);
+        });
+    }
+
+    function renderHealthCell(link) {
+        const status = link.checkStatus || 'unknown';
+        const labels = {normal: '正常', abnormal: '异常', timeout: '超时', skipped: '跳过', unknown: '未知'};
+        const colors = {
+            normal: 'text-success',
+            abnormal: 'text-danger',
+            timeout: 'text-warning',
+            skipped: 'text-white-50',
+            unknown: 'text-white-50'
+        };
+        const label = labels[status] || labels.unknown;
+        const colorClass = colors[status] || colors.unknown;
+        const time = link.lastCheckTime ? escapeHtml(link.lastCheckTime) : '未检查';
+        // 详情：HTTP 状态码、耗时、失败原因（鼠标悬浮查看）
+        const detail = [];
+        if (link.lastHttpStatus != null) detail.push('HTTP ' + link.lastHttpStatus);
+        if (link.checkDurationMs != null) detail.push(link.checkDurationMs + 'ms');
+        if (link.lastFailReason) detail.push(escapeHtml(link.lastFailReason));
+        const title = detail.length ? detail.join(' / ') : label;
+        return '<span class="' + colorClass + '" title="' + title + '" data-toggle="tooltip">● ' + label + '</span>' +
+            '<div class="text-white-50" style="font-size:12px;">' + time + '</div>';
+    }
+
+    function checkNavLinkHealth(id) {
+        postRequest('/backend/nav/link/' + encodeURIComponent(id) + '/health-check', null, function (link) {
+            const target = navLinks.find(function (item) {
+                return item.id === id;
+            });
+            if (target && link) {
+                target.checkStatus = link.checkStatus;
+                target.lastCheckTime = link.lastCheckTime;
+                target.lastHttpStatus = link.lastHttpStatus;
+                target.checkDurationMs = link.checkDurationMs;
+                target.lastFailReason = link.lastFailReason;
+            }
+            renderNavLinks();
+            showToastSimple('健康检查完成', MsgTypes.SUCCESS, Position.TopCenter);
+        });
+    }
+
+    function checkAllNavHealth() {
+        postRequest('/backend/nav/health-check', null, function (count) {
+            showToastSimple('已提交 ' + (count || 0) + ' 个入口的批量健康检查', MsgTypes.INFO, Position.TopCenter);
+            // 批量检查异步执行，稍后刷新列表
+            setTimeout(loadNavLinks, 4000);
         });
     }
 
@@ -2189,8 +2243,14 @@
         if (!fileInput || !fileInput.files || !fileInput.files.length) {
             return;
         }
+        const file = fileInput.files[0];
+        // 客户端预校验大小（10MB），最终仍以后端校验为准
+        if (file.size > 10 * 1024 * 1024) {
+            showToastSimple('文件大小超过限制（最大10MB）', MsgTypes.DANGER, Position.TopCenter);
+            return;
+        }
         const formData = new FormData();
-        formData.append('file', fileInput.files[0]);
+        formData.append('file', file);
         postRequest('/common/img/upload', formData, function (relativePath) {
             // 存相对路径，公开接口返回时会自动拼前缀
             $('#navLinkIcon').val(relativePath);
