@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Home Center 限流管理">
+    <title>限流管理 - Home Center</title>
+    <link rel="stylesheet" href="/css/app-theme.css?v=20260622-ratelimit">
+    <style>
+        body.hc-app {
+            min-height: 100vh;
+            background: var(--hc-bg);
+            color: var(--hc-text);
+        }
+
+        .rl-shell {
+            width: min(1180px, calc(100% - 28px));
+            margin: 0 auto;
+            padding: 20px 0 48px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .rl-topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+            padding: 16px 20px;
+            border: 1px solid var(--hc-line);
+            border-radius: 12px;
+            background: var(--hc-surface);
+            box-shadow: var(--hc-shadow-soft);
+        }
+
+        .rl-topbar h1 { margin: 0; font-size: 22px; }
+        .rl-topbar .rl-subtitle { margin: 6px 0 0; color: var(--hc-muted); font-size: 13px; }
+
+        .rl-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+        .rl-actions a, .rl-actions button {
+            min-height: 38px; display: inline-flex; align-items: center; padding: 0 14px;
+            border: 1px solid var(--hc-line); border-radius: 8px;
+            background: var(--hc-surface-strong); color: var(--hc-text);
+            text-decoration: none; font: inherit; font-weight: 600; cursor: pointer;
+        }
+        .rl-actions a:hover, .rl-actions button:hover {
+            border-color: rgba(37, 99, 235, 0.32); background: var(--hc-soft-accent); color: var(--hc-accent);
+        }
+        .rl-actions button.is-danger { color: var(--hc-danger); border-color: rgba(220, 38, 38, 0.32); }
+
+        .rl-toolbar {
+            display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+            padding: 14px 18px; border: 1px solid var(--hc-line); border-radius: 12px; background: var(--hc-surface);
+        }
+        .rl-toolbar input {
+            height: 36px; padding: 0 12px; border: 1px solid var(--hc-line); border-radius: 8px;
+            background: var(--hc-surface-strong); color: var(--hc-text); font: inherit; min-width: 200px; box-sizing: border-box;
+        }
+
+        .rl-panel {
+            border: 1px solid var(--hc-line); border-radius: 12px; background: var(--hc-surface);
+            box-shadow: var(--hc-shadow-soft); overflow: auto;
+        }
+        table.rl-table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 820px; }
+        table.rl-table th, table.rl-table td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--hc-line); vertical-align: middle; }
+        table.rl-table th { font-weight: 700; color: var(--hc-muted); background: var(--hc-surface-strong); white-space: nowrap; }
+        table.rl-table tr:hover td { background: var(--hc-soft-accent); }
+
+        .rl-badge { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 12px; font-weight: 700; }
+        .rl-badge.blocked { background: rgba(220, 38, 38, 0.14); color: var(--hc-danger); }
+        .rl-badge.ok { background: rgba(22, 163, 74, 0.14); color: var(--hc-success); }
+
+        .rl-empty { padding: 48px 0; text-align: center; color: var(--hc-muted); }
+        .rl-release-btn {
+            height: 30px; padding: 0 10px; border: 1px solid rgba(220, 38, 38, 0.32); border-radius: 6px;
+            background: transparent; color: var(--hc-danger); font: inherit; font-size: 12px; font-weight: 600; cursor: pointer;
+        }
+        .rl-release-btn:hover { background: rgba(220, 38, 38, 0.1); }
+    </style>
+</head>
+<body class="hc-app">
+<div class="rl-shell">
+    <header class="rl-topbar">
+        <div>
+            <h1>/checkAuth 限流管理</h1>
+            <p class="rl-subtitle">按真实客户端 IP 计数，异常高频自动封禁。纯内存，重启清空。可查看与手动释放 IP。</p>
+        </div>
+        <div class="rl-actions">
+            <button class="hc-theme-toggle" type="button" aria-label="切换深浅色主题">
+                <span class="hc-theme-toggle-icon" aria-hidden="true"></span>
+                <span data-theme-toggle-text>深色</span>
+            </button>
+            <a href="/admin/manage.html">返回后台</a>
+        </div>
+    </header>
+
+    <div class="rl-toolbar">
+        <input id="rlFilterIp" type="search" placeholder="按 IP 筛选..." aria-label="按 IP 筛选">
+        <label style="font-size:13px;color:var(--hc-muted);"><input type="checkbox" id="rlOnlyBlocked"> 只看已封禁</label>
+        <button id="rlRefreshBtn" type="button">刷新</button>
+        <button id="rlResetBtn" class="is-danger" type="button">释放全部 IP</button>
+    </div>
+
+    <div class="rl-panel">
+        <table class="rl-table">
+            <thead>
+            <tr>
+                <th>IP</th>
+                <th>窗口请求数</th>
+                <th>累计请求数</th>
+                <th>被拦截次数</th>
+                <th>最近请求</th>
+                <th>状态</th>
+                <th>封禁截止</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody id="rlTableBody">
+            <tr><td colspan="8" class="rl-empty">加载中...</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script src="/js/app-theme.js?v=20260622-ratelimit"></script>
+<script src="/js/main.js"></script>
+<script>
+    (function () {
+        var rows = [];
+
+        function escapeHtml(value) {
+            return (value === null || value === undefined ? '' : String(value))
+                .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+        }
+
+        function load() {
+            getRequest('/backend/rate-limit/status', function (list) {
+                rows = list || [];
+                render();
+            }, function () {
+                rows = [];
+                render();
+                showToastSimple('限流状态加载失败，请确认你是否是超级管理员', MsgTypes.DANGER, Position.TopCenter);
+            });
+        }
+
+        function render() {
+            var tbody = document.getElementById('rlTableBody');
+            var ipFilter = (document.getElementById('rlFilterIp').value || '').trim();
+            var onlyBlocked = document.getElementById('rlOnlyBlocked').checked;
+
+            var filtered = rows.filter(function (r) {
+                return (!ipFilter || (r.ip || '').indexOf(ipFilter) !== -1)
+                    && (!onlyBlocked || r.blocked);
+            });
+
+            // 封禁优先、最近请求倒序
+            filtered.sort(function (a, b) {
+                if (a.blocked !== b.blocked) { return a.blocked ? -1 : 1; }
+                return (b.lastRequestTime || '').localeCompare(a.lastRequestTime || '');
+            });
+
+            if (!filtered.length) {
+                tbody.innerHTML = '<tr><td colspan="8" class="rl-empty">暂无限流记录</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(function (r) {
+                return '<tr>' +
+                    '<td>' + escapeHtml(r.ip) + '</td>' +
+                    '<td>' + escapeHtml(r.windowCount) + '</td>' +
+                    '<td>' + escapeHtml(r.totalCount) + '</td>' +
+                    '<td>' + escapeHtml(r.rejectedCount) + '</td>' +
+                    '<td>' + escapeHtml(r.lastRequestTime) + '</td>' +
+                    '<td><span class="rl-badge ' + (r.blocked ? 'blocked' : 'ok') + '">' + (r.blocked ? '已封禁' : '正常') + '</span></td>' +
+                    '<td>' + escapeHtml(r.blocked ? r.blockedUntilTime : '-') + '</td>' +
+                    '<td><button class="rl-release-btn" data-ip="' + escapeHtml(r.ip) + '">释放</button></td>' +
+                    '</tr>';
+            }).join('');
+        }
+
+        function releaseIp(ip) {
+            showConfirm('释放 IP', '确定释放 IP【' + ip + '】？将清空其计数与封禁状态。', MsgTypes.WARNING, function () {
+                request('/backend/rate-limit/ip/' + encodeURIComponent(ip), {method: 'DELETE'}, function () {
+                    showToastSimple('已释放该 IP', MsgTypes.SUCCESS, Position.TopCenter);
+                    load();
+                });
+            });
+        }
+
+        function releaseAll() {
+            showConfirm('释放全部 IP', '确定清空所有 IP 的限流计数与封禁？', MsgTypes.WARNING, function () {
+                request('/backend/rate-limit/reset', {method: 'POST'}, function () {
+                    showToastSimple('已释放全部 IP', MsgTypes.SUCCESS, Position.TopCenter);
+                    load();
+                });
+            });
+        }
+
+        function bind() {
+            document.getElementById('rlRefreshBtn').addEventListener('click', load);
+            document.getElementById('rlResetBtn').addEventListener('click', releaseAll);
+            document.getElementById('rlFilterIp').addEventListener('input', render);
+            document.getElementById('rlOnlyBlocked').addEventListener('change', render);
+            document.getElementById('rlTableBody').addEventListener('click', function (event) {
+                var btn = event.target.closest('.rl-release-btn');
+                if (btn) { releaseIp(btn.getAttribute('data-ip')); }
+            });
+        }
+
+        function init() { bind(); load(); }
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else { init(); }
+    })();
+</script>
+</body>
+</html>

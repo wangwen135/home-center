@@ -20,6 +20,7 @@ Private navigation functional API (required by normal users to load and maintain
 - PC power control: `/device/pc/power.html`
 - Backend management: `/admin/manage.html`
 - Online session management: `/admin/sessions.html` (super admin only; functional API `/backend/token/**` is covered by `/backend/**`)
+- Rate limit management: `/admin/rate-limit.html` (super admin only; functional API `/backend/rate-limit/**` is covered by `/backend/**`)
 
 Static HTML pages still require login before access. Their functional APIs must also be authorized separately.
 

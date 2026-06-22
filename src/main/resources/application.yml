@@ -22,3 +22,11 @@ home-center:
     secure: false
     domain: ''
     same-site: Lax
+
+# /checkAuth 轻量限流（纯内存，按真实客户端 IP，仅在异常高频时拦截）
+check-auth:
+  rate-limit:
+    enabled: true
+    max-requests: 600
+    window-seconds: 60
+    block-seconds: 60

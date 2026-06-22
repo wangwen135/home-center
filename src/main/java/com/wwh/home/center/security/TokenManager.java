@@ -303,9 +303,11 @@ public class TokenManager {
                 }
                 if (currentTime >= tokenInfo.getExpirationTime()) {
                     log.debug("## 清理过期的Token：{}", tokenInfo);
+                    recordInvalidation(tokenInfo, "EXPIRED", "system");
                     return null; // 移除过期的Token
                 } else if (currentTime >= tokenInfo.getCreateTime() + TOKEN_MAX_LIVE_TIME_MS) {
                     log.debug("## 清理超过最大存活时间的Token：{}", tokenInfo);
+                    recordInvalidation(tokenInfo, "MAX_LIVE_EXCEEDED", "system");
                     return null;
                 } else {
                     return tokenInfo; // 保持不变

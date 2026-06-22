@@ -75,6 +75,45 @@ Home Center 退出登录、token 过期、同用户新登录踢出旧会话、�
 
 自研应用不接收主动通知。它们在下一次调用 `/api/sso/me`、登录校验接口或自身后端鉴权时感知失效，并提示用户重新登录。
 
+### 失效感知接入示例
+
+自研应用前端在需要确认登录态时调用 `/api/sso/me`，收到未认证（401）即视为登录已失效，弹统一提示并带 `ref` 跳转回 Home Center 登录页。下面是原生 JavaScript 示例，仅作接入参考，不要把任何 `appSecret` 写进前端。
+
+```text
+// 自研应用前端：感知登录失效的推荐流程
+async function ensureLogin() {
+    const resp = await fetch('/api/sso/me', {
+        credentials: 'include',                 // 自动携带 home_center_token cookie
+        headers: { 'X-App-Id': '<app-id>' }     // 标识接入应用，便于审计
+    });
+    if (resp.status === 401) {
+        // token 无效/过期/被踢出/用户禁用/角色权限变更 等都会落到这里
+        showSessionInvalidPrompt();             // 统一弹框：「登录已失效，请重新登录」
+        return null;
+    }
+    if (!resp.ok) {
+        return null;
+    }
+    return resp.json();                         // { userId, username, nickname, avatar, roles, permissions }
+}
+
+function showSessionInvalidPrompt() {
+    // 确认后跳回 Home Center 登录页，并携带当前应用地址作为 ref
+    const currentUrl = window.location.href;
+    const loginUrl = 'https://<public-domain>/login.html?ref=' + encodeURIComponent(currentUrl);
+    if (window.confirm('登录已失效，请重新登录')) {
+        window.location.href = loginUrl;
+    }
+}
+```
+
+接入要点：
+
+- 失效场景不需要区分原因（过期、踢出、禁用、角色权限变更都统一表现为 401），前端用一个统一提示即可。
+- 登录页登录成功后会按 `ref` 返回原应用地址，`ref` 必须以 `/` 或完整 URL 开头，否则会被忽略。
+- 自研应用后端做自身鉴权时，调用 Home Center 登录校验接口遇到未认证，也应向前端返回 401，复用同一套失效提示。
+- `appSecret` 只用于服务端到服务端可信调用，永远不写进上面这类前端代码。
+
 ## Cookie 策略
 
 生产环境默认全站 HTTPS，`home_center_token` cookie 策略应支持跨子域共享：

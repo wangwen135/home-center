@@ -14,13 +14,13 @@
     };
 
     // 入口类型元数据：badge 文案 + 是否为说明/命令类
+    // 类型集合：link/nginx_proxy/intranet/ssh_rdp/note
     var ENTRY_META = {
+        link: {label: '链接', note: false, badge: 'muted'},
         nginx_proxy: {label: '代理', note: false, badge: ''},
-        external: {label: '外链', note: false, badge: 'muted'},
         intranet: {label: '内网', note: false, badge: 'success'},
-        note: {label: '说明', note: true, badge: 'note'},
-        ssh: {label: 'SSH', note: true, badge: 'note'},
-        rdp: {label: 'RDP', note: true, badge: 'note'}
+        ssh_rdp: {label: 'SSH/RDP', note: true, badge: 'note'},
+        note: {label: '说明', note: true, badge: 'note'}
     };
 
     function normalizeText(value) {
@@ -28,7 +28,7 @@
     }
 
     function entryMeta(type) {
-        return ENTRY_META[normalizeText(type)] || ENTRY_META.external;
+        return ENTRY_META[normalizeText(type)] || ENTRY_META.link;
     }
 
     function isImageIcon(value) {

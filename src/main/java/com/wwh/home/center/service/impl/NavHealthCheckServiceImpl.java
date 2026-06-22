@@ -39,7 +39,7 @@ public class NavHealthCheckServiceImpl implements NavHealthCheckService {
      * 说明/命令类入口类型，无 HTTP 目标，默认跳过健康检查
      */
     private static final Set<String> SKIP_ENTRY_TYPES = Collections.unmodifiableSet(
-            new HashSet<>(Arrays.asList("note", "ssh", "rdp")));
+            new HashSet<>(Arrays.asList("note", "ssh_rdp")));
 
     private static final String STATUS_NORMAL = "normal";
     private static final String STATUS_ABNORMAL = "abnormal";

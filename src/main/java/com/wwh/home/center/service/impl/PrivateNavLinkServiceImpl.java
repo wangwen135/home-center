@@ -20,7 +20,7 @@ import java.util.List;
 @Service
 public class PrivateNavLinkServiceImpl implements PrivateNavLinkService {
 
-    private static final String DEFAULT_ENTRY_TYPE = "external";
+    private static final String DEFAULT_ENTRY_TYPE = "link";
     private static final String DEFAULT_OPEN_TYPE = "blank";
 
     @Autowired

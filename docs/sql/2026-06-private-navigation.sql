@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS private_nav_link (
     description VARCHAR(500) NULL,
     icon VARCHAR(255) NULL,
     icon_emoji VARCHAR(32) NULL,
-    entry_type VARCHAR(32) NOT NULL DEFAULT 'external' COMMENT '入口类型：nginx_proxy/external/intranet/note/ssh/rdp',
+    entry_type VARCHAR(32) NOT NULL DEFAULT 'link' COMMENT '入口类型：link/nginx_proxy/intranet/ssh_rdp/note',
     open_type VARCHAR(32) NOT NULL DEFAULT 'blank' COMMENT '打开方式：blank/self',
     instruction TEXT NULL,
     sort_order INT NOT NULL DEFAULT 0,

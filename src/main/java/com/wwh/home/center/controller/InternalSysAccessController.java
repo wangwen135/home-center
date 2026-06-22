@@ -4,6 +4,7 @@ import com.wwh.home.center.common.constant.SysConstants;
 import com.wwh.home.center.common.model.Result;
 import com.wwh.home.center.common.util.RequestUtil;
 import com.wwh.home.center.model.entity.InternalSystemConfig;
+import com.wwh.home.center.security.CheckAuthRateLimiter;
 import com.wwh.home.center.security.TokenManager;
 import com.wwh.home.center.security.UserContextHolder;
 import com.wwh.home.center.security.model.LoggedUserAllInfo;
@@ -11,6 +12,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -36,10 +38,20 @@ import java.util.List;
 @RestController
 public class InternalSysAccessController {
 
+    @Autowired
+    private CheckAuthRateLimiter checkAuthRateLimiter;
+
     //nginx内部调用的
     @ApiOperation("内部系统权限拦截")
     @RequestMapping(SysConstants.PATH_CHECK_AUTH) // /checkAuth
     public Result checkAuth(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        //轻量 IP 限流，避免异常高频请求拖垮应用；命中限流返回 429
+        String clientIp = RequestUtil.getIpAddress(request);
+        if (!checkAuthRateLimiter.allow(clientIp)) {
+            response.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
+            return Result.error(429, "请求过于频繁，请稍后再试");
+        }
+
         //请求的域名
         String domain = request.getServerName();
         log.trace("请求域名：{}", domain);

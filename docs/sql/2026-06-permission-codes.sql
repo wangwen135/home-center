@@ -40,6 +40,10 @@ SELECT 0, 'Online Session Management Menu', '/admin/sessions.html', 2, NULL, 91,
 FROM dual WHERE NOT EXISTS (SELECT 1 FROM sys_permission WHERE urls = '/admin/sessions.html' AND deleted = 0);
 
 INSERT INTO sys_permission (pid, name, urls, type, icon, sort, deleted, create_by, create_time, update_time)
+SELECT 0, 'Rate Limit Management Menu', '/admin/rate-limit.html', 2, NULL, 92, 0, 1, NOW(), NOW()
+FROM dual WHERE NOT EXISTS (SELECT 1 FROM sys_permission WHERE urls = '/admin/rate-limit.html' AND deleted = 0);
+
+INSERT INTO sys_permission (pid, name, urls, type, icon, sort, deleted, create_by, create_time, update_time)
 SELECT 0, 'Backend All', '/backend/**', 3, NULL, 100, 0, 1, NOW(), NOW()
 FROM dual WHERE NOT EXISTS (SELECT 1 FROM sys_permission WHERE urls = '/backend/**' AND deleted = 0);
 
