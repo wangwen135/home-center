@@ -6,6 +6,7 @@ import com.wwh.home.center.model.entity.NavCategory;
 import com.wwh.home.center.model.entity.NavLink;
 import com.wwh.home.center.security.UserContextHolder;
 import com.wwh.home.center.service.NavCategoryService;
+import com.wwh.home.center.service.NavHealthCheckService;
 import com.wwh.home.center.service.NavLinkService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -37,6 +38,9 @@ public class NavManageController {
 
     @Autowired
     private NavLinkService navLinkService;
+
+    @Autowired
+    private NavHealthCheckService navHealthCheckService;
 
     @ApiOperation("分组列表")
     @GetMapping("/categories")
@@ -98,6 +102,20 @@ public class NavManageController {
         checkSuperAdmin();
         navLinkService.deleteLink(id);
         return Result.success();
+    }
+
+    @ApiOperation("手动触发单个公开导航入口健康检查")
+    @PostMapping("/link/{id}/health-check")
+    public Result<NavLink> healthCheckLink(@PathVariable @NotNull(message = "链接ID不能为空") Long id) {
+        checkSuperAdmin();
+        return Result.success(navHealthCheckService.checkPublicLink(id));
+    }
+
+    @ApiOperation("批量触发公开导航入口健康检查")
+    @PostMapping("/health-check")
+    public Result<Integer> healthCheckAll() {
+        checkSuperAdmin();
+        return Result.success(navHealthCheckService.checkAllPublic());
     }
 
     private void checkSuperAdmin() {

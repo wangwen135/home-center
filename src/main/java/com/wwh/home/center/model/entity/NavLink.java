@@ -39,6 +39,32 @@ public class NavLink {
 
     private Integer status;
 
+    /**
+     * 健康状态：unknown/normal/abnormal/timeout/skipped
+     */
+    private String checkStatus;
+
+    /**
+     * 最近检查时间
+     */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private LocalDateTime lastCheckTime;
+
+    /**
+     * 最近检查 HTTP 状态码
+     */
+    private Integer lastHttpStatus;
+
+    /**
+     * 最近检查耗时（毫秒）
+     */
+    private Integer checkDurationMs;
+
+    /**
+     * 最近失败原因
+     */
+    private String lastFailReason;
+
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private LocalDateTime createTime;
 
