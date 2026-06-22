@@ -3,6 +3,22 @@ spring:
     active: ${SPRING_PROFILES_ACTIVE:dev}
   servlet:
     multipart:
-      # 单文件上限 5MB（图片接口限制 2MB，留余量），默认 1MB 会把合规上传拦掉
-      max-file-size: 5MB
-      max-request-size: 10MB
+      # 单文件上限 10MB，与导航图标上传接口一致
+      max-file-size: 10MB
+      max-request-size: 20MB
+
+# 导航入口健康检查（后台定时任务，结果缓存到数据库，前端只展示已有状态）
+nav:
+  health-check:
+    enabled: true
+    interval-ms: 1800000
+    initial-delay-ms: 60000
+    timeout-ms: 5000
+
+# 登录 cookie 安全策略
+# 生产 HTTPS 部署时 secure 设为 true；跨子域共享登录态时 domain 填 .<public-domain>
+home-center:
+  cookie:
+    secure: false
+    domain: ''
+    same-site: Lax

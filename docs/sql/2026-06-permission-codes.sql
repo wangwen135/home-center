@@ -17,6 +17,10 @@ SELECT 0, 'Private Navigation Menu', '/private.html', 2, NULL, 20, 0, NOW(), NOW
 WHERE NOT EXISTS (SELECT 1 FROM sys_permission WHERE urls = '/private.html' AND deleted = 0);
 
 INSERT INTO sys_permission (pid, name, urls, type, icon, sort, deleted, create_time, update_time)
+SELECT 0, 'Private Navigation API', '/api/private-nav/**', 3, NULL, 21, 0, NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM sys_permission WHERE urls = '/api/private-nav/**' AND deleted = 0);
+
+INSERT INTO sys_permission (pid, name, urls, type, icon, sort, deleted, create_time, update_time)
 SELECT 0, 'PC Monitor Menu', '/device/pc/monitor.html', 2, NULL, 30, 0, NOW(), NOW()
 WHERE NOT EXISTS (SELECT 1 FROM sys_permission WHERE urls = '/device/pc/monitor.html' AND deleted = 0);
 
@@ -27,6 +31,10 @@ WHERE NOT EXISTS (SELECT 1 FROM sys_permission WHERE urls = '/device/pc/power.ht
 INSERT INTO sys_permission (pid, name, urls, type, icon, sort, deleted, create_time, update_time)
 SELECT 0, 'Backend Management Menu', '/admin/manage.html', 2, NULL, 90, 0, NOW(), NOW()
 WHERE NOT EXISTS (SELECT 1 FROM sys_permission WHERE urls = '/admin/manage.html' AND deleted = 0);
+
+INSERT INTO sys_permission (pid, name, urls, type, icon, sort, deleted, create_time, update_time)
+SELECT 0, 'Online Session Management Menu', '/admin/sessions.html', 2, NULL, 91, 0, NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM sys_permission WHERE urls = '/admin/sessions.html' AND deleted = 0);
 
 INSERT INTO sys_permission (pid, name, urls, type, icon, sort, deleted, create_time, update_time)
 SELECT 0, 'Backend All', '/backend/**', 3, NULL, 100, 0, NOW(), NOW()

@@ -33,6 +33,9 @@ public class SysPermissionVo {
     @ApiModelProperty("权限类型，1目录 2菜单 3按钮")
     private Integer type;
 
+    @ApiModelProperty("URL列表，分号分隔")
+    private String urls;
+
     @ApiModelProperty("图标")
     private String icon;
 

@@ -12,9 +12,14 @@ Home Center v1 uses `sys_permission.urls` as the permission code source. Multipl
 
 - Public home: `/`
 - Private navigation: `/private.html`
+
+Private navigation functional API (required by normal users to load and maintain their own private navigation):
+
+- Private navigation API: `/api/private-nav/**`
 - PC monitor: `/device/pc/monitor.html`
 - PC power control: `/device/pc/power.html`
 - Backend management: `/admin/manage.html`
+- Online session management: `/admin/sessions.html` (super admin only; functional API `/backend/token/**` is covered by `/backend/**`)
 
 Static HTML pages still require login before access. Their functional APIs must also be authorized separately.
 
