@@ -8,7 +8,9 @@ import com.wwh.home.center.security.model.LoggedUserAllInfo;
 import com.wwh.home.center.service.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.Cookie;
@@ -47,6 +49,24 @@ public class LoginManager {
 
     @Autowired
     private UsernameBanManager usernameBanManager;
+
+    /**
+     * 生产 HTTPS 部署时 cookie 设置 Secure，本地 HTTP 开发可不设置
+     */
+    @Value("${home-center.cookie.secure:false}")
+    private boolean cookieSecure;
+
+    /**
+     * 跨子域共享登录态时设置 Domain=.<public-domain>，留空则仅当前域名生效
+     */
+    @Value("${home-center.cookie.domain:}")
+    private String cookieDomain;
+
+    /**
+     * SameSite 策略，默认 Lax
+     */
+    @Value("${home-center.cookie.same-site:Lax}")
+    private String cookieSameSite;
 
     /**
      * 登录
@@ -112,19 +132,41 @@ public class LoginManager {
         List<InternalSystemConfig> userSystemList = getInternalSystemConfigs(user, sysRole);
 
         LoggedUserAllInfo lui = new LoggedUserAllInfo(user, sysRole, permissionList, userSystemList);
-        String token = TokenManager.generateToken(lui);
+        String originalUri = request.getParameter("ref");
+        String token = TokenManager.generateToken(lui, ipAddr, RequestUtil.getBrowserInfo(request), originalUri);
 
-        //写入cookie中
-        Cookie cookie = new Cookie(COOKIE_TOKEN_NAME, token);
-        //设置HttpOnly标志，无法通过脚本访问，降低XSS攻击风险
-        cookie.setHttpOnly(true);
-        // 设置Cookie的路径
-        cookie.setPath("/");
-        // 不设置Cookie的有效期，使其成为会话Cookie
-        // cookie.setMaxAge(60 * 60);
-        response.addCookie(cookie);
+        //写入cookie（手动构造 Set-Cookie 头以支持 SameSite/Secure/Domain）
+        writeTokenCookie(response, token, -1);
 
         return token;
+    }
+
+    /**
+     * 手动写入 home_center_token cookie，统一设置 HttpOnly、Path、SameSite、Secure、Domain。
+     * Servlet 3.1 的 Cookie API 不支持 SameSite，因此通过 Set-Cookie 响应头控制。
+     *
+     * @param response 响应对象
+     * @param token    token 值，为空表示清除 cookie
+     * @param maxAge   有效期秒数，-1 为会话 cookie，0 为立即过期
+     */
+    private void writeTokenCookie(HttpServletResponse response, String token, int maxAge) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(COOKIE_TOKEN_NAME).append('=').append(token == null ? "" : token);
+        sb.append("; Path=/");
+        sb.append("; HttpOnly");
+        if (StringUtils.isNotBlank(cookieSameSite)) {
+            sb.append("; SameSite=").append(cookieSameSite);
+        }
+        if (cookieSecure) {
+            sb.append("; Secure");
+        }
+        if (StringUtils.isNotBlank(cookieDomain)) {
+            sb.append("; Domain=").append(cookieDomain);
+        }
+        if (maxAge >= 0) {
+            sb.append("; Max-Age=").append(maxAge);
+        }
+        response.addHeader("Set-Cookie", sb.toString());
     }
 
     private List<SysPermission> getSysPermissionByRole(SysRole sysRole) {
@@ -146,15 +188,29 @@ public class LoginManager {
         return userSystemList;
     }
 
-    public void logout(HttpServletResponse response) {
-        //移除cookie
-        // 创建一个同名的 Cookie，并将其有效期设置为 0，即立即过期
-        Cookie cookie = new Cookie(COOKIE_TOKEN_NAME, null);
-        cookie.setMaxAge(0);
-        cookie.setPath("/"); // 设置Cookie的路径，确保与之前设置的路径一致
-        cookie.setHttpOnly(true); // 设置为HttpOnly
-        // 将新的 Cookie 添加到响应中
-        response.addCookie(cookie);
+    public void logout(HttpServletRequest request, HttpServletResponse response) {
+        //移除cookie（Max-Age=0 立即失效）
+        writeTokenCookie(response, null, 0);
+
+        //记录退出登录审计日志
+        Integer userId = null;
+        String username = null;
+        try {
+            userId = UserContextHolder.getUserId();
+            username = UserContextHolder.getUsername();
+        } catch (Exception ignored) {
+            // 未登录场景忽略
+        }
+        if (userId != null) {
+            SysLog sysLog = new SysLog();
+            sysLog.setOperatorId(userId);
+            sysLog.setOperatorName(username);
+            sysLog.setLogType(SysLogTypeEnum.LOGOUT.toString());
+            sysLog.setContent("用户主动退出登录");
+            sysLog.setIp(RequestUtil.getIpAddress());
+            sysLog.setBrowserInfo(RequestUtil.getBrowserInfo());
+            sysLogService.saveSysLog(sysLog);
+        }
 
         //移除token
         UserContextHolder.isLoggedIn();
@@ -179,6 +235,15 @@ public class LoginManager {
         //记录失败的IP和用户名
         ipBanManager.handleLoginFailure(ipAddr);
         usernameBanManager.handleLoginFailure(username, password);
+
+        //记录登录失败审计日志
+        SysLog sysLog = new SysLog();
+        sysLog.setOperatorName(username);
+        sysLog.setLogType(SysLogTypeEnum.LOGIN.toString());
+        sysLog.setContent("登录失败：用户名或密码错误");
+        sysLog.setIp(ipAddr);
+        sysLog.setBrowserInfo(RequestUtil.getBrowserInfo(request));
+        sysLogService.saveSysLog(sysLog);
     }
 
     private void preLogin(String username, String ipAddr) {

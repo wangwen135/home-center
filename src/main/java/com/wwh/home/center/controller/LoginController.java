@@ -47,7 +47,7 @@ public class LoginController {
     @GetMapping("/logout")
     public Result logout(HttpServletRequest request, HttpServletResponse response) throws IOException {
         try {
-            loginManager.logout(response);
+            loginManager.logout(request, response);
         } catch (UnauthorizedException e) {
             log.debug("用户没有登录");
         }
