@@ -1,10 +1,13 @@
 package com.wwh.home.center.controller;
 
 import com.alibaba.fastjson2.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.wwh.home.center.common.model.Result;
 import com.wwh.home.center.common.util.ImgUtils;
 import com.wwh.home.center.common.util.RequestUtil;
+import com.wwh.home.center.dao.mapper.SsoApplicationMapper;
 import com.wwh.home.center.model.entity.OperationLog;
+import com.wwh.home.center.model.entity.SsoApplication;
 import com.wwh.home.center.model.entity.SysPermission;
 import com.wwh.home.center.model.entity.SysRole;
 import com.wwh.home.center.model.entity.UserInfo;
@@ -27,7 +30,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-@Api(tags = "SSO接入接口")
+@Api(tags = "SSO API")
 @RestController
 @RequestMapping("/api/sso")
 public class SsoController {
@@ -38,16 +41,24 @@ public class SsoController {
     @Autowired
     private OperationLogService operationLogService;
 
-    @ApiOperation("获取当前SSO登录用户")
+    @Autowired
+    private SsoApplicationMapper ssoApplicationMapper;
+
+    @ApiOperation("Get current SSO user")
     @GetMapping("/me")
     public Result<SsoCurrentUserVo> me(@RequestParam(required = false) String appId,
                                        @RequestHeader(value = "X-App-Id", required = false) String appIdHeader) {
         String resolvedAppId = resolveAppId(appId, appIdHeader);
+        if (!isAppAllowed(resolvedAppId)) {
+            recordAudit(resolvedAppId, null, false, "app disabled or not configured", SSO_SCOPE_BASIC);
+            return Result.error(403, "app disabled or not configured");
+        }
+
         String token = RequestUtil.getTokenFromRequest(RequestUtil.getRequestFromContextHolder());
         LoggedUserAllInfo userAllInfo = TokenManager.getUserAllInfoFromToken(token);
         if (userAllInfo == null) {
             recordAudit(resolvedAppId, null, false, "token invalid or expired", SSO_SCOPE_BASIC);
-            return Result.unauthorized("登录已失效，请重新登录");
+            return Result.unauthorized("login expired");
         }
 
         TokenManager.refreshToken(token);
@@ -97,6 +108,15 @@ public class SsoController {
     private String resolveAppId(String appId, String appIdHeader) {
         return StringUtils.defaultIfBlank(StringUtils.trimToNull(appIdHeader),
                 StringUtils.defaultIfBlank(StringUtils.trimToNull(appId), DEFAULT_APP_ID));
+    }
+
+    private boolean isAppAllowed(String appId) {
+        if (DEFAULT_APP_ID.equals(appId)) {
+            return true;
+        }
+        SsoApplication app = ssoApplicationMapper.selectOne(new LambdaQueryWrapper<SsoApplication>()
+                .eq(SsoApplication::getAppId, appId));
+        return app != null && app.getStatus() != null && app.getStatus() == 1;
     }
 
     private void recordAudit(String appId, UserInfo user, boolean success, String failureReason, String returnedScope) {

@@ -6,6 +6,7 @@ logs/
 .project
 .idea
 .vscode/
+.claude/
 *.log
 *.class
 *.jar

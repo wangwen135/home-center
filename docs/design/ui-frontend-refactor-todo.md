@@ -260,10 +260,10 @@
   - 点击展示形态应来自配置，不要只按入口类型硬编码。
 
   完成说明（2026-06-23，处理者：Claude）：
-  - 点击形态由配置 `openType` 决定（`new_tab`→新标签页；`instruction`→说明/命令弹框）；`openType` 缺失时按入口类型回退（说明类→弹框，其余→新标签页），满足“来自配置不硬编码”。
+  - 点击形态由配置 `openType` 决定（`new_tab`/`blank`→新标签页；`instruction`→说明/命令弹框；`address_choice`→公网/内网地址选择弹框）；`openType` 缺失时按入口类型回退（说明类→弹框，其余→新标签页），满足“来自配置不硬编码”。
   - 说明/命令弹框沿用 `.hc-dialog`（含 `.pn-instruction` 命令块 + 复制/关闭，复制走 `navigator.clipboard` + `execCommand` 兜底 + toast）。
-  - 断言：mock 下说明类卡片点击后出现 `.hc-dialog-backdrop.show` 含说明；链接卡片 `target=_blank`。
-  - **冲突记录（需后端后续支持）**：设计中“公网访问地址 | 内网访问地址”选择弹框要求入口同时具备公网与内网地址。当前 `PrivateNavLink` 实体仅有单一 `url` 字段（公网/内网双地址能力在 `InternalSystemConfig` 上，且 `openType` 字段此前未使用）。因此该第三种形态暂未实现，待后端在 `PrivateNavLink` 增补 `publicUrl`/`intranetUrl`（或与 `InternalSystemConfig` 联动）后再接入对应选择弹框。已保持代码可运行，不阻塞其它形态。
+  - 已在 `PrivateNavLink` 增加 `publicUrl`/`intranetUrl`，并提供 `docs/sql/2026-06-ui-refactor-followup.sql` 增量；前台点击 `address_choice` 时弹出“公网访问地址 / 内网访问地址”选择弹框。
+  - 断言：mock 下说明类卡片点击后出现 `.hc-dialog-backdrop.show` 含说明；地址选择类卡片点击后出现访问地址选择弹框；链接卡片 `target=_blank`。
 
 - [x] 4.6 实现私有导航空状态
   - 无数据时显示“暂无内部导航入口”。
@@ -271,8 +271,8 @@
   - 有配置权限时显示低强调“去配置”按钮；无权限时只显示提示。
 
   完成说明（2026-06-23，处理者：Claude）：
-  - 无分组/链接时显示“暂无内部导航入口，可在配置或管理界面维护私有导航。”，并附带低强调“去配置”（`/admin/manage.html`）。
-  - “去配置”可见性由 `hasPermission('/admin/manage.html')` 控制：有权限显示、无权限隐藏（权限加载后 `updateConfigButtons` 统一刷新）。
+  - 无分组/链接时显示“暂无内部导航入口，可在配置或管理界面维护私有导航。”，并附带低强调“去配置”（`/admin/private-nav.html`）。
+  - “去配置”可见性由 `hasPermission('/api/private-nav/**')` 控制：有权限显示、无权限隐藏（权限加载后 `updateConfigButtons` 统一刷新）。
   - 断言：mock 普通用户（无配置权限）空状态下文案含“暂无内部导航入口”且“去配置”隐藏。
 
 - [x] 4.7 验证内部私有导航页
@@ -285,7 +285,7 @@
   - 用 mock（`/user/*`、`/api/private-nav/all`）驱动真实 `private-nav.js`/`entry.css`：渲染 6 卡片、badge `内网/代理/外链/内网/命令/说明`、健康点 4、权限菜单 `后台管理/设备控制`、昵称“测试用户”、说明类点击弹框、链接类 `target=_blank`；粒子 `running=true`；桌面 1440 + 移动 390 抓图均无 JS 控制台错误；空状态文案与“去配置”权限门控断言通过。
   - 同时复核公开首页在抽取共享 `.hc-entry-card` 后仍渲染 8 卡片/3 分组，未受影响。
   - UTF-8 无 BOM、中文无乱码。
-  - 注：`/user/*`、`/api/private-nav/all` 真实端到端因本机无后端以 mock 验证；4.5 第三形态受后端数据模型限制（见 4.5 冲突记录）。
+  - 注：`/user/*`、`/api/private-nav/all` 真实端到端因本机无后端以 mock 验证；后续实机自测覆盖地址选择弹框与配置页。
 
 ## 阶段 5：后台管理外壳
 
@@ -368,11 +368,12 @@
 
   完成说明（2026-06-23，处理者：Claude）：
   - 抽取 `admin/nav.html`（公开导航管理）：分组表（名称/图标/排序/状态/操作）+ 链接表（标题/URL/分组/排序/状态/健康/操作）+ 分组弹窗 + 链接弹窗（含图标上传）。采用 `.admin-shell` + app-theme Bootstrap 兼容类。
+  - 新增 `admin/private-nav.html`（当前用户私有导航配置）：私有分组与入口分开维护；入口支持 `entryType`、`openType`、`url`、`publicUrl`、`intranetUrl`、说明文本、图标上传/预览/删除、启停与排序。
   - 图标能力：`/common/img/upload`（FormData，前端预校验 ≤10MB）→ 存相对路径 + 预览（`/common/img/view/` 前缀，外链原样），支持 PNG/JPG/GIF/WebP/SVG；与 Emoji 二选一，渲染时图片优先；可替换（重新上传）、可删除（清空路径）。字段经 DB MCP（`nav_category`/`nav_link` 的 icon/iconEmoji/sortOrder/status）核对一致。
   - 健康检查：单个 `/backend/nav/link/{id}/health-check`、批量 `/backend/nav/health-check`；状态以彩色圆点 + 最近检查时间展示，HTTP 状态码/耗时/失败原因 hover 查看。
-  - 菜单“导航管理 → /admin/nav.html”。
+  - 菜单“导航管理 → /admin/nav.html / /admin/private-nav.html”。
   - 验证：内联 JS 语法通过；真实页 headless 加载无控制台错误；分组/链接两个表格结构就位。
-  - 说明：manage.html 原仅管理**公开导航**；**私有导航**按 `PROJECT_CONTEXT` 由用户自维护（`private-nav.js` + `/api/private-nav/*`），超管维护他人私有导航属“需单独设计的后台能力”，当前后端与 manage.html 均未提供，故 6.3 的私有导航后台部分维持现状并记录。
+  - 说明：私有导航配置严格按当前登录用户隔离，仅维护自己的私有导航；不新增“超管代管他人私有导航”能力。
 
 - [x] 6.4 重构设备管理和操作审计页面
   - 设备列表展示在线状态、最近心跳、Agent 版本、可用操作。
@@ -386,15 +387,15 @@
   - 验证：两页内联 JS 语法通过、真实加载无控制台错误。
   - 说明：审计“按 appId/用户/结果/时间筛选”属 6.5 范畴；当前 logs 页为只读查看 + 刷新，筛选待 6.5。
 
-- [ ] 6.5 重构 SSO 应用和审计页面（部分：Claude，2026-06-23）
+- [x] 6.5 重构 SSO 应用和审计页面
   - SSO 应用列表使用后台统一表格。
   - appSecret 相关操作必须避免暴露到浏览器不该显示的位置。
   - 审计页面支持按 appId、用户、结果、时间范围筛选。
 
-  进展说明（2026-06-23，处理者：Claude）——部分完成，未勾选：
-  - **审计筛选**已落地：`admin/logs.html` 对操作日志/安全日志/系统日志提供客户端筛选（关键字覆盖用户/类型/模块/IP/URL/内容，操作日志另支持按结果“正常/异常”筛选）+ 刷新；满足“审计列表支持筛选和查看结果”。
-  - **SSO 应用管理未做**：`admin/manage.html` 原本**没有** SSO 应用管理标签页（`/backend` 下亦未见 SSO 应用 CRUD 接口）。SSO 接入（appId/appSecret 管理、应用级权限范围）属按 `PROJECT_CONTEXT` 后续单独设计的后台能力，当前后端未提供，前端无从抽取。`appSecret` 经全前端静态审计确认**未出现在任何前端代码/静态资源**（见 9.4）。
-  - **剩余**：待后端提供 SSO 应用接入接口（appId/权限范围/审计字段）后再补 `admin/sso.html`。本任务以“审计筛选已完成、SSO 应用管理待后端”记为部分完成。
+  完成说明（2026-06-23，处理者：Codex）：
+  - 新增 `admin/sso.html`，使用后台统一外壳展示 SSO 应用列表和 SSO 审计筛选；审计支持按 appId、用户、结果、开始时间、结束时间筛选。
+  - 新增 `/backend/sso/apps` 管理接口与 `sso_application` 表，支持创建、编辑、启停、删除、重置接入密钥；密钥只在创建/重置后一次性展示，不进入列表字段。
+  - `/api/sso/me` 对非默认 `browser` appId 校验应用是否已配置且启用，并保留原有最小用户信息返回和审计记录。
 
 - [x] 6.6 重构系统配置和日志页面
   - 系统配置页面只展示非敏感配置。

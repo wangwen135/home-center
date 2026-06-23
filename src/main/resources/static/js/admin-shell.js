@@ -12,7 +12,7 @@
 (function () {
     var COLLAPSE_KEY = 'hc-admin-collapsed';
 
-    // 默认菜单分组（阶段 6 各后台模块落地后再细化 href/图标）
+    // 默认菜单分组。code 使用后端能力权限，避免页面拆分后还依赖旧 /admin/manage.html 菜单权限。
     var DEFAULT_MENU = [
         {
             group: '概览', items: [
@@ -21,34 +21,36 @@
         },
         {
             group: '用户与权限', items: [
-                {code: '/admin/users.html', label: '用户管理', href: '/admin/users.html', icon: '👤'},
-                {code: '/admin/roles.html', label: '角色管理', href: '/admin/roles.html', icon: '🛡'},
-                {code: '/admin/permissions.html', label: '权限管理', href: '/admin/permissions.html', icon: '🔑'},
-                {code: '/admin/sessions.html', label: '在线会话', href: '/admin/sessions.html', icon: '🟢'}
+                {code: '/backend/user/**', label: '用户管理', href: '/admin/users.html', icon: '👤'},
+                {code: '/backend/role/**', label: '角色管理', href: '/admin/roles.html', icon: '🛡'},
+                {code: '/backend/permission/**', label: '权限管理', href: '/admin/permissions.html', icon: '🔑'},
+                {code: '/backend/token/**', label: '在线会话', href: '/admin/sessions.html', icon: '🟢'}
             ]
         },
         {
             group: '导航管理', items: [
-                {code: '/admin/nav.html', label: '公开导航', href: '/admin/nav.html', icon: '🧭'}
+                {code: '/backend/nav/**', label: '公开导航', href: '/admin/nav.html', icon: '🧭'},
+                {code: '/api/private-nav/**', label: '私有导航', href: '/admin/private-nav.html', icon: '◇'}
             ]
         },
         {
             group: '设备', items: [
-                {code: '/admin/devices.html', label: '设备管理', href: '/admin/devices.html', icon: '💻'},
+                {code: '/backend/device/pc/**', label: '设备管理', href: '/admin/devices.html', icon: '💻'},
                 {code: '/device/pc/power.html', label: '设备控制', href: '/device/pc/power.html', icon: '🖥'}
             ]
         },
         {
             group: '应用接入', items: [
-                {code: '/admin/internal-systems.html', label: '内部系统', href: '/admin/internal-systems.html', icon: '🔌'}
+                {code: '/backend/data/**', label: '内部系统', href: '/admin/internal-systems.html', icon: '🔌'},
+                {code: '/backend/sso/apps/**', label: 'SSO 应用', href: '/admin/sso.html', icon: '🔐'}
             ]
         },
         {
             group: '系统', items: [
-                {code: '/admin/logs.html', label: '审计与日志', href: '/admin/logs.html', icon: '📋'},
-                {code: '/admin/content.html', label: '内容管理', href: '/admin/content.html', icon: '💬'},
-                {code: '/admin/rate-limit.html', label: '限流管理', href: '/admin/rate-limit.html', icon: '⏱'},
-                {code: '/admin/config.html', label: '系统配置', href: '/admin/config.html', icon: '⚙'}
+                {code: '/backend/data/**', label: '审计与日志', href: '/admin/logs.html', icon: '📋'},
+                {code: '/backend/data/**', label: '内容管理', href: '/admin/content.html', icon: '💬'},
+                {code: '/backend/rate-limit/**', label: '限流管理', href: '/admin/rate-limit.html', icon: '⏱'},
+                {code: '/backend/config/**', label: '系统配置', href: '/admin/config.html', icon: '⚙'}
             ]
         }
     ];

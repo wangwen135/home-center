@@ -4,14 +4,12 @@
  * 职责：
  * - 顶部菜单区：按当前用户角色/权限注入系统级菜单（后台管理等），用户头像+姓名下拉（个人信息/退出），低强调主题切换。
  * - 按分组渲染当前用户的私有导航入口（基于共享 .hc-entry-card 舒展门户卡片）。
- * - 点击展示形态来自配置（openType），不硬编码入口类型：new_tab 新标签页打开；instruction 说明/命令小弹框（复制+关闭）。
+ * - 点击展示形态来自配置（openType），不硬编码入口类型：new_tab 新标签页打开；instruction 说明/命令小弹框（复制+关闭）；
+ *   address_choice 公网/内网地址选择弹框。
  *   说明/命令类（ssh_rdp/note）默认走 instruction；其余默认走 new_tab。
  * - 可跳转入口展示轻量健康状态小圆点（不展示详细错误）。
  * - 空数据提示到配置界面维护，有配置权限时显示低强调“去配置”。
  *
- * 说明：设计中“公网/内网地址选择弹框”需要入口同时具备公网与内网地址；
- * 当前 PrivateNavLink 数据模型仅有单一 url 字段（公网/内网地址能力在 InternalSystemConfig 上），
- * 故该形态暂未实现，待后端补充字段后再接入（见 TODO 4.5 记录）。
  */
 (function () {
     var state = {
@@ -38,11 +36,12 @@
 
     // 顶部系统级权限菜单（有对应权限才显示）
     var PERM_MENUS = [
-        {code: '/admin/manage.html', label: '后台管理', href: '/admin/manage.html'},
+        {code: '/admin.html', label: '后台管理', href: '/admin.html'},
+        {code: '/api/private-nav/**', label: '导航配置', href: '/admin/private-nav.html'},
         {code: '/device/pc/power.html', label: '设备控制', href: '/device/pc/power.html'}
     ];
 
-    var CONFIG_PERM = '/admin/manage.html';
+    var CONFIG_PERM = '/api/private-nav/**';
 
     function normalizeText(value) {
         return value === null || value === undefined ? '' : String(value);
@@ -66,6 +65,9 @@
         var openType = normalizeText(link.openType);
         if (openType === 'instruction') {
             return true;
+        }
+        if (openType === 'address_choice') {
+            return false;
         }
         if (openType === 'new_tab') {
             return false;
@@ -317,10 +319,17 @@
             tile.addEventListener('click', function () {
                 openInstruction(link, meta);
             });
+        } else if (normalizeText(link.openType) === 'address_choice') {
+            tile = document.createElement('button');
+            tile.type = 'button';
+            tile.className = 'hc-entry-card pn-card';
+            tile.addEventListener('click', function () {
+                openAddressChoice(link);
+            });
         } else {
             tile = document.createElement('a');
             tile.className = 'hc-entry-card pn-card';
-            tile.href = normalizeText(link.url) || '#';
+            tile.href = firstAvailableUrl(link) || '#';
             tile.target = '_blank';
             tile.rel = 'noopener noreferrer';
         }
@@ -367,7 +376,7 @@
             actions.className = 'pn-empty-actions';
             var configLink = document.createElement('a');
             configLink.className = 'hc-entry-link pn-config-link';
-            configLink.href = '/admin/manage.html';
+            configLink.href = '/admin/private-nav.html';
             configLink.textContent = '去配置';
             configLink.setAttribute('data-pn-config', '');
             if (!hasPermission(CONFIG_PERM)) {
@@ -395,7 +404,7 @@
             return true;
         }
         var haystack = [
-            link.title, link.description, link.url, link.icon, link.iconEmoji,
+            link.title, link.description, link.url, link.publicUrl, link.intranetUrl, link.icon, link.iconEmoji,
             link.entryType, link.instruction,
             category && category.name, category && category.icon
         ].map(function (value) {
@@ -447,6 +456,10 @@
             content.appendChild(createEmpty('未找到匹配的私有导航入口', false));
         }
         updateConfigButtons();
+    }
+
+    function firstAvailableUrl(link) {
+        return normalizeText(link.url) || normalizeText(link.publicUrl) || normalizeText(link.intranetUrl);
     }
 
     // ===== 说明 / 命令小弹框 =====
@@ -501,6 +514,55 @@
                 showToastSimple(ok ? '已复制到剪贴板' : '复制失败，请手动选择复制',
                     ok ? MsgTypes.SUCCESS : MsgTypes.DANGER, Position.TopCenter);
             });
+        });
+    }
+
+    // ===== 公网 / 内网地址选择弹框 =====
+    function openAddressChoice(link) {
+        var publicUrl = normalizeText(link.publicUrl) || normalizeText(link.url);
+        var intranetUrl = normalizeText(link.intranetUrl);
+        if (!publicUrl && !intranetUrl) {
+            showToastSimple('该入口没有可打开的地址', MsgTypes.WARNING, Position.TopCenter);
+            return;
+        }
+
+        var backdrop = document.createElement('div');
+        backdrop.className = 'hc-dialog-backdrop show';
+        backdrop.tabIndex = -1;
+        backdrop.innerHTML =
+            '<div class="hc-dialog">' +
+            '<div class="hc-dialog-content">' +
+            '<div class="hc-dialog-header">' +
+            '<h6 class="hc-dialog-title">选择访问地址</h6>' +
+            '<button type="button" class="hc-close-button" aria-label="关闭">×</button>' +
+            '</div>' +
+            '<div class="hc-dialog-body">' +
+            '<p class="hc-muted">请选择要打开的访问地址。</p>' +
+            '<div class="pn-dialog-buttons">' +
+            (publicUrl ? '<a class="hc-button hc-button-primary" target="_blank" rel="noopener noreferrer" href="' + escapeHtml(publicUrl) + '">公网访问地址</a>' : '') +
+            (intranetUrl ? '<a class="hc-button" target="_blank" rel="noopener noreferrer" href="' + escapeHtml(intranetUrl) + '">内网访问地址</a>' : '') +
+            '</div>' +
+            '</div>' +
+            '<div class="hc-dialog-footer pn-dialog-buttons">' +
+            '<button type="button" class="hc-button pn-close-btn">关 闭</button>' +
+            '</div>' +
+            '</div>' +
+            '</div>';
+
+        document.body.appendChild(backdrop);
+
+        function close() {
+            if (backdrop.parentNode) {
+                backdrop.parentNode.removeChild(backdrop);
+            }
+        }
+
+        backdrop.querySelector('.hc-close-button').addEventListener('click', close);
+        backdrop.querySelector('.pn-close-btn').addEventListener('click', close);
+        backdrop.addEventListener('click', function (event) {
+            if (event.target === backdrop) {
+                close();
+            }
         });
     }
 

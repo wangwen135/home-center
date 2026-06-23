@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>私有导航 - Home Center</title>
+    <link rel="stylesheet" href="/css/app-theme.css?v=20260623-private-nav-admin">
+    <link rel="stylesheet" href="/css/admin-shell.css?v=20260623-private-nav-admin">
+    <script src="/js/app-theme.js?v=20260623-private-nav-admin"></script>
+    <style>
+        .pnav-toolbar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; }
+        .pnav-layout { display: grid; grid-template-columns: minmax(280px, 360px) minmax(0, 1fr); gap: 16px; }
+        .pnav-panel { border: 1px solid var(--hc-line); border-radius: 12px; background: var(--hc-surface); box-shadow: var(--hc-shadow-soft); overflow: auto; }
+        .pnav-panel h2 { margin: 0; padding: 14px 16px; border-bottom: 1px solid var(--hc-line); font-size: 16px; }
+        .pnav-table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 560px; }
+        .pnav-table th, .pnav-table td { padding: 10px 12px; border-bottom: 1px solid var(--hc-line); text-align: left; vertical-align: middle; }
+        .pnav-table th { background: var(--hc-surface-strong); color: var(--hc-muted); font-weight: 700; white-space: nowrap; }
+        .pnav-actions { display: flex; align-items: center; justify-content: flex-end; gap: 8px; white-space: nowrap; }
+        .pnav-empty { padding: 32px 12px; text-align: center; color: var(--hc-muted); }
+        .pnav-form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+        .pnav-form-grid .span-2 { grid-column: 1 / -1; }
+        .pnav-icon-preview { width: 38px; height: 38px; border-radius: 10px; border: 1px solid var(--hc-line); background: var(--hc-surface-strong); object-fit: cover; }
+        @media (max-width: 1180px) { .pnav-layout { min-width: 1180px; } }
+    </style>
+</head>
+<body class="hc-app hc-admin-body">
+<div class="admin-shell" id="adminShell">
+    <aside class="admin-sidebar">
+        <div class="admin-sidebar-brand"><span class="admin-brand-mark">HC</span><span class="admin-brand-text">Home Center</span></div>
+        <nav class="admin-menu" id="adminMenu" aria-label="后台菜单"></nav>
+        <button class="admin-sidebar-collapse" id="adminCollapseBtn" type="button" aria-label="折叠/展开菜单"><span aria-hidden="true">≪</span><span class="admin-collapse-text">折叠</span></button>
+    </aside>
+
+    <div class="admin-body">
+        <header class="admin-topbar">
+            <div class="admin-topbar-title" id="adminTitle"></div>
+            <div class="admin-topbar-actions">
+                <div class="admin-user">
+                    <button class="admin-user-btn" id="adminUserBtn" type="button" aria-haspopup="true" aria-expanded="false">
+                        <img class="admin-user-avatar" id="adminUserAvatar" src="/favicon.ico" alt="">
+                        <span class="admin-user-name" id="adminUserName">用户</span>
+                        <span class="admin-caret" aria-hidden="true">▾</span>
+                    </button>
+                    <div class="admin-dropdown" id="adminUserMenu" role="menu" hidden>
+                        <a class="admin-dropdown-item" href="/profile.html" role="menuitem">个人信息</a>
+                        <button class="admin-dropdown-item is-danger" type="button" id="adminLogoutBtn" role="menuitem">退出登录</button>
+                    </div>
+                </div>
+                <button class="hc-theme-toggle" type="button" aria-label="切换深浅色主题"><span data-theme-toggle-text>深色</span></button>
+            </div>
+        </header>
+
+        <main class="admin-content">
+            <section class="admin-page-section">
+                <div class="pnav-toolbar">
+                    <button class="hc-button hc-button-primary" id="addCategoryBtn" type="button">新增分组</button>
+                    <button class="hc-button hc-button-primary" id="addLinkBtn" type="button">新增入口</button>
+                    <button class="hc-button" id="reloadBtn" type="button">刷新</button>
+                    <a class="hc-button" href="/private.html">返回内部导航</a>
+                </div>
+
+                <div class="pnav-layout">
+                    <section class="pnav-panel">
+                        <h2>分组</h2>
+                        <div class="admin-scroll">
+                            <table class="pnav-table">
+                                <thead><tr><th>名称</th><th>排序</th><th>状态</th><th>操作</th></tr></thead>
+                                <tbody id="categoryBody"><tr><td colspan="4" class="pnav-empty">加载中...</td></tr></tbody>
+                            </table>
+                        </div>
+                    </section>
+
+                    <section class="pnav-panel">
+                        <h2>入口</h2>
+                        <div class="admin-scroll">
+                            <table class="pnav-table">
+                                <thead><tr><th>图标</th><th>名称</th><th>分组</th><th>类型</th><th>打开形态</th><th>状态</th><th>操作</th></tr></thead>
+                                <tbody id="linkBody"><tr><td colspan="7" class="pnav-empty">加载中...</td></tr></tbody>
+                            </table>
+                        </div>
+                    </section>
+                </div>
+            </section>
+        </main>
+    </div>
+</div>
+
+<div class="modal fade" id="categoryModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="categoryForm">
+                <div class="modal-header"><h5 class="modal-title" id="categoryModalTitle">新增分组</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="关闭"></button></div>
+                <div class="modal-body">
+                    <input type="hidden" id="categoryId">
+                    <div class="mb-3"><label class="form-label" for="categoryName">名称</label><input class="form-control" id="categoryName" required maxlength="100"></div>
+                    <div class="mb-3"><label class="form-label" for="categoryIcon">图标</label><input class="form-control" id="categoryIcon" maxlength="255"></div>
+                    <div class="mb-3"><label class="form-label" for="categorySort">排序</label><input class="form-control" id="categorySort" type="number" value="0"></div>
+                    <div class="mb-3"><label class="form-label" for="categoryStatus">状态</label><select class="form-select" id="categoryStatus"><option value="1">启用</option><option value="0">停用</option></select></div>
+                </div>
+                <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button><button type="submit" class="btn btn-primary">保存</button></div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="linkModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <form id="linkForm">
+                <div class="modal-header"><h5 class="modal-title" id="linkModalTitle">新增入口</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="关闭"></button></div>
+                <div class="modal-body">
+                    <input type="hidden" id="linkId">
+                    <div class="pnav-form-grid">
+                        <div><label class="form-label" for="linkTitle">名称</label><input class="form-control" id="linkTitle" required maxlength="100"></div>
+                        <div><label class="form-label" for="linkCategory">分组</label><select class="form-select" id="linkCategory"></select></div>
+                        <div><label class="form-label" for="linkEntryType">入口类型</label><select class="form-select" id="linkEntryType"><option value="link">外链</option><option value="nginx_proxy">代理</option><option value="intranet">内网</option><option value="ssh_rdp">命令</option><option value="note">说明</option></select></div>
+                        <div><label class="form-label" for="linkOpenType">点击展示形态</label><select class="form-select" id="linkOpenType"><option value="new_tab">直接新标签页打开</option><option value="instruction">说明/命令小弹框</option><option value="address_choice">公网/内网地址选择弹框</option></select></div>
+                        <div class="span-2"><label class="form-label" for="linkUrl">默认 URL</label><input class="form-control" id="linkUrl" maxlength="1024"></div>
+                        <div><label class="form-label" for="linkPublicUrl">公网访问地址</label><input class="form-control" id="linkPublicUrl" maxlength="1024"></div>
+                        <div><label class="form-label" for="linkIntranetUrl">内网访问地址</label><input class="form-control" id="linkIntranetUrl" maxlength="1024"></div>
+                        <div><label class="form-label" for="linkIcon">图标路径</label><input class="form-control" id="linkIcon" maxlength="255"></div>
+                        <div><label class="form-label" for="linkIconEmoji">图标文字</label><input class="form-control" id="linkIconEmoji" maxlength="32"></div>
+                        <div><label class="form-label" for="linkSort">排序</label><input class="form-control" id="linkSort" type="number" value="0"></div>
+                        <div><label class="form-label" for="linkStatus">状态</label><select class="form-select" id="linkStatus"><option value="1">启用</option><option value="0">停用</option></select></div>
+                        <div class="span-2"><label class="form-label" for="linkDescription">描述</label><textarea class="form-control" id="linkDescription" rows="2" maxlength="500"></textarea></div>
+                        <div class="span-2"><label class="form-label" for="linkInstruction">说明 / 命令</label><textarea class="form-control" id="linkInstruction" rows="4"></textarea></div>
+                    </div>
+                    <div class="mt-3">
+                        <label class="form-label" for="linkIconFile">上传图标</label>
+                        <div class="d-flex align-items-center gap-2">
+                            <input class="form-control" id="linkIconFile" type="file" accept=".png,.jpg,.jpeg,.gif,.webp,.svg,image/*">
+                            <button class="btn btn-secondary" id="uploadIconBtn" type="button">上传</button>
+                            <img class="pnav-icon-preview" id="linkIconPreview" src="" alt="" hidden>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button><button type="submit" class="btn btn-primary">保存</button></div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="/js/main.js"></script>
+<script src="/js/admin-shell.js?v=20260623-private-nav-admin"></script>
+<script>
+    (function () {
+        HcAdminShell.init({title: '私有导航', breadcrumb: '导航管理'});
+
+        var categories = [];
+        var links = [];
+        var categoryModal = new bootstrap.Modal(document.getElementById('categoryModal'));
+        var linkModal = new bootstrap.Modal(document.getElementById('linkModal'));
+
+        function $(id) { return document.getElementById(id); }
+        function v(id) { return ($(id).value || '').trim(); }
+        function set(id, value) { $(id).value = value == null ? '' : value; }
+        function escapeHtml(value) { return window.HomeCenter.escapeHtml(value); }
+        function categoryName(id) {
+            var item = categories.find(function (c) { return String(c.id) === String(id); });
+            return item ? item.name : '-';
+        }
+        function openTypeLabel(type) {
+            return {new_tab: '新标签页', instruction: '说明弹框', address_choice: '地址选择'}[type] || type || '-';
+        }
+        function entryTypeLabel(type) {
+            return {link: '外链', nginx_proxy: '代理', intranet: '内网', ssh_rdp: '命令', note: '说明'}[type] || type || '-';
+        }
+
+        function loadAll() {
+            getRequest('/api/private-nav/manage/categories', function (list) {
+                categories = list || [];
+                renderCategories();
+                renderCategoryOptions();
+                getRequest('/api/private-nav/manage/links', function (items) {
+                    links = items || [];
+                    renderLinks();
+                }, function () { links = []; renderLinks(); });
+            }, function () { categories = []; links = []; renderCategories(); renderLinks(); });
+        }
+
+        function renderCategories() {
+            var body = $('categoryBody');
+            if (!categories.length) { body.innerHTML = '<tr><td colspan="4" class="pnav-empty">暂无分组</td></tr>'; return; }
+            body.innerHTML = categories.map(function (c) {
+                return '<tr><td>' + escapeHtml(c.name) + '</td><td>' + escapeHtml(c.sortOrder) + '</td><td>' + (Number(c.status) === 1 ? '启用' : '停用') + '</td>' +
+                    '<td><div class="pnav-actions"><button class="btn btn-sm" data-cat-edit="' + escapeHtml(c.id) + '">编辑</button><button class="btn btn-sm btn-danger" data-cat-delete="' + escapeHtml(c.id) + '">删除</button></div></td></tr>';
+            }).join('');
+        }
+
+        function renderCategoryOptions() {
+            $('linkCategory').innerHTML = categories.map(function (c) {
+                return '<option value="' + escapeHtml(c.id) + '">' + escapeHtml(c.name) + '</option>';
+            }).join('');
+        }
+
+        function renderLinks() {
+            var body = $('linkBody');
+            if (!links.length) { body.innerHTML = '<tr><td colspan="7" class="pnav-empty">暂无入口</td></tr>'; return; }
+            body.innerHTML = links.map(function (l) {
+                var icon = l.icon ? '<img class="pnav-icon-preview" src="' + escapeHtml(l.icon) + '" alt="">' : escapeHtml(l.iconEmoji || 'HC');
+                return '<tr><td>' + icon + '</td><td>' + escapeHtml(l.title) + '</td><td>' + escapeHtml(categoryName(l.categoryId)) + '</td>' +
+                    '<td>' + escapeHtml(entryTypeLabel(l.entryType)) + '</td><td>' + escapeHtml(openTypeLabel(l.openType)) + '</td><td>' + (Number(l.status) === 1 ? '启用' : '停用') + '</td>' +
+                    '<td><div class="pnav-actions"><button class="btn btn-sm" data-link-edit="' + escapeHtml(l.id) + '">编辑</button><button class="btn btn-sm btn-danger" data-link-delete="' + escapeHtml(l.id) + '">删除</button></div></td></tr>';
+            }).join('');
+        }
+
+        function openCategory(item) {
+            $('categoryModalTitle').textContent = item ? '编辑分组' : '新增分组';
+            set('categoryId', item && item.id);
+            set('categoryName', item && item.name);
+            set('categoryIcon', item && item.icon);
+            set('categorySort', item && item.sortOrder != null ? item.sortOrder : 0);
+            set('categoryStatus', item && item.status != null ? item.status : 1);
+            categoryModal.show();
+        }
+
+        function openLink(item) {
+            $('linkModalTitle').textContent = item ? '编辑入口' : '新增入口';
+            set('linkId', item && item.id);
+            set('linkTitle', item && item.title);
+            set('linkCategory', item && item.categoryId);
+            set('linkEntryType', item && item.entryType || 'link');
+            set('linkOpenType', item && item.openType || 'new_tab');
+            set('linkUrl', item && item.url);
+            set('linkPublicUrl', item && item.publicUrl);
+            set('linkIntranetUrl', item && item.intranetUrl);
+            set('linkIcon', item && item.icon);
+            set('linkIconEmoji', item && item.iconEmoji);
+            set('linkSort', item && item.sortOrder != null ? item.sortOrder : 0);
+            set('linkStatus', item && item.status != null ? item.status : 1);
+            set('linkDescription', item && item.description);
+            set('linkInstruction', item && item.instruction);
+            updateIconPreview();
+            linkModal.show();
+        }
+
+        function saveCategory(event) {
+            event.preventDefault();
+            var id = v('categoryId');
+            var payload = {id: id ? Number(id) : null, name: v('categoryName'), icon: v('categoryIcon'), sortOrder: Number(v('categorySort') || 0), status: Number(v('categoryStatus'))};
+            request('/api/private-nav/category', {method: id ? 'PUT' : 'POST', body: payload}, function () {
+                categoryModal.hide(); showToastSimple('分组已保存', MsgTypes.SUCCESS, Position.TopCenter); loadAll();
+            });
+        }
+
+        function saveLink(event) {
+            event.preventDefault();
+            var id = v('linkId');
+            var payload = {
+                id: id ? Number(id) : null,
+                title: v('linkTitle'),
+                categoryId: v('linkCategory') ? Number(v('linkCategory')) : null,
+                entryType: v('linkEntryType'),
+                openType: v('linkOpenType'),
+                url: v('linkUrl'),
+                publicUrl: v('linkPublicUrl'),
+                intranetUrl: v('linkIntranetUrl'),
+                icon: v('linkIcon'),
+                iconEmoji: v('linkIconEmoji'),
+                sortOrder: Number(v('linkSort') || 0),
+                status: Number(v('linkStatus')),
+                description: v('linkDescription'),
+                instruction: v('linkInstruction')
+            };
+            request('/api/private-nav/link', {method: id ? 'PUT' : 'POST', body: payload}, function () {
+                linkModal.hide(); showToastSimple('入口已保存', MsgTypes.SUCCESS, Position.TopCenter); loadAll();
+            });
+        }
+
+        function uploadIcon() {
+            var input = $('linkIconFile');
+            if (!input.files || !input.files.length) { return; }
+            var file = input.files[0];
+            if (file.size > 10 * 1024 * 1024) { showToastSimple('文件大小超过限制（最大10MB）', MsgTypes.DANGER, Position.TopCenter); return; }
+            var form = new FormData();
+            form.append('file', file);
+            postRequest('/common/img/upload', form, function (path) {
+                set('linkIcon', path);
+                updateIconPreview();
+                showToastSimple('图标已上传', MsgTypes.SUCCESS, Position.TopCenter);
+            });
+        }
+
+        function updateIconPreview() {
+            var value = v('linkIcon');
+            var img = $('linkIconPreview');
+            if (!value) { img.hidden = true; img.src = ''; return; }
+            img.src = /^https?:\/\//i.test(value) ? value : ('/common/img/view/' + value);
+            img.hidden = false;
+        }
+
+        document.getElementById('addCategoryBtn').addEventListener('click', function () { openCategory(null); });
+        document.getElementById('addLinkBtn').addEventListener('click', function () { openLink(null); });
+        document.getElementById('reloadBtn').addEventListener('click', loadAll);
+        document.getElementById('categoryForm').addEventListener('submit', saveCategory);
+        document.getElementById('linkForm').addEventListener('submit', saveLink);
+        document.getElementById('uploadIconBtn').addEventListener('click', uploadIcon);
+        document.getElementById('linkIcon').addEventListener('input', updateIconPreview);
+        document.addEventListener('click', function (event) {
+            var catEdit = event.target.getAttribute('data-cat-edit');
+            var catDelete = event.target.getAttribute('data-cat-delete');
+            var linkEdit = event.target.getAttribute('data-link-edit');
+            var linkDelete = event.target.getAttribute('data-link-delete');
+            if (catEdit) { openCategory(categories.find(function (c) { return String(c.id) === String(catEdit); })); }
+            if (catDelete) {
+                showConfirm('删除分组', '确定删除该分组及其入口？', MsgTypes.WARNING, function () {
+                    request('/api/private-nav/category/' + encodeURIComponent(catDelete), {method: 'DELETE'}, loadAll);
+                });
+            }
+            if (linkEdit) { openLink(links.find(function (l) { return String(l.id) === String(linkEdit); })); }
+            if (linkDelete) {
+                showConfirm('删除入口', '确定删除该私有导航入口？', MsgTypes.WARNING, function () {
+                    request('/api/private-nav/link/' + encodeURIComponent(linkDelete), {method: 'DELETE'}, loadAll);
+                });
+            }
+        });
+
+        loadAll();
+    })();
+</script>
+</body>
+</html>

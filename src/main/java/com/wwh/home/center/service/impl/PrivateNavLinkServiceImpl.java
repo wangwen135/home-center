@@ -47,7 +47,9 @@ public class PrivateNavLinkServiceImpl implements PrivateNavLinkService {
                 .orderByAsc(PrivateNavLink::getCategoryId)
                 .orderByAsc(PrivateNavLink::getSortOrder)
                 .orderByAsc(PrivateNavLink::getId);
-        return privateNavLinkMapper.selectList(wrapper);
+        List<PrivateNavLink> links = privateNavLinkMapper.selectList(wrapper);
+        links.forEach(link -> link.setIcon(ImgUtils.formatImagePath(link.getIcon())));
+        return links;
     }
 
     @Override

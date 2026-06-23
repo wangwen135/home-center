@@ -6,6 +6,7 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -69,6 +70,7 @@ public class BfMqttConfig {
 
     // 配置 MQTT 消息驱动适配器
     @Bean
+    @ConditionalOnProperty(prefix = "mqtt.bemfa", name = "enabled", havingValue = "true", matchIfMissing = true)
     public MessageProducer inbound() {
 
         MqttPahoMessageDrivenChannelAdapter adapter =

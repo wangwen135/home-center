@@ -23,6 +23,10 @@ public class PrivateNavLink {
 
     private String url;
 
+    private String publicUrl;
+
+    private String intranetUrl;
+
     private String description;
 
     private String icon;

@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>SSO 应用 - Home Center</title>
+    <link rel="stylesheet" href="/css/app-theme.css?v=20260623-sso">
+    <link rel="stylesheet" href="/css/admin-shell.css?v=20260623-sso">
+    <script src="/js/app-theme.js?v=20260623-sso"></script>
+    <style>
+        .sso-toolbar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; }
+        .sso-panel { border: 1px solid var(--hc-line); border-radius: 12px; background: var(--hc-surface); box-shadow: var(--hc-shadow-soft); overflow: auto; margin-bottom: 18px; }
+        .sso-panel h2 { margin: 0; padding: 14px 16px; border-bottom: 1px solid var(--hc-line); font-size: 16px; }
+        .sso-table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 900px; }
+        .sso-table th, .sso-table td { padding: 10px 12px; border-bottom: 1px solid var(--hc-line); text-align: left; vertical-align: middle; }
+        .sso-table th { background: var(--hc-surface-strong); color: var(--hc-muted); font-weight: 700; white-space: nowrap; }
+        .sso-actions { display: flex; align-items: center; justify-content: flex-end; gap: 8px; white-space: nowrap; }
+        .sso-empty { padding: 32px 12px; color: var(--hc-muted); text-align: center; }
+        .sso-filters { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 14px 16px; border-bottom: 1px solid var(--hc-line); }
+        .sso-filters input, .sso-filters select { max-width: 220px; }
+        .sso-secret { padding: 12px; border: 1px solid var(--hc-line); border-radius: 8px; background: var(--hc-surface-strong); word-break: break-all; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; }
+    </style>
+</head>
+<body class="hc-app hc-admin-body">
+<div class="admin-shell" id="adminShell">
+    <aside class="admin-sidebar">
+        <div class="admin-sidebar-brand"><span class="admin-brand-mark">HC</span><span class="admin-brand-text">Home Center</span></div>
+        <nav class="admin-menu" id="adminMenu" aria-label="后台菜单"></nav>
+        <button class="admin-sidebar-collapse" id="adminCollapseBtn" type="button" aria-label="折叠/展开菜单"><span aria-hidden="true">≪</span><span class="admin-collapse-text">折叠</span></button>
+    </aside>
+    <div class="admin-body">
+        <header class="admin-topbar">
+            <div class="admin-topbar-title" id="adminTitle"></div>
+            <div class="admin-topbar-actions">
+                <div class="admin-user">
+                    <button class="admin-user-btn" id="adminUserBtn" type="button" aria-haspopup="true" aria-expanded="false">
+                        <img class="admin-user-avatar" id="adminUserAvatar" src="/favicon.ico" alt="">
+                        <span class="admin-user-name" id="adminUserName">用户</span><span class="admin-caret" aria-hidden="true">▾</span>
+                    </button>
+                    <div class="admin-dropdown" id="adminUserMenu" role="menu" hidden>
+                        <a class="admin-dropdown-item" href="/profile.html" role="menuitem">个人信息</a>
+                        <button class="admin-dropdown-item is-danger" type="button" id="adminLogoutBtn" role="menuitem">退出登录</button>
+                    </div>
+                </div>
+                <button class="hc-theme-toggle" type="button" aria-label="切换深浅色主题"><span data-theme-toggle-text>深色</span></button>
+            </div>
+        </header>
+        <main class="admin-content">
+            <section class="admin-page-section">
+                <div class="sso-toolbar">
+                    <button class="hc-button hc-button-primary" id="addAppBtn" type="button">新增应用</button>
+                    <button class="hc-button" id="reloadAppsBtn" type="button">刷新</button>
+                </div>
+                <section class="sso-panel">
+                    <h2>应用接入</h2>
+                    <div class="admin-scroll">
+                        <table class="sso-table">
+                            <thead><tr><th>应用标识</th><th>应用名称</th><th>授权范围</th><th>可信来源</th><th>状态</th><th>备注</th><th>操作</th></tr></thead>
+                            <tbody id="appBody"><tr><td colspan="7" class="sso-empty">加载中...</td></tr></tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section class="sso-panel">
+                    <h2>SSO 审计</h2>
+                    <div class="sso-filters">
+                        <input class="form-control" id="auditAppId" placeholder="appId">
+                        <input class="form-control" id="auditUser" placeholder="用户">
+                        <select class="form-select" id="auditStatus"><option value="">全部结果</option><option value="0">成功</option><option value="1">失败</option></select>
+                        <input class="form-control" id="auditStart" placeholder="开始时间 YYYY-MM-DD HH:mm:ss">
+                        <input class="form-control" id="auditEnd" placeholder="结束时间 YYYY-MM-DD HH:mm:ss">
+                        <button class="hc-button" id="auditSearchBtn" type="button">查询</button>
+                    </div>
+                    <div class="admin-scroll">
+                        <table class="sso-table">
+                            <thead><tr><th>时间</th><th>appId</th><th>用户ID</th><th>状态</th><th>失败原因</th><th>接口</th></tr></thead>
+                            <tbody id="auditBody"><tr><td colspan="6" class="sso-empty">请查询审计日志</td></tr></tbody>
+                        </table>
+                    </div>
+                </section>
+            </section>
+        </main>
+    </div>
+</div>
+
+<div class="modal fade" id="appModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="appForm">
+                <div class="modal-header"><h5 class="modal-title" id="appModalTitle">新增应用</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="关闭"></button></div>
+                <div class="modal-body">
+                    <input type="hidden" id="appRecordId">
+                    <div class="mb-3"><label class="form-label" for="appId">应用标识</label><input class="form-control" id="appId" required maxlength="100"></div>
+                    <div class="mb-3"><label class="form-label" for="appName">应用名称</label><input class="form-control" id="appName" required maxlength="100"></div>
+                    <div class="mb-3"><label class="form-label" for="allowedScopes">授权范围</label><input class="form-control" id="allowedScopes" placeholder="basic" maxlength="255"></div>
+                    <div class="mb-3"><label class="form-label" for="allowedOrigins">可信来源</label><textarea class="form-control" id="allowedOrigins" rows="2" placeholder="每行一个来源，可留空"></textarea></div>
+                    <div class="mb-3"><label class="form-label" for="appStatus">状态</label><select class="form-select" id="appStatus"><option value="1">启用</option><option value="0">停用</option></select></div>
+                    <div class="mb-3"><label class="form-label" for="appRemark">备注</label><textarea class="form-control" id="appRemark" rows="2"></textarea></div>
+                </div>
+                <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button><button type="submit" class="btn btn-primary">保存</button></div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="/js/main.js"></script>
+<script src="/js/admin-shell.js?v=20260623-sso"></script>
+<script>
+    (function () {
+        HcAdminShell.init({title: 'SSO 应用', breadcrumb: '应用接入'});
+        var apps = [];
+        var appModal = new bootstrap.Modal(document.getElementById('appModal'));
+        function $(id) { return document.getElementById(id); }
+        function v(id) { return ($(id).value || '').trim(); }
+        function set(id, value) { $(id).value = value == null ? '' : value; }
+        function esc(value) { return window.HomeCenter.escapeHtml(value); }
+
+        function loadApps() {
+            getRequest('/backend/sso/apps', function (list) {
+                apps = list || [];
+                renderApps();
+            }, function () { apps = []; renderApps(); });
+        }
+
+        function renderApps() {
+            var body = $('appBody');
+            if (!apps.length) { body.innerHTML = '<tr><td colspan="7" class="sso-empty">暂无应用</td></tr>'; return; }
+            body.innerHTML = apps.map(function (app) {
+                return '<tr><td>' + esc(app.appId) + '</td><td>' + esc(app.appName) + '</td><td>' + esc(app.allowedScopes || 'basic') + '</td>' +
+                    '<td>' + esc(app.allowedOrigins || '-') + '</td><td>' + (Number(app.status) === 1 ? '启用' : '停用') + '</td><td>' + esc(app.remark || '') + '</td>' +
+                    '<td><div class="sso-actions"><button class="btn btn-sm" data-edit="' + esc(app.id) + '">编辑</button><button class="btn btn-sm" data-reset="' + esc(app.id) + '">重置密钥</button><button class="btn btn-sm" data-toggle="' + esc(app.id) + '">' + (Number(app.status) === 1 ? '停用' : '启用') + '</button><button class="btn btn-sm btn-danger" data-delete="' + esc(app.id) + '">删除</button></div></td></tr>';
+            }).join('');
+        }
+
+        function openApp(app) {
+            $('appModalTitle').textContent = app ? '编辑应用' : '新增应用';
+            set('appRecordId', app && app.id);
+            set('appId', app && app.appId);
+            set('appName', app && app.appName);
+            set('allowedScopes', app && app.allowedScopes || 'basic');
+            set('allowedOrigins', app && app.allowedOrigins);
+            set('appStatus', app && app.status != null ? app.status : 1);
+            set('appRemark', app && app.remark);
+            appModal.show();
+        }
+
+        function showSecret(data) {
+            if (!data || !data.oneTimeSecret) { return; }
+            var backdrop = document.createElement('div');
+            backdrop.className = 'hc-dialog-backdrop show';
+            backdrop.innerHTML = '<div class="hc-dialog"><div class="hc-dialog-content">' +
+                '<div class="hc-dialog-header"><h6 class="hc-dialog-title">一次性接入密钥</h6><button type="button" class="hc-close-button" aria-label="关闭">×</button></div>' +
+                '<div class="hc-dialog-body"><p class="hc-muted">请立即保存该接入密钥，关闭后不再展示。</p><div class="sso-secret"></div></div>' +
+                '<div class="hc-dialog-footer"><button type="button" class="hc-button hc-button-primary">我已保存</button></div>' +
+                '</div></div>';
+            backdrop.querySelector('.sso-secret').textContent = data.oneTimeSecret;
+            function close() {
+                if (backdrop.parentNode) { backdrop.parentNode.removeChild(backdrop); }
+            }
+            backdrop.querySelector('.hc-close-button').addEventListener('click', close);
+            backdrop.querySelector('.hc-button-primary').addEventListener('click', close);
+            document.body.appendChild(backdrop);
+        }
+
+        function saveApp(event) {
+            event.preventDefault();
+            var id = v('appRecordId');
+            var payload = {appId: v('appId'), appName: v('appName'), allowedScopes: v('allowedScopes'), allowedOrigins: v('allowedOrigins'), status: Number(v('appStatus')), remark: v('appRemark')};
+            request(id ? '/backend/sso/apps/' + encodeURIComponent(id) : '/backend/sso/apps', {method: id ? 'PUT' : 'POST', body: payload}, function (result) {
+                appModal.hide();
+                if (!id) { showSecret(result); }
+                loadApps();
+            });
+        }
+
+        function loadAudit() {
+            var params = [];
+            [['appId', 'auditAppId'], ['user', 'auditUser'], ['status', 'auditStatus'], ['startTime', 'auditStart'], ['endTime', 'auditEnd']].forEach(function (pair) {
+                var value = v(pair[1]);
+                if (value) { params.push(pair[0] + '=' + encodeURIComponent(value)); }
+            });
+            getRequest('/backend/data/sso-audit' + (params.length ? '?' + params.join('&') : ''), function (list) {
+                renderAudit(list || []);
+            }, function () { renderAudit([]); });
+        }
+
+        function parseParam(row) {
+            try { return JSON.parse(row.operParam || '{}'); } catch (e) { return {}; }
+        }
+
+        function renderAudit(list) {
+            var body = $('auditBody');
+            if (!list.length) { body.innerHTML = '<tr><td colspan="6" class="sso-empty">暂无审计日志</td></tr>'; return; }
+            body.innerHTML = list.map(function (row) {
+                var param = parseParam(row);
+                return '<tr><td>' + esc(row.operTime || '') + '</td><td>' + esc(param.appId || row.remark || '') + '</td><td>' + esc(param.userId || '') + '</td><td>' + (Number(row.status) === 0 ? '成功' : '失败') + '</td><td>' + esc(row.errorMsg || '') + '</td><td>' + esc(row.operUrl || '') + '</td></tr>';
+            }).join('');
+        }
+
+        document.getElementById('addAppBtn').addEventListener('click', function () { openApp(null); });
+        document.getElementById('reloadAppsBtn').addEventListener('click', loadApps);
+        document.getElementById('appForm').addEventListener('submit', saveApp);
+        document.getElementById('auditSearchBtn').addEventListener('click', loadAudit);
+        document.addEventListener('click', function (event) {
+            var edit = event.target.getAttribute('data-edit');
+            var reset = event.target.getAttribute('data-reset');
+            var toggle = event.target.getAttribute('data-toggle');
+            var del = event.target.getAttribute('data-delete');
+            if (edit) { openApp(apps.find(function (app) { return String(app.id) === String(edit); })); }
+            if (reset) {
+                showConfirm('重置密钥', '确定重置该应用接入密钥？旧密钥会立即失效。', MsgTypes.WARNING, function () {
+                    postRequest('/backend/sso/apps/' + encodeURIComponent(reset) + '/reset-secret', null, function (data) { showSecret(data); loadApps(); });
+                });
+            }
+            if (toggle) {
+                var app = apps.find(function (item) { return String(item.id) === String(toggle); });
+                var next = app && Number(app.status) === 1 ? 0 : 1;
+                request('/backend/sso/apps/' + encodeURIComponent(toggle) + '/status/' + next, {method: 'PUT'}, loadApps);
+            }
+            if (del) {
+                showConfirm('删除应用', '确定删除该 SSO 应用？', MsgTypes.WARNING, function () {
+                    request('/backend/sso/apps/' + encodeURIComponent(del), {method: 'DELETE'}, loadApps);
+                });
+            }
+        });
+        loadApps();
+    })();
+</script>
+</body>
+</html>
