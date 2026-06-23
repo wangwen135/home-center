@@ -1,0 +1,457 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>用户管理 - Home Center</title>
+    <link rel="stylesheet" href="/css/app-theme.css?v=20260623-users">
+    <link rel="stylesheet" href="/css/admin-shell.css?v=20260623-users">
+    <script src="/js/app-theme.js?v=20260623-users"></script>
+    <style>
+        /* 用户管理页私有样式（外壳来自 admin-shell.css，组件复用 app-theme.css 的 Bootstrap 兼容类） */
+        .usr-toolbar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+
+        .usr-toolbar .search {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            max-width: 360px;
+            flex: 1 1 260px;
+        }
+
+        .usr-toolbar .search input {
+            flex: 1;
+            min-width: 0;
+            height: 38px;
+            padding: 0 12px;
+            border: 1px solid var(--hc-line);
+            border-radius: 8px;
+            background: var(--hc-surface-strong);
+            color: var(--hc-text);
+            font: inherit;
+        }
+
+        .usr-panel {
+            border: 1px solid var(--hc-line);
+            border-radius: 12px;
+            background: var(--hc-surface);
+            box-shadow: var(--hc-shadow-soft);
+            overflow: auto;
+        }
+
+        table.usr-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            min-width: 980px;
+        }
+
+        table.usr-table th,
+        table.usr-table td {
+            padding: 10px 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--hc-line);
+            vertical-align: middle;
+        }
+
+        table.usr-table th {
+            font-weight: 700;
+            color: var(--hc-muted);
+            background: var(--hc-surface-strong);
+            white-space: nowrap;
+        }
+
+        table.usr-table tr:hover td {
+            background: var(--hc-soft-accent);
+        }
+
+        .usr-empty {
+            padding: 40px 0;
+            text-align: center;
+            color: var(--hc-muted);
+        }
+
+        .usr-status {
+            font-weight: 700;
+        }
+
+        .usr-status.normal { color: var(--hc-success); }
+        .usr-status.locked { color: var(--hc-warning); }
+        .usr-status.disabled { color: var(--hc-danger); }
+
+        .usr-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            justify-content: flex-end;
+            flex-wrap: nowrap;
+        }
+
+        .usr-actions .btn {
+            min-height: 30px;
+            padding: 0 10px;
+            font-size: 12px;
+        }
+
+        .usr-actions .btn-warning {
+            color: var(--hc-warning);
+            border-color: rgba(217, 119, 6, 0.32);
+        }
+
+        .form-check-input {
+            margin: 0;
+        }
+    </style>
+</head>
+<body class="hc-app hc-admin-body">
+<div class="admin-shell" id="adminShell">
+    <aside class="admin-sidebar">
+        <div class="admin-sidebar-brand">
+            <span class="admin-brand-mark">HC</span>
+            <span class="admin-brand-text">Home Center</span>
+        </div>
+        <nav class="admin-menu" id="adminMenu" aria-label="后台菜单"></nav>
+        <button class="admin-sidebar-collapse" id="adminCollapseBtn" type="button" aria-label="折叠/展开菜单">
+            <span aria-hidden="true">≪</span><span class="admin-collapse-text">折叠</span>
+        </button>
+    </aside>
+
+    <div class="admin-body">
+        <header class="admin-topbar">
+            <div class="admin-topbar-title" id="adminTitle"></div>
+            <div class="admin-topbar-actions">
+                <div class="admin-user">
+                    <button class="admin-user-btn" id="adminUserBtn" type="button" aria-haspopup="true" aria-expanded="false">
+                        <img class="admin-user-avatar" id="adminUserAvatar" src="favicon.ico" alt="">
+                        <span class="admin-user-name" id="adminUserName">用户</span>
+                        <span class="admin-caret" aria-hidden="true">▾</span>
+                    </button>
+                    <div class="admin-dropdown" id="adminUserMenu" role="menu" hidden>
+                        <a class="admin-dropdown-item" href="/profile.html" role="menuitem">个人信息</a>
+                        <button class="admin-dropdown-item is-danger" type="button" id="adminLogoutBtn" role="menuitem">退出登录</button>
+                    </div>
+                </div>
+                <button class="hc-theme-toggle" type="button" aria-label="切换深浅色主题">
+                    <span class="hc-theme-toggle-icon" aria-hidden="true"></span>
+                    <span data-theme-toggle-text>深色</span>
+                </button>
+            </div>
+        </header>
+
+        <main class="admin-content" role="main">
+            <div class="usr-toolbar">
+                <button id="addUserBtn" class="btn btn-primary btn-sm" type="button">创建用户</button>
+                <div class="search">
+                    <input id="userSearchInput" type="search" placeholder="按用户名搜索..." aria-label="按用户名搜索">
+                    <button id="userSearchBtn" class="btn btn-primary btn-sm" type="button">搜索</button>
+                </div>
+            </div>
+
+            <div class="usr-panel">
+                <table class="usr-table">
+                    <thead>
+                    <tr>
+                        <th>用户名</th>
+                        <th>昵称</th>
+                        <th>手机</th>
+                        <th>角色</th>
+                        <th>状态</th>
+                        <th>创建时间</th>
+                        <th class="text-end">操作</th>
+                    </tr>
+                    </thead>
+                    <tbody id="userTableBody">
+                    <tr><td colspan="7" class="usr-empty">加载中...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+</div>
+
+<!-- 创建/编辑用户弹窗 -->
+<div class="modal fade" id="userModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <form class="modal-content" id="userForm">
+            <div class="modal-header">
+                <h6 class="modal-title" id="userModalTitle">创建用户</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="关闭"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="userId">
+                <div class="mb-3 user-create-field">
+                    <label class="form-label" for="userUsername">用户名</label>
+                    <input class="form-control" id="userUsername" required>
+                </div>
+                <div class="mb-3 user-create-field">
+                    <label class="form-label" for="userPassword">密码</label>
+                    <input class="form-control" id="userPassword" type="password" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="userNickname">昵称</label>
+                    <input class="form-control" id="userNickname">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="userPhone">手机</label>
+                    <input class="form-control" id="userPhone">
+                </div>
+                <div class="user-create-field">
+                    <label class="form-label" for="userRole">角色</label>
+                    <select class="form-select" id="userRole" required></select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-primary">保存</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- 分配角色弹窗 -->
+<div class="modal fade" id="assignUserRoleModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <form class="modal-content" id="assignUserRoleForm">
+            <div class="modal-header">
+                <h6 class="modal-title">分配角色</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="关闭"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="assignUserRoleUserId">
+                <div id="assignUserRoleList"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-primary">保存</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="/js/dom-lite.js"></script>
+<script src="/js/main.js"></script>
+<script src="/js/admin-shell.js?v=20260623-users"></script>
+<script>
+    window.HcAdminShell && window.HcAdminShell.init({title: '用户管理', breadcrumb: '用户与权限'});
+</script>
+<script>
+    (function () {
+        var users = [];
+        var roles = [];
+        var userModal = new bootstrap.Modal(document.getElementById('userModal'));
+        var assignUserRoleModal = new bootstrap.Modal(document.getElementById('assignUserRoleModal'));
+
+        function $(sel) { return document.querySelector(sel); }
+        function escapeHtml(v) { return window.HomeCenter.escapeHtml(v); }
+
+        // ===== 角色 =====
+        function loadRoles() {
+            getRequest('/backend/role/list', function (list) {
+                roles = list || [];
+                fillRoleSelect('#userRole');
+            }, function () { roles = []; });
+        }
+
+        function fillRoleSelect(selector) {
+            var sel = document.querySelector(selector);
+            if (!sel) { return; }
+            sel.innerHTML = roles.map(function (r) {
+                return '<option value="' + escapeHtml(r.id) + '">' + escapeHtml(r.name) + '</option>';
+            }).join('');
+        }
+
+        // ===== 用户列表 =====
+        function loadUsers() {
+            var username = ($('#userSearchInput').value || '').trim();
+            var body = {pageNum: 1, pageSize: 100, condition: {username: username}};
+            postRequest('/backend/user/findPage2', body, function (page) {
+                users = (page && page.data) || [];
+                renderUsers(users);
+            }, function () {
+                users = [];
+                renderUsers([]);
+            });
+        }
+
+        function renderUsers(list) {
+            var tbody = document.getElementById('userTableBody');
+            if (!list || !list.length) {
+                tbody.innerHTML = '<tr><td colspan="7" class="usr-empty">暂无数据</td></tr>';
+                return;
+            }
+            tbody.innerHTML = list.map(function (user) {
+                var statusHtml;
+                if (user.disabled) {
+                    statusHtml = '<span class="usr-status disabled">禁用</span>';
+                } else if (user.locked) {
+                    statusHtml = '<span class="usr-status locked">锁定</span>';
+                } else {
+                    statusHtml = '<span class="usr-status normal">正常</span>';
+                }
+                var disabledChecked = user.disabled ? ' checked' : '';
+                return '<tr>' +
+                    '<td>' + escapeHtml(user.username) + '</td>' +
+                    '<td>' + escapeHtml(user.nickname) + '</td>' +
+                    '<td>' + escapeHtml(user.phone) + '</td>' +
+                    '<td>' + escapeHtml(user.roleName || '-') + '</td>' +
+                    '<td>' + statusHtml + '</td>' +
+                    '<td>' + escapeHtml(user.createTime) + '</td>' +
+                    '<td>' +
+                    '<div class="usr-actions">' +
+                    '<button class="btn btn-sm" type="button" data-user-action="assign" data-user-id="' + escapeHtml(user.id) + '">分配角色</button>' +
+                    '<button class="btn btn-sm" type="button" data-user-action="edit" data-user-id="' + escapeHtml(user.id) + '">编辑</button>' +
+                    '<button class="btn btn-sm btn-warning" type="button" data-user-action="reset" data-user-id="' + escapeHtml(user.id) + '" data-username="' + escapeHtml(user.username) + '">重置密码</button>' +
+                    '<label class="form-check form-switch" title="禁用/启用"><input class="form-check-input" type="checkbox" role="switch" data-user-action="toggle" data-user-id="' + escapeHtml(user.id) + '"' + disabledChecked + '></label>' +
+                    '</div>' +
+                    '</td>' +
+                    '</tr>';
+            }).join('');
+        }
+
+        function findUser(id) {
+            id = Number(id);
+            return users.find(function (u) { return Number(u.id) === id; });
+        }
+
+        // ===== 重置密码 =====
+        function resetPassword(userId, username) {
+            showConfirm('重置密码', '确定将用户 ' + username + ' 的密码重置为 123456？', MsgTypes.WARNING, function () {
+                request('/backend/user/resetPassword?userId=' + encodeURIComponent(userId), {method: 'PUT'}, function () {
+                    showToastSimple('密码已重置为 123456', MsgTypes.SUCCESS, Position.TopCenter);
+                });
+            });
+        }
+
+        // ===== 创建/编辑弹窗 =====
+        function openAddUserModal() {
+            $('#userModalTitle').textContent = '创建用户';
+            document.getElementById('userForm').reset();
+            document.getElementById('userId').value = '';
+            Array.prototype.forEach.call(document.querySelectorAll('.user-create-field'), function (el) { el.style.display = ''; });
+            ['userUsername', 'userPassword', 'userRole'].forEach(function (id) { document.getElementById(id).required = true; });
+            fillRoleSelect('#userRole');
+            userModal.show();
+        }
+
+        function openEditUserModal(id) {
+            var user = findUser(id);
+            if (!user) { return; }
+            $('#userModalTitle').textContent = '编辑用户';
+            document.getElementById('userForm').reset();
+            document.getElementById('userId').value = user.id;
+            document.getElementById('userNickname').value = user.nickname || '';
+            document.getElementById('userPhone').value = user.phone || '';
+            Array.prototype.forEach.call(document.querySelectorAll('.user-create-field'), function (el) { el.style.display = 'none'; });
+            ['userUsername', 'userPassword', 'userRole'].forEach(function (id) { document.getElementById(id).required = false; });
+            userModal.show();
+        }
+
+        function saveUser(event) {
+            event.preventDefault();
+            var id = document.getElementById('userId').value;
+            var payload = {
+                id: id ? Number(id) : null,
+                username: (document.getElementById('userUsername').value || '').trim(),
+                password: document.getElementById('userPassword').value,
+                nickname: (document.getElementById('userNickname').value || '').trim(),
+                phone: (document.getElementById('userPhone').value || '').trim(),
+                roleId: Number(document.getElementById('userRole').value)
+            };
+            var url = id ? '/backend/user/update' : '/backend/user/create';
+            request(url, {method: id ? 'PUT' : 'POST', body: payload}, function () {
+                userModal.hide();
+                showToastSimple('用户已保存', MsgTypes.SUCCESS, Position.TopCenter);
+                loadUsers();
+            });
+        }
+
+        // ===== 分配角色 =====
+        function openAssignUserRoleModal(userId) {
+            document.getElementById('assignUserRoleUserId').value = userId;
+            getRequest('/backend/user/' + encodeURIComponent(userId) + '/roles', function (roleIds) {
+                var checkedRoleId = roleIds && roleIds.length ? roleIds[0] : null;
+                var rows = roles.map(function (role) {
+                    var checked = role.id === checkedRoleId ? ' checked' : '';
+                    return '<div class="form-check mb-2">' +
+                        '<input class="form-check-input" type="radio" name="assignUserRole" id="assignUserRole' + role.id + '" value="' + escapeHtml(role.id) + '"' + checked + '>' +
+                        '<label class="form-check-label" for="assignUserRole' + role.id + '">' + escapeHtml(role.name) + '</label>' +
+                        '</div>';
+                });
+                document.getElementById('assignUserRoleList').innerHTML = rows.join('') || '<div class="hc-muted">暂无角色</div>';
+                assignUserRoleModal.show();
+            });
+        }
+
+        function saveUserRole(event) {
+            event.preventDefault();
+            var userId = document.getElementById('assignUserRoleUserId').value;
+            var checked = document.querySelector('input[name="assignUserRole"]:checked');
+            if (!checked) {
+                showToastSimple('请选择角色', MsgTypes.WARNING, Position.TopCenter);
+                return;
+            }
+            var roleId = checked.value;
+            request('/backend/user/' + encodeURIComponent(userId) + '/roles?roleId=' + encodeURIComponent(roleId), {method: 'PUT'}, function () {
+                assignUserRoleModal.hide();
+                showToastSimple('角色已分配', MsgTypes.SUCCESS, Position.TopCenter);
+                loadUsers();
+            });
+        }
+
+        function toggleUserStatus(userId, disabled) {
+            request('/backend/user/' + encodeURIComponent(userId) + '/status?disabled=' + encodeURIComponent(disabled), {method: 'PUT'}, function () {
+                showToastSimple(disabled ? '用户已禁用' : '用户已启用', MsgTypes.SUCCESS, Position.TopCenter);
+                loadUsers();
+            }, function () {
+                loadUsers();
+            });
+        }
+
+        // ===== 事件绑定（委托） =====
+        function bind() {
+            document.getElementById('addUserBtn').addEventListener('click', openAddUserModal);
+            document.getElementById('userSearchBtn').addEventListener('click', loadUsers);
+            document.getElementById('userSearchInput').addEventListener('keydown', function (event) {
+                if (event.key === 'Enter') { loadUsers(); }
+            });
+            document.getElementById('userForm').addEventListener('submit', saveUser);
+            document.getElementById('assignUserRoleForm').addEventListener('submit', saveUserRole);
+
+            var tbody = document.getElementById('userTableBody');
+            tbody.addEventListener('click', function (event) {
+                var btn = event.target.closest('[data-user-action]');
+                if (!btn || btn.tagName !== 'BUTTON') { return; }
+                var action = btn.getAttribute('data-user-action');
+                var userId = btn.getAttribute('data-user-id');
+                if (action === 'edit') { openEditUserModal(userId); }
+                else if (action === 'assign') { openAssignUserRoleModal(userId); }
+                else if (action === 'reset') { resetPassword(userId, btn.getAttribute('data-username')); }
+            });
+            tbody.addEventListener('change', function (event) {
+                var input = event.target.closest('[data-user-action="toggle"]');
+                if (!input) { return; }
+                toggleUserStatus(input.getAttribute('data-user-id'), input.checked);
+            });
+        }
+
+        function init() {
+            bind();
+            loadRoles();
+            loadUsers();
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
+    })();
+</script>
+</body>
+</html>

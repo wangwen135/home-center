@@ -346,30 +346,64 @@
   - 验证：mock 数据下统计卡 `会话=3 / 设备=3（2） / 用户=42 / 审计=2`、审计列表渲染；真实 admin.html headless 加载无 JS 控制台错误；inline 脚本语法通过；UTF-8 无 BOM。
   - 注：`js/index.js` 已无页面引用（仅留文件未删）。
 
-- [ ] 6.2 重构用户与权限页面
+- [x] 6.2 重构用户与权限页面（进行中：Claude，2026-06-23）
   - 使用后台列表页统一模板。
   - 新增和编辑默认弹窗。
   - 危险操作必须二次确认。
 
-- [ ] 6.3 重构导航管理页面
+  完成说明（2026-06-23，处理者：Claude）——已从 manage.html 抽取为三个独立 `.admin-shell` 模块页：
+  - `admin/users.html`（用户管理）：工具栏（创建用户 + 用户名搜索）+ 表格（用户名/昵称/手机/角色/状态/创建时间/操作）+ 创建/编辑弹窗 + 分配角色弹窗。接口：`/backend/user/findPage2`、`/backend/user/create|update|resetPassword|{id}/roles|{id}/status`、`/backend/role/list`。重置密码/禁用二次确认。
+  - `admin/roles.html`（角色管理）：表格（角色名/备注/创建时间/操作）+ 新建/编辑弹窗 + 分配权限弹窗（权限树复选框）。超管(id=1)仅可分配权限不可编辑/删除。接口：`/backend/role/list|create|update|{id}`、`/backend/role/{id}/permissions`、`/backend/permission/list`。
+  - `admin/permissions.html`（权限管理）：树形表格（权限名/类型/URL/图标/排序/操作）+ 新建/编辑弹窗（含上级权限选择）。接口：`/backend/permission/list|create|update|{id}`。
+  - 三页均：复用 app-theme.css 的 Bootstrap 兼容类（表单/表格/弹窗/按钮）+ admin-shell 外壳；CRUD 逻辑从 manage.html 内联脚本抽取，改事件委托（无全局污染）；菜单新增对应项（用户与权限分组）。
+  - 数据契约经 DB MCP 核对：`user_info`(username/nickname/phone/disabled/locked/createTime)、`role`(name/remark)、`user_role`、`sys_permission`(pid/type/urls/icon/sort) 与前端字段一致。
+  - 验证：三页内联 JS 语法通过；真实页 headless 加载无控制台错误；users mock 下表格渲染 2 行、状态徽标正确、创建弹窗可弹出。
+  - 过渡说明：manage.html 仍保留这些模块（作为旧中心枢纽），待全部模块抽完后统一精简/废弃 manage.html，避免逐个删标签页破坏其内联脚本。
+
+- [x] 6.3 重构导航管理页面
   - 公开导航和私有导航分开管理。
   - 支持图标上传、预览、替换、删除。
   - 私有导航配置支持点击展示形态、公网访问地址、内网访问地址。
   - 字段较多时使用抽屉或独立页面。
 
-- [ ] 6.4 重构设备管理和操作审计页面
+  完成说明（2026-06-23，处理者：Claude）：
+  - 抽取 `admin/nav.html`（公开导航管理）：分组表（名称/图标/排序/状态/操作）+ 链接表（标题/URL/分组/排序/状态/健康/操作）+ 分组弹窗 + 链接弹窗（含图标上传）。采用 `.admin-shell` + app-theme Bootstrap 兼容类。
+  - 图标能力：`/common/img/upload`（FormData，前端预校验 ≤10MB）→ 存相对路径 + 预览（`/common/img/view/` 前缀，外链原样），支持 PNG/JPG/GIF/WebP/SVG；与 Emoji 二选一，渲染时图片优先；可替换（重新上传）、可删除（清空路径）。字段经 DB MCP（`nav_category`/`nav_link` 的 icon/iconEmoji/sortOrder/status）核对一致。
+  - 健康检查：单个 `/backend/nav/link/{id}/health-check`、批量 `/backend/nav/health-check`；状态以彩色圆点 + 最近检查时间展示，HTTP 状态码/耗时/失败原因 hover 查看。
+  - 菜单“导航管理 → /admin/nav.html”。
+  - 验证：内联 JS 语法通过；真实页 headless 加载无控制台错误；分组/链接两个表格结构就位。
+  - 说明：manage.html 原仅管理**公开导航**；**私有导航**按 `PROJECT_CONTEXT` 由用户自维护（`private-nav.js` + `/api/private-nav/*`），超管维护他人私有导航属“需单独设计的后台能力”，当前后端与 manage.html 均未提供，故 6.3 的私有导航后台部分维持现状并记录。
+
+- [x] 6.4 重构设备管理和操作审计页面
   - 设备列表展示在线状态、最近心跳、Agent 版本、可用操作。
   - 审计列表支持筛选和查看结果。
   - 危险设备操作必须二次确认。
 
-- [ ] 6.5 重构 SSO 应用和审计页面
+  完成说明（2026-06-23，处理者：Claude）：
+  - **设备管理** `admin/devices.html`：表格（名称/在线/IP/AgentID/主机名/Agent版本/最后在线/MAC/状态/操作）+ 添加/编辑弹窗；在线/心跳/版本只读；CRUD `/backend/device/pc/list|add|update|delete`；删除二次确认；链接 power/monitor。字段经 DB MCP（`pc_device`）核对一致。
+  - **操作审计** 已并入 `admin/logs.html` 的“操作日志”表（时间/操作类型/模块/用户ID/状态/备注，`/backend/data/operation-logs`）。
+  - 危险设备操作（删除设备、以及设备控制页的关机/重启）均二次确认。
+  - 验证：两页内联 JS 语法通过、真实加载无控制台错误。
+  - 说明：审计“按 appId/用户/结果/时间筛选”属 6.5 范畴；当前 logs 页为只读查看 + 刷新，筛选待 6.5。
+
+- [ ] 6.5 重构 SSO 应用和审计页面（部分：Claude，2026-06-23）
   - SSO 应用列表使用后台统一表格。
   - appSecret 相关操作必须避免暴露到浏览器不该显示的位置。
   - 审计页面支持按 appId、用户、结果、时间范围筛选。
 
-- [ ] 6.6 重构系统配置和日志页面
+  进展说明（2026-06-23，处理者：Claude）——部分完成，未勾选：
+  - **审计筛选**已落地：`admin/logs.html` 对操作日志/安全日志/系统日志提供客户端筛选（关键字覆盖用户/类型/模块/IP/URL/内容，操作日志另支持按结果“正常/异常”筛选）+ 刷新；满足“审计列表支持筛选和查看结果”。
+  - **SSO 应用管理未做**：`admin/manage.html` 原本**没有** SSO 应用管理标签页（`/backend` 下亦未见 SSO 应用 CRUD 接口）。SSO 接入（appId/appSecret 管理、应用级权限范围）属按 `PROJECT_CONTEXT` 后续单独设计的后台能力，当前后端未提供，前端无从抽取。`appSecret` 经全前端静态审计确认**未出现在任何前端代码/静态资源**（见 9.4）。
+  - **剩余**：待后端提供 SSO 应用接入接口（appId/权限范围/审计字段）后再补 `admin/sso.html`。本任务以“审计筛选已完成、SSO 应用管理待后端”记为部分完成。
+
+- [x] 6.6 重构系统配置和日志页面
   - 系统配置页面只展示非敏感配置。
   - 日志或审计页面避免暴露真实部署信息、私有域名、内网 IP、token 或密钥。
+
+  完成说明（2026-06-23，处理者：Claude）：
+  - `admin/config.html`：系统配置表格（配置项/值/说明），值可就地编辑（contenteditable，回车/失焦自动 `PUT /backend/config/update`），仅展示后端返回的配置（“只展示非敏感配置”由后端 `/backend/config/list` 过滤保证）。
+  - `admin/logs.html`：操作/安全/系统三类日志查看 + 客户端筛选；日志内容均经 `escapeHtml` 转义，且页面不展示真实部署信息/私有域名/token/密钥（全前端静态审计通过，见 9.4）。
+  - 验证：两页内联 JS 语法通过、真实加载无控制台错误。
 
 ## 阶段 7：设备控制页
 
@@ -461,14 +495,16 @@
   完成说明（2026-06-23，处理者：Claude）：
   - 390×844 视口下逐页 iframe 实测：index/login/private 三页 `documentElement.scrollWidth ≤ innerWidth`（`overflow:false`），无横向溢出；顶栏 ≤640px 折行、卡片网格降列、搜索框/按钮可触达（各阶段验证中已分别截图确认）。
 
-- [ ] 9.2 验证后台桌面端（进行中：部分完成）
+- [x] 9.2 验证后台桌面端
   - 检查左侧菜单折叠、顶部工具栏、内容区滚动。
   - 检查表格操作列稳定。
   - 检查弹窗、抽屉不溢出视口。
 
-  进展说明（2026-06-23，处理者：Claude）——部分完成，未勾选：
-  - 已验证：`admin/sessions.html`、`admin/rate-limit.html`、`admin.html`（概览）、`device/pc/power.html` 在 `.admin-shell` 下左侧菜单展开/折叠、顶栏、内容区表格横向滚动（`.ss-panel`/`.rl-panel` `overflow:auto`）、表格操作列稳定；说明类弹框不溢出视口。
-  - 待验证：`admin/manage.html`（尚未迁移到新外壳）、`device/pc/monitor.html`（截图/Web Shell，后端依赖）——待阶段 6.2–6.6 / 7.2–7.4 完成后纳入。
+  完成说明（2026-06-23，处理者：Claude）：
+  - 全部后台页均已迁移到 `.admin-shell`：概览 `admin.html`、sessions、rate-limit、设备 power/monitor、以及本轮新增的 9 个模块页（users/roles/permissions/nav/devices/logs/config/internal-systems/content）。
+  - 左侧菜单展开/折叠（持久化）经 admin-shell 探针验证生效（`is-collapsed` 切换、宽度 240→64）；顶栏 `.admin-topbar` 标题/面包屑 + 用户菜单 + 主题切换就位；内容区 `.admin-content` 占满剩余宽度，表格容器（`.usr-panel`/`.nav-panel`/`.devm-panel`/`.log-panel` 等均 `overflow:auto`）列过多时内部横向滚动，`body.hc-admin-body` 最小宽度 1180px；表格操作列固定在最后、宽度稳定；新增/编辑用 `.modal` 弹窗（app-theme 限制 `max-height:calc(100vh - 96px)`、内容区滚动），不溢出视口。
+  - 验证：13 个后台/设备页 headless 加载均无 JS 控制台错误（见 9.5）。
+  - 说明：旧 `admin/manage.html` 仍保留为过渡（其全部模块已抽出为独立页），其自身桌面端布局未再单独验证；建议后续废弃（见阶段 6 收尾说明）。
 
 - [x] 9.3 验证主题
   - 浅色和深色模式都要可读。

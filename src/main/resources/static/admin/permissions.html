@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>权限管理 - Home Center</title>
+    <link rel="stylesheet" href="/css/app-theme.css?v=20260623-perms">
+    <link rel="stylesheet" href="/css/admin-shell.css?v=20260623-perms">
+    <script src="/js/app-theme.js?v=20260623-perms"></script>
+    <style>
+        .perm-toolbar { display:flex; align-items:center; gap:10px; margin-bottom:16px; }
+        .perm-panel { border:1px solid var(--hc-line); border-radius:12px; background:var(--hc-surface); box-shadow:var(--hc-shadow-soft); overflow:auto; }
+        table.perm-table { width:100%; border-collapse:collapse; font-size:13px; min-width:920px; }
+        table.perm-table th, table.perm-table td { padding:10px 12px; text-align:left; border-bottom:1px solid var(--hc-line); vertical-align:middle; }
+        table.perm-table th { font-weight:700; color:var(--hc-muted); background:var(--hc-surface-strong); white-space:nowrap; }
+        table.perm-table tr:hover td { background:var(--hc-soft-accent); }
+        .perm-empty { padding:40px 0; text-align:center; color:var(--hc-muted); }
+        .perm-name { display:inline-block; }
+        .perm-urls { display:inline-block; max-width:340px; color:var(--hc-muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+        .perm-actions { display:flex; gap:8px; justify-content:flex-end; }
+        .perm-actions .btn { min-height:30px; padding:0 10px; font-size:12px; }
+        .perm-actions .btn-danger { color:var(--hc-danger); border-color:rgba(220,38,38,0.32); }
+        .perm-type { display:inline-block; padding:1px 8px; border-radius:999px; font-size:11px; font-weight:700; background:var(--hc-soft-accent); color:var(--hc-accent); }
+    </style>
+</head>
+<body class="hc-app hc-admin-body">
+<div class="admin-shell" id="adminShell">
+    <aside class="admin-sidebar">
+        <div class="admin-sidebar-brand"><span class="admin-brand-mark">HC</span><span class="admin-brand-text">Home Center</span></div>
+        <nav class="admin-menu" id="adminMenu" aria-label="后台菜单"></nav>
+        <button class="admin-sidebar-collapse" id="adminCollapseBtn" type="button" aria-label="折叠/展开菜单"><span aria-hidden="true">≪</span><span class="admin-collapse-text">折叠</span></button>
+    </aside>
+    <div class="admin-body">
+        <header class="admin-topbar">
+            <div class="admin-topbar-title" id="adminTitle"></div>
+            <div class="admin-topbar-actions">
+                <div class="admin-user">
+                    <button class="admin-user-btn" id="adminUserBtn" type="button" aria-haspopup="true" aria-expanded="false">
+                        <img class="admin-user-avatar" id="adminUserAvatar" src="favicon.ico" alt="">
+                        <span class="admin-user-name" id="adminUserName">用户</span>
+                        <span class="admin-caret" aria-hidden="true">▾</span>
+                    </button>
+                    <div class="admin-dropdown" id="adminUserMenu" role="menu" hidden>
+                        <a class="admin-dropdown-item" href="/profile.html" role="menuitem">个人信息</a>
+                        <button class="admin-dropdown-item is-danger" type="button" id="adminLogoutBtn" role="menuitem">退出登录</button>
+                    </div>
+                </div>
+                <button class="hc-theme-toggle" type="button" aria-label="切换深浅色主题"><span class="hc-theme-toggle-icon" aria-hidden="true"></span><span data-theme-toggle-text>深色</span></button>
+            </div>
+        </header>
+        <main class="admin-content" role="main">
+            <div class="perm-toolbar">
+                <button id="addPermissionBtn" class="btn btn-primary btn-sm" type="button">新建权限</button>
+            </div>
+            <div class="perm-panel">
+                <table class="perm-table">
+                    <thead><tr><th>权限名</th><th>类型</th><th>URL 列表</th><th>图标</th><th>排序</th><th class="text-end">操作</th></tr></thead>
+                    <tbody id="permissionTableBody"><tr><td colspan="6" class="perm-empty">加载中...</td></tr></tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+</div>
+
+<div class="modal fade" id="permissionModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <form class="modal-content" id="permissionForm">
+            <div class="modal-header"><h6 class="modal-title" id="permissionModalTitle">新建权限</h6><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="关闭"></button></div>
+            <div class="modal-body">
+                <input type="hidden" id="permissionId">
+                <div class="mb-3"><label class="form-label" for="permissionPid">上级权限</label><select class="form-select" id="permissionPid"></select></div>
+                <div class="mb-3"><label class="form-label" for="permissionName">权限名</label><input class="form-control" id="permissionName" required></div>
+                <div class="mb-3"><label class="form-label" for="permissionType">类型</label><select class="form-select" id="permissionType"><option value="1">目录</option><option value="2">菜单</option><option value="3">按钮</option></select></div>
+                <div class="mb-3"><label class="form-label" for="permissionUrls">URL 列表</label><input class="form-control" id="permissionUrls" placeholder="多个 URL 用分号分隔"></div>
+                <div class="mb-3"><label class="form-label" for="permissionIcon">图标</label><input class="form-control" id="permissionIcon"></div>
+                <div><label class="form-label" for="permissionSort">排序</label><input class="form-control" id="permissionSort" type="number" value="0"></div>
+            </div>
+            <div class="modal-footer"><button type="submit" class="btn btn-primary">保存</button><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button></div>
+        </form>
+    </div>
+</div>
+
+<script src="/js/main.js"></script>
+<script src="/js/admin-shell.js?v=20260623-perms"></script>
+<script>window.HcAdminShell && window.HcAdminShell.init({title: '权限管理', breadcrumb: '用户与权限'});</script>
+<script>
+(function () {
+    var permissions = [];
+    var permissionModal = new bootstrap.Modal(document.getElementById('permissionModal'));
+
+    function $(s) { return document.querySelector(s); }
+    function escapeHtml(v) { return window.HomeCenter.escapeHtml(v); }
+
+    function buildPermissionTree(list) {
+        var childrenMap = {};
+        (list || []).forEach(function (item) {
+            var pid = item.pid || 0;
+            if (!childrenMap[pid]) { childrenMap[pid] = []; }
+            childrenMap[pid].push(item);
+        });
+        Object.keys(childrenMap).forEach(function (pid) {
+            childrenMap[pid].sort(function (a, b) { return (a.sort || 0) - (b.sort || 0) || (a.id || 0) - (b.id || 0); });
+        });
+        var result = [];
+        function walk(pid, level) {
+            (childrenMap[pid] || []).forEach(function (item) {
+                result.push(Object.assign({}, item, {level: level}));
+                walk(item.id, level + 1);
+            });
+        }
+        walk(0, 0);
+        return result;
+    }
+
+    function permissionTypeName(type) {
+        if (Number(type) === 1) { return '目录'; }
+        if (Number(type) === 3) { return '按钮'; }
+        return '菜单';
+    }
+
+    function loadPermissions() {
+        getRequest('/backend/permission/list', function (list) {
+            permissions = list || [];
+            renderPermissions();
+        }, function () { permissions = []; renderPermissions(); });
+    }
+
+    function renderPermissions() {
+        var tbody = document.getElementById('permissionTableBody');
+        var tree = buildPermissionTree(permissions);
+        if (!tree.length) {
+            tbody.innerHTML = '<tr><td colspan="6" class="perm-empty">暂无数据</td></tr>';
+            return;
+        }
+        tbody.innerHTML = tree.map(function (p) {
+            return '<tr>' +
+                '<td><span class="perm-name" style="padding-left:' + (p.level * 24) + 'px;">' + escapeHtml(p.name) + '</span></td>' +
+                '<td><span class="perm-type">' + permissionTypeName(p.type) + '</span></td>' +
+                '<td><span class="perm-urls" title="' + escapeHtml(p.urls) + '">' + escapeHtml(p.urls) + '</span></td>' +
+                '<td>' + escapeHtml(p.icon) + '</td>' +
+                '<td>' + escapeHtml(p.sort) + '</td>' +
+                '<td><div class="perm-actions">' +
+                '<button class="btn btn-sm" type="button" data-permission-action="edit" data-permission-id="' + escapeHtml(p.id) + '">编辑</button>' +
+                '<button class="btn btn-sm btn-danger" type="button" data-permission-action="delete" data-permission-id="' + escapeHtml(p.id) + '">删除</button>' +
+                '</div></td>' +
+                '</tr>';
+        }).join('');
+    }
+
+    function findPermission(id) { id = Number(id); return permissions.find(function (p) { return Number(p.id) === id; }); }
+
+    function fillPermissionParentSelect(excludeId) {
+        var options = ['<option value="0">顶级权限</option>'];
+        buildPermissionTree(permissions).forEach(function (p) {
+            if (Number(p.id) === Number(excludeId)) { return; }
+            options.push('<option value="' + p.id + '">' + ' '.repeat(p.level * 4) + escapeHtml(p.name) + '</option>');
+        });
+        document.getElementById('permissionPid').innerHTML = options.join('');
+    }
+
+    function openAddPermissionModal() {
+        $('#permissionModalTitle').textContent = '新建权限';
+        document.getElementById('permissionForm').reset();
+        document.getElementById('permissionId').value = '';
+        document.getElementById('permissionType').value = '2';
+        document.getElementById('permissionSort').value = '0';
+        fillPermissionParentSelect();
+        permissionModal.show();
+    }
+
+    function openEditPermissionModal(id) {
+        var p = findPermission(id);
+        if (!p) { return; }
+        $('#permissionModalTitle').textContent = '编辑权限';
+        fillPermissionParentSelect(id);
+        document.getElementById('permissionId').value = p.id;
+        document.getElementById('permissionPid').value = p.pid || 0;
+        document.getElementById('permissionName').value = p.name || '';
+        document.getElementById('permissionType').value = p.type || 2;
+        document.getElementById('permissionUrls').value = p.urls || '';
+        document.getElementById('permissionIcon').value = p.icon || '';
+        document.getElementById('permissionSort').value = p.sort || 0;
+        permissionModal.show();
+    }
+
+    function savePermission(event) {
+        event.preventDefault();
+        var id = document.getElementById('permissionId').value;
+        var payload = {
+            id: id ? Number(id) : null,
+            pid: Number(document.getElementById('permissionPid').value || 0),
+            name: (document.getElementById('permissionName').value || '').trim(),
+            type: Number(document.getElementById('permissionType').value),
+            urls: (document.getElementById('permissionUrls').value || '').trim(),
+            icon: (document.getElementById('permissionIcon').value || '').trim(),
+            sort: Number(document.getElementById('permissionSort').value || 0)
+        };
+        request(id ? '/backend/permission/update' : '/backend/permission/create', {method: id ? 'PUT' : 'POST', body: payload}, function () {
+            permissionModal.hide();
+            showToastSimple('权限已保存', MsgTypes.SUCCESS, Position.TopCenter);
+            loadPermissions();
+        });
+    }
+
+    function deletePermission(id) {
+        showConfirm('删除权限', '确定删除该权限？如果存在子权限，请先删除子权限。', MsgTypes.WARNING, function () {
+            request('/backend/permission/' + encodeURIComponent(id), {method: 'DELETE'}, function () {
+                showToastSimple('权限已删除', MsgTypes.SUCCESS, Position.TopCenter);
+                loadPermissions();
+            });
+        });
+    }
+
+    function bind() {
+        document.getElementById('addPermissionBtn').addEventListener('click', openAddPermissionModal);
+        document.getElementById('permissionForm').addEventListener('submit', savePermission);
+        document.getElementById('permissionTableBody').addEventListener('click', function (event) {
+            var btn = event.target.closest('button[data-permission-action]');
+            if (!btn) { return; }
+            var action = btn.getAttribute('data-permission-action');
+            var id = btn.getAttribute('data-permission-id');
+            if (action === 'edit') { openEditPermissionModal(id); }
+            else if (action === 'delete') { deletePermission(id); }
+        });
+    }
+
+    function init() { bind(); loadPermissions(); }
+    if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', init); } else { init(); }
+})();
+</script>
+</body>
+</html>

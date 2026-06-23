@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>角色管理 - Home Center</title>
+    <link rel="stylesheet" href="/css/app-theme.css?v=20260623-roles">
+    <link rel="stylesheet" href="/css/admin-shell.css?v=20260623-roles">
+    <script src="/js/app-theme.js?v=20260623-roles"></script>
+    <style>
+        .role-toolbar { display:flex; align-items:center; gap:10px; margin-bottom:16px; }
+        .role-panel { border:1px solid var(--hc-line); border-radius:12px; background:var(--hc-surface); box-shadow:var(--hc-shadow-soft); overflow:auto; }
+        table.role-table { width:100%; border-collapse:collapse; font-size:13px; min-width:760px; }
+        table.role-table th, table.role-table td { padding:10px 12px; text-align:left; border-bottom:1px solid var(--hc-line); vertical-align:middle; }
+        table.role-table th { font-weight:700; color:var(--hc-muted); background:var(--hc-surface-strong); white-space:nowrap; }
+        table.role-table tr:hover td { background:var(--hc-soft-accent); }
+        .role-empty { padding:40px 0; text-align:center; color:var(--hc-muted); }
+        .role-super-badge { display:inline-block; margin-left:6px; padding:1px 6px; border-radius:999px; background:rgba(217,119,6,0.14); color:var(--hc-warning); font-size:11px; font-weight:700; }
+        .role-actions { display:flex; gap:8px; justify-content:flex-end; }
+        .role-actions .btn { min-height:30px; padding:0 10px; font-size:12px; }
+        .role-actions .btn-danger { color:var(--hc-danger); border-color:rgba(220,38,38,0.32); }
+        .perm-check-list { max-height:60vh; overflow:auto; padding:4px; }
+        .perm-check-list .form-check { padding-left:24px; }
+        .hc-muted { color:var(--hc-muted); }
+    </style>
+</head>
+<body class="hc-app hc-admin-body">
+<div class="admin-shell" id="adminShell">
+    <aside class="admin-sidebar">
+        <div class="admin-sidebar-brand"><span class="admin-brand-mark">HC</span><span class="admin-brand-text">Home Center</span></div>
+        <nav class="admin-menu" id="adminMenu" aria-label="后台菜单"></nav>
+        <button class="admin-sidebar-collapse" id="adminCollapseBtn" type="button" aria-label="折叠/展开菜单"><span aria-hidden="true">≪</span><span class="admin-collapse-text">折叠</span></button>
+    </aside>
+    <div class="admin-body">
+        <header class="admin-topbar">
+            <div class="admin-topbar-title" id="adminTitle"></div>
+            <div class="admin-topbar-actions">
+                <div class="admin-user">
+                    <button class="admin-user-btn" id="adminUserBtn" type="button" aria-haspopup="true" aria-expanded="false">
+                        <img class="admin-user-avatar" id="adminUserAvatar" src="favicon.ico" alt="">
+                        <span class="admin-user-name" id="adminUserName">用户</span>
+                        <span class="admin-caret" aria-hidden="true">▾</span>
+                    </button>
+                    <div class="admin-dropdown" id="adminUserMenu" role="menu" hidden>
+                        <a class="admin-dropdown-item" href="/profile.html" role="menuitem">个人信息</a>
+                        <button class="admin-dropdown-item is-danger" type="button" id="adminLogoutBtn" role="menuitem">退出登录</button>
+                    </div>
+                </div>
+                <button class="hc-theme-toggle" type="button" aria-label="切换深浅色主题"><span class="hc-theme-toggle-icon" aria-hidden="true"></span><span data-theme-toggle-text>深色</span></button>
+            </div>
+        </header>
+        <main class="admin-content" role="main">
+            <div class="role-toolbar">
+                <button id="addRoleBtn" class="btn btn-primary btn-sm" type="button">新建角色</button>
+            </div>
+            <div class="role-panel">
+                <table class="role-table">
+                    <thead><tr><th>角色名</th><th>备注</th><th>创建时间</th><th class="text-end">操作</th></tr></thead>
+                    <tbody id="roleTableBody"><tr><td colspan="4" class="role-empty">加载中...</td></tr></tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+</div>
+
+<div class="modal fade" id="roleModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <form class="modal-content" id="roleForm">
+            <div class="modal-header"><h6 class="modal-title" id="roleModalTitle">新建角色</h6><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="关闭"></button></div>
+            <div class="modal-body">
+                <input type="hidden" id="roleId">
+                <div class="mb-3"><label class="form-label" for="roleName">角色名</label><input class="form-control" id="roleName" required></div>
+                <div><label class="form-label" for="roleRemark">备注</label><textarea class="form-control" id="roleRemark" rows="3"></textarea></div>
+            </div>
+            <div class="modal-footer"><button type="submit" class="btn btn-primary">保存</button><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button></div>
+        </form>
+    </div>
+</div>
+
+<div class="modal fade" id="rolePermissionModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <form class="modal-content" id="rolePermissionForm">
+            <div class="modal-header"><h6 class="modal-title" id="rolePermissionModalTitle">分配权限</h6><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="关闭"></button></div>
+            <div class="modal-body"><input type="hidden" id="rolePermissionRoleId"><div id="rolePermissionList" class="perm-check-list"></div></div>
+            <div class="modal-footer"><button type="submit" class="btn btn-primary">保存</button><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button></div>
+        </form>
+    </div>
+</div>
+
+<script src="/js/main.js"></script>
+<script src="/js/admin-shell.js?v=20260623-roles"></script>
+<script>window.HcAdminShell && window.HcAdminShell.init({title: '角色管理', breadcrumb: '用户与权限'});</script>
+<script>
+(function () {
+    var roles = [];
+    var permissions = [];
+    var roleModal = new bootstrap.Modal(document.getElementById('roleModal'));
+    var rolePermissionModal = new bootstrap.Modal(document.getElementById('rolePermissionModal'));
+
+    function $(s) { return document.querySelector(s); }
+    function escapeHtml(v) { return window.HomeCenter.escapeHtml(v); }
+
+    // 权限树构建（与原 manage.html 一致：按 pid 分层、sort 排序）
+    function buildPermissionTree(list) {
+        var childrenMap = {};
+        (list || []).forEach(function (item) {
+            var pid = item.pid || 0;
+            if (!childrenMap[pid]) { childrenMap[pid] = []; }
+            childrenMap[pid].push(item);
+        });
+        Object.keys(childrenMap).forEach(function (pid) {
+            childrenMap[pid].sort(function (a, b) { return (a.sort || 0) - (b.sort || 0) || (a.id || 0) - (b.id || 0); });
+        });
+        var result = [];
+        function walk(pid, level) {
+            (childrenMap[pid] || []).forEach(function (item) {
+                result.push(Object.assign({}, item, {level: level}));
+                walk(item.id, level + 1);
+            });
+        }
+        walk(0, 0);
+        return result;
+    }
+
+    function permissionTypeName(type) {
+        if (Number(type) === 1) { return '目录'; }
+        if (Number(type) === 3) { return '按钮'; }
+        return '菜单';
+    }
+
+    function loadRoles() {
+        getRequest('/backend/role/list', function (list) {
+            roles = list || [];
+            renderRoles();
+        }, function () { roles = []; renderRoles(); });
+    }
+
+    function loadPermissions() {
+        getRequest('/backend/permission/list', function (list) {
+            permissions = list || [];
+        }, function () { permissions = []; });
+    }
+
+    function renderRoles() {
+        var tbody = document.getElementById('roleTableBody');
+        if (!roles.length) {
+            tbody.innerHTML = '<tr><td colspan="4" class="role-empty">暂无数据</td></tr>';
+            return;
+        }
+        tbody.innerHTML = roles.map(function (role) {
+            var superAdmin = Number(role.id) === 1;
+            var name = escapeHtml(role.name) + (superAdmin ? '<span class="role-super-badge">超管</span>' : '');
+            var actions = '<div class="role-actions">';
+            if (!superAdmin) { actions += '<button class="btn btn-sm" type="button" data-role-action="edit" data-role-id="' + escapeHtml(role.id) + '">编辑</button>'; }
+            actions += '<button class="btn btn-sm" type="button" data-role-action="permission" data-role-id="' + escapeHtml(role.id) + '">分配权限</button>';
+            if (!superAdmin) { actions += '<button class="btn btn-sm btn-danger" type="button" data-role-action="delete" data-role-id="' + escapeHtml(role.id) + '">删除</button>'; }
+            actions += '</div>';
+            return '<tr><td>' + name + '</td><td>' + escapeHtml(role.remark) + '</td><td>' + escapeHtml(role.createTime) + '</td><td>' + actions + '</td></tr>';
+        }).join('');
+    }
+
+    function findRole(id) { id = Number(id); return roles.find(function (r) { return Number(r.id) === id; }); }
+
+    function openAddRoleModal() {
+        $('#roleModalTitle').textContent = '新建角色';
+        document.getElementById('roleForm').reset();
+        document.getElementById('roleId').value = '';
+        roleModal.show();
+    }
+
+    function openEditRoleModal(id) {
+        var role = findRole(id);
+        if (!role) { return; }
+        $('#roleModalTitle').textContent = '编辑角色';
+        document.getElementById('roleId').value = role.id;
+        document.getElementById('roleName').value = role.name || '';
+        document.getElementById('roleRemark').value = role.remark || '';
+        roleModal.show();
+    }
+
+    function saveRole(event) {
+        event.preventDefault();
+        var id = document.getElementById('roleId').value;
+        var payload = {id: id ? Number(id) : null, name: (document.getElementById('roleName').value || '').trim(), remark: (document.getElementById('roleRemark').value || '').trim()};
+        request(id ? '/backend/role/update' : '/backend/role/create', {method: id ? 'PUT' : 'POST', body: payload}, function () {
+            roleModal.hide();
+            showToastSimple('角色已保存', MsgTypes.SUCCESS, Position.TopCenter);
+            loadRoles();
+        });
+    }
+
+    function deleteRole(id) {
+        showConfirm('删除角色', '确定删除该角色？', MsgTypes.WARNING, function () {
+            request('/backend/role/' + encodeURIComponent(id), {method: 'DELETE'}, function () {
+                showToastSimple('角色已删除', MsgTypes.SUCCESS, Position.TopCenter);
+                loadRoles();
+            });
+        });
+    }
+
+    function openRolePermissionModal(roleId) {
+        document.getElementById('rolePermissionRoleId').value = roleId;
+        var role = findRole(roleId);
+        $('#rolePermissionModalTitle').textContent = '分配权限' + (role ? ' - ' + role.name : '');
+        getRequest('/backend/role/' + encodeURIComponent(roleId) + '/permissions', function (permissionIds) {
+            renderRolePermissionList(permissionIds || []);
+            rolePermissionModal.show();
+        });
+    }
+
+    function renderRolePermissionList(permissionIds) {
+        var selected = {};
+        (permissionIds || []).forEach(function (id) { selected[id] = true; });
+        var rows = buildPermissionTree(permissions).map(function (item) {
+            var checked = selected[item.id] ? ' checked' : '';
+            return '<div class="form-check mb-2" style="padding-left:' + (24 + item.level * 24) + 'px;">' +
+                '<input class="form-check-input role-permission-check" type="checkbox" value="' + item.id + '" id="rolePermission' + item.id + '"' + checked + '>' +
+                '<label class="form-check-label" for="rolePermission' + item.id + '">' + escapeHtml(item.name) + ' <span class="hc-muted">(' + permissionTypeName(item.type) + ')</span></label>' +
+                '</div>';
+        });
+        document.getElementById('rolePermissionList').innerHTML = rows.join('') || '<div class="hc-muted">暂无权限</div>';
+    }
+
+    function saveRolePermissions(event) {
+        event.preventDefault();
+        var roleId = document.getElementById('rolePermissionRoleId').value;
+        var ids = Array.prototype.map.call(document.querySelectorAll('.role-permission-check:checked'), function (el) { return Number(el.value); });
+        request('/backend/role/' + encodeURIComponent(roleId) + '/permissions', {method: 'PUT', body: ids}, function () {
+            rolePermissionModal.hide();
+            showToastSimple('权限已分配', MsgTypes.SUCCESS, Position.TopCenter);
+        });
+    }
+
+    function bind() {
+        document.getElementById('addRoleBtn').addEventListener('click', openAddRoleModal);
+        document.getElementById('roleForm').addEventListener('submit', saveRole);
+        document.getElementById('rolePermissionForm').addEventListener('submit', saveRolePermissions);
+        var tbody = document.getElementById('roleTableBody');
+        tbody.addEventListener('click', function (event) {
+            var btn = event.target.closest('button[data-role-action]');
+            if (!btn) { return; }
+            var action = btn.getAttribute('data-role-action');
+            var id = btn.getAttribute('data-role-id');
+            if (action === 'edit') { openEditRoleModal(id); }
+            else if (action === 'permission') { openRolePermissionModal(id); }
+            else if (action === 'delete') { deleteRole(id); }
+        });
+    }
+
+    function init() { bind(); loadPermissions(); loadRoles(); }
+    if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', init); } else { init(); }
+})();
+</script>
+</body>
+</html>

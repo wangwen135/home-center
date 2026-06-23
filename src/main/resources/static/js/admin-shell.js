@@ -21,29 +21,34 @@
         },
         {
             group: '用户与权限', items: [
-                {code: '/admin/manage.html', label: '用户与角色', href: '/admin/manage.html', icon: '👤'},
+                {code: '/admin/users.html', label: '用户管理', href: '/admin/users.html', icon: '👤'},
+                {code: '/admin/roles.html', label: '角色管理', href: '/admin/roles.html', icon: '🛡'},
+                {code: '/admin/permissions.html', label: '权限管理', href: '/admin/permissions.html', icon: '🔑'},
                 {code: '/admin/sessions.html', label: '在线会话', href: '/admin/sessions.html', icon: '🟢'}
             ]
         },
         {
             group: '导航管理', items: [
-                {code: '/admin/manage.html', label: '导航管理', href: '/admin/manage.html', icon: '🧭'}
+                {code: '/admin/nav.html', label: '公开导航', href: '/admin/nav.html', icon: '🧭'}
             ]
         },
         {
             group: '设备', items: [
+                {code: '/admin/devices.html', label: '设备管理', href: '/admin/devices.html', icon: '💻'},
                 {code: '/device/pc/power.html', label: '设备控制', href: '/device/pc/power.html', icon: '🖥'}
             ]
         },
         {
             group: '应用接入', items: [
-                {code: '/admin/manage.html', label: 'SSO 应用', href: '/admin/manage.html', icon: '🔐'}
+                {code: '/admin/internal-systems.html', label: '内部系统', href: '/admin/internal-systems.html', icon: '🔌'}
             ]
         },
         {
             group: '系统', items: [
+                {code: '/admin/logs.html', label: '审计与日志', href: '/admin/logs.html', icon: '📋'},
+                {code: '/admin/content.html', label: '内容管理', href: '/admin/content.html', icon: '💬'},
                 {code: '/admin/rate-limit.html', label: '限流管理', href: '/admin/rate-limit.html', icon: '⏱'},
-                {code: '/admin/manage.html', label: '系统配置', href: '/admin/manage.html', icon: '⚙'}
+                {code: '/admin/config.html', label: '系统配置', href: '/admin/config.html', icon: '⚙'}
             ]
         }
     ];
