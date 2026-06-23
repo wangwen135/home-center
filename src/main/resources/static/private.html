@@ -5,8 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="Home Center 私有导航">
     <title>私有导航 - Home Center</title>
-    <link rel="stylesheet" href="/css/app-theme.css?v=20260621-private-nav">
+    <link rel="stylesheet" href="/css/app-theme.css?v=20260623-private">
+    <link rel="stylesheet" href="/css/entry.css?v=20260623-private">
+    <script src="/js/app-theme.js?v=20260623-private"></script>
     <style>
+        /* 私有导航页面私有样式。公共能力（粒子背景、顶栏、页脚、主题切换、共享卡片 .hc-entry-card）
+           来自 app-theme.css / entry.css / bg-particles.js。 */
         body.hc-app {
             min-height: 100vh;
             background: var(--hc-bg);
@@ -15,86 +19,57 @@
 
         .pn-shell {
             width: min(1180px, calc(100% - 28px));
+            min-height: 100vh;
             margin: 0 auto;
-            padding: 20px 0 48px;
+            padding: 20px 0 24px;
             display: flex;
             flex-direction: column;
             gap: 20px;
         }
 
-        .pn-topbar {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 16px;
-            flex-wrap: wrap;
-            padding: 16px 20px;
+        /* 主体半透明大面板，承载搜索、分组与卡片 */
+        .pn-panel {
             border: 1px solid var(--hc-line);
-            border-radius: 12px;
+            border-radius: 14px;
             background: var(--hc-surface);
             box-shadow: var(--hc-shadow-soft);
+            backdrop-filter: blur(14px) saturate(130%);
+            -webkit-backdrop-filter: blur(14px) saturate(130%);
+            padding: 22px;
         }
 
-        .pn-topbar h1 {
-            margin: 0;
-            font-size: 24px;
-            line-height: 1.2;
+        /* 搜索：与公开首页一致的工具栏式 */
+        .pn-search {
+            margin: 0 0 22px;
         }
 
-        .pn-topbar .pn-subtitle {
-            margin: 6px 0 0;
-            color: var(--hc-muted);
-            font-size: 13px;
-        }
-
-        .pn-actions {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-
-        .pn-actions a,
-        .pn-actions button {
-            min-height: 38px;
-            display: inline-flex;
-            align-items: center;
+        .pn-search-input {
+            width: 100%;
+            height: 42px;
             padding: 0 14px;
             border: 1px solid var(--hc-line);
             border-radius: 8px;
             background: var(--hc-surface-strong);
             color: var(--hc-text);
-            text-decoration: none;
             font: inherit;
-            font-weight: 600;
-            cursor: pointer;
-        }
-
-        .pn-actions a:hover,
-        .pn-actions button:hover {
-            border-color: rgba(37, 99, 235, 0.32);
-            background: var(--hc-soft-accent);
-            color: var(--hc-accent);
-        }
-
-        .pn-search {
-            width: 100%;
+            outline: none;
             box-sizing: border-box;
-            height: 40px;
-            padding: 0 14px;
-            border: 1px solid var(--hc-line);
-            border-radius: 8px;
-            background: var(--hc-surface);
-            color: var(--hc-text);
-            font: inherit;
+            transition: border-color 0.18s ease, box-shadow 0.18s ease;
         }
 
-        .pn-group {
-            border: 1px solid var(--hc-line);
-            border-radius: 12px;
-            background: var(--hc-surface);
-            box-shadow: var(--hc-shadow-soft);
-            padding: 18px 20px;
+        .pn-search-input::placeholder {
+            color: var(--hc-muted);
+        }
+
+        .pn-search-input:focus {
+            border-color: rgba(37, 99, 235, 0.42);
+            box-shadow: 0 0 0 4px var(--hc-soft-accent);
+        }
+
+        .pn-content {
+            display: flex;
+            flex-direction: column;
+            gap: 28px;
         }
 
         .pn-group-title {
@@ -102,116 +77,33 @@
             align-items: center;
             gap: 8px;
             margin: 0 0 14px;
-            font-size: 18px;
-            font-weight: 600;
+            color: var(--hc-text);
+            font-size: 16px;
+            font-weight: 700;
+            line-height: 1.4;
         }
 
         .pn-group-icon {
-            color: var(--hc-muted);
+            color: var(--hc-accent);
+            font-size: 15px;
+            line-height: 1;
         }
 
         .pn-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-            gap: 12px;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 14px;
         }
 
-        .pn-tile {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px;
-            border: 1px solid var(--hc-line);
-            border-radius: 10px;
-            background: var(--hc-surface-strong);
-            color: var(--hc-text);
-            text-decoration: none;
-            font: inherit;
-            cursor: pointer;
-            text-align: left;
-            width: 100%;
-            box-sizing: border-box;
-            position: relative;
+        .pn-grid > .pn-empty {
+            grid-column: 1 / -1;
         }
 
-        /* 健康状态小圆点（轻量展示，不显示详细错误） */
-        .pn-health-dot {
+        /* 私有卡片：基于共享 .hc-entry-card，额外叠加入口类型 badge 与健康状态点 */
+        .pn-card .pn-badge {
             position: absolute;
             top: 8px;
-            right: 8px;
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            border: 1px solid rgba(0, 0, 0, 0.12);
-        }
-
-        .pn-health-dot.normal {
-            background: var(--hc-success);
-        }
-
-        .pn-health-dot.abnormal {
-            background: var(--hc-danger);
-        }
-
-        .pn-health-dot.timeout {
-            background: var(--hc-warning);
-        }
-
-        .pn-health-dot.unknown {
-            background: var(--hc-muted);
-            opacity: 0.5;
-        }
-
-        .pn-tile:hover {
-            border-color: rgba(37, 99, 235, 0.32);
-            background: var(--hc-soft-accent);
-        }
-
-        /* 说明/命令类入口与普通链接区分：左侧色条 + 虚线边框 */
-        .pn-tile.is-note {
-            border-style: dashed;
-            border-left: 4px solid var(--hc-warning);
-        }
-
-        .pn-icon {
-            flex: 0 0 auto;
-            width: 40px;
-            height: 40px;
-            border-radius: 10px;
-            border: 1px solid var(--hc-line);
-            background: #fff center/cover no-repeat;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 15px;
-            overflow: hidden;
-        }
-
-        .pn-icon img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-        }
-
-        .pn-tile-body {
-            min-width: 0;
-            flex: 1 1 auto;
-        }
-
-        .pn-tile-title {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-weight: 600;
-            font-size: 14px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-
-        .pn-badge {
-            flex: 0 0 auto;
+            left: 8px;
             font-size: 11px;
             font-weight: 700;
             line-height: 1.3;
@@ -236,19 +128,159 @@
             color: var(--hc-muted);
         }
 
-        .pn-tile-desc {
-            margin-top: 2px;
+        /* 健康状态小圆点（右上角，轻量展示，不显示详细错误） */
+        .pn-health-dot {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            border: 1px solid rgba(0, 0, 0, 0.12);
+        }
+
+        .pn-health-dot.normal {
+            background: var(--hc-success);
+        }
+
+        .pn-health-dot.abnormal {
+            background: var(--hc-danger);
+        }
+
+        .pn-health-dot.timeout {
+            background: var(--hc-warning);
+        }
+
+        .pn-health-dot.unknown {
+            background: var(--hc-muted);
+            opacity: 0.5;
+        }
+
+        /* 说明/命令类入口：虚线边框 + 左侧色条，与普通链接区分 */
+        .pn-card.is-note {
+            border-style: dashed;
+            border-left: 4px solid var(--hc-warning);
+        }
+
+        .pn-empty {
+            padding: 32px 12px;
+            border: 1px dashed var(--hc-line);
+            border-radius: 10px;
+            text-align: center;
             color: var(--hc-muted);
-            font-size: 12px;
+            font-size: 14px;
+            background: var(--hc-surface);
+        }
+
+        .pn-empty-actions {
+            margin-top: 12px;
+        }
+
+        /* 顶部权限菜单与用户菜单 */
+        .pn-perm-link {
+            min-height: 38px;
+            display: inline-flex;
+            align-items: center;
+            padding: 0 14px;
+            border: 1px solid var(--hc-line);
+            border-radius: 8px;
+            background: var(--hc-surface-strong);
+            color: var(--hc-text);
+            text-decoration: none;
+            font: inherit;
+            font-weight: 600;
+        }
+
+        .pn-perm-link:hover {
+            border-color: rgba(37, 99, 235, 0.32);
+            background: var(--hc-soft-accent);
+            color: var(--hc-accent);
+        }
+
+        .pn-user {
+            position: relative;
+        }
+
+        .pn-user-btn {
+            min-height: 38px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 0 10px;
+            border: 1px solid var(--hc-line);
+            border-radius: 8px;
+            background: var(--hc-surface-strong);
+            color: var(--hc-text);
+            font: inherit;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .pn-user-btn:hover {
+            border-color: rgba(37, 99, 235, 0.32);
+            background: var(--hc-soft-accent);
+        }
+
+        .pn-user-avatar {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            object-fit: cover;
+            background: var(--hc-surface);
+        }
+
+        .pn-user-name {
+            max-width: 120px;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
         }
 
-        .pn-empty {
-            padding: 40px 0;
-            text-align: center;
+        .pn-caret {
             color: var(--hc-muted);
+            font-size: 12px;
+        }
+
+        .pn-dropdown {
+            position: absolute;
+            top: calc(100% + 6px);
+            right: 0;
+            z-index: 30;
+            min-width: 160px;
+            padding: 6px;
+            border: 1px solid var(--hc-line);
+            border-radius: 10px;
+            background: var(--hc-surface-strong);
+            box-shadow: var(--hc-shadow-soft);
+        }
+
+        .pn-dropdown[hidden] {
+            display: none;
+        }
+
+        .pn-dropdown-item {
+            display: flex;
+            width: 100%;
+            align-items: center;
+            padding: 8px 10px;
+            border: 0;
+            border-radius: 7px;
+            background: transparent;
+            color: var(--hc-text);
+            font: inherit;
+            font-size: 14px;
+            text-align: left;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .pn-dropdown-item:hover {
+            background: var(--hc-soft-accent);
+            color: var(--hc-accent);
+        }
+
+        .pn-dropdown-item.is-danger {
+            color: var(--hc-danger);
         }
 
         /* 说明/命令弹窗 */
@@ -272,41 +304,72 @@
 
         @media (max-width: 640px) {
             .pn-shell {
-                width: min(100% - 18px, 1180px);
+                width: min(100% - 24px, 1180px);
+            }
+
+            .pn-panel {
+                padding: 16px;
             }
 
             .pn-grid {
-                grid-template-columns: 1fr;
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+                gap: 12px;
+            }
+
+            .pn-user-name {
+                display: none;
             }
         }
     </style>
 </head>
 <body class="hc-app">
-<div class="pn-shell">
-    <header class="pn-topbar">
-        <div>
-            <h1>私有导航</h1>
-            <p class="pn-subtitle">登录后的个人内网工具入口。说明/命令类入口点击查看详情或复制命令。</p>
+<canvas id="bg-canvas" class="hc-bg-canvas" aria-hidden="true"></canvas>
+
+<div class="pn-shell hc-entry">
+    <header class="hc-entry-topbar">
+        <div class="hc-entry-brand">
+            <h1 class="hc-entry-brand-title">Home Center</h1>
+            <p class="hc-entry-brand-sub">内部导航</p>
         </div>
-        <div class="pn-actions">
+        <div class="hc-entry-actions">
+            <!-- 权限菜单区：由 JS 按当前用户权限注入 -->
+            <div id="pnPermMenu" class="hc-entry-actions" style="gap:8px;"></div>
+
+            <!-- 用户菜单：头像 + 姓名，点击展开个人信息 / 退出 -->
+            <div class="pn-user">
+                <button class="pn-user-btn" id="pnUserBtn" type="button" aria-haspopup="true" aria-expanded="false">
+                    <img class="pn-user-avatar" id="pnUserAvatar" src="favicon.ico" alt="">
+                    <span class="pn-user-name" id="pnUserName">用户</span>
+                    <span class="pn-caret" aria-hidden="true">▾</span>
+                </button>
+                <div class="pn-dropdown" id="pnUserMenu" role="menu" hidden>
+                    <a class="pn-dropdown-item" href="/profile.html" role="menuitem">个人信息</a>
+                    <button class="pn-dropdown-item is-danger" type="button" id="pnLogoutBtn" role="menuitem">退出登录</button>
+                </div>
+            </div>
+
+            <!-- 低强调主题切换（最右） -->
             <button class="hc-theme-toggle" type="button" aria-label="切换深浅色主题">
                 <span class="hc-theme-toggle-icon" aria-hidden="true"></span>
                 <span data-theme-toggle-text>深色</span>
             </button>
-            <a href="/admin.html">返回首页</a>
-            <a href="/logout">退出</a>
         </div>
     </header>
 
-    <input id="pnSearch" class="pn-search" type="search" placeholder="搜索私有导航..." aria-label="搜索私有导航">
-
-    <main id="pnContent" aria-live="polite">
-        <div class="pn-empty">私有导航加载中...</div>
+    <main class="pn-panel" role="main">
+        <div class="pn-search">
+            <input id="pnSearch" class="pn-search-input" type="search" placeholder="搜索私有导航..." aria-label="搜索私有导航">
+        </div>
+        <div id="pnContent" class="pn-content" aria-live="polite">
+            <div class="pn-empty">私有导航加载中...</div>
+        </div>
     </main>
+
+    <footer class="hc-entry-footer">© Home Center | By wwh</footer>
 </div>
 
-<script src="/js/app-theme.js?v=20260621-private-nav"></script>
 <script src="/js/main.js"></script>
-<script src="/js/private-nav.js?v=20260621-private-nav"></script>
+<script src="/js/private-nav.js?v=20260623-private"></script>
+<script src="/js/bg-particles.js?v=20260623-private"></script>
 </body>
 </html>

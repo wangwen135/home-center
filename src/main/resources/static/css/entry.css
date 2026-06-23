@@ -1,0 +1,213 @@
+/*
+ * 入口页（公开首页 / 登录页 / 内部私有导航页）公共样式
+ *
+ * 仅这三个页面引用本文件。后台与设备页不引入，保持工具页无粒子背景、
+ * 无毛玻璃顶栏的纯净管理体验。
+ *
+ * 本文件承载：
+ *   - 粒子背景画布层（.hc-bg-canvas / 旧版 #bg-canvas）的定位与层叠；
+ *   - 入口页内容包裹层 .hc-entry 的层叠上下文，使内容位于背景之上；
+ *   - 入口页共享顶栏 .hc-entry-topbar（半透明毛玻璃，保证粒子背景下可读）；
+ *   - 入口页共享页脚 .hc-entry-footer（统一文案：© Home Center | By wwh）。
+ */
+
+.hc-bg-canvas,
+canvas#bg-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+.hc-entry {
+    position: relative;
+    z-index: 1;
+}
+
+/* ===== 入口页共享顶栏（半透明毛玻璃） ===== */
+.hc-entry-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    padding: 14px 20px;
+    border: 1px solid var(--hc-line);
+    border-radius: 12px;
+    background: var(--hc-surface);
+    box-shadow: var(--hc-shadow-soft);
+    backdrop-filter: blur(18px) saturate(140%);
+    -webkit-backdrop-filter: blur(18px) saturate(140%);
+}
+
+.hc-entry-brand {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.hc-entry-brand-title {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 1.2;
+    color: var(--hc-text);
+}
+
+.hc-entry-brand-sub {
+    margin: 0;
+    color: var(--hc-muted);
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+.hc-entry-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+/* 顶栏内通用入口链接/按钮（登录、返回、退出等），低强调工具样式 */
+.hc-entry-link {
+    min-height: 38px;
+    display: inline-flex;
+    align-items: center;
+    padding: 0 14px;
+    border: 1px solid var(--hc-line);
+    border-radius: 8px;
+    background: var(--hc-surface-strong);
+    color: var(--hc-text);
+    text-decoration: none;
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+    transition: border-color 0.18s ease, background 0.18s ease, color 0.18s ease;
+}
+
+.hc-entry-link:hover {
+    border-color: rgba(37, 99, 235, 0.32);
+    background: var(--hc-soft-accent);
+    color: var(--hc-accent);
+}
+
+/* ===== 入口页共享页脚 ===== */
+.hc-entry-footer {
+    width: 100%;
+    margin-top: 8px;
+    padding: 16px 0;
+    color: var(--hc-muted);
+    font-size: 12px;
+    line-height: 1.5;
+    text-align: center;
+}
+
+/* ===== 入口页共享导航卡片（公开首页 / 私有导航共用“舒展门户入口”样式） =====
+ * 默认只显示圆角方形图标 + 名称；hover/focus 时描述以覆盖层淡入（不占默认空间、不撑动布局）。
+ * 私有导航在此基础上额外叠加入口类型 badge 与健康状态点（见各页私有样式）。 */
+.hc-entry-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    min-height: 120px;
+    padding: 16px 12px;
+    border: 1px solid var(--hc-line);
+    border-radius: 12px;
+    background: var(--hc-surface-strong);
+    color: var(--hc-text);
+    text-decoration: none;
+    text-align: center;
+    overflow: hidden;
+    transition: border-color 0.18s ease, background 0.18s ease, transform 0.18s ease;
+}
+
+.hc-entry-card:hover {
+    border-color: rgba(37, 99, 235, 0.32);
+    background: var(--hc-soft-accent);
+    transform: translateY(-2px);
+}
+
+.hc-entry-card:focus-visible {
+    outline: 2px solid var(--hc-accent);
+    outline-offset: 2px;
+}
+
+.hc-entry-card-icon {
+    flex: 0 0 auto;
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    border: 1px solid var(--hc-line);
+    background: #ffffff center/cover no-repeat;
+    color: #10384f;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 16px;
+    overflow: hidden;
+}
+
+.hc-entry-card-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.hc-entry-card-name {
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+}
+
+/* 描述覆盖层：默认隐藏不占空间，hover/focus 时淡入 */
+.hc-entry-card-desc {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 14px;
+    border-radius: 12px;
+    background: var(--hc-surface-strong);
+    color: var(--hc-text);
+    font-size: 13px;
+    line-height: 1.55;
+    text-align: center;
+    overflow-wrap: anywhere;
+    opacity: 0;
+    transform: translateY(6px);
+    pointer-events: none;
+    transition: opacity 0.18s ease, transform 0.18s ease;
+}
+
+.hc-entry-card:hover .hc-entry-card-desc,
+.hc-entry-card:focus-visible .hc-entry-card-desc {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+@media (max-width: 640px) {
+    .hc-entry-topbar {
+        padding: 12px 14px;
+    }
+
+    .hc-entry-brand-title {
+        font-size: 18px;
+    }
+
+    .hc-entry-actions {
+        width: 100%;
+        justify-content: flex-start;
+    }
+}

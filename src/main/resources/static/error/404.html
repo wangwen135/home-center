@@ -3,31 +3,41 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>404</title>
-    <link rel="stylesheet" href="/css/app-theme.css?v=20260620-error">
-    <link rel="stylesheet" href="/css/notion-theme.css?v=20260620-error">
-    <script src="/js/app-theme.js?v=20260620-error"></script>
+    <title>404 - 页面没找到 - Home Center</title>
+    <link rel="stylesheet" href="/css/app-theme.css?v=20260623-error">
+    <link rel="stylesheet" href="/css/entry.css?v=20260623-error">
+    <script src="/js/app-theme.js?v=20260623-error"></script>
+    <style>
+        body.hc-app { min-height: 100vh; display: flex; flex-direction: column; }
+        .err-shell { flex: 1; display: flex; align-items: center; justify-content: center; padding: 48px 20px 24px; }
+        .err-card { width: min(520px, 100%); border: 1px solid var(--hc-line); border-radius: 14px; background: var(--hc-surface); box-shadow: var(--hc-shadow-soft); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); padding: 32px 28px; text-align: center; }
+        .err-code { display: inline-flex; align-items: center; justify-content: center; min-width: 56px; height: 32px; margin-bottom: 14px; padding: 0 12px; border-radius: 999px; background: rgba(217, 119, 6, 0.14); color: var(--hc-warning); font-weight: 800; font-size: 14px; }
+        .err-title { margin: 0 0 8px; font-size: 22px; font-weight: 700; }
+        .err-desc { margin: 0 0 22px; color: var(--hc-muted); font-size: 14px; line-height: 1.6; }
+        .err-actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+        .err-topbar { position: fixed; top: 14px; right: 16px; z-index: 1095; }
+    </style>
 </head>
-<body class="hc-app hc-notion-page">
-<main class="hc-notion-shell hc-notion-stack">
-    <section class="hc-notion-auth-shell">
-        <section class="hc-notion-panel">
-            <div class="hc-notion-toolbar">
-                <span class="hc-notion-badge warning">404</span>
-                <div class="hc-notion-actions">
-                    <button class="hc-theme-toggle" type="button" aria-label="切换深浅色主题">
-                        <span class="hc-theme-toggle-icon" aria-hidden="true"></span>
-                        <span data-theme-toggle-text>深色</span>
-                    </button>
-                </div>
-            </div>
-            <h1 class="hc-notion-title">页面没找到</h1>
-            <p class="hc-notion-subtitle">访问地址不存在，或页面已经被移动。请从导航页重新进入目标功能。</p>
-            <div class="hc-notion-actions">
-                <a class="hc-button hc-button-primary" href="/">返回导航</a>
-            </div>
-        </section>
+<body class="hc-app">
+<div class="err-topbar">
+    <button class="hc-theme-toggle" type="button" aria-label="切换深浅色主题">
+        <span class="hc-theme-toggle-icon" aria-hidden="true"></span>
+        <span data-theme-toggle-text>深色</span>
+    </button>
+</div>
+
+<main class="err-shell" role="main">
+    <section class="err-card">
+        <span class="err-code">404</span>
+        <h1 class="err-title">页面没找到</h1>
+        <p class="err-desc">访问的地址不存在，或页面已被移动。可以从首页重新进入目标功能，或返回上一页重试。</p>
+        <div class="err-actions">
+            <a class="hc-button hc-button-primary" href="/">返回首页</a>
+            <button class="hc-button" type="button" onclick="history.back();">返回上一页</button>
+        </div>
     </section>
 </main>
+
+<footer class="hc-entry-footer">© Home Center | By wwh</footer>
 </body>
 </html>

@@ -1,10 +1,17 @@
 /**
  * 私有导航页面
  *
- * - 按分组渲染当前用户的私有导航入口
- * - 区分入口类型：nginx_proxy/external/intranet 为可跳转链接；note/ssh/rdp 为说明/命令类入口
- * - 说明/命令类入口点击后弹出说明并提供复制命令，不直接跳转
- * - 未上传图标时使用默认占位图标
+ * 职责：
+ * - 顶部菜单区：按当前用户角色/权限注入系统级菜单（后台管理等），用户头像+姓名下拉（个人信息/退出），低强调主题切换。
+ * - 按分组渲染当前用户的私有导航入口（基于共享 .hc-entry-card 舒展门户卡片）。
+ * - 点击展示形态来自配置（openType），不硬编码入口类型：new_tab 新标签页打开；instruction 说明/命令小弹框（复制+关闭）。
+ *   说明/命令类（ssh_rdp/note）默认走 instruction；其余默认走 new_tab。
+ * - 可跳转入口展示轻量健康状态小圆点（不展示详细错误）。
+ * - 空数据提示到配置界面维护，有配置权限时显示低强调“去配置”。
+ *
+ * 说明：设计中“公网/内网地址选择弹框”需要入口同时具备公网与内网地址；
+ * 当前 PrivateNavLink 数据模型仅有单一 url 字段（公网/内网地址能力在 InternalSystemConfig 上），
+ * 故该形态暂未实现，待后端补充字段后再接入（见 TODO 4.5 记录）。
  */
 (function () {
     var state = {
@@ -13,22 +20,57 @@
         query: ''
     };
 
-    // 入口类型元数据：badge 文案 + 是否为说明/命令类
-    // 类型集合：link/nginx_proxy/intranet/ssh_rdp/note
+    // 权限状态（顶部菜单与“去配置”按钮共用）
+    var permState = {
+        loaded: false,
+        isSuperAdmin: false,
+        codes: {}
+    };
+
+    // 入口类型元数据：badge 文案 + 是否为说明/命令类（默认点击形态）
     var ENTRY_META = {
-        link: {label: '链接', note: false, badge: 'muted'},
+        link: {label: '外链', note: false, badge: 'muted'},
         nginx_proxy: {label: '代理', note: false, badge: ''},
         intranet: {label: '内网', note: false, badge: 'success'},
-        ssh_rdp: {label: 'SSH/RDP', note: true, badge: 'note'},
+        ssh_rdp: {label: '命令', note: true, badge: 'note'},
         note: {label: '说明', note: true, badge: 'note'}
     };
+
+    // 顶部系统级权限菜单（有对应权限才显示）
+    var PERM_MENUS = [
+        {code: '/admin/manage.html', label: '后台管理', href: '/admin/manage.html'},
+        {code: '/device/pc/power.html', label: '设备控制', href: '/device/pc/power.html'}
+    ];
+
+    var CONFIG_PERM = '/admin/manage.html';
 
     function normalizeText(value) {
         return value === null || value === undefined ? '' : String(value);
     }
 
+    function escapeHtml(value) {
+        return normalizeText(value)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+
     function entryMeta(type) {
         return ENTRY_META[normalizeText(type)] || ENTRY_META.link;
+    }
+
+    // 点击展示形态：优先 openType 配置，回退到入口类型
+    function isInstructionEntry(link, meta) {
+        var openType = normalizeText(link.openType);
+        if (openType === 'instruction') {
+            return true;
+        }
+        if (openType === 'new_tab') {
+            return false;
+        }
+        return meta.note;
     }
 
     function isImageIcon(value) {
@@ -69,16 +111,153 @@
         return text.replace(/\s+/g, '').slice(0, 4).toUpperCase();
     }
 
-    function createIcon(link) {
-        var icon = document.createElement('div');
-        icon.className = 'pn-icon';
+    // ===== 权限匹配（与 admin 首页 index.js 保持一致的 ant 风格通配） =====
+    function matchesAntPath(pattern, path) {
+        if (!pattern || pattern.indexOf('*') === -1) {
+            return pattern === path;
+        }
+        var regex = '^' + pattern
+            .replace(/[.+^${}()|[\]\\]/g, '\\$&')
+            .replace(/\*\*/g, '::DS::')
+            .replace(/\*/g, '[^/]*')
+            .replace(/::DS::/g, '.*') + '$';
+        return new RegExp(regex).test(path);
+    }
+
+    function hasPermission(code) {
+        if (!permState.loaded) {
+            return false;
+        }
+        if (permState.isSuperAdmin) {
+            return true;
+        }
+        if (!code) {
+            return true;
+        }
+        if (permState.codes[code]) {
+            return true;
+        }
+        var keys = Object.keys(permState.codes);
+        for (var i = 0; i < keys.length; i++) {
+            if (matchesAntPath(keys[i], code)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // ===== 顶部菜单区 =====
+    function renderPermMenu() {
+        var container = document.getElementById('pnPermMenu');
+        if (!container) {
+            return;
+        }
+        container.innerHTML = '';
+        PERM_MENUS.forEach(function (item) {
+            if (!hasPermission(item.code)) {
+                return;
+            }
+            var link = document.createElement('a');
+            link.className = 'pn-perm-link';
+            link.href = item.href;
+            link.textContent = item.label;
+            container.appendChild(link);
+        });
+    }
+
+    function loadUserInfo() {
+        getRequest('/user/info', function (data) {
+            if (!data) {
+                return;
+            }
+            var nameEl = document.getElementById('pnUserName');
+            var avatarEl = document.getElementById('pnUserAvatar');
+            if (nameEl && data.nickname) {
+                nameEl.textContent = data.nickname;
+            }
+            if (avatarEl && data.avatar) {
+                avatarEl.src = data.avatar;
+            }
+        }, function () { /* 未登录或接口异常时保持默认 */ });
+    }
+
+    function loadPermissions() {
+        getRequest('/user/role', function (role) {
+            permState.isSuperAdmin = !!(role && Number(role.id) === 1);
+            getRequest('/user/permission', function (permissions) {
+                permState.codes = flattenPermissionUrls(permissions || []);
+                permState.loaded = true;
+                onPermissionReady();
+            }, function () {
+                permState.codes = {};
+                permState.loaded = true;
+                onPermissionReady();
+            });
+        }, function () {
+            permState.loaded = true;
+            onPermissionReady();
+        });
+    }
+
+    function flattenPermissionUrls(permissions) {
+        var set = {};
+        permissions.forEach(function (p) {
+            String(p.urls || '').split(';').forEach(function (part) {
+                var code = part.trim();
+                if (code) {
+                    set[code] = true;
+                }
+            });
+        });
+        return set;
+    }
+
+    function onPermissionReady() {
+        renderPermMenu();
+        updateConfigButtons();
+    }
+
+    function bindUserMenu() {
+        var btn = document.getElementById('pnUserBtn');
+        var menu = document.getElementById('pnUserMenu');
+        var userWrap = btn && btn.parentNode;
+        if (!btn || !menu) {
+            return;
+        }
+        btn.addEventListener('click', function (event) {
+            event.stopPropagation();
+            var open = menu.hasAttribute('hidden');
+            if (open) {
+                menu.removeAttribute('hidden');
+            } else {
+                menu.setAttribute('hidden', '');
+            }
+            btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+        });
+        document.addEventListener('click', function (event) {
+            if (userWrap && !userWrap.contains(event.target)) {
+                menu.setAttribute('hidden', '');
+                btn.setAttribute('aria-expanded', 'false');
+            }
+        });
+        var logoutBtn = document.getElementById('pnLogoutBtn');
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', function () {
+                window.location.href = '/logout';
+            });
+        }
+    }
+
+    // ===== 卡片渲染 =====
+    function createIconEl(link) {
+        var icon = document.createElement('span');
+        icon.className = 'hc-entry-card-icon';
         icon.setAttribute('aria-hidden', 'true');
         var emojiText = normalizeText(link.iconEmoji);
         if (isImageIcon(link.icon)) {
             var img = document.createElement('img');
             img.src = normalizeText(link.icon);
             img.alt = '';
-            icon.style.background = '#fff';
             icon.appendChild(img);
         } else {
             icon.style.background = hashColor(emojiText || link.title);
@@ -88,61 +267,11 @@
         return icon;
     }
 
-    function createBadge(meta) {
+    function createBadgeEl(meta) {
         var badge = document.createElement('span');
         badge.className = 'pn-badge ' + (meta.badge || '');
         badge.textContent = meta.label;
         return badge;
-    }
-
-    function createLinkTile(link, meta) {
-        var tile = document.createElement('a');
-        tile.className = 'pn-tile';
-        tile.href = normalizeText(link.url) || '#';
-        tile.target = '_blank';
-        tile.rel = 'noopener noreferrer';
-        tile.setAttribute('aria-label', normalizeText(link.title) + '：在新窗口打开');
-        fillTile(tile, link, meta);
-        return tile;
-    }
-
-    function createNoteTile(link, meta) {
-        var tile = document.createElement('button');
-        tile.type = 'button';
-        tile.className = 'pn-tile is-note';
-        tile.setAttribute('aria-label', normalizeText(link.title) + '：查看说明或复制命令');
-        tile.addEventListener('click', function () {
-            openInstruction(link, meta);
-        });
-        fillTile(tile, link, meta);
-        return tile;
-    }
-
-    function fillTile(tile, link, meta) {
-        var body = document.createElement('div');
-        body.className = 'pn-tile-body';
-
-        var title = document.createElement('div');
-        title.className = 'pn-tile-title';
-        var titleText = document.createElement('span');
-        titleText.textContent = normalizeText(link.title) || '未命名入口';
-        title.appendChild(titleText);
-        title.appendChild(createBadge(meta));
-
-        var desc = document.createElement('div');
-        desc.className = 'pn-tile-desc';
-        desc.textContent = normalizeText(link.description) || (meta.note ? '点击查看说明 / 复制命令' : '点击打开该入口');
-
-        body.appendChild(title);
-        body.appendChild(desc);
-
-        tile.appendChild(createIcon(link));
-        tile.appendChild(body);
-
-        // 可跳转入口展示轻量健康状态小圆点（正常/异常/超时/未知），不展示详细错误
-        if (!meta.note) {
-            tile.appendChild(createHealthDot(link.checkStatus));
-        }
     }
 
     function createHealthDot(status) {
@@ -152,6 +281,175 @@
         return dot;
     }
 
+    function fillCard(tile, link, meta) {
+        var titleText = normalizeText(link.title) || '未命名入口';
+        var descText = normalizeText(link.description) || (meta.note ? '点击查看说明 / 复制命令' : '点击打开该入口');
+
+        tile.appendChild(createBadgeEl(meta));
+        tile.appendChild(createIconEl(link));
+
+        var name = document.createElement('span');
+        name.className = 'hc-entry-card-name';
+        name.textContent = titleText;
+        tile.appendChild(name);
+
+        // 可跳转入口展示轻量健康状态点（不展示详细错误）
+        if (!meta.note) {
+            tile.appendChild(createHealthDot(link.checkStatus));
+        }
+
+        var desc = document.createElement('span');
+        desc.className = 'hc-entry-card-desc';
+        desc.textContent = descText;
+        tile.appendChild(desc);
+
+        tile.title = titleText;
+        tile.setAttribute('aria-label', titleText + '：' + descText);
+    }
+
+    function createCard(link) {
+        var meta = entryMeta(link.entryType);
+        var tile;
+        if (isInstructionEntry(link, meta)) {
+            tile = document.createElement('button');
+            tile.type = 'button';
+            tile.className = 'hc-entry-card pn-card is-note';
+            tile.addEventListener('click', function () {
+                openInstruction(link, meta);
+            });
+        } else {
+            tile = document.createElement('a');
+            tile.className = 'hc-entry-card pn-card';
+            tile.href = normalizeText(link.url) || '#';
+            tile.target = '_blank';
+            tile.rel = 'noopener noreferrer';
+        }
+        fillCard(tile, link, meta);
+        return tile;
+    }
+
+    function createGroup(category, links) {
+        var group = document.createElement('section');
+        group.className = 'pn-group';
+
+        var title = document.createElement('h2');
+        title.className = 'pn-group-title';
+        var icon = document.createElement('span');
+        icon.className = 'pn-group-icon';
+        icon.textContent = normalizeText(category.icon) || '◆';
+        icon.setAttribute('aria-hidden', 'true');
+        var name = document.createElement('span');
+        name.textContent = normalizeText(category.name) || '未命名分组';
+        title.appendChild(icon);
+        title.appendChild(name);
+
+        var grid = document.createElement('div');
+        grid.className = 'pn-grid';
+        if (links.length) {
+            links.forEach(function (link) {
+                grid.appendChild(createCard(link));
+            });
+        } else {
+            grid.appendChild(createEmpty('该分组暂无入口', false));
+        }
+
+        group.appendChild(title);
+        group.appendChild(grid);
+        return group;
+    }
+
+    function createEmpty(text, withConfig) {
+        var empty = document.createElement('div');
+        empty.className = 'pn-empty';
+        empty.textContent = text;
+        if (withConfig) {
+            var actions = document.createElement('div');
+            actions.className = 'pn-empty-actions';
+            var configLink = document.createElement('a');
+            configLink.className = 'hc-entry-link pn-config-link';
+            configLink.href = '/admin/manage.html';
+            configLink.textContent = '去配置';
+            configLink.setAttribute('data-pn-config', '');
+            if (!hasPermission(CONFIG_PERM)) {
+                configLink.setAttribute('hidden', '');
+            }
+            actions.appendChild(configLink);
+            empty.appendChild(actions);
+        }
+        return empty;
+    }
+
+    function updateConfigButtons() {
+        var allowed = hasPermission(CONFIG_PERM);
+        Array.prototype.forEach.call(document.querySelectorAll('[data-pn-config]'), function (el) {
+            if (allowed) {
+                el.removeAttribute('hidden');
+            } else {
+                el.setAttribute('hidden', '');
+            }
+        });
+    }
+
+    function matchesQuery(link, category, query) {
+        if (!query) {
+            return true;
+        }
+        var haystack = [
+            link.title, link.description, link.url, link.icon, link.iconEmoji,
+            link.entryType, link.instruction,
+            category && category.name, category && category.icon
+        ].map(function (value) {
+            return normalizeText(value).toLowerCase();
+        }).join(' ');
+        return haystack.indexOf(query) !== -1;
+    }
+
+    function compareSort(a, b) {
+        var left = Number(a.sortOrder || 0);
+        var right = Number(b.sortOrder || 0);
+        if (left !== right) {
+            return left - right;
+        }
+        return Number(a.id || 0) - Number(b.id || 0);
+    }
+
+    function render() {
+        var content = document.getElementById('pnContent');
+        if (!content) {
+            return;
+        }
+        while (content.firstChild) {
+            content.removeChild(content.firstChild);
+        }
+
+        var query = state.query.trim().toLowerCase();
+        var categories = state.categories.slice().sort(compareSort);
+        var links = state.links.slice().sort(compareSort);
+
+        if (!categories.length || !links.length) {
+            content.appendChild(createEmpty('暂无内部导航入口，可在配置或管理界面维护私有导航。', true));
+            return;
+        }
+
+        var rendered = 0;
+        categories.forEach(function (category) {
+            var groupLinks = links.filter(function (link) {
+                return String(link.categoryId) === String(category.id) && matchesQuery(link, category, query);
+            });
+            if (query && !groupLinks.length) {
+                return;
+            }
+            content.appendChild(createGroup(category, groupLinks));
+            rendered += groupLinks.length;
+        });
+
+        if (query && rendered === 0) {
+            content.appendChild(createEmpty('未找到匹配的私有导航入口', false));
+        }
+        updateConfigButtons();
+    }
+
+    // ===== 说明 / 命令小弹框 =====
     function openInstruction(link, meta) {
         var instruction = normalizeText(link.instruction);
         var backdrop = document.createElement('div');
@@ -162,7 +460,7 @@
             '<div class="hc-dialog-content">' +
             '<div class="hc-dialog-header">' +
             '<h6 class="hc-dialog-title">[i] ' + escapeHtml(normalizeText(link.title) || '说明') +
-            ' <span class="pn-badge ' + (meta.badge || '') + '">' + meta.label + '</span></h6>' +
+            ' <span class="pn-badge ' + (meta.badge || '') + '">' + escapeHtml(meta.label) + '</span></h6>' +
             '<button type="button" class="hc-close-button" aria-label="关闭">×</button>' +
             '</div>' +
             '<div class="hc-dialog-body">' +
@@ -234,113 +532,7 @@
         }
     }
 
-    function escapeHtml(value) {
-        return normalizeText(value)
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;')
-            .replace(/'/g, '&#39;');
-    }
-
-    function createGroup(category, links) {
-        var group = document.createElement('section');
-        group.className = 'pn-group';
-
-        var title = document.createElement('h2');
-        title.className = 'pn-group-title';
-        var icon = document.createElement('span');
-        icon.className = 'pn-group-icon';
-        icon.textContent = normalizeText(category.icon) || '◆';
-        var name = document.createElement('span');
-        name.textContent = normalizeText(category.name) || '未命名分组';
-        title.appendChild(icon);
-        title.appendChild(name);
-
-        var grid = document.createElement('div');
-        grid.className = 'pn-grid';
-        if (links.length) {
-            links.forEach(function (link) {
-                var meta = entryMeta(link.entryType);
-                grid.appendChild(meta.note ? createNoteTile(link, meta) : createLinkTile(link, meta));
-            });
-        } else {
-            var empty = document.createElement('div');
-            empty.className = 'pn-empty';
-            empty.textContent = '该分组暂无入口';
-            grid.appendChild(empty);
-        }
-
-        group.appendChild(title);
-        group.appendChild(grid);
-        return group;
-    }
-
-    function matchesQuery(link, category, query) {
-        if (!query) {
-            return true;
-        }
-        var haystack = [
-            link.title, link.description, link.url, link.icon, link.iconEmoji,
-            link.entryType, link.instruction,
-            category && category.name, category && category.icon
-        ].map(function (value) {
-            return normalizeText(value).toLowerCase();
-        }).join(' ');
-        return haystack.indexOf(query) !== -1;
-    }
-
-    function render() {
-        var content = document.getElementById('pnContent');
-        if (!content) {
-            return;
-        }
-        while (content.firstChild) {
-            content.removeChild(content.firstChild);
-        }
-
-        var query = state.query.trim().toLowerCase();
-        var categories = state.categories.slice().sort(compareSort);
-        var links = state.links.slice().sort(compareSort);
-
-        if (!categories.length) {
-            content.appendChild(createEmpty('暂无私有导航分组，可在管理中新增'));
-            return;
-        }
-
-        var rendered = 0;
-        categories.forEach(function (category) {
-            var groupLinks = links.filter(function (link) {
-                return String(link.categoryId) === String(category.id) && matchesQuery(link, category, query);
-            });
-            if (query && !groupLinks.length) {
-                return;
-            }
-            content.appendChild(createGroup(category, groupLinks));
-            rendered += groupLinks.length;
-        });
-
-        if (query && rendered === 0) {
-            content.appendChild(createEmpty('未找到匹配的私有导航入口'));
-        }
-    }
-
-    function compareSort(a, b) {
-        var left = Number(a.sortOrder || 0);
-        var right = Number(b.sortOrder || 0);
-        if (left !== right) {
-            return left - right;
-        }
-        return Number(a.id || 0) - Number(b.id || 0);
-    }
-
-    function createEmpty(text) {
-        var empty = document.createElement('div');
-        empty.className = 'pn-empty';
-        empty.textContent = text;
-        return empty;
-    }
-
+    // ===== 数据加载与搜索 =====
     function load() {
         getRequest('/api/private-nav/all', function (data) {
             state.categories = (data && data.categories) || [];
@@ -352,7 +544,7 @@
                 while (content.firstChild) {
                     content.removeChild(content.firstChild);
                 }
-                content.appendChild(createEmpty('私有导航加载失败，请刷新重试'));
+                content.appendChild(createEmpty('私有导航加载失败，请刷新重试', false));
             }
         });
     }
@@ -374,6 +566,9 @@
 
     function init() {
         bindSearch();
+        bindUserMenu();
+        loadUserInfo();
+        loadPermissions();
         load();
     }
 

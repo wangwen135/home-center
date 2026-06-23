@@ -5,87 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="Home Center 在线会话管理">
     <title>在线会话管理 - Home Center</title>
-    <link rel="stylesheet" href="/css/app-theme.css?v=20260622-sessions">
+    <link rel="stylesheet" href="/css/app-theme.css?v=20260623-sessions">
+    <link rel="stylesheet" href="/css/admin-shell.css?v=20260623-sessions">
+    <script src="/js/app-theme.js?v=20260623-sessions"></script>
     <style>
-        body.hc-app {
-            min-height: 100vh;
-            background: var(--hc-bg);
-            color: var(--hc-text);
-        }
-
-        .ss-shell {
-            width: min(1280px, calc(100% - 28px));
-            margin: 0 auto;
-            padding: 20px 0 48px;
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-
-        .ss-topbar {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 16px;
-            flex-wrap: wrap;
-            padding: 16px 20px;
-            border: 1px solid var(--hc-line);
-            border-radius: 12px;
-            background: var(--hc-surface);
-            box-shadow: var(--hc-shadow-soft);
-        }
-
-        .ss-topbar h1 {
-            margin: 0;
-            font-size: 22px;
-        }
-
-        .ss-topbar .ss-subtitle {
-            margin: 6px 0 0;
-            color: var(--hc-muted);
-            font-size: 13px;
-        }
-
-        .ss-actions {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-
-        .ss-actions a,
-        .ss-actions button {
-            min-height: 38px;
-            display: inline-flex;
-            align-items: center;
-            padding: 0 14px;
-            border: 1px solid var(--hc-line);
-            border-radius: 8px;
-            background: var(--hc-surface-strong);
-            color: var(--hc-text);
-            text-decoration: none;
-            font: inherit;
-            font-weight: 600;
-            cursor: pointer;
-        }
-
-        .ss-actions a:hover,
-        .ss-actions button:hover {
-            border-color: rgba(37, 99, 235, 0.32);
-            background: var(--hc-soft-accent);
-            color: var(--hc-accent);
-        }
-
-        .ss-actions button.is-danger {
-            color: var(--hc-danger);
-            border-color: rgba(220, 38, 38, 0.32);
-        }
-
+        /* 会话页私有样式：工具栏、表格与操作按钮。外壳样式来自 admin-shell.css。 */
         .ss-toolbar {
             display: flex;
             align-items: center;
             gap: 10px;
             flex-wrap: wrap;
+            margin-bottom: 16px;
             padding: 14px 18px;
             border: 1px solid var(--hc-line);
             border-radius: 12px;
@@ -102,6 +32,29 @@
             font: inherit;
             min-width: 180px;
             box-sizing: border-box;
+        }
+
+        .ss-toolbar button {
+            height: 36px;
+            padding: 0 14px;
+            border: 1px solid var(--hc-line);
+            border-radius: 8px;
+            background: var(--hc-surface-strong);
+            color: var(--hc-text);
+            font: inherit;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .ss-toolbar button:hover {
+            border-color: rgba(37, 99, 235, 0.32);
+            background: var(--hc-soft-accent);
+            color: var(--hc-accent);
+        }
+
+        .ss-toolbar button.is-danger {
+            color: var(--hc-danger);
+            border-color: rgba(220, 38, 38, 0.32);
         }
 
         .ss-panel {
@@ -185,56 +138,81 @@
         }
     </style>
 </head>
-<body class="hc-app">
-<div class="ss-shell">
-    <header class="ss-topbar">
-        <div>
-            <h1>在线会话管理</h1>
-            <p class="ss-subtitle">查看当前在线会话，超管可踢出指定会话。被踢出的用户再次访问时表现为未登录。</p>
+<body class="hc-app hc-admin-body">
+<div class="admin-shell" id="adminShell">
+    <aside class="admin-sidebar">
+        <div class="admin-sidebar-brand">
+            <span class="admin-brand-mark">HC</span>
+            <span class="admin-brand-text">Home Center</span>
         </div>
-        <div class="ss-actions">
-            <button class="hc-theme-toggle" type="button" aria-label="切换深浅色主题">
-                <span class="hc-theme-toggle-icon" aria-hidden="true"></span>
-                <span data-theme-toggle-text>深色</span>
-            </button>
-            <a href="/admin/manage.html">返回后台</a>
-        </div>
-    </header>
+        <nav class="admin-menu" id="adminMenu" aria-label="后台菜单"></nav>
+        <button class="admin-sidebar-collapse" id="adminCollapseBtn" type="button" aria-label="折叠/展开菜单">
+            <span aria-hidden="true">≪</span><span class="admin-collapse-text">折叠</span>
+        </button>
+    </aside>
 
-    <div class="ss-toolbar">
-        <input id="ssFilterUser" type="search" placeholder="按用户名筛选..." aria-label="按用户名筛选">
-        <input id="ssFilterIp" type="search" placeholder="按 IP 筛选..." aria-label="按 IP 筛选">
-        <button id="ssRefreshBtn" type="button">刷新</button>
-        <button id="ssKickBatchBtn" class="is-danger" type="button">批量踢出选中</button>
-    </div>
+    <div class="admin-body">
+        <header class="admin-topbar">
+            <div class="admin-topbar-title" id="adminTitle"></div>
+            <div class="admin-topbar-actions">
+                <div class="admin-user">
+                    <button class="admin-user-btn" id="adminUserBtn" type="button" aria-haspopup="true" aria-expanded="false">
+                        <img class="admin-user-avatar" id="adminUserAvatar" src="favicon.ico" alt="">
+                        <span class="admin-user-name" id="adminUserName">用户</span>
+                        <span class="admin-caret" aria-hidden="true">▾</span>
+                    </button>
+                    <div class="admin-dropdown" id="adminUserMenu" role="menu" hidden>
+                        <a class="admin-dropdown-item" href="/profile.html" role="menuitem">个人信息</a>
+                        <button class="admin-dropdown-item is-danger" type="button" id="adminLogoutBtn" role="menuitem">退出登录</button>
+                    </div>
+                </div>
+                <button class="hc-theme-toggle" type="button" aria-label="切换深浅色主题">
+                    <span class="hc-theme-toggle-icon" aria-hidden="true"></span>
+                    <span data-theme-toggle-text>深色</span>
+                </button>
+            </div>
+        </header>
 
-    <div class="ss-panel">
-        <table class="ss-table">
-            <thead>
-            <tr>
-                <th style="width:36px;"><input id="ssSelectAll" type="checkbox" aria-label="全选"></th>
-                <th>用户</th>
-                <th>角色</th>
-                <th>登录时间</th>
-                <th>最近访问</th>
-                <th>登录IP</th>
-                <th>最近IP</th>
-                <th>User-Agent</th>
-                <th>过期时间</th>
-                <th>最长截止</th>
-                <th>状态</th>
-                <th>操作</th>
-            </tr>
-            </thead>
-            <tbody id="ssTableBody">
-            <tr><td colspan="12" class="ss-empty">加载中...</td></tr>
-            </tbody>
-        </table>
+        <main class="admin-content" role="main">
+            <div class="ss-toolbar">
+                <input id="ssFilterUser" type="search" placeholder="按用户名筛选..." aria-label="按用户名筛选">
+                <input id="ssFilterIp" type="search" placeholder="按 IP 筛选..." aria-label="按 IP 筛选">
+                <button id="ssRefreshBtn" type="button">刷新</button>
+                <button id="ssKickBatchBtn" class="is-danger" type="button">批量踢出选中</button>
+            </div>
+
+            <div class="ss-panel">
+                <table class="ss-table">
+                    <thead>
+                    <tr>
+                        <th style="width:36px;"><input id="ssSelectAll" type="checkbox" aria-label="全选"></th>
+                        <th>用户</th>
+                        <th>角色</th>
+                        <th>登录时间</th>
+                        <th>最近访问</th>
+                        <th>登录IP</th>
+                        <th>最近IP</th>
+                        <th>User-Agent</th>
+                        <th>过期时间</th>
+                        <th>最长截止</th>
+                        <th>状态</th>
+                        <th>操作</th>
+                    </tr>
+                    </thead>
+                    <tbody id="ssTableBody">
+                    <tr><td colspan="12" class="ss-empty">加载中...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
     </div>
 </div>
 
-<script src="/js/app-theme.js?v=20260622-sessions"></script>
 <script src="/js/main.js"></script>
+<script src="/js/admin-shell.js?v=20260623-sessions"></script>
+<script>
+    window.HcAdminShell && window.HcAdminShell.init({title: '在线会话管理', breadcrumb: '用户与权限'});
+</script>
 <script>
     (function () {
         var sessions = [];

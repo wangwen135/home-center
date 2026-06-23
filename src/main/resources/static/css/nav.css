@@ -1,513 +1,140 @@
-:root {
-    --nav-bg: #f0f2f5;
-    --nav-text: #172033;
-    --nav-muted: rgba(23, 32, 51, 0.64);
-    --nav-accent: #0066cc;
-    --nav-accent-soft: rgba(0, 102, 204, 0.16);
-    --nav-panel: rgba(255, 255, 255, 0.76);
-    --nav-panel-strong: rgba(255, 255, 255, 0.94);
-    --nav-card: #ffffff;
-    --nav-card-back: radial-gradient(circle at top, rgba(0, 102, 204, 0.16), rgba(255, 255, 255, 0.96));
-    --nav-border: rgba(20, 35, 60, 0.12);
-    --nav-shadow: 0 24px 70px rgba(15, 23, 42, 0.14);
-    --nav-shadow-soft: 0 14px 38px rgba(15, 23, 42, 0.1);
-    --nav-line: linear-gradient(90deg, transparent, rgba(0, 102, 204, 0.72), transparent);
-}
-
-:root[data-theme="dark"],
-body.dark-theme {
-    --nav-bg: #05070c;
-    --nav-text: #eaf6ff;
-    --nav-muted: rgba(234, 246, 255, 0.62);
-    --nav-accent: #66d9ff;
-    --nav-accent-soft: rgba(102, 217, 255, 0.18);
-    --nav-panel: rgba(255, 255, 255, 0.045);
-    --nav-panel-strong: rgba(255, 255, 255, 0.075);
-    --nav-card: rgba(255, 255, 255, 0.045);
-    --nav-card-back: radial-gradient(circle at top, rgba(102, 217, 255, 0.2), rgba(6, 10, 18, 0.96));
-    --nav-border: rgba(255, 255, 255, 0.08);
-    --nav-shadow: 0 24px 80px rgba(0, 0, 0, 0.48);
-    --nav-shadow-soft: 0 14px 40px rgba(0, 0, 0, 0.34);
-    --nav-line: linear-gradient(90deg, transparent, rgba(102, 217, 255, 0.76), transparent);
-}
-
-* {
-    box-sizing: border-box;
-}
-
-html {
-    min-width: 320px;
-}
-
-body.hc-app {
-    min-height: 100vh;
-    margin: 0;
-    overflow-x: hidden;
-    color: var(--nav-text);
-    background: var(--nav-bg);
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
-}
-
-a {
-    color: inherit;
-    text-decoration: none;
-}
-
-button,
-input {
-    font: inherit;
-}
-
-#bg-canvas {
-    position: fixed;
-    inset: 0;
-    z-index: 0;
-    width: 100%;
-    height: 100%;
-}
+/*
+ * 公开首页（index.html）页面样式
+ *
+ * 公共能力来自：
+ *   - app-theme.css：主题变量、基础组件、主题切换按钮
+ *   - entry.css：粒子背景画布层、入口页共享顶栏 .hc-entry-topbar、页脚 .hc-entry-footer、内容层 .hc-entry
+ *   - bg-particles.js：科技感粒子背景（含降级）
+ * 本文件只承载首页主体：内容外壳、半透明大面板、搜索栏、分组与导航卡片。
+ */
 
 .page-shell {
-    position: relative;
-    z-index: 2;
-    width: min(1760px, calc(100% - 56px));
-    min-height: calc(100vh - 42px);
+    width: min(1180px, calc(100% - 32px));
+    min-height: calc(100vh - 40px);
     margin: 0 auto;
-    padding: 22px 0 56px;
-}
-
-.top-actions {
-    position: static;
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    gap: 10px;
-    min-height: 0;
-}
-
-.top-actions .hc-theme-toggle {
-    position: fixed;
-    top: 16px;
-    right: 16px;
-    z-index: 1095;
-    width: 40px;
-    min-width: 40px;
-    height: 40px;
-    min-height: 40px;
-    padding: 0;
-    border-radius: 999px;
-    border: 1px solid var(--nav-border);
-    background: var(--nav-panel);
-    color: var(--nav-text);
-    box-shadow: var(--nav-shadow-soft);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-}
-
-.top-actions .hc-theme-toggle:hover {
-    border-color: var(--nav-accent);
-    background: var(--nav-panel-strong);
-    color: var(--nav-text);
-    box-shadow: var(--nav-shadow-soft);
-}
-
-.top-actions .hc-theme-toggle::before {
-    color: var(--nav-text);
-}
-
-.top-actions .hc-theme-toggle [data-theme-toggle-text] {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-}
-
-.login-link {
-    position: fixed;
-    top: 16px;
-    right: 66px;
-    z-index: 1095;
-    width: 40px;
-    height: 40px;
-    min-height: 40px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    padding: 0;
-    border-radius: 8px;
-    border: 1px solid var(--nav-border);
-    background: var(--nav-panel);
-    color: var(--nav-text);
-    font-weight: 800;
-    cursor: pointer;
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease, background 0.22s ease;
-}
-
-.login-link {
-    min-width: 40px;
-    background: linear-gradient(135deg, var(--nav-accent), #1b86ff);
-    color: #ffffff;
-    border-color: transparent;
-    box-shadow: 0 12px 30px var(--nav-accent-soft);
-}
-
-.login-link:hover {
-    border-color: var(--nav-accent);
-    box-shadow: 0 16px 42px var(--nav-accent-soft);
-    transform: translateY(-2px);
-}
-
-.site-header {
-    text-align: center;
-    padding: 24px 220px 30px;
-}
-
-.site-header h1 {
-    margin: 0;
-    color: var(--nav-text);
-    font-size: 36px;
-    line-height: 1.12;
-    letter-spacing: 0;
-    text-shadow: 0 0 28px var(--nav-accent-soft);
-}
-
-.nav-panel {
-    width: 100%;
-}
-
-.search-container {
-    width: min(100%, 440px);
-    margin: 0 auto 34px;
-}
-
-.search-input {
-    width: 100%;
-    min-height: 42px;
-    padding: 0 18px;
-    border: 1px solid var(--nav-border);
-    border-radius: 999px;
-    outline: none;
-    background: var(--nav-panel);
-    color: var(--nav-text);
-    font-size: 14px;
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    transition: border-color 0.22s ease, box-shadow 0.22s ease, background 0.22s ease;
-}
-
-.search-input::placeholder {
-    color: var(--nav-muted);
-}
-
-.search-input:focus {
-    border-color: var(--nav-accent);
-    box-shadow: 0 0 0 3px var(--nav-accent-soft), inset 0 1px 0 rgba(255, 255, 255, 0.1);
-    background: var(--nav-panel-strong);
-}
-
-.nav-content {
+    padding: 22px 0 32px;
     display: flex;
     flex-direction: column;
-    gap: 52px;
-}
-
-.group {
-    position: relative;
-}
-
-.group:not(:last-child)::after {
-    content: "";
-    position: absolute;
-    left: 4px;
-    right: 4px;
-    bottom: -24px;
-    height: 1px;
-    background: var(--nav-line);
-    opacity: 0.72;
-}
-
-.group-title {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin: 0 0 18px 4px;
-    color: var(--nav-accent);
-    font-size: 14px;
-    line-height: 1.4;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-}
-
-.group-icon {
-    width: 30px;
-    height: 30px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 8px;
-    border: 1px solid var(--nav-border);
-    background: var(--nav-panel);
-    letter-spacing: 0;
-}
-
-.grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, 176px);
-    justify-content: start;
     gap: 20px;
 }
 
-.tile {
-    position: relative;
-    min-width: 0;
-    width: 176px;
-    height: 164px;
-    border-radius: 8px;
-    color: var(--nav-text);
-    cursor: pointer;
-    outline: none;
-    perspective: 900px;
-    transform: translateZ(0);
-    transition: transform 0.28s cubic-bezier(0.2, 0.9, 0.3, 1);
+/* 主体：中等宽度半透明大面板，承载搜索、分组标题与导航卡片 */
+.nav-panel {
+    border: 1px solid var(--hc-line);
+    border-radius: 14px;
+    background: var(--hc-surface);
+    box-shadow: var(--hc-shadow-soft);
+    backdrop-filter: blur(14px) saturate(130%);
+    -webkit-backdrop-filter: blur(14px) saturate(130%);
+    padding: 22px;
 }
 
-.tile:focus {
-    outline: 2px solid var(--nav-accent);
-    outline-offset: 3px;
+/* 搜索：普通工具栏式、克制 */
+.nav-search {
+    margin: 0 0 22px;
 }
 
-.tile:hover {
-    transform: translateY(-6px);
-}
-
-.tile-front,
-.tile-back {
-    position: absolute;
-    inset: 0;
-    border-radius: 8px;
-    border: 1px solid var(--nav-border);
-    overflow: hidden;
-    background: var(--nav-card);
-    box-shadow: var(--nav-shadow-soft);
-    backface-visibility: hidden;
-    -webkit-backface-visibility: hidden;
-    transform-style: preserve-3d;
-    transition: transform 0.42s cubic-bezier(0.2, 0.9, 0.3, 1), box-shadow 0.28s ease, border-color 0.28s ease;
-}
-
-.tile-front {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-    padding: 18px;
-    transform: rotateY(0);
-}
-
-.tile:hover .tile-front {
-    border-color: var(--nav-accent);
-    box-shadow: 0 18px 42px rgba(15, 23, 42, 0.18), 0 0 24px var(--nav-accent-soft);
-    transform: rotateY(180deg);
-}
-
-.tile-back {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    padding: 16px;
-    background: var(--nav-card-back);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    transform: rotateY(-180deg);
-}
-
-.tile:hover .tile-back {
-    border-color: var(--nav-accent);
-    box-shadow: 0 18px 42px rgba(15, 23, 42, 0.18), 0 0 24px var(--nav-accent-soft);
-    transform: rotateY(0);
-}
-
-.icon {
-    width: 68px;
-    height: 68px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 8px;
-    color: #10384f;
-    font-size: 24px;
-    font-weight: 800;
-    line-height: 1;
-    box-shadow: 0 12px 26px rgba(15, 23, 42, 0.12);
-    overflow: hidden;
-}
-
-.icon img {
+.nav-search-input {
     width: 100%;
-    height: 100%;
-    display: block;
-    object-fit: cover;
-}
-
-.title {
-    max-width: 100%;
-    color: var(--nav-text);
-    font-size: 14px;
-    line-height: 1.45;
-    text-align: center;
-    overflow-wrap: anywhere;
-}
-
-.tile-back .title {
-    color: var(--nav-accent);
-    font-size: 15px;
-    font-weight: 800;
-    text-align: left;
-}
-
-.tile-back .desc {
-    color: var(--nav-muted);
-    font-size: 12px;
-    line-height: 1.6;
-    overflow-wrap: anywhere;
-}
-
-.empty-message {
-    padding: 26px;
+    height: 42px;
+    padding: 0 14px;
+    border: 1px solid var(--hc-line);
     border-radius: 8px;
-    border: 1px dashed var(--nav-border);
-    background: var(--nav-panel);
-    color: var(--nav-muted);
+    background: var(--hc-surface-strong);
+    color: var(--hc-text);
+    font: inherit;
+    outline: none;
+    transition: border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+}
+
+.nav-search-input::placeholder {
+    color: var(--hc-muted);
+}
+
+.nav-search-input:focus {
+    border-color: rgba(37, 99, 235, 0.42);
+    box-shadow: 0 0 0 4px var(--hc-soft-accent);
+    background: var(--hc-surface-strong);
+}
+
+/* 分组 */
+.nav-content {
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+}
+
+.nav-group-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 14px;
+    color: var(--hc-text);
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.4;
+}
+
+.nav-group-icon {
+    color: var(--hc-accent);
+    font-size: 15px;
+    line-height: 1;
+}
+
+.nav-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 14px;
+}
+
+.nav-grid > .nav-empty {
+    grid-column: 1 / -1;
+}
+
+/* 导航卡片样式已抽取为公共组件 .hc-entry-card（见 css/entry.css），公开首页与私有导航共用。 */
+
+.nav-empty {
+    padding: 32px 12px;
+    border: 1px dashed var(--hc-line);
+    border-radius: 10px;
     text-align: center;
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    color: var(--hc-muted);
+    font-size: 14px;
+    background: var(--hc-surface);
 }
 
-.site-footer {
-    position: fixed;
-    z-index: 2;
-    left: 0;
-    right: 0;
-    bottom: 10px;
-    color: var(--nav-muted);
-    font-size: 12px;
-    text-align: center;
-    pointer-events: none;
-}
-
-@media (max-width: 1200px) {
-    .grid {
-        grid-template-columns: repeat(auto-fill, 164px);
-        gap: 20px;
-    }
-
-    .tile {
-        width: 164px;
-    }
-}
-
-@media (max-width: 768px) {
+@media (max-width: 640px) {
     .page-shell {
-        width: min(100% - 28px, 1760px);
-        padding-top: 16px;
+        width: min(100% - 24px, 1180px);
+        padding: 16px 0 24px;
     }
 
-    .top-actions {
-        position: static;
-        justify-content: flex-end;
-        margin: 0;
+    .nav-panel {
+        padding: 16px;
     }
 
-    .login-link {
-        right: 64px;
-    }
-
-    .site-header {
-        padding: 22px 10px 20px;
-    }
-
-    .site-header h1 {
-        font-size: 28px;
-    }
-
-    .nav-content {
-        gap: 38px;
-    }
-
-    .group:not(:last-child)::after {
-        bottom: -19px;
-    }
-
-    .grid {
-        grid-template-columns: repeat(auto-fill, minmax(136px, 1fr));
-        gap: 16px;
-    }
-
-    .tile {
-        width: auto;
-        height: 150px;
-    }
-
-    .icon {
-        width: 64px;
-        height: 64px;
-        font-size: 20px;
-    }
-}
-
-@media (max-width: 480px) {
-    .page-shell {
-        width: min(100% - 20px, 1760px);
-    }
-
-    .top-actions {
-        flex-direction: row;
-    }
-
-    .login-link {
-        right: 64px;
-        width: 40px;
-        min-width: 40px;
-        padding: 0;
-    }
-
-    .site-header h1 {
-        font-size: 24px;
-    }
-
-    .group-title {
-        letter-spacing: 1px;
-    }
-
-    .grid {
+    .nav-grid {
         grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
         gap: 12px;
     }
 
-    .tile {
-        height: 138px;
+    .hc-entry-card {
+        min-height: 108px;
+        padding: 12px 10px;
     }
 
-    .tile-back {
-        padding: 12px;
+    .hc-entry-card-icon {
+        width: 42px;
+        height: 42px;
+    }
+}
+
+@media (max-width: 380px) {
+    .page-shell {
+        width: min(100% - 20px, 1180px);
     }
 
-    .icon {
-        width: 56px;
-        height: 56px;
-        font-size: 18px;
-    }
-
-    .site-footer {
-        position: static;
-        margin-top: 24px;
-        padding-bottom: 16px;
-        pointer-events: auto;
+    .nav-grid {
+        grid-template-columns: repeat(2, 1fr);
     }
 }

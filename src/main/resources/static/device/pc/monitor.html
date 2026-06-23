@@ -3,11 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>客户端管理</title>
-    <link rel="stylesheet" href="/css/app-theme.css?v=20260620-pc-monitor">
-    <link rel="stylesheet" href="/css/notion-theme.css?v=20260620-pc-monitor">
-    <script src="/js/app-theme.js?v=20260620-pc-monitor"></script>
+    <title>客户端管理 - Home Center</title>
+    <link rel="stylesheet" href="/css/app-theme.css?v=20260623-pc-monitor">
+    <link rel="stylesheet" href="/css/admin-shell.css?v=20260623-pc-monitor">
+    <script src="/js/app-theme.js?v=20260623-pc-monitor"></script>
     <style>
+        /* 客户端管理页私有样式。外壳样式来自 admin-shell.css；颜色变量统一用 app-theme 的 --hc-*。 */
+        .mon-toolbar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 6px;
+        }
+
+        .mon-toolbar .hc-button { min-height: 38px; }
+
+        .mon-summary {
+            margin: 0 0 18px;
+            color: var(--hc-muted);
+            font-size: 13px;
+        }
+
         .monitor-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -17,13 +34,44 @@
         .monitor-card {
             position: relative;
             display: grid;
-            gap: 16px;
+            gap: 14px;
             min-width: 0;
+            border: 1px solid var(--hc-line);
+            border-radius: 12px;
+            background: var(--hc-surface);
+            box-shadow: var(--hc-shadow-soft);
+            padding: 16px;
         }
+
+        .mon-card-head {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .mon-badges {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .mon-badge {
+            display: inline-flex;
+            align-items: center;
+            min-height: 22px;
+            padding: 0 8px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .mon-badge.success { background: rgba(22, 163, 74, 0.14); color: var(--hc-success); }
+        .mon-badge.warning { background: rgba(217, 119, 6, 0.14); color: var(--hc-warning); }
 
         .screen-frame {
             overflow: hidden;
-            border: 1px solid var(--notion-border);
+            border: 1px solid var(--hc-line);
             border-radius: 12px;
             background: linear-gradient(180deg, #ece8e4 0%, #dad4ce 100%);
         }
@@ -44,6 +92,7 @@
             height: 100%;
             display: block;
             object-fit: cover;
+            cursor: zoom-in;
         }
 
         .screen-empty,
@@ -55,9 +104,8 @@
             align-items: center;
             justify-content: center;
             gap: 10px;
-            color: var(--notion-text-soft);
+            color: var(--hc-muted);
             background: rgba(255, 255, 255, 0.72);
-            font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
         }
 
         :root[data-theme="dark"] .screen-empty,
@@ -97,76 +145,80 @@
         .spinner {
             width: 30px;
             height: 30px;
-            border: 3px solid rgba(0, 117, 222, 0.14);
-            border-top-color: var(--notion-accent);
+            border: 3px solid rgba(37, 99, 235, 0.14);
+            border-top-color: var(--hc-accent);
             border-radius: 50%;
-            animation: spin 0.9s linear infinite;
+            animation: mon-spin 0.9s linear infinite;
         }
 
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
+        @keyframes mon-spin { to { transform: rotate(360deg); } }
 
-        .device-meta {
-            display: grid;
-            gap: 6px;
-        }
+        .device-meta { display: grid; gap: 4px; min-width: 0; }
 
         .device-name {
             margin: 0;
             overflow: hidden;
-            color: var(--notion-text);
-            font-size: 22px;
+            color: var(--hc-text);
+            font-size: 18px;
             font-weight: 700;
             line-height: 1.28;
             text-overflow: ellipsis;
             white-space: nowrap;
-            font-family: "Times New Roman", Georgia, "Noto Serif SC", serif;
         }
 
         .device-ip {
-            color: var(--notion-text-soft);
-            font-size: 14px;
+            color: var(--hc-muted);
+            font-size: 13px;
             line-height: 1.55;
-            font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
         }
 
         .action-menu {
             position: absolute;
-            right: 24px;
-            top: 72px;
+            right: 16px;
+            top: 60px;
             z-index: 4;
             min-width: 180px;
-            padding: 8px;
-            border: 1px solid var(--notion-border);
-            border-radius: 12px;
-            background: var(--notion-surface);
-            box-shadow: var(--notion-shadow-deep);
+            padding: 6px;
+            border: 1px solid var(--hc-line);
+            border-radius: 10px;
+            background: var(--hc-surface-strong);
+            box-shadow: var(--hc-shadow);
         }
 
         .menu-item {
             display: flex;
             align-items: center;
             width: 100%;
-            padding: 10px 12px;
+            padding: 8px 10px;
             border: 0;
-            border-radius: 8px;
+            border-radius: 7px;
             background: transparent;
-            color: var(--notion-text);
+            color: var(--hc-text);
             text-align: left;
             text-decoration: none;
             cursor: pointer;
             font: inherit;
-            font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+            font-size: 13px;
         }
 
         .menu-item:hover {
-            background: var(--notion-accent-soft);
-            color: var(--notion-accent);
+            background: var(--hc-soft-accent);
+            color: var(--hc-accent);
         }
 
+        .mon-empty {
+            grid-column: 1 / -1;
+            padding: 40px 0;
+            border: 1px dashed var(--hc-line);
+            border-radius: 10px;
+            text-align: center;
+            color: var(--hc-muted);
+            background: var(--hc-surface);
+        }
+
+        .mon-error { color: var(--hc-danger); border-style: solid; }
+
+        /* Web Shell 终端 */
         .terminal-body {
             height: min(70vh, 640px);
             display: flex;
@@ -178,31 +230,11 @@
             font-family: Consolas, "SFMono-Regular", Menlo, monospace;
         }
 
-        .terminal-output {
-            flex: 1;
-            overflow: auto;
-            padding: 18px;
-            font-size: 13px;
-            line-height: 1.55;
-        }
-
-        .terminal-line {
-            white-space: pre-wrap;
-            word-break: break-word;
-        }
-
-        .terminal-line.command {
-            color: #93c5fd;
-        }
-
-        .terminal-line.stderr {
-            color: #fca5a5;
-        }
-
-        .terminal-line.system {
-            color: #a7f3d0;
-        }
-
+        .terminal-output { flex: 1; overflow: auto; padding: 18px; font-size: 13px; line-height: 1.55; }
+        .terminal-line { white-space: pre-wrap; word-break: break-word; }
+        .terminal-line.command { color: #93c5fd; }
+        .terminal-line.stderr { color: #fca5a5; }
+        .terminal-line.system { color: #a7f3d0; }
         .terminal-input {
             display: flex;
             align-items: center;
@@ -211,49 +243,85 @@
             border-top: 1px solid rgba(255, 255, 255, 0.08);
             background: #14181f;
         }
+        .terminal-input input { flex: 1; min-width: 0; border: 0; outline: 0; color: #f8fafc; background: transparent; font: inherit; }
 
-        .terminal-input input {
-            flex: 1;
-            min-width: 0;
-            border: 0;
-            outline: 0;
-            color: #f8fafc;
-            background: transparent;
-            font: inherit;
+        /* 截图大图查看 */
+        .shot-lightbox {
+            position: fixed;
+            inset: 0;
+            z-index: 1080;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            background: rgba(8, 13, 24, 0.7);
+        }
+        .shot-lightbox.show { display: flex; }
+        .shot-lightbox img {
+            max-width: 100%;
+            max-height: 100%;
+            border-radius: 8px;
+            box-shadow: var(--hc-shadow);
+        }
+        .shot-lightbox-close {
+            position: absolute;
+            top: 16px;
+            right: 16px;
         }
 
         @media (max-width: 680px) {
-            .action-menu {
-                left: 18px;
-                right: 18px;
-                top: auto;
-                bottom: 20px;
-            }
+            .action-menu { left: 16px; right: 16px; top: auto; bottom: 16px; }
         }
     </style>
 </head>
-<body class="hc-app hc-notion-page">
-<main class="hc-notion-shell hc-notion-stack">
-    <header class="hc-notion-header">
-        <div>
-            <p class="hc-notion-kicker">PC Monitor</p>
-            <h1>客户端管理</h1>
-            <p id="deviceSummary" class="hc-notion-subtitle">设备加载中...</p>
+<body class="hc-app hc-admin-body">
+<div class="admin-shell" id="adminShell">
+    <aside class="admin-sidebar">
+        <div class="admin-sidebar-brand">
+            <span class="admin-brand-mark">HC</span>
+            <span class="admin-brand-text">Home Center</span>
         </div>
-        <div class="hc-notion-actions">
-            <button class="hc-theme-toggle" type="button" aria-label="切换深浅色主题">
-                <span class="hc-theme-toggle-icon" aria-hidden="true"></span>
-                <span data-theme-toggle-text>深色</span>
-            </button>
-            <button id="refreshScreenshots" class="hc-button" type="button">刷新截图</button>
-            <a class="hc-button" href="/device/pc/power.html">电源控制</a>
-        </div>
-    </header>
+        <nav class="admin-menu" id="adminMenu" aria-label="后台菜单"></nav>
+        <button class="admin-sidebar-collapse" id="adminCollapseBtn" type="button" aria-label="折叠/展开菜单">
+            <span aria-hidden="true">≪</span><span class="admin-collapse-text">折叠</span>
+        </button>
+    </aside>
 
-    <section id="deviceGrid" class="monitor-grid" aria-live="polite">
-        <div class="hc-notion-empty">设备加载中...</div>
-    </section>
-</main>
+    <div class="admin-body">
+        <header class="admin-topbar">
+            <div class="admin-topbar-title" id="adminTitle"></div>
+            <div class="admin-topbar-actions">
+                <div class="admin-user">
+                    <button class="admin-user-btn" id="adminUserBtn" type="button" aria-haspopup="true" aria-expanded="false">
+                        <img class="admin-user-avatar" id="adminUserAvatar" src="favicon.ico" alt="">
+                        <span class="admin-user-name" id="adminUserName">用户</span>
+                        <span class="admin-caret" aria-hidden="true">▾</span>
+                    </button>
+                    <div class="admin-dropdown" id="adminUserMenu" role="menu" hidden>
+                        <a class="admin-dropdown-item" href="/profile.html" role="menuitem">个人信息</a>
+                        <button class="admin-dropdown-item is-danger" type="button" id="adminLogoutBtn" role="menuitem">退出登录</button>
+                    </div>
+                </div>
+                <button class="hc-theme-toggle" type="button" aria-label="切换深浅色主题">
+                    <span class="hc-theme-toggle-icon" aria-hidden="true"></span>
+                    <span data-theme-toggle-text>深色</span>
+                </button>
+            </div>
+        </header>
+
+        <main class="admin-content" role="main">
+            <div class="mon-toolbar">
+                <button id="refreshScreenshots" class="hc-button" type="button">刷新截图</button>
+                <a class="hc-button" href="/device/pc/power.html">电源控制</a>
+            </div>
+            <p id="deviceSummary" class="mon-summary">设备加载中...</p>
+
+            <section id="deviceGrid" class="monitor-grid" aria-live="polite">
+                <div class="mon-empty">设备加载中...</div>
+            </section>
+        </main>
+    </div>
+</div>
 
 <div id="terminalModal" class="modal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg">
@@ -275,6 +343,16 @@
     </div>
 </div>
 
+<div id="shotLightbox" class="shot-lightbox" role="dialog" aria-modal="true" aria-label="查看截图大图">
+    <button type="button" class="hc-close-button shot-lightbox-close" aria-label="关闭">×</button>
+    <img id="shotLightboxImg" src="" alt="截图大图">
+</div>
+
+<script src="/js/main.js"></script>
+<script src="/js/admin-shell.js?v=20260623-pc-monitor"></script>
+<script>
+    window.HcAdminShell && window.HcAdminShell.init({title: '客户端管理', breadcrumb: '设备'});
+</script>
 <script>
     (function () {
         var devices = [];
@@ -296,6 +374,8 @@
         var terminalTitle = document.getElementById('terminalTitle');
         var terminalOutput = document.getElementById('terminalOutput');
         var terminalInput = document.getElementById('terminalInput');
+        var shotLightbox = document.getElementById('shotLightbox');
+        var shotLightboxImg = document.getElementById('shotLightboxImg');
 
         function escapeHtml(value) {
             return window.HomeCenter.escapeHtml(value);
@@ -308,7 +388,7 @@
         function render() {
             summary.textContent = devices.length + ' 台设备 · 截图每 60 秒自动刷新';
             if (!devices.length) {
-                grid.innerHTML = '<div class="hc-notion-empty">暂无客户端设备</div>';
+                grid.innerHTML = '<div class="mon-empty">暂无客户端设备</div>';
                 return;
             }
             grid.innerHTML = devices.map(function (device) {
@@ -333,14 +413,14 @@
                     ? '<div class="action-menu">' + menuItems.join('') + '</div>'
                     : '';
 
-                return '<article class="hc-notion-card monitor-card" data-device-id="' + escapeHtml(device.id) + '">' +
+                return '<article class="monitor-card" data-device-id="' + escapeHtml(device.id) + '">' +
                     '<div class="screen-frame"><div class="screen">' + image + empty + loading + '</div></div>' +
-                    '<div class="hc-notion-toolbar">' +
+                    '<div class="mon-card-head">' +
                     '<div class="device-meta"><h2 class="device-name" title="' + escapeHtml(device.name || '') + '">' + escapeHtml(device.name || '未命名设备') + '</h2>' +
                     '<div class="device-ip">' + escapeHtml(device.ipAddress || '未配置 IP') + '</div></div>' +
-                    '<div class="hc-notion-actions">' +
-                    '<span class="hc-notion-badge ' + (enabled ? 'success' : 'warning') + '">' + (enabled ? '启用' : '停用') + '</span>' +
-                    '<span class="hc-notion-badge ' + (online ? 'success' : 'warning') + '">' + (online ? '在线' : '离线') + '</span>' +
+                    '<div class="mon-badges">' +
+                    '<span class="mon-badge ' + (enabled ? 'success' : 'warning') + '">' + (enabled ? '启用' : '停用') + '</span>' +
+                    '<span class="mon-badge ' + (online ? 'success' : 'warning') + '">' + (online ? '在线' : '离线') + '</span>' +
                     '</div>' +
                     '</div>' + menu + '</article>';
             }).join('');
@@ -404,6 +484,32 @@
                 });
         }
 
+        // 7.2：点击截图查看大图
+        function openShotLightbox(url, name) {
+            if (!url) {
+                return;
+            }
+            shotLightboxImg.src = url;
+            shotLightboxImg.alt = (name || '设备') + ' 截图大图';
+            shotLightbox.classList.add('show');
+        }
+
+        function closeShotLightbox() {
+            shotLightbox.classList.remove('show');
+            shotLightboxImg.src = '';
+        }
+
+        shotLightbox.addEventListener('click', function (event) {
+            if (event.target === shotLightbox || event.target.classList.contains('shot-lightbox-close')) {
+                closeShotLightbox();
+            }
+        });
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape' && shotLightbox.classList.contains('show')) {
+                closeShotLightbox();
+            }
+        });
+
         function renderTerminal() {
             terminalOutput.innerHTML = terminalLines.map(function (line) {
                 return '<div class="terminal-line ' + escapeHtml(line.type || '') + '">' + escapeHtml(line.text) + '</div>';
@@ -414,6 +520,7 @@
         function openTerminal(device) {
             activeDeviceId = null;
             terminalDevice = device;
+            // 7.4：进入后顶部持续显示目标设备
             terminalTitle.textContent = device.name + ' · Shell';
             terminalLines = [{type: 'system', text: '已连接到 ' + device.name + ' (' + (device.ipAddress || '-') + ')'}];
             terminalInput.value = '';
@@ -426,6 +533,7 @@
             }, 30);
         }
 
+        // 7.4：进入 Web Shell 前风险确认
         function requestOpenTerminal(device) {
             window.HomeCenter.confirm('即将在 ' + device.name + ' 上进入 Web Shell。进入后执行单条命令不再重复确认，请确认目标设备无误。', {
                 title: '进入 Web Shell',
@@ -488,6 +596,17 @@
         }
 
         grid.addEventListener('click', function (event) {
+            // 7.2：点击截图图片 → 查看大图（不触发菜单）
+            var shotImg = event.target.closest('img[data-screenshot]');
+            if (shotImg) {
+                var shotDevice = devices.find(function (item) {
+                    return String(item.id) === String(shotImg.getAttribute('data-screenshot'));
+                });
+                if (shotDevice && shotDevice.screenshotUrl) {
+                    openShotLightbox(shotDevice.screenshotUrl, shotDevice.name);
+                }
+                return;
+            }
             var card = event.target.closest('[data-device-id]');
             var device;
             var action;
@@ -551,7 +670,7 @@
             })
             .catch(function (error) {
                 summary.textContent = '设备加载失败';
-                grid.innerHTML = '<div class="hc-notion-feedback error">设备加载失败</div>';
+                grid.innerHTML = '<div class="mon-empty mon-error">设备加载失败</div>';
                 window.HomeCenter.toast(error.message || '加载设备列表失败', 'error');
             });
 

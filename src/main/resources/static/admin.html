@@ -3,101 +3,82 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="wwh">
+    <meta name="description" content="Home Center 后台概览">
     <meta name="author" content="wwh">
-    <title>Home Center Admin</title>
-
-    <link rel="stylesheet" href="/css/app-theme.css?v=20260620-admin-home">
-    <link rel="stylesheet" href="/css/common.css?v=20260620-admin-home">
-    <link rel="stylesheet" href="/css/index.css?v=20260620-admin-home">
-    <script src="/js/app-theme.js?v=20260620-admin-home"></script>
-    <script src="/js/main.js"></script>
-    <script src="/js/index.js"></script>
+    <title>后台概览 - Home Center</title>
+    <link rel="stylesheet" href="/css/app-theme.css?v=20260623-admin-home">
+    <link rel="stylesheet" href="/css/admin-shell.css?v=20260623-admin-home">
+    <script src="/js/app-theme.js?v=20260623-admin-home"></script>
     <style>
-        .admin-home-shell {
-            width: min(1320px, calc(100% - 28px));
-            min-height: 100vh;
-            margin: 0 auto;
-            padding: 20px 0 36px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
+        /* 概览页私有样式。外壳样式来自 admin-shell.css。 */
+        .ov-section-title {
+            margin: 0 0 12px;
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--hc-text);
         }
 
-        .admin-home-header {
+        .ov-stat-grid {
             display: grid;
-            grid-template-columns: minmax(0, 1fr) auto auto;
-            align-items: start;
-            gap: 16px;
-            padding: 18px 20px;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 14px;
+            margin-bottom: 6px;
+        }
+
+        .ov-stat-card {
+            border: 1px solid var(--hc-line);
+            border-radius: 12px;
+            background: var(--hc-surface-strong);
+            box-shadow: var(--hc-shadow-soft);
+            padding: 16px 18px;
+        }
+
+        .ov-stat-card strong {
+            display: block;
+            font-size: 26px;
+            font-weight: 800;
+            line-height: 1.1;
+            color: var(--hc-text);
+        }
+
+        .ov-stat-card span {
+            color: var(--hc-muted);
+            font-size: 13px;
+        }
+
+        .ov-audit-list {
+            margin: 14px 0 0;
+            padding: 0;
+            list-style: none;
+            border: 1px solid var(--hc-line);
+            border-radius: 10px;
+            background: var(--hc-surface-strong);
+            overflow: hidden;
+        }
+
+        .ov-audit-list li {
+            display: grid;
+            grid-template-columns: minmax(0,2fr) minmax(0,2fr) minmax(0,1fr) minmax(0,2fr);
+            gap: 10px;
+            padding: 9px 14px;
+            font-size: 13px;
+            border-bottom: 1px solid var(--hc-line);
+        }
+
+        .ov-audit-list li:last-child { border-bottom: 0; }
+        .ov-audit-list .ov-audit-empty { display: block; padding: 18px; text-align: center; color: var(--hc-muted); }
+
+        @media (max-width: 900px) {
+            .ov-stat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        }
+
+        .ov-panel {
             border: 1px solid var(--hc-line);
             border-radius: 12px;
             background: var(--hc-surface);
             box-shadow: var(--hc-shadow-soft);
-        }
-
-        .admin-home-title h1 {
-            margin: 0;
-            font-size: 28px;
-            line-height: 1.15;
-        }
-
-        .admin-home-title p {
-            margin: 10px 0 0;
-            color: var(--hc-muted);
-            font-size: 14px;
-            line-height: 1.6;
-        }
-
-        .admin-home-nav {
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-
-        .admin-home-nav a,
-        .admin-home-nav button,
-        .admin-user-button {
-            min-height: 38px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            padding: 0 14px;
-            border: 1px solid var(--hc-line);
-            border-radius: 8px;
-            background: var(--hc-surface-strong);
-            color: var(--hc-text);
-            text-decoration: none;
-            font: inherit;
-            font-weight: 700;
-            cursor: pointer;
-        }
-
-        .admin-home-nav a:hover,
-        .admin-home-nav button:hover,
-        .admin-user-button:hover {
-            border-color: rgba(37, 99, 235, 0.32);
-            background: var(--hc-soft-accent);
-            color: var(--hc-accent);
-        }
-
-        .admin-user-wrap {
-            position: relative;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            justify-self: end;
-        }
-
-        .avatar-icon {
-            width: 38px;
-            height: 38px;
-            border-radius: 50%;
-            border: 1px solid var(--hc-line);
-            background: #ffffff;
-            object-fit: cover;
+            padding: 20px;
+            margin-bottom: 20px;
         }
 
         #systemLabContainer {
@@ -105,19 +86,12 @@
             flex-wrap: wrap;
             align-items: flex-start;
             gap: 10px 12px;
-            min-height: 120px;
-            padding: 10px 0;
-        }
-
-        .admin-home-panel {
-            border: 1px solid var(--hc-line);
-            border-radius: 12px;
-            background: var(--hc-surface);
-            box-shadow: var(--hc-shadow-soft);
-            padding: 20px;
+            min-height: 80px;
+            padding: 6px 0;
         }
 
         .sys-desc-container {
+            position: relative;
             max-width: 100%;
             margin: 0;
             padding: 22px 22px 14px 22px;
@@ -148,8 +122,8 @@
 
         .sys-desc-close {
             position: absolute;
-            top: 18px;
-            right: 18px;
+            top: 14px;
+            right: 14px;
         }
 
         .sys-access-grid {
@@ -177,141 +151,297 @@
             overflow-wrap: anywhere;
         }
 
-        .progress-bar {
-            margin-top: 16px;
+        /* 内部系统入口小方块（由 JS 渲染） */
+        .sys-lab {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            width: 92px;
+            padding: 10px 6px;
+            border: 1px solid var(--hc-line);
+            border-radius: 10px;
+            background: var(--hc-surface-strong);
+            cursor: pointer;
+            transition: border-color 0.15s ease, background 0.15s ease;
         }
 
-        @media (max-width: 920px) {
-            .admin-home-header {
-                grid-template-columns: 1fr;
-            }
+        .sys-lab:hover {
+            border-color: rgba(37, 99, 235, 0.32);
+            background: var(--hc-soft-accent);
+        }
 
-            .admin-home-nav,
-            .admin-user-wrap {
-                justify-self: stretch;
-                justify-content: flex-start;
-            }
+        .sys-lab img.sys-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            object-fit: contain;
+        }
+
+        .sys-lab .sys-text {
+            font-size: 12px;
+            text-align: center;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            max-width: 100%;
+        }
+
+        .ov-empty {
+            width: 100%;
+            padding: 24px 0;
+            text-align: center;
+            color: var(--hc-muted);
+            font-size: 13px;
         }
 
         @media (max-width: 640px) {
-            .admin-home-shell {
-                width: min(100% - 18px, 1320px);
-                padding-top: 14px;
-            }
-
-            .admin-home-header,
-            .admin-home-panel {
-                padding: 16px;
-            }
-
-            .sys-access-grid {
-                grid-template-columns: 1fr;
-            }
+            .ov-panel { padding: 16px; }
+            .sys-access-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
-<body class="hc-app admin-page">
-<div class="admin-home-shell">
-    <header class="admin-home-header">
-        <div class="admin-home-title">
-            <h1>Home Center Admin</h1>
-            <p>保留快速入口展示方式，只修布局、菜单、响应式和详情面板的交互问题。</p>
+<body class="hc-app hc-admin-body">
+<div class="admin-shell" id="adminShell">
+    <aside class="admin-sidebar">
+        <div class="admin-sidebar-brand">
+            <span class="admin-brand-mark">HC</span>
+            <span class="admin-brand-text">Home Center</span>
         </div>
+        <nav class="admin-menu" id="adminMenu" aria-label="后台菜单"></nav>
+        <button class="admin-sidebar-collapse" id="adminCollapseBtn" type="button" aria-label="折叠/展开菜单">
+            <span aria-hidden="true">≪</span><span class="admin-collapse-text">折叠</span>
+        </button>
+    </aside>
 
-        <nav class="admin-home-nav">
-            <a aria-current="page" href="#">快速入口</a>
-            <a href="/private.html">私有导航</a>
-            <a href="/admin/manage.html" data-perm="/admin/manage.html">后台管理</a>
-            <button class="admin-menu-button" type="button" data-menu-target="hardwareMenu" data-perm="/device/pc/power.html" aria-expanded="false">设备</button>
-            <ul id="hardwareMenu" class="admin-dropdown">
-                <li><a class="dropdown-item" href="/device/pc/power.html" target="_blank">电脑远程控制</a></li>
-            </ul>
-            <a href="#">资料</a>
-            <a href="#">软件</a>
-        </nav>
-
-        <div class="admin-user-wrap">
-            <button class="hc-theme-toggle admin-theme-toggle" type="button" aria-label="切换深浅色主题">
-                <span class="hc-theme-toggle-icon" aria-hidden="true"></span>
-                <span data-theme-toggle-text>深色</span>
-            </button>
-            <a href="profile.html" target="_blank" class="text-decoration-none">
-                <img id="avatar" class="avatar-icon" src="favicon.ico" alt="头像">
-            </a>
-            <div class="d-inline-block">
-                <button id="userName" class="admin-user-button admin-menu-button" type="button" data-menu-target="userMenu"
-                        aria-expanded="false">
-                    user name
+    <div class="admin-body">
+        <header class="admin-topbar">
+            <div class="admin-topbar-title" id="adminTitle"></div>
+            <div class="admin-topbar-actions">
+                <div class="admin-user">
+                    <button class="admin-user-btn" id="adminUserBtn" type="button" aria-haspopup="true" aria-expanded="false">
+                        <img class="admin-user-avatar" id="adminUserAvatar" src="favicon.ico" alt="">
+                        <span class="admin-user-name" id="adminUserName">用户</span>
+                        <span class="admin-caret" aria-hidden="true">▾</span>
+                    </button>
+                    <div class="admin-dropdown" id="adminUserMenu" role="menu" hidden>
+                        <a class="admin-dropdown-item" href="/profile.html" role="menuitem">个人信息</a>
+                        <a class="admin-dropdown-item" href="/" role="menuitem">公开导航</a>
+                        <button class="admin-dropdown-item is-danger" type="button" id="adminLogoutBtn" role="menuitem">退出登录</button>
+                    </div>
+                </div>
+                <button class="hc-theme-toggle" type="button" aria-label="切换深浅色主题">
+                    <span class="hc-theme-toggle-icon" aria-hidden="true"></span>
+                    <span data-theme-toggle-text>深色</span>
                 </button>
-                <ul id="userMenu" class="admin-dropdown admin-dropdown-right">
-                    <li><span class="dropdown-item-text">角色：<span id="roleName" class="text-primary">管理员</span></span></li>
-                    <li><a class="dropdown-item" href="profile.html" target="_blank">个人信息</a></li>
-                    <li><a class="dropdown-item" href="/">公开导航</a></li>
-                    <li><a class="dropdown-item" href="/doc.html" target="_blank">API文档</a></li>
-                    <li><hr class="dropdown-divider"></li>
-                    <li><a class="dropdown-item" href="/logout">退出</a></li>
+            </div>
+        </header>
+
+        <main class="admin-content" role="main">
+            <section class="ov-panel">
+                <h2 class="ov-section-title">系统概览</h2>
+                <div class="ov-stat-grid">
+                    <div class="ov-stat-card"><strong id="statSessions">—</strong><span>在线会话</span></div>
+                    <div class="ov-stat-card"><strong id="statDevices">—</strong><span>设备（在线）</span></div>
+                    <div class="ov-stat-card"><strong id="statUsers">—</strong><span>用户总数</span></div>
+                    <div class="ov-stat-card"><strong id="statAudit">—</strong><span>最近审计</span></div>
+                </div>
+                <ul id="auditList" class="ov-audit-list" aria-label="最近设备审计">
+                    <li class="ov-audit-empty">审计加载中...</li>
                 </ul>
-            </div>
-        </div>
-    </header>
+            </section>
 
-    <section class="admin-home-panel">
-        <div id="systemLabContainer">
-            <div class="hc-notion-empty" style="width:100%;">系统入口加载中...</div>
-        </div>
-    </section>
-
-    <main class="admin-home-panel">
-        <div id="sysDescContainer" class="sys-desc-container">
-            <img id="sysIcon" src="/common/img/view/icon/pve.png" alt="" class="sys-desc-icon">
-            <button type="button" class="btn-close sys-desc-close" aria-label="Close" onclick="closeSysDesc()"></button>
-            <h3 id="sysName">系统名称</h3>
-            <p id="sysDesc" class="lead">系统说明A系统说明</p>
-            <p><code id="sysRemark">这个地方是其他的说明信息，比如用户名，密码，注意事项等</code></p>
-
-            <div class="sys-access-grid">
-                <div class="sys-access-card">
-                    <a id="sysInternalAddr-A" href="#" target="_blank" class="hc-button">内网地址访问</a>
-                    <span id="sysInternalAddr">http://localhost:8080</span>
+            <section class="ov-panel">
+                <h2 class="ov-section-title">内部系统</h2>
+                <div id="systemLabContainer">
+                    <div class="ov-empty">系统入口加载中...</div>
                 </div>
-                <div class="sys-access-card">
-                    <a id="sysInternetAddr-A" href="#" target="_blank" class="hc-button hc-button-primary">公网地址访问</a>
-                    <span id="sysInternetAddr">https://example.com</span>
-                </div>
-            </div>
+            </section>
 
-            <div class="progress-bar"></div>
-        </div>
-    </main>
+            <section class="ov-panel">
+                <div id="sysDescContainer" class="sys-desc-container">
+                    <img id="sysIcon" src="/favicon.ico" alt="" class="sys-desc-icon">
+                    <button type="button" class="hc-close-button sys-desc-close" aria-label="关闭" onclick="closeSysDesc()"></button>
+                    <h3 id="sysName" style="margin:6px 0 4px;">系统名称</h3>
+                    <p id="sysDesc" class="hc-muted" style="margin:0;">系统说明</p>
+                    <p><code id="sysRemark">其它说明信息</code></p>
+
+                    <div class="sys-access-grid">
+                        <div class="sys-access-card">
+                            <a id="sysInternalAddr-A" href="#" target="_blank" class="hc-button">内网地址访问</a>
+                            <span id="sysInternalAddr">-</span>
+                        </div>
+                        <div class="sys-access-card">
+                            <a id="sysInternetAddr-A" href="#" target="_blank" class="hc-button hc-button-primary">公网地址访问</a>
+                            <span id="sysInternetAddr">-</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
 </div>
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        Array.prototype.forEach.call(document.querySelectorAll('.admin-menu-button'), function (button) {
-            button.addEventListener('click', function (event) {
-                event.stopPropagation();
-                var target = document.getElementById(button.getAttribute('data-menu-target'));
-                var open;
-                if (!target) {
-                    return;
-                }
-                open = target.classList.contains('open');
-                closeAdminMenus();
-                if (!open) {
-                    target.classList.add('open');
-                    button.setAttribute('aria-expanded', 'true');
-                }
-            });
-        });
-        document.addEventListener('click', closeAdminMenus);
-    });
 
-    function closeAdminMenus() {
-        Array.prototype.forEach.call(document.querySelectorAll('.admin-dropdown.open'), function (menu) {
-            menu.classList.remove('open');
+<script src="/js/main.js"></script>
+<script src="/js/admin-shell.js?v=20260623-admin-home"></script>
+<script>
+    window.HcAdminShell && window.HcAdminShell.init({title: '后台概览', breadcrumb: 'Home Center'});
+</script>
+<script>
+    // 内部系统入口（原 index.js 的 system lab 逻辑，剥离菜单/用户部分，由外壳接管导航与用户区）
+    function loadSystemLab() {
+        getRequest('/user/internalSystem', function (data) {
+            var container = document.getElementById('systemLabContainer');
+            container.innerHTML = '';
+            if (!data || !data.length) {
+                container.innerHTML = '<div class="ov-empty">暂无可访问的内部系统</div>';
+                return;
+            }
+            data.forEach(function (s) {
+                var labDiv = document.createElement('div');
+                labDiv.className = 'sys-lab';
+                labDiv.tabIndex = 0;
+                labDiv.dataset.status = s.sysStatus;
+
+                var sysImg = document.createElement('img');
+                sysImg.src = s.icon;
+                sysImg.alt = s.sysName;
+                sysImg.className = 'sys-icon';
+                sysImg.onerror = function () { this.style.visibility = 'hidden'; };
+
+                var sysSpan = document.createElement('span');
+                sysSpan.textContent = s.sysName;
+                sysSpan.className = 'sys-text';
+                sysSpan.title = s.sysName;
+
+                labDiv.appendChild(sysImg);
+                labDiv.appendChild(sysSpan);
+                container.appendChild(labDiv);
+
+                labDiv.addEventListener('click', function () { sysLabClick(s); });
+                labDiv.addEventListener('contextmenu', function (event) {
+                    sysLabRightClick(s);
+                    event.preventDefault();
+                });
+            });
+        }, function () {
+            var container = document.getElementById('systemLabContainer');
+            if (container) {
+                container.innerHTML = '<div class="ov-empty">内部系统加载失败，请确认登录状态或权限</div>';
+            }
         });
-        Array.prototype.forEach.call(document.querySelectorAll('.admin-menu-button[aria-expanded="true"]'), function (button) {
-            button.setAttribute('aria-expanded', 'false');
+    }
+
+    function sysLabClick(sysInfo) {
+        var hostname = window.location.hostname;
+        var url = sysInfo.internetUrl;
+        if (isPrivateIP(hostname)) {
+            url = sysInfo.internalUrl;
+        }
+        if (url) {
+            window.open(url, url);
+        }
+    }
+
+    function isPrivateIP(ipAddress) {
+        if (ipAddress === 'localhost' || ipAddress === '127.0.0.1') {
+            return true;
+        }
+        var privateIPPatterns = [
+            /^10\.\d{1,3}\.\d{1,3}\.\d{1,3}$/,
+            /^172\.(1[6-9]|2\d|3[0-1])\.\d{1,3}\.\d{1,3}$/,
+            /^192\.168\.\d{1,3}\.\d{1,3}$/
+        ];
+        return privateIPPatterns.some(function (pattern) { return pattern.test(ipAddress); });
+    }
+
+    function sysLabRightClick(sysInfo) {
+        var container = document.getElementById('sysDescContainer');
+        document.getElementById('sysIcon').src = sysInfo.icon || '/favicon.ico';
+        document.getElementById('sysName').textContent = sysInfo.sysName;
+        document.getElementById('sysDesc').textContent = sysInfo.sysDescription;
+        document.getElementById('sysRemark').textContent = sysInfo.remark;
+        document.getElementById('sysInternalAddr-A').href = sysInfo.internalUrl || '#';
+        document.getElementById('sysInternalAddr').textContent = sysInfo.internalUrl || '-';
+        document.getElementById('sysInternetAddr-A').href = sysInfo.internetUrl || '#';
+        document.getElementById('sysInternetAddr').textContent = sysInfo.internetUrl || '-';
+        container.style.display = 'block';
+    }
+
+    function closeSysDesc() {
+        var container = document.getElementById('sysDescContainer');
+        if (container) {
+            container.style.display = 'none';
+        }
+    }
+
+    // 概览统计：用户/在线会话/设备/最近审计。各接口独立、容错（无权限或失败显示“—”/“暂无”）
+    function setText(id, text) {
+        var el = document.getElementById(id);
+        if (el) {
+            el.textContent = text;
+        }
+    }
+
+    function loadOverviewStats() {
+        // 在线会话数
+        getRequest('/backend/token/list', function (list) {
+            setText('statSessions', String((list || []).length));
+        }, function () { setText('statSessions', '—'); });
+
+        // 设备总数（在线）
+        getRequest('/device/pc/devices', function (list) {
+            var arr = list || [];
+            var online = arr.filter(function (d) { return Boolean(d.online); }).length;
+            setText('statDevices', arr.length + '（' + online + '）');
+        }, function () { setText('statDevices', '—'); });
+
+        // 用户总数（PageInfo.total）
+        request('/backend/user/findPage', {method: 'POST', body: {pageNum: 1, pageSize: 1}}, function (data) {
+            setText('statUsers', String((data && data.total != null) ? data.total : '—'));
+        }, function () { setText('statUsers', '—'); });
+
+        // 最近审计（设备操作日志，取最近若干条）
+        getRequest('/backend/device/pc/audit', function (list) {
+            var arr = (list || []).slice(0, 6);
+            setText('statAudit', String((list || []).length));
+            renderAuditList(arr);
+        }, function () {
+            setText('statAudit', '—');
+            renderAuditList([]);
         });
+    }
+
+    function renderAuditList(rows) {
+        var ul = document.getElementById('auditList');
+        if (!ul) {
+            return;
+        }
+        if (!rows.length) {
+            ul.innerHTML = '<li class="ov-audit-empty">暂无审计记录</li>';
+            return;
+        }
+        ul.innerHTML = rows.map(function (r) {
+            return '<li><span>' + escapeHtml(r.operator || r.username || '—') + '</span>' +
+                '<span>' + escapeHtml(r.operationType || r.operation || '') + '</span>' +
+                '<span>' + escapeHtml(r.status == null ? '' : r.status) + '</span>' +
+                '<span>' + escapeHtml(r.createTime || r.operationTime || '') + '</span></li>';
+        }).join('');
+    }
+
+    function escapeHtml(value) {
+        return window.HomeCenter.escapeHtml(value);
+    }
+
+    function initOverview() {
+        loadOverviewStats();
+        loadSystemLab();
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initOverview);
+    } else {
+        initOverview();
     }
 </script>
 </body>

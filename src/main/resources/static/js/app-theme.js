@@ -63,6 +63,23 @@
         return response.text();
     }
 
+    var loginRedirecting = false;
+
+    // 会话失效统一处理：跳转登录页并保留当前地址作为返回目标（ref）。
+    // 在登录页本身或已触发跳转时不再重复处理，避免循环。
+    function handleSessionExpired() {
+        if (loginRedirecting) {
+            return;
+        }
+        var path = window.location.pathname || '';
+        if (path.indexOf('/login.html') === 0 || path.indexOf('/error/') === 0) {
+            return;
+        }
+        loginRedirecting = true;
+        var ref = path + (window.location.search || '') + (window.location.hash || '');
+        window.location.href = '/login.html?ref=' + encodeURIComponent(ref);
+    }
+
     function request(url, options) {
         var config = options || {};
         var headers = config.headers || {};
@@ -72,6 +89,11 @@
         }
         config.headers = headers;
         return fetch(url, config).then(function (response) {
+            // 401 统一视为会话失效：跳转登录（保留 ref），后续 .catch 仅做兜底提示
+            if (response.status === 401) {
+                handleSessionExpired();
+                throw new Error('登录已失效，正在跳转登录页');
+            }
             return toJson(response).then(function (body) {
                 if (!response.ok) {
                     var message = body && body.message ? body.message : '请求失败';

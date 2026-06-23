@@ -3,105 +3,244 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>电脑远程控制</title>
-    <link rel="stylesheet" href="/css/app-theme.css?v=20260620-pc-power">
-    <link rel="stylesheet" href="/css/notion-theme.css?v=20260620-pc-power">
-    <script src="/js/app-theme.js?v=20260620-pc-power"></script>
+    <title>电脑远程控制 - Home Center</title>
+    <link rel="stylesheet" href="/css/app-theme.css?v=20260623-pc-power">
+    <link rel="stylesheet" href="/css/admin-shell.css?v=20260623-pc-power">
+    <script src="/js/app-theme.js?v=20260623-pc-power"></script>
     <style>
-        .power-summary {
+        /* 设备控制页私有样式。外壳样式来自 admin-shell.css。 */
+        .dev-toolbar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 18px;
+        }
+
+        .dev-toolbar .hc-button {
+            min-height: 38px;
+        }
+
+        .dev-summary {
             display: grid;
             grid-template-columns: repeat(3, minmax(0, 1fr));
             gap: 16px;
+            margin-bottom: 20px;
         }
 
-        .power-layout {
+        .dev-stat-card {
+            border: 1px solid var(--hc-line);
+            border-radius: 12px;
+            background: var(--hc-surface);
+            box-shadow: var(--hc-shadow-soft);
+            padding: 18px 20px;
+        }
+
+        .dev-stat-card strong {
+            display: block;
+            font-size: 28px;
+            font-weight: 800;
+            line-height: 1.1;
+            color: var(--hc-text);
+        }
+
+        .dev-stat-card span {
+            color: var(--hc-muted);
+            font-size: 13px;
+        }
+
+        .dev-layout {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 18px;
         }
 
-        .pc-card {
-            display: grid;
-            gap: 16px;
+        .dev-card {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            border: 1px solid var(--hc-line);
+            border-radius: 12px;
+            background: var(--hc-surface);
+            box-shadow: var(--hc-shadow-soft);
+            padding: 18px;
         }
 
-        .pc-card h2 {
+        .dev-card-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .dev-card-head h2 {
             margin: 0;
-            color: var(--notion-text);
-            font-size: 24px;
-            line-height: 1.24;
-            font-family: "Times New Roman", Georgia, "Noto Serif SC", serif;
+            font-size: 18px;
+            font-weight: 700;
         }
 
-        .pc-meta {
+        .dev-badges {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .dev-badge {
+            display: inline-flex;
+            align-items: center;
+            min-height: 22px;
+            padding: 0 8px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .dev-badge.success {
+            background: rgba(22, 163, 74, 0.14);
+            color: var(--hc-success);
+        }
+
+        .dev-badge.warning {
+            background: rgba(217, 119, 6, 0.14);
+            color: var(--hc-warning);
+        }
+
+        .dev-meta {
             display: grid;
             gap: 10px;
         }
 
-        .pc-status {
-            min-height: 24px;
-            color: var(--notion-text-soft);
-            font-size: 14px;
-            line-height: 1.5;
-            font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+        .dev-meta-row {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
         }
 
-        .pc-status.error {
-            color: var(--notion-danger);
+        .dev-label {
+            color: var(--hc-muted);
+            font-size: 12px;
+        }
+
+        .dev-value {
+            color: var(--hc-text);
+            font-size: 14px;
+            overflow-wrap: anywhere;
+        }
+
+        .dev-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        /* 7.3：危险操作（关机/重启）与普通操作（开机）分区视觉区分 */
+        .dev-actions .hc-button.is-danger {
+            border-color: rgba(220, 38, 38, 0.32);
+            color: var(--hc-danger);
+        }
+
+        .dev-actions .hc-button.is-danger:hover {
+            background: rgba(220, 38, 38, 0.1);
+            color: var(--hc-danger);
+        }
+
+        .dev-divider {
+            flex: 0 0 auto;
+            width: 1px;
+            height: 24px;
+            background: var(--hc-line);
+        }
+
+        .dev-status {
+            min-height: 20px;
+            color: var(--hc-muted);
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .dev-status.error {
+            color: var(--hc-danger);
+        }
+
+        .dev-empty {
+            grid-column: 1 / -1;
+            padding: 40px 0;
+            border: 1px dashed var(--hc-line);
+            border-radius: 10px;
+            text-align: center;
+            color: var(--hc-muted);
+            background: var(--hc-surface);
         }
 
         @media (max-width: 900px) {
-            .power-summary {
+            .dev-summary {
                 grid-template-columns: 1fr;
             }
         }
     </style>
 </head>
-<body class="hc-app hc-notion-page">
-<main class="hc-notion-shell hc-notion-stack">
-    <header class="hc-notion-header">
-        <div>
-            <p class="hc-notion-kicker">PC Control</p>
-            <h1>电脑远程控制</h1>
-            <p class="hc-notion-subtitle">集中管理电脑设备的开机和关机指令，补齐批量操作确认、空状态和错误反馈。</p>
+<body class="hc-app hc-admin-body">
+<div class="admin-shell" id="adminShell">
+    <aside class="admin-sidebar">
+        <div class="admin-sidebar-brand">
+            <span class="admin-brand-mark">HC</span>
+            <span class="admin-brand-text">Home Center</span>
         </div>
-        <div class="hc-notion-actions">
-            <button class="hc-theme-toggle" type="button" aria-label="切换深浅色主题">
-                <span class="hc-theme-toggle-icon" aria-hidden="true"></span>
-                <span data-theme-toggle-text>深色</span>
-            </button>
-            <a class="hc-button" href="/device/pc/monitor.html">客户端管理</a>
-            <button id="powerAllOn" class="hc-button hc-button-primary" type="button">全部开机</button>
-            <button id="powerAllOff" class="hc-button" type="button">全部关机</button>
-        </div>
-    </header>
+        <nav class="admin-menu" id="adminMenu" aria-label="后台菜单"></nav>
+        <button class="admin-sidebar-collapse" id="adminCollapseBtn" type="button" aria-label="折叠/展开菜单">
+            <span aria-hidden="true">≪</span><span class="admin-collapse-text">折叠</span>
+        </button>
+    </aside>
 
-    <section class="power-summary">
-        <article class="hc-notion-card">
-            <div class="hc-notion-stat">
-                <strong id="summaryTotal">0</strong>
-                <span>设备总数</span>
+    <div class="admin-body">
+        <header class="admin-topbar">
+            <div class="admin-topbar-title" id="adminTitle"></div>
+            <div class="admin-topbar-actions">
+                <div class="admin-user">
+                    <button class="admin-user-btn" id="adminUserBtn" type="button" aria-haspopup="true" aria-expanded="false">
+                        <img class="admin-user-avatar" id="adminUserAvatar" src="favicon.ico" alt="">
+                        <span class="admin-user-name" id="adminUserName">用户</span>
+                        <span class="admin-caret" aria-hidden="true">▾</span>
+                    </button>
+                    <div class="admin-dropdown" id="adminUserMenu" role="menu" hidden>
+                        <a class="admin-dropdown-item" href="/profile.html" role="menuitem">个人信息</a>
+                        <button class="admin-dropdown-item is-danger" type="button" id="adminLogoutBtn" role="menuitem">退出登录</button>
+                    </div>
+                </div>
+                <button class="hc-theme-toggle" type="button" aria-label="切换深浅色主题">
+                    <span class="hc-theme-toggle-icon" aria-hidden="true"></span>
+                    <span data-theme-toggle-text>深色</span>
+                </button>
             </div>
-        </article>
-        <article class="hc-notion-card">
-            <div class="hc-notion-stat">
-                <strong id="summaryOnline">0</strong>
-                <span>启用设备</span>
-            </div>
-        </article>
-        <article class="hc-notion-card">
-            <div class="hc-notion-stat">
-                <strong id="summaryOffline">0</strong>
-                <span>停用设备</span>
-            </div>
-        </article>
-    </section>
+        </header>
 
-    <section id="deviceList" class="power-layout" aria-live="polite">
-        <div class="hc-notion-empty">设备加载中...</div>
-    </section>
-</main>
+        <main class="admin-content" role="main">
+            <div class="dev-toolbar">
+                <a class="hc-button" href="/device/pc/monitor.html">客户端管理</a>
+                <button id="powerAllOn" class="hc-button hc-button-primary" type="button">全部开机</button>
+                <button id="powerAllOff" class="hc-button is-danger" type="button">全部关机</button>
+            </div>
 
+            <section class="dev-summary" aria-label="设备概览">
+                <article class="dev-stat-card"><strong id="summaryTotal">0</strong><span>设备总数</span></article>
+                <article class="dev-stat-card"><strong id="summaryOnline">0</strong><span>启用设备</span></article>
+                <article class="dev-stat-card"><strong id="summaryOffline">0</strong><span>停用设备</span></article>
+            </section>
+
+            <section id="deviceList" class="dev-layout" aria-live="polite">
+                <div class="dev-empty">设备加载中...</div>
+            </section>
+        </main>
+    </div>
+</div>
+
+<script src="/js/main.js"></script>
+<script src="/js/admin-shell.js?v=20260623-pc-power"></script>
+<script>
+    window.HcAdminShell && window.HcAdminShell.init({title: '电脑远程控制', breadcrumb: '设备'});
+</script>
 <script>
     (function () {
         var devices = [];
@@ -126,38 +265,39 @@
         }
 
         function badge(type, text) {
-            return '<span class="hc-notion-badge ' + escapeHtml(type) + '">' + escapeHtml(text) + '</span>';
+            return '<span class="dev-badge ' + escapeHtml(type) + '">' + escapeHtml(text) + '</span>';
         }
 
         function render() {
             updateSummary();
             if (!devices.length) {
-                list.innerHTML = '<div class="hc-notion-empty">暂无电脑设备</div>';
+                list.innerHTML = '<div class="dev-empty">暂无电脑设备</div>';
                 return;
             }
             list.innerHTML = devices.map(function (device) {
                 var enabled = Number(device.status) === 1;
                 var online = Boolean(device.online);
-                return '<article class="hc-notion-card pc-card" data-device-id="' + escapeHtml(device.id) + '">' +
-                    '<div class="hc-notion-toolbar">' +
+                return '<article class="dev-card" data-device-id="' + escapeHtml(device.id) + '">' +
+                    '<div class="dev-card-head">' +
                     '<h2>' + escapeHtml(device.name || '未命名电脑') + '</h2>' +
-                    '<div class="hc-notion-actions">' +
+                    '<div class="dev-badges">' +
                     badge(enabled ? 'success' : 'warning', enabled ? '启用' : '停用') +
                     badge(online ? 'success' : 'warning', online ? '在线' : '离线') +
                     '</div>' +
                     '</div>' +
-                    '<div class="pc-meta">' +
-                    '<div><span class="hc-notion-label">描述</span><div class="hc-notion-value">' + escapeHtml(device.description || '暂无描述') + '</div></div>' +
-                    '<div><span class="hc-notion-label">最后连接 IP</span><div class="hc-notion-value">' + escapeHtml(device.ipAddress || '-') + '</div></div>' +
-                    '<div><span class="hc-notion-label">主 MAC / WOL MAC</span><div class="hc-notion-value">' + escapeHtml(device.macAddress || '-') + '</div></div>' +
-                    '<div><span class="hc-notion-label">最后在线</span><div class="hc-notion-value">' + escapeHtml(device.lastSeenTime || '-') + '</div></div>' +
+                    '<div class="dev-meta">' +
+                    '<div class="dev-meta-row"><span class="dev-label">描述</span><span class="dev-value">' + escapeHtml(device.description || '暂无描述') + '</span></div>' +
+                    '<div class="dev-meta-row"><span class="dev-label">最后连接 IP</span><span class="dev-value">' + escapeHtml(device.ipAddress || '-') + '</span></div>' +
+                    '<div class="dev-meta-row"><span class="dev-label">主 MAC / WOL MAC</span><span class="dev-value">' + escapeHtml(device.macAddress || '-') + '</span></div>' +
+                    '<div class="dev-meta-row"><span class="dev-label">最后在线</span><span class="dev-value">' + escapeHtml(device.lastSeenTime || '-') + '</span></div>' +
                     '</div>' +
-                    '<div class="hc-notion-actions">' +
+                    '<div class="dev-actions">' +
                     '<button class="hc-button hc-button-primary" type="button" data-action="on">开机</button>' +
-                    '<button class="hc-button" type="button" data-action="off">关机</button>' +
-                    '<button class="hc-button" type="button" data-action="restart">重启</button>' +
+                    '<span class="dev-divider" aria-hidden="true"></span>' +
+                    '<button class="hc-button is-danger" type="button" data-action="off">关机</button>' +
+                    '<button class="hc-button is-danger" type="button" data-action="restart">重启</button>' +
                     '</div>' +
-                    '<div class="pc-status" data-status></div>' +
+                    '<div class="dev-status" data-status></div>' +
                     '</article>';
             }).join('');
         }
@@ -188,6 +328,7 @@
             if (!card) {
                 return Promise.resolve();
             }
+            // 危险操作（关机/重启）与开机均二次确认；结果在卡片内可见，不只依赖 toast
             return confirmAction(actionText + '确认', '确认向该设备发送' + actionText + '指令？').then(function (confirmed) {
                 if (!confirmed) {
                     return;
@@ -262,7 +403,7 @@
                 render();
             })
             .catch(function (error) {
-                list.innerHTML = '<div class="hc-notion-feedback error">设备加载失败</div>';
+                list.innerHTML = '<div class="dev-empty">设备加载失败</div>';
                 window.HomeCenter.toast(error.message || '加载设备列表失败', 'error');
             });
     })();

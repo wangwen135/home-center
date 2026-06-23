@@ -1,36 +1,5 @@
-const THEME_STORAGE_KEY = 'home-center-admin-theme';
-
-    function getInitialTheme() {
-        let savedTheme = null;
-        try {
-            savedTheme = localStorage.getItem(THEME_STORAGE_KEY);
-        } catch (e) {
-            savedTheme = null;
-        }
-        if (savedTheme === 'light' || savedTheme === 'dark') {
-            return savedTheme;
-        }
-        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
-            return 'light';
-        }
-        return 'dark';
-    }
-
-    function applyTheme(theme) {
-        const nextTheme = theme === 'light' ? 'light' : 'dark';
-        document.documentElement.setAttribute('data-theme', nextTheme);
-        $('#themeToggleBtn').attr('title', nextTheme === 'light' ? '切换为暗色模式' : '切换为明亮模式');
-    }
-
-    function saveTheme(theme) {
-        try {
-            localStorage.setItem(THEME_STORAGE_KEY, theme);
-        } catch (e) {
-            // localStorage may be unavailable in private or restricted contexts.
-        }
-    }
-
-    applyTheme(getInitialTheme());
+    // 主题切换已统一到 app-theme.js 的 .hc-theme-toggle（storage key 'homeCenterTheme'），
+    // 此处不再维护独立主题状态，避免与本站其它页面主题不一致。
 
     let users = [];
     let roles = [];
@@ -54,12 +23,6 @@ const THEME_STORAGE_KEY = 'home-center-admin-theme';
     const internalSystemModal = new bootstrap.Modal(document.getElementById('internalSystemModal'));
 
     $(function () {
-        applyTheme(document.documentElement.getAttribute('data-theme'));
-        $('#themeToggleBtn').on('click', function () {
-            const nextTheme = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
-            applyTheme(nextTheme);
-            saveTheme(nextTheme);
-        });
         checkAdmin();
         $('#userSearchBtn').on('click', loadUsers);
         $('#userSearchInput').on('keydown', function (event) {

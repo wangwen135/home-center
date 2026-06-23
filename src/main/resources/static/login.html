@@ -3,99 +3,313 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>登录</title>
-    <link rel="stylesheet" href="/css/app-theme.css?v=20260620-login">
-    <link rel="stylesheet" href="/css/notion-theme.css?v=20260620-login">
-    <script src="/js/app-theme.js?v=20260620-login"></script>
+    <title>登录 - Home Center</title>
+    <link rel="stylesheet" href="/css/app-theme.css?v=20260623-login">
+    <link rel="stylesheet" href="/css/entry.css?v=20260623-login">
+    <script src="/js/app-theme.js?v=20260623-login"></script>
+    <style>
+        /* 登录页页面私有样式。公共能力来自 app-theme.css / entry.css。 */
+        .login-page {
+            width: min(1180px, calc(100% - 32px));
+            min-height: 100vh;
+            margin: 0 auto;
+            padding: 22px 0 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+        }
+
+        /* 登录舞台：撑满顶栏与页脚之间的空间，面板居中略偏上 */
+        .login-stage {
+            flex: 1 1 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 32px 0 8vh;
+        }
+
+        /* 登录面板：半透明毛玻璃，但比公开首页主面板更实（surface-strong + 轻 blur） */
+        .login-panel {
+            width: min(420px, 100%);
+            border: 1px solid var(--hc-line);
+            border-radius: 14px;
+            background: var(--hc-surface-strong);
+            box-shadow: var(--hc-shadow);
+            backdrop-filter: blur(10px) saturate(120%);
+            -webkit-backdrop-filter: blur(10px) saturate(120%);
+            padding: 28px 26px 22px;
+        }
+
+        .login-title {
+            margin: 0 0 20px;
+            color: var(--hc-text);
+            font-size: 22px;
+            font-weight: 700;
+            line-height: 1.3;
+            text-align: center;
+        }
+
+        /* 表单顶部整体错误（账号密码错误、会话失效等） */
+        .login-alert {
+            display: none;
+            margin: 0 0 16px;
+            padding: 10px 12px;
+            border: 1px solid rgba(220, 38, 38, 0.32);
+            border-radius: 8px;
+            background: rgba(220, 38, 38, 0.08);
+            color: var(--hc-danger);
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .login-alert.show {
+            display: block;
+        }
+
+        .login-form {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .login-field {
+            display: block;
+        }
+
+        .login-field-error {
+            display: block;
+            margin-top: 6px;
+            min-height: 0;
+            color: var(--hc-danger);
+            font-size: 12px;
+            line-height: 1.4;
+        }
+
+        .login-field-error:empty {
+            display: none;
+        }
+
+        /* 密码输入 + 显示/隐藏图标按钮 */
+        .login-password {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .login-password .hc-input {
+            padding-right: 44px;
+        }
+
+        .login-password-toggle {
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            width: 40px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: 0;
+            background: transparent;
+            color: var(--hc-muted);
+            cursor: pointer;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .login-password-toggle:hover {
+            color: var(--hc-accent);
+        }
+
+        .login-password-toggle svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .login-submit {
+            margin-top: 6px;
+            width: 100%;
+        }
+
+        /* 返回首页：低强调文字链接，置于面板底部 */
+        .login-back {
+            display: block;
+            margin: 18px 0 0;
+            color: var(--hc-muted);
+            font-size: 13px;
+            text-align: center;
+            text-decoration: none;
+        }
+
+        .login-back:hover {
+            color: var(--hc-accent);
+            text-decoration: underline;
+        }
+
+        @media (max-width: 480px) {
+            .login-page {
+                width: min(100% - 24px, 1180px);
+                padding: 16px 0 20px;
+            }
+
+            .login-panel {
+                padding: 22px 18px 18px;
+            }
+
+            .login-stage {
+                padding: 20px 0 6vh;
+            }
+        }
+    </style>
 </head>
-<body class="hc-app hc-notion-page">
-<main class="hc-notion-shell hc-notion-stack">
-    <section class="hc-notion-auth-shell">
-        <a class="hc-notion-back-link" href="/" title="返回导航页" aria-label="返回导航页">
-            <span aria-hidden="true">←</span>
-            <span>返回导航页</span>
-        </a>
-        <div class="hc-notion-actions" style="justify-content:flex-end; margin-bottom:12px;">
+<body class="hc-app">
+<canvas id="bg-canvas" class="hc-bg-canvas" aria-hidden="true"></canvas>
+
+<div class="login-page hc-entry">
+    <header class="hc-entry-topbar">
+        <div class="hc-entry-brand">
+            <h1 class="hc-entry-brand-title">Home Center</h1>
+            <p class="hc-entry-brand-sub">个人服务入口</p>
+        </div>
+        <div class="hc-entry-actions">
             <button class="hc-theme-toggle" type="button" aria-label="切换深浅色主题">
                 <span class="hc-theme-toggle-icon" aria-hidden="true"></span>
                 <span data-theme-toggle-text>深色</span>
             </button>
         </div>
+    </header>
 
-        <section class="hc-notion-panel">
-            <div class="hc-notion-toolbar">
-                <div>
-                    <p class="hc-notion-kicker">Sign In</p>
-                    <h1 class="hc-notion-title">登录 Home Center</h1>
-                    <p class="hc-notion-subtitle">使用现有账号进入管理入口、设备控制和后台配置页面。</p>
-                </div>
-            </div>
+    <main class="login-stage" role="main">
+        <section class="login-panel">
+            <h2 class="login-title">登录 Home Center</h2>
 
-            <form id="loginForm" class="hc-notion-grid" novalidate>
-                <label>
-                    <span class="hc-form-label">用户名</span>
+            <div id="loginAlert" class="login-alert" role="alert" aria-live="assertive"></div>
+
+            <form id="loginForm" class="login-form" novalidate>
+                <div class="login-field">
+                    <label class="hc-form-label" for="username">用户名</label>
                     <input type="text" class="hc-input" id="username" name="username" autocomplete="username" required>
-                </label>
-                <label>
-                    <span class="hc-form-label">密码</span>
-                    <input type="password" class="hc-input" id="password" name="password" autocomplete="current-password" required>
-                </label>
-                <div id="loginFeedback" class="hc-notion-feedback" hidden></div>
-                <div class="hc-notion-actions">
-                    <button id="loginSubmit" type="submit" class="hc-button hc-button-primary">登录</button>
+                    <span class="login-field-error" id="usernameError"></span>
                 </div>
-            </form>
-        </section>
 
-        <p class="hc-notion-footer">© Home Center | Auth wwh</p>
-    </section>
-</main>
+                <div class="login-field">
+                    <label class="hc-form-label" for="password">密码</label>
+                    <div class="login-password">
+                        <input type="password" class="hc-input" id="password" name="password" autocomplete="current-password" required>
+                        <button class="login-password-toggle" id="passwordToggle" type="button" aria-label="显示密码" aria-pressed="false">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                <circle cx="12" cy="12" r="3"></circle>
+                            </svg>
+                        </button>
+                    </div>
+                    <span class="login-field-error" id="passwordError"></span>
+                </div>
+
+                <button id="loginSubmit" type="submit" class="hc-button hc-button-primary login-submit">登录</button>
+            </form>
+
+            <a class="login-back" href="/">返回首页</a>
+        </section>
+    </main>
+
+    <footer class="hc-entry-footer">© Home Center | By wwh</footer>
+</div>
 
 <script>
     (function () {
         var form = document.getElementById('loginForm');
         var submitButton = document.getElementById('loginSubmit');
-        var feedback = document.getElementById('loginFeedback');
+        var alertBox = document.getElementById('loginAlert');
+        var usernameInput = document.getElementById('username');
+        var passwordInput = document.getElementById('password');
+        var usernameError = document.getElementById('usernameError');
+        var passwordError = document.getElementById('passwordError');
+        var passwordToggle = document.getElementById('passwordToggle');
+
+        // 密码显示/隐藏图标（内联 SVG，避免外部依赖）
+        var SVG_EYE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>';
+        var EYE_OFF = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>';
 
         function setBusy(busy) {
             submitButton.disabled = busy;
             submitButton.textContent = busy ? '登录中...' : '登录';
         }
 
-        function showFeedback(message, error) {
-            feedback.hidden = !message;
-            feedback.textContent = message || '';
-            feedback.classList.toggle('error', Boolean(error));
+        function showAlert(message) {
+            if (!message) {
+                alertBox.textContent = '';
+                alertBox.classList.remove('show');
+                return;
+            }
+            alertBox.textContent = message;
+            alertBox.classList.add('show');
+        }
+
+        function setFieldError(errorEl, message) {
+            errorEl.textContent = message || '';
+        }
+
+        function clearErrors() {
+            showAlert('');
+            setFieldError(usernameError, '');
+            setFieldError(passwordError, '');
         }
 
         function resolveRedirectRef() {
             var ref = new URLSearchParams(window.location.search).get('ref');
+            // 仅允许站内相对地址，拒绝协议绝对地址与 // 开头
             if (!ref || ref.charAt(0) !== '/' || ref.indexOf('//') === 0) {
-                return '/admin.html';
+                return '/private.html';
             }
+            // 避免登录成功后又跳回登录页本身
             if (ref.indexOf('/login.html') === 0) {
-                return '/admin.html';
+                return '/private.html';
             }
             return ref;
         }
 
-        form.addEventListener('submit', function (event) {
-            var username = document.getElementById('username').value.trim();
-            var password = document.getElementById('password').value;
-            var formData;
+        passwordToggle.addEventListener('click', function () {
+            var shown = passwordInput.type === 'text';
+            if (shown) {
+                passwordInput.type = 'password';
+                passwordToggle.setAttribute('aria-pressed', 'false');
+                passwordToggle.setAttribute('aria-label', '显示密码');
+                passwordToggle.innerHTML = SVG_EYE;
+            } else {
+                passwordInput.type = 'text';
+                passwordToggle.setAttribute('aria-pressed', 'true');
+                passwordToggle.setAttribute('aria-label', '隐藏密码');
+                passwordToggle.innerHTML = EYE_OFF;
+            }
+            passwordInput.focus();
+        });
 
+        form.addEventListener('submit', function (event) {
             event.preventDefault();
-            if (!username || !password) {
-                showFeedback('请输入用户名和密码。', true);
+            clearErrors();
+
+            var username = usernameInput.value.trim();
+            var password = passwordInput.value;
+            var valid = true;
+
+            // 字段级校验：错误显示在对应字段下方
+            if (!username) {
+                setFieldError(usernameError, '请输入用户名。');
+                valid = false;
+            }
+            if (!password) {
+                setFieldError(passwordError, '请输入密码。');
+                valid = false;
+            }
+            if (!valid) {
                 return;
             }
 
-            formData = new FormData();
+            var formData = new FormData();
             formData.append('username', username);
             formData.append('password', password);
 
             setBusy(true);
-            showFeedback('');
             window.HomeCenter.request('/login', {
                 method: 'POST',
                 body: formData
@@ -105,13 +319,16 @@
                 }
                 window.location.href = resolveRedirectRef();
             }).catch(function (error) {
-                showFeedback(error.message || '发生错误，请稍后重试。', true);
-                window.HomeCenter.toast(error.message || '登录失败', 'error');
+                // 账号密码错误、会话失效等整体错误显示在表单顶部
+                var message = (error && error.message) || '登录失败，请稍后重试。';
+                showAlert(message);
+                window.HomeCenter.toast(message, 'error');
             }).finally(function () {
                 setBusy(false);
             });
         });
     })();
 </script>
+<script src="/js/bg-particles.js?v=20260623-login"></script>
 </body>
 </html>

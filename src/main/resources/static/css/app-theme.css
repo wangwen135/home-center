@@ -197,18 +197,33 @@ body.hc-app {
 }
 
 .hc-theme-toggle {
-    position: fixed;
-    top: 16px;
-    right: 16px;
-    z-index: 1095;
+    flex: 0 0 auto;
     width: 40px;
     height: 40px;
     min-height: 40px;
-    flex: 0 0 auto;
     gap: 0;
     padding: 0;
     border-radius: 999px;
     background: var(--hc-surface-strong);
+    box-shadow: none;
+}
+
+/* 全站统一的低强调 hover：仅轻微边框/底色变化，不做上浮、不加强调阴影 */
+.hc-theme-toggle:hover {
+    transform: none;
+    border-color: rgba(37, 99, 235, 0.32);
+    background: var(--hc-soft-accent);
+    box-shadow: none;
+    color: var(--hc-text);
+}
+
+/* 需要悬浮在视口右上角时追加 is-floating（如公开首页在统一顶栏落地前的过渡形态）。
+   入口页与后台通常把按钮放进顶栏/工具栏的 actions 区，使用默认内联形态。 */
+.hc-theme-toggle.is-floating {
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    z-index: 1095;
     box-shadow: var(--hc-shadow-soft);
 }
 

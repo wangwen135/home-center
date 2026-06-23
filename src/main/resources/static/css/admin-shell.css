@@ -1,0 +1,358 @@
+/*
+ * 后台管理外壳（admin shell）公共样式
+ *
+ * 桌面端管理工具布局：左侧固定菜单 + 顶部工具栏 + 右侧内容区。
+ * 不使用粒子背景；跟随全局明暗主题，默认优先浅色管理台。
+ * 仅按桌面端设计，推荐最小宽度 1180px，不做移动端适配。
+ *
+ * 用法：页面 body 上加 .hc-admin-body，结构：
+ *   .admin-shell
+ *     ├ aside.admin-sidebar (品牌 + .admin-menu)
+ *     └ .admin-body
+ *         ├ header.admin-topbar (标题/面包屑 + .admin-topbar-actions)
+ *         └ main.admin-content (页面私有内容)
+ */
+
+.hc-admin-body {
+    min-width: 1180px;
+    min-height: 100vh;
+    margin: 0;
+    background: var(--hc-bg);
+    color: var(--hc-text);
+}
+
+.admin-shell {
+    display: flex;
+    min-height: 100vh;
+    background: var(--hc-bg);
+}
+
+/* ===== 左侧菜单 ===== */
+.admin-sidebar {
+    position: sticky;
+    top: 0;
+    flex: 0 0 auto;
+    width: 240px;
+    max-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid var(--hc-line);
+    background: var(--hc-surface-strong);
+    transition: width 0.18s ease;
+    overflow: hidden;
+}
+
+.admin-sidebar-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    height: 56px;
+    padding: 0 18px;
+    border-bottom: 1px solid var(--hc-line);
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.admin-sidebar-brand .admin-brand-mark {
+    flex: 0 0 auto;
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    background: var(--hc-accent-gradient);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+}
+
+.admin-sidebar-brand .admin-brand-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.admin-menu {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    padding: 12px 10px 24px;
+}
+
+.admin-menu-group {
+    margin-bottom: 14px;
+}
+
+.admin-menu-group-label {
+    padding: 6px 10px 4px;
+    color: var(--hc-muted);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.admin-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--hc-text);
+    font: inherit;
+    font-size: 14px;
+    text-decoration: none;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.15s ease, color 0.15s ease;
+}
+
+.admin-menu-item:hover {
+    background: var(--hc-soft-accent);
+    color: var(--hc-accent);
+}
+
+.admin-menu-item.is-active {
+    background: var(--hc-soft-accent);
+    color: var(--hc-accent);
+    font-weight: 700;
+}
+
+.admin-menu-item-icon {
+    flex: 0 0 auto;
+    width: 20px;
+    text-align: center;
+    font-size: 16px;
+    line-height: 1;
+}
+
+.admin-menu-item-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* 折叠态：窄栏，仅图标，hover tooltip 由 title 提供 */
+.admin-shell.is-collapsed .admin-sidebar {
+    width: 64px;
+}
+
+.admin-shell.is-collapsed .admin-brand-text,
+.admin-shell.is-collapsed .admin-menu-group-label,
+.admin-shell.is-collapsed .admin-menu-item-text {
+    display: none;
+}
+
+.admin-shell.is-collapsed .admin-menu-item {
+    justify-content: center;
+}
+
+.admin-shell.is-collapsed .admin-sidebar-brand {
+    justify-content: center;
+    padding: 0;
+}
+
+.admin-sidebar-collapse {
+    margin: 0 10px 12px;
+    height: 34px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border: 1px solid var(--hc-line);
+    border-radius: 8px;
+    background: var(--hc-surface);
+    color: var(--hc-muted);
+    font: inherit;
+    font-size: 13px;
+    cursor: pointer;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.admin-sidebar-collapse:hover {
+    border-color: rgba(37, 99, 235, 0.32);
+    color: var(--hc-accent);
+}
+
+.admin-shell.is-collapsed .admin-sidebar-collapse {
+    margin: 0 8px 12px;
+}
+
+.admin-shell.is-collapsed .admin-sidebar-collapse .admin-collapse-text {
+    display: none;
+}
+
+/* ===== 主体：顶部工具栏 + 内容区 ===== */
+.admin-body {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.admin-topbar {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    height: 56px;
+    padding: 0 20px;
+    border-bottom: 1px solid var(--hc-line);
+    background: var(--hc-surface-strong);
+    flex-wrap: nowrap;
+}
+
+.admin-topbar-title {
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--hc-text);
+    font-size: 16px;
+    font-weight: 700;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.admin-topbar-title .admin-crumb-muted {
+    color: var(--hc-muted);
+    font-weight: 400;
+}
+
+.admin-topbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: nowrap;
+}
+
+/* 顶栏通用入口按钮，低强调 */
+.admin-topbar-link {
+    min-height: 36px;
+    display: inline-flex;
+    align-items: center;
+    padding: 0 12px;
+    border: 1px solid var(--hc-line);
+    border-radius: 8px;
+    background: var(--hc-surface);
+    color: var(--hc-text);
+    text-decoration: none;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.admin-topbar-link:hover {
+    border-color: rgba(37, 99, 235, 0.32);
+    background: var(--hc-soft-accent);
+    color: var(--hc-accent);
+}
+
+/* 用户区（头像 + 姓名 + 下拉） */
+.admin-user {
+    position: relative;
+}
+
+.admin-user-btn {
+    min-height: 36px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 10px;
+    border: 1px solid var(--hc-line);
+    border-radius: 8px;
+    background: var(--hc-surface);
+    color: var(--hc-text);
+    font: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.admin-user-btn:hover {
+    border-color: rgba(37, 99, 235, 0.32);
+    background: var(--hc-soft-accent);
+}
+
+.admin-user-avatar {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    object-fit: cover;
+    background: var(--hc-surface-strong);
+}
+
+.admin-user-name {
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.admin-caret {
+    color: var(--hc-muted);
+    font-size: 11px;
+}
+
+.admin-dropdown {
+    position: absolute;
+    top: calc(100% + 6px);
+    right: 0;
+    z-index: 30;
+    min-width: 160px;
+    padding: 6px;
+    border: 1px solid var(--hc-line);
+    border-radius: 10px;
+    background: var(--hc-surface-strong);
+    box-shadow: var(--hc-shadow-soft);
+}
+
+.admin-dropdown[hidden] {
+    display: none;
+}
+
+.admin-dropdown-item {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    padding: 8px 10px;
+    border: 0;
+    border-radius: 7px;
+    background: transparent;
+    color: var(--hc-text);
+    font: inherit;
+    font-size: 13px;
+    text-align: left;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.admin-dropdown-item:hover {
+    background: var(--hc-soft-accent);
+    color: var(--hc-accent);
+}
+
+.admin-dropdown-item.is-danger {
+    color: var(--hc-danger);
+}
+
+/* ===== 内容区基础模板 ===== */
+.admin-content {
+    flex: 1 1 auto;
+    padding: 20px;
+    min-width: 0;
+}
+
+/* 内容区横向滚动容器（表格列过多时不撑破页面） */
+.admin-scroll {
+    width: 100%;
+    overflow-x: auto;
+}

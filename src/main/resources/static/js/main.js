@@ -95,7 +95,7 @@
 
     function createEmptyMessage(text) {
         var empty = document.createElement('div');
-        empty.className = 'empty-message';
+        empty.className = 'nav-empty';
         empty.textContent = text;
         return empty;
     }
@@ -106,17 +106,16 @@
         var href = normalizeText(link.url) || '#';
 
         var tile = document.createElement('a');
-        tile.className = 'tile';
+        tile.className = 'hc-entry-card';
         tile.href = href;
         tile.target = '_blank';
         tile.rel = 'noopener noreferrer';
-        tile.setAttribute('aria-label', titleText + ': ' + descText);
+        tile.title = titleText;
+        tile.setAttribute('aria-label', titleText + '：' + descText);
 
-        var front = document.createElement('div');
-        front.className = 'tile-front';
-
-        var icon = document.createElement('div');
-        icon.className = 'icon';
+        var icon = document.createElement('span');
+        icon.className = 'hc-entry-card-icon';
+        icon.setAttribute('aria-hidden', 'true');
         if (isImageIcon(link.icon)) {
             var img = document.createElement('img');
             img.src = normalizeText(link.icon);
@@ -128,42 +127,30 @@
             icon.style.color = '#10384f';
             icon.textContent = makeText(emojiText || titleText);
         }
-        icon.setAttribute('aria-hidden', 'true');
 
-        var title = document.createElement('div');
-        title.className = 'title';
-        title.textContent = titleText;
+        var name = document.createElement('span');
+        name.className = 'hc-entry-card-name';
+        name.textContent = titleText;
 
-        front.appendChild(icon);
-        front.appendChild(title);
-
-        var back = document.createElement('div');
-        back.className = 'tile-back';
-
-        var backTitle = document.createElement('div');
-        backTitle.className = 'title';
-        backTitle.textContent = titleText;
-
-        var desc = document.createElement('div');
-        desc.className = 'desc';
+        var desc = document.createElement('span');
+        desc.className = 'hc-entry-card-desc';
         desc.textContent = descText;
 
-        back.appendChild(backTitle);
-        back.appendChild(desc);
-        tile.appendChild(front);
-        tile.appendChild(back);
+        tile.appendChild(icon);
+        tile.appendChild(name);
+        tile.appendChild(desc);
         return tile;
     }
 
     function renderGroup(category, links) {
         var group = document.createElement('section');
-        group.className = 'group';
+        group.className = 'nav-group';
 
         var title = document.createElement('h2');
-        title.className = 'group-title';
+        title.className = 'nav-group-title';
 
         var icon = document.createElement('span');
-        icon.className = 'group-icon';
+        icon.className = 'nav-group-icon';
         icon.textContent = normalizeText(category.icon) || '◆';
         icon.setAttribute('aria-hidden', 'true');
 
@@ -174,7 +161,7 @@
         title.appendChild(name);
 
         var grid = document.createElement('div');
-        grid.className = 'grid';
+        grid.className = 'nav-grid';
 
         if (links.length) {
             links.forEach(function (link) {
