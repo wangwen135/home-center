@@ -90,6 +90,10 @@ public class LoggedUserAllInfo {
         return userSystems;
     }
 
+    public void setUserSystems(List<InternalSystemConfig> systems) {
+        this.userSystems = systems;
+    }
+
     public String toSimpleString() {
         return "LoggedUserInfo{" +
                 "userId=" + userInfo.getId() +

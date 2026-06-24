@@ -86,6 +86,26 @@
     </div>
 </div>
 
+<div class="modal fade" id="assignUsersModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h6 class="modal-title">分配用户 — <span id="assignSysName"></span></h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="关闭"></button>
+            </div>
+            <div class="modal-body">
+                <input class="form-control mb-2" id="assignUserSearch" placeholder="搜索用户名/昵称…" type="search">
+                <div id="assignUserList" style="max-height:380px;overflow:auto;border:1px solid var(--hc-line);border-radius:8px;"></div>
+            </div>
+            <div class="modal-footer">
+                <span class="hc-muted me-auto" id="assignUserCount">已选 0 人</span>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" id="assignSaveBtn">保存</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script src="/js/main.js"></script>
 <script src="/js/admin-shell.js?v=20260626-isys"></script>
 <script>window.HcAdminShell && window.HcAdminShell.init({title: '内部系统', breadcrumb: '应用接入'});</script>
@@ -93,6 +113,10 @@
 (function () {
     var internalSystems = [];
     var internalSystemModal = new bootstrap.Modal(document.getElementById('internalSystemModal'));
+    var assignModal = new bootstrap.Modal(document.getElementById('assignUsersModal'));
+    var assignSysId = null;
+    var assignAllUsers = [];
+    var assignSelected = {};
 
     function $(s) { return document.querySelector(s); }
     function val(id) { return document.getElementById(id).value; }
@@ -119,6 +143,7 @@
                 '<td>' + escapeHtml(item.sort) + '</td>' +
                 '<td><label class="form-check form-switch m-0"><input class="form-check-input" type="checkbox" role="switch" data-isys-toggle="' + escapeHtml(item.id) + '"' + (item.disabled ? '' : ' checked') + '></label></td>' +
                 '<td><div class="isys-actions">' +
+                '<button class="btn btn-sm" type="button" data-isys-action="assign" data-isys-id="' + escapeHtml(item.id) + '" data-isys-name="' + escapeHtml(item.sysName) + '">分配用户</button>' +
                 '<button class="btn btn-sm" type="button" data-isys-action="edit" data-isys-id="' + escapeHtml(item.id) + '">编辑</button>' +
                 '<button class="btn btn-sm btn-danger" type="button" data-isys-action="delete" data-isys-id="' + escapeHtml(item.id) + '">删除</button>' +
                 '</div></td></tr>';
@@ -175,6 +200,62 @@
         }, loadInternalSystems);
     }
 
+    /* ---- 分配用户 ---- */
+    function openAssign(sysId, sysName) {
+        assignSysId = sysId;
+        assignSelected = {};
+        document.getElementById('assignSysName').textContent = sysName || '';
+        document.getElementById('assignUserSearch').value = '';
+        document.getElementById('assignUserList').innerHTML = '<div style="padding:24px;text-align:center;color:var(--hc-muted);">加载中...</div>';
+        assignModal.show();
+
+        // 加载全部用户 + 当前已分配用户
+        request('/backend/user/findPage2', {method: 'POST', body: {pageNum: 1, pageSize: 9999}}, function (res) {
+            assignAllUsers = (res && res.list) ? res.list : [];
+            request('/backend/data/internal-system/' + sysId + '/users', {method: 'GET'}, function (ids) {
+                (ids || []).forEach(function (uid) { assignSelected[uid] = true; });
+                renderAssignList();
+            }, function () { renderAssignList(); });
+        }, function () { assignAllUsers = []; renderAssignList(); });
+    }
+
+    function renderAssignList() {
+        var kw = document.getElementById('assignUserSearch').value.trim().toLowerCase();
+        var filtered = assignAllUsers.filter(function (u) {
+            if (!kw) { return true; }
+            return (u.username && u.username.toLowerCase().indexOf(kw) >= 0) ||
+                   (u.nickname && u.nickname.toLowerCase().indexOf(kw) >= 0);
+        });
+        var container = document.getElementById('assignUserList');
+        if (!filtered.length) {
+            container.innerHTML = '<div style="padding:24px;text-align:center;color:var(--hc-muted);">无匹配用户</div>';
+        } else {
+            container.innerHTML = filtered.map(function (u) {
+                var checked = assignSelected[u.id] ? ' checked' : '';
+                var name = escapeHtml(u.username || '');
+                var nick = u.nickname ? ' (' + escapeHtml(u.nickname) + ')' : '';
+                return '<label style="display:flex;align-items:center;gap:8px;padding:7px 12px;border-bottom:1px solid var(--hc-line);cursor:pointer;">' +
+                    '<input type="checkbox" class="form-check-input assign-user-cb" data-uid="' + u.id + '"' + checked + '>' +
+                    '<span>' + name + nick + '</span>' +
+                    '</label>';
+            }).join('');
+        }
+        updateAssignCount();
+    }
+
+    function updateAssignCount() {
+        var count = Object.keys(assignSelected).filter(function (k) { return assignSelected[k]; }).length;
+        document.getElementById('assignUserCount').textContent = '已选 ' + count + ' 人';
+    }
+
+    function saveAssign() {
+        var userIds = Object.keys(assignSelected).filter(function (k) { return assignSelected[k]; }).map(Number);
+        request('/backend/data/internal-system/' + assignSysId + '/users', {method: 'PUT', body: userIds}, function () {
+            assignModal.hide();
+            showToastSimple('用户分配已更新', MsgTypes.SUCCESS, Position.TopCenter);
+        });
+    }
+
     function bind() {
         document.getElementById('addInternalSystemBtn').addEventListener('click', openAdd);
         document.getElementById('internalSystemForm').addEventListener('submit', save);
@@ -182,12 +263,23 @@
         tbody.addEventListener('click', function (e) {
             var btn = e.target.closest('button[data-isys-action]'); if (!btn) { return; }
             var id = btn.getAttribute('data-isys-id');
-            if (btn.getAttribute('data-isys-action') === 'edit') { openEdit(id); } else { del(id); }
+            var action = btn.getAttribute('data-isys-action');
+            if (action === 'edit') { openEdit(id); } else if (action === 'assign') { openAssign(id, btn.getAttribute('data-isys-name')); } else { del(id); }
         });
         tbody.addEventListener('change', function (e) {
             var sw = e.target.closest('[data-isys-toggle]'); if (!sw) { return; }
             toggleDisabled(sw.getAttribute('data-isys-toggle'), sw.checked);
         });
+
+        /* 分配用户事件 */
+        document.getElementById('assignUserSearch').addEventListener('input', renderAssignList);
+        document.getElementById('assignUserList').addEventListener('change', function (e) {
+            var cb = e.target.closest('.assign-user-cb'); if (!cb) { return; }
+            var uid = Number(cb.getAttribute('data-uid'));
+            if (cb.checked) { assignSelected[uid] = true; } else { delete assignSelected[uid]; }
+            updateAssignCount();
+        });
+        document.getElementById('assignSaveBtn').addEventListener('click', saveAssign);
     }
 
     function init() { bind(); loadInternalSystems(); }

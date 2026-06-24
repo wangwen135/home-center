@@ -36,4 +36,15 @@ public interface InternalSystemConfigService {
      * @return
      */
     List<InternalSystemConfig> getInternalSystemByLoginUser();
+
+    /**
+     * 获取某系统已分配的用户 ID 列表
+     */
+    List<Integer> getAssignedUserIds(Integer sysId);
+
+    /**
+     * 全量覆盖：将指定系统分配给给定用户列表。
+     * <p>同步刷新受影响用户的内存会话，使变更即时生效。
+     */
+    void assignUsersToSystem(Integer sysId, List<Integer> userIds);
 }

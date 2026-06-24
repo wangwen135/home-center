@@ -15,6 +15,7 @@
     var state = {
         categories: [],
         links: [],
+        internalSystems: [],
         query: ''
     };
 
@@ -337,6 +338,86 @@
         return tile;
     }
 
+    // ===== 内部系统分组渲染 =====
+    function matchesInternalSystem(sys, query) {
+        if (!query) { return true; }
+        var haystack = [sys.sysName, sys.sysDescription, sys.sysDomain, sys.internetUrl]
+            .map(function (v) { return normalizeText(v).toLowerCase(); }).join(' ');
+        return haystack.indexOf(query) !== -1;
+    }
+
+    function createInternalSystemCard(sys) {
+        var tile = document.createElement('a');
+        tile.className = 'hc-entry-card pn-card';
+        var url = normalizeText(sys.internetUrl) || normalizeText(sys.openInternetUrl) ||
+                  normalizeText(sys.internalUrl);
+        tile.href = url || '#';
+        tile.target = '_blank';
+        tile.rel = 'noopener noreferrer';
+
+        // badge: 代理
+        var meta = ENTRY_META.nginx_proxy;
+        tile.appendChild(createBadgeEl(meta));
+
+        // icon
+        var icon = document.createElement('span');
+        icon.className = 'hc-entry-card-icon';
+        icon.setAttribute('aria-hidden', 'true');
+        if (isImageIcon(sys.icon)) {
+            var img = document.createElement('img');
+            img.src = normalizeText(sys.icon);
+            img.alt = '';
+            icon.appendChild(img);
+        } else {
+            icon.style.background = hashColor(sys.sysName);
+            icon.style.color = '#10384f';
+            icon.textContent = makeText(sys.sysName);
+        }
+        tile.appendChild(icon);
+
+        var name = document.createElement('span');
+        name.className = 'hc-entry-card-name';
+        name.textContent = normalizeText(sys.sysName) || '未命名系统';
+        tile.appendChild(name);
+
+        tile.appendChild(createHealthDot('ok'));
+
+        var desc = document.createElement('span');
+        desc.className = 'hc-entry-card-desc';
+        desc.textContent = normalizeText(sys.sysDescription) || '点击打开内部系统';
+        tile.appendChild(desc);
+
+        tile.title = normalizeText(sys.sysName);
+        tile.setAttribute('aria-label', normalizeText(sys.sysName) + '：' + (normalizeText(sys.sysDescription) || '内部系统'));
+        return tile;
+    }
+
+    function createInternalSystemGroup(systems) {
+        var group = document.createElement('section');
+        group.className = 'pn-group';
+
+        var title = document.createElement('h2');
+        title.className = 'pn-group-title';
+        var icon = document.createElement('span');
+        icon.className = 'pn-group-icon';
+        icon.textContent = '⚡';
+        icon.setAttribute('aria-hidden', 'true');
+        var name = document.createElement('span');
+        name.textContent = '内部系统';
+        title.appendChild(icon);
+        title.appendChild(name);
+
+        var grid = document.createElement('div');
+        grid.className = 'pn-grid';
+        systems.forEach(function (sys) {
+            grid.appendChild(createInternalSystemCard(sys));
+        });
+
+        group.appendChild(title);
+        group.appendChild(grid);
+        return group;
+    }
+
     function createGroup(category, links) {
         var group = document.createElement('section');
         group.className = 'pn-group';
@@ -434,13 +515,29 @@
         var query = state.query.trim().toLowerCase();
         var categories = state.categories.slice().sort(compareSort);
         var links = state.links.slice().sort(compareSort);
+        var systems = state.internalSystems.slice().sort(function (a, b) {
+            var left = Number(a.sort || 0);
+            var right = Number(b.sort || 0);
+            if (left !== right) { return left - right; }
+            return Number(a.id || 0) - Number(b.id || 0);
+        });
 
-        if (!categories.length || !links.length) {
+        var rendered = 0;
+
+        // 内部系统分组（置顶）
+        var matchedSystems = systems.filter(function (sys) {
+            return matchesInternalSystem(sys, query);
+        });
+        if (matchedSystems.length) {
+            content.appendChild(createInternalSystemGroup(matchedSystems));
+            rendered += matchedSystems.length;
+        }
+
+        if (!categories.length && !links.length && !systems.length) {
             content.appendChild(createEmpty('暂无内部导航入口，可在配置或管理界面维护私有导航。', true));
             return;
         }
 
-        var rendered = 0;
         categories.forEach(function (category) {
             var groupLinks = links.filter(function (link) {
                 return String(link.categoryId) === String(category.id) && matchesQuery(link, category, query);
@@ -596,18 +693,33 @@
 
     // ===== 数据加载与搜索 =====
     function load() {
+        // 并行加载私有导航 + 已分配的内部系统
+        var navDone = false, sysDone = false;
+
+        function tryRender() {
+            if (navDone && sysDone) { render(); }
+        }
+
         getRequest('/api/private-nav/all', function (data) {
             state.categories = (data && data.categories) || [];
             state.links = (data && data.links) || [];
-            render();
+            navDone = true;
+            tryRender();
         }, function () {
-            var content = document.getElementById('pnContent');
-            if (content) {
-                while (content.firstChild) {
-                    content.removeChild(content.firstChild);
-                }
-                content.appendChild(createEmpty('私有导航加载失败，请刷新重试', false));
-            }
+            state.categories = [];
+            state.links = [];
+            navDone = true;
+            tryRender();
+        });
+
+        getRequest('/user/internalSystem', function (list) {
+            state.internalSystems = list || [];
+            sysDone = true;
+            tryRender();
+        }, function () {
+            state.internalSystems = [];
+            sysDone = true;
+            tryRender();
         });
     }
 

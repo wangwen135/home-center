@@ -2,6 +2,7 @@ package com.wwh.home.center.security;
 
 import com.wwh.home.center.common.enums.SysLogTypeEnum;
 import com.wwh.home.center.common.util.RequestUtil;
+import com.wwh.home.center.model.entity.InternalSystemConfig;
 import com.wwh.home.center.model.entity.SysLog;
 import com.wwh.home.center.model.entity.SysRole;
 import com.wwh.home.center.model.entity.UserInfo;
@@ -287,6 +288,22 @@ public class TokenManager {
             UserInfo userInfo = tokenInfo.getUserAllInfo().getUserInfo();
             if (userInfo != null && userId.equals(userInfo.getId())) {
                 updater.accept(userInfo);
+            }
+        });
+    }
+
+    /**
+     * 刷新某用户在所有有效 token 中缓存的内部系统列表。
+     * <p>用于超管分配/取消分配系统后即时生效，无需用户重新登录。
+     */
+    public static void refreshUserSystems(Integer userId, List<InternalSystemConfig> systems) {
+        if (userId == null) {
+            return;
+        }
+        tokenMap.values().forEach(tokenInfo -> {
+            UserInfo userInfo = tokenInfo.getUserAllInfo().getUserInfo();
+            if (userInfo != null && userId.equals(userInfo.getId())) {
+                tokenInfo.getUserAllInfo().setUserSystems(systems);
             }
         });
     }

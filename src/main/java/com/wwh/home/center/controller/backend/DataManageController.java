@@ -183,6 +183,23 @@ public class DataManageController {
         return Result.success();
     }
 
+    @ApiOperation("获取系统已分配的用户ID列表")
+    @GetMapping("/internal-system/{sysId}/users")
+    public Result<List<Integer>> getAssignedUsers(@PathVariable @NotNull(message = "系统ID不能为空") Integer sysId) {
+        checkSuperAdmin();
+        return Result.success(internalSystemConfigService.getAssignedUserIds(sysId));
+    }
+
+    @ApiOperation("分配系统给用户（全量覆盖）")
+    @PutMapping("/internal-system/{sysId}/users")
+    public Result<Void> assignUsers(@PathVariable @NotNull(message = "系统ID不能为空") Integer sysId,
+                                     @RequestBody List<Integer> userIds) {
+        checkSuperAdmin();
+        log.info("超管分配系统 sysId={} 给用户 {}", sysId, userIds);
+        internalSystemConfigService.assignUsersToSystem(sysId, userIds);
+        return Result.success();
+    }
+
     @ApiOperation("操作日志列表")
     @GetMapping("/operation-logs")
     public Result<List<OperationLog>> operationLogs() {
