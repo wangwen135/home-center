@@ -234,7 +234,7 @@
 
 /* 顶栏通用入口按钮，低强调 */
 .admin-topbar-link {
-    min-height: 36px;
+    min-height: 38px;
     display: inline-flex;
     align-items: center;
     padding: 0 12px;
@@ -245,7 +245,7 @@
     text-decoration: none;
     font: inherit;
     font-size: 13px;
-    font-weight: 600;
+    font-weight: 400;
     cursor: pointer;
     white-space: nowrap;
 }
@@ -262,7 +262,7 @@
 }
 
 .admin-user-btn {
-    min-height: 36px;
+    min-height: 38px;
     display: inline-flex;
     align-items: center;
     gap: 8px;
@@ -273,7 +273,7 @@
     color: var(--hc-text);
     font: inherit;
     font-size: 13px;
-    font-weight: 600;
+    font-weight: 400;
     cursor: pointer;
 }
 

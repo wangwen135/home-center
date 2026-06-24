@@ -21,7 +21,13 @@ canvas#bg-canvas {
     z-index: 0;
     width: 100%;
     height: 100%;
+    background: linear-gradient(135deg, #f8fbff 0%, #edf4fb 52%, #f0f2f5 100%);
     pointer-events: none;
+}
+
+:root[data-theme="dark"] .hc-bg-canvas,
+:root[data-theme="dark"] canvas#bg-canvas {
+    background: linear-gradient(135deg, #021025 0%, #021226 52%, #00030a 100%);
 }
 
 .hc-entry {
@@ -29,32 +35,57 @@ canvas#bg-canvas {
     z-index: 1;
 }
 
-/* ===== 入口页共享顶栏（半透明毛玻璃） ===== */
+/* ===== 入口页共享顶栏（去框：不再用容器包裹，仅布局 + 呼吸间距，整体更大气） ===== */
 .hc-entry-topbar {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 16px;
     flex-wrap: wrap;
-    padding: 14px 20px;
-    border: 1px solid var(--hc-line);
-    border-radius: 12px;
-    background: var(--hc-surface);
-    box-shadow: var(--hc-shadow-soft);
-    backdrop-filter: blur(18px) saturate(140%);
-    -webkit-backdrop-filter: blur(18px) saturate(140%);
+    padding: 4px 4px 16px;
 }
 
 .hc-entry-brand {
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.hc-entry-brand-text {
     min-width: 0;
     display: flex;
     flex-direction: column;
     gap: 2px;
 }
 
+/* 站点 Logo：默认渐变方块 + 首字母（与管理后台 .admin-brand-mark 一致）；
+   配置为图片 URL 时显示图片；配置为 emoji/文字 时显示文字。 */
+.hc-site-logo {
+    flex: 0 0 auto;
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    background: var(--hc-accent-gradient);
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 16px;
+    letter-spacing: 0.5px;
+    overflow: hidden;
+}
+
+.hc-site-logo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
 .hc-entry-brand-title {
     margin: 0;
-    font-size: 20px;
+    font-size: 24px;
     font-weight: 700;
     line-height: 1.2;
     color: var(--hc-text);
@@ -86,7 +117,8 @@ canvas#bg-canvas {
     color: var(--hc-text);
     text-decoration: none;
     font: inherit;
-    font-weight: 600;
+    font-size: 13px;
+    font-weight: 400;
     cursor: pointer;
     transition: border-color 0.18s ease, background 0.18s ease, color 0.18s ease;
 }
@@ -98,10 +130,12 @@ canvas#bg-canvas {
 }
 
 /* ===== 入口页共享页脚 ===== */
+/* margin-top:auto：在入口页 flex 列外壳中把页脚推到页面最底部（内容少也吸底）。
+   非-flex 上下文中 auto 解析为 0，无副作用。 */
 .hc-entry-footer {
     width: 100%;
-    margin-top: 8px;
-    padding: 16px 0;
+    margin-top: auto;
+    padding: 16px 0 6px;
     color: var(--hc-muted);
     font-size: 12px;
     line-height: 1.5;
@@ -203,7 +237,7 @@ canvas#bg-canvas {
     }
 
     .hc-entry-brand-title {
-        font-size: 18px;
+        font-size: 20px;
     }
 
     .hc-entry-actions {

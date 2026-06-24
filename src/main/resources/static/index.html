@@ -5,10 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="Home Center 公开导航">
     <title>Home Center</title>
-    <link rel="stylesheet" href="/css/app-theme.css?v=20260623-index">
-    <link rel="stylesheet" href="/css/entry.css?v=20260623-index">
-    <link rel="stylesheet" href="/css/nav.css?v=20260623-index">
-    <script src="/js/app-theme.js?v=20260623-index"></script>
+    <link rel="stylesheet" href="/css/app-theme.css?v=20260626-index">
+    <link rel="stylesheet" href="/css/entry.css?v=20260629-entry">
+    <link rel="stylesheet" href="/css/nav.css?v=20260629-index">
+    <script src="/js/app-theme.js?v=20260626-index"></script>
 </head>
 <body class="hc-app">
 <canvas id="bg-canvas" class="hc-bg-canvas" aria-hidden="true"></canvas>
@@ -16,15 +16,18 @@
 <div class="page-shell hc-entry">
     <header class="hc-entry-topbar">
         <div class="hc-entry-brand">
-            <h1 class="hc-entry-brand-title">Home Center</h1>
-            <p class="hc-entry-brand-sub">个人服务入口</p>
+            <span class="hc-site-logo" data-site-logo aria-hidden="true">HC</span>
+            <div class="hc-entry-brand-text">
+                <h1 class="hc-entry-brand-title" data-site-name>Home Center</h1>
+                <p class="hc-entry-brand-sub" data-site-tagline>个人服务入口</p>
+            </div>
         </div>
         <div class="hc-entry-actions">
+            <a class="hc-entry-link" href="/login.html">后台登录</a>
             <button class="hc-theme-toggle" type="button" aria-label="切换深浅色主题">
                 <span class="hc-theme-toggle-icon" aria-hidden="true"></span>
                 <span data-theme-toggle-text>深色</span>
             </button>
-            <a class="hc-entry-link" href="/login.html">后台登录</a>
         </div>
     </header>
 
@@ -34,8 +37,8 @@
                     id="navSearch"
                     class="nav-search-input"
                     type="search"
-                    placeholder="搜索公开导航..."
-                    aria-label="搜索公开导航">
+                    placeholder="搜索名称或描述..."
+                    aria-label="搜索导航名称或描述">
         </div>
         <div id="navContent" class="nav-content" aria-live="polite">
             <div class="nav-empty">导航加载中...</div>
@@ -45,7 +48,8 @@
     <footer class="hc-entry-footer">© Home Center | By wwh</footer>
 </div>
 
-<script src="/js/main.js?v=20260623-index"></script>
-<script src="/js/bg-particles.js?v=20260623-index"></script>
+<script src="/js/main.js?v=20260626-index"></script>
+<script src="/js/bg-particles.js?v=20260626-index"></script>
+<script src="/js/site-info.js?v=20260626-index"></script>
 </body>
 </html>

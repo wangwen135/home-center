@@ -4,9 +4,9 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>系统配置 - Home Center</title>
-    <link rel="stylesheet" href="/css/app-theme.css?v=20260623-config">
-    <link rel="stylesheet" href="/css/admin-shell.css?v=20260623-config">
-    <script src="/js/app-theme.js?v=20260623-config"></script>
+    <link rel="stylesheet" href="/css/app-theme.css?v=20260626-config">
+    <link rel="stylesheet" href="/css/admin-shell.css?v=20260626-config">
+    <script src="/js/app-theme.js?v=20260626-config"></script>
     <style>
         .cfg-toolbar { display:flex; align-items:center; gap:10px; margin-bottom:14px; }
         .cfg-note { color:var(--hc-muted); font-size:13px; }
@@ -20,6 +20,18 @@
         .cfg-value { outline:none; border-radius:5px; padding:2px 4px; min-height:20px; }
         .cfg-value:focus { background:var(--hc-soft-accent); box-shadow:inset 0 0 0 1px var(--hc-accent); }
         .cfg-value[contenteditable="true"] { cursor:text; }
+
+        /* 站点信息编辑区 */
+        .cfg-site { border:1px solid var(--hc-line); border-radius:12px; background:var(--hc-surface); box-shadow:var(--hc-shadow-soft); padding:16px 18px; margin-bottom:18px; }
+        .cfg-site h3 { margin:0 0 4px; font-size:15px; font-weight:700; color:var(--hc-text); }
+        .cfg-site .cfg-note { display:block; margin:0 0 14px; }
+        .cfg-site-row { display:grid; grid-template-columns:110px 1fr; gap:8px 12px; align-items:center; margin-bottom:10px; }
+        .cfg-site-row label { color:var(--hc-muted); font-size:13px; font-weight:600; }
+        .cfg-site-row input { min-height:38px; padding:6px 10px; border:1px solid var(--hc-line); border-radius:8px; background:var(--hc-surface-strong); color:var(--hc-text); font:inherit; outline:none; }
+        .cfg-site-row input:focus { border-color:rgba(37,99,235,0.42); box-shadow:0 0 0 4px var(--hc-soft-accent); }
+        .cfg-site-actions { display:flex; align-items:center; gap:12px; margin-top:12px; }
+        .cfg-site-preview { display:inline-flex; align-items:center; gap:8px; color:var(--hc-muted); font-size:13px; }
+        .cfg-site-preview .admin-brand-mark { width:30px; height:30px; font-size:13px; }
     </style>
 </head>
 <body class="hc-app hc-admin-body">
@@ -47,6 +59,26 @@
             </div>
         </header>
         <main class="admin-content" role="main">
+            <div class="cfg-site">
+                <h3>站点信息</h3>
+                <span class="cfg-note">展示在公开首页 / 登录页 / 私有导航页顶部。Logo 支持 图片URL 或 emoji/文字，留空使用默认 HC 图标。</span>
+                <div class="cfg-site-row">
+                    <label for="siteNameInput">站点名称</label>
+                    <input id="siteNameInput" type="text" placeholder="Home Center" maxlength="40">
+                </div>
+                <div class="cfg-site-row">
+                    <label for="siteLogoInput">站点 Logo</label>
+                    <input id="siteLogoInput" type="text" placeholder="https://example.com/logo.png 或 emoji/文字，留空用默认">
+                </div>
+                <div class="cfg-site-row">
+                    <label for="siteTaglineInput">站点描述</label>
+                    <input id="siteTaglineInput" type="text" placeholder="个人服务入口" maxlength="80">
+                </div>
+                <div class="cfg-site-actions">
+                    <button id="saveSiteBtn" class="btn btn-primary" type="button">保存站点信息</button>
+                    <span class="cfg-site-preview">预览：<span class="admin-brand-mark" id="siteLogoPreview">HC</span></span>
+                </div>
+            </div>
             <div class="cfg-toolbar">
                 <button id="refreshConfigBtn" class="btn btn-sm" type="button">刷新</button>
                 <span class="cfg-note">仅展示非敏感配置；直接编辑值后回车或失焦自动保存。</span>
@@ -62,7 +94,7 @@
 </div>
 
 <script src="/js/main.js"></script>
-<script src="/js/admin-shell.js?v=20260623-config"></script>
+<script src="/js/admin-shell.js?v=20260626-config"></script>
 <script>window.HcAdminShell && window.HcAdminShell.init({title: '系统配置', breadcrumb: '系统'});</script>
 <script>
 (function () {
@@ -78,11 +110,15 @@
 
     function renderConfigs(list) {
         var tbody = document.getElementById('configTableBody');
-        if (!list || !list.length) {
+        // 站点信息（site.*）在上方专属区域维护，此处不重复展示
+        var rows = (list || []).filter(function (item) {
+            return item.configKey.indexOf('site.') !== 0;
+        });
+        if (!rows.length) {
             tbody.innerHTML = '<tr><td colspan="3" class="cfg-empty">暂无可配置项</td></tr>';
             return;
         }
-        tbody.innerHTML = list.map(function (item) {
+        tbody.innerHTML = rows.map(function (item) {
             return '<tr>' +
                 '<td><span class="cfg-key">' + escapeHtml(item.configKey) + '</span></td>' +
                 '<td><span class="cfg-value" contenteditable="true" data-key="' + escapeHtml(item.configKey) + '">' + escapeHtml(item.configValue) + '</span></td>' +
@@ -99,8 +135,60 @@
         });
     }
 
+    // ===== 站点信息（站点名 / Logo / 描述）专属维护 =====
+    var SITE_KEYS = [
+        {key: 'site.name', input: 'siteNameInput'},
+        {key: 'site.logo', input: 'siteLogoInput'},
+        {key: 'site.tagline', input: 'siteTaglineInput'}
+    ];
+
+    function isImageUrl(v) {
+        return /^(https?:)?\/\//i.test(v) || /^data:image\//i.test(v) || /\.(png|jpe?g|gif|webp|svg)(\?.*)?$/i.test(v);
+    }
+
+    function updateLogoPreview() {
+        var prev = document.getElementById('siteLogoPreview');
+        if (!prev) { return; }
+        var val = (document.getElementById('siteLogoInput').value || '').trim();
+        if (isImageUrl(val)) {
+            prev.innerHTML = '<img src="' + escapeHtml(val) + '" alt="" style="width:100%;height:100%;object-fit:cover;">';
+        } else if (val) {
+            prev.textContent = val;
+        } else {
+            prev.textContent = 'HC';
+        }
+    }
+
+    function loadSiteInfo() {
+        SITE_KEYS.forEach(function (item) {
+            getRequest('/backend/config/getByKey?key=' + encodeURIComponent(item.key), function (cfg) {
+                var el = document.getElementById(item.input);
+                if (el && cfg && cfg.configValue != null) {
+                    el.value = cfg.configValue;
+                }
+                if (item.key === 'site.logo') { updateLogoPreview(); }
+            }, function () { /* 未配置时保持占位默认值 */ });
+        });
+    }
+
+    function saveSiteInfo() {
+        var pending = SITE_KEYS.length;
+        SITE_KEYS.forEach(function (item) {
+            var value = document.getElementById(item.input).value;
+            request('/backend/config/update', {method: 'PUT', body: {key: item.key, value: value}}, function () {
+                pending -= 1;
+                if (pending === 0) {
+                    showToastSimple('站点信息已保存', MsgTypes.SUCCESS, Position.TopCenter);
+                    loadConfigs();
+                }
+            });
+        });
+    }
+
     function bind() {
         document.getElementById('refreshConfigBtn').addEventListener('click', loadConfigs);
+        document.getElementById('saveSiteBtn').addEventListener('click', saveSiteInfo);
+        document.getElementById('siteLogoInput').addEventListener('input', updateLogoPreview);
         var tbody = document.getElementById('configTableBody');
         tbody.addEventListener('blur', function (e) {
             var cell = e.target.closest('.cfg-value[contenteditable="true"]');
@@ -112,7 +200,7 @@
         });
     }
 
-    function init() { bind(); loadConfigs(); }
+    function init() { bind(); loadConfigs(); loadSiteInfo(); }
     if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', init); } else { init(); }
 })();
 </script>

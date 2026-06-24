@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="Home Center 私有导航">
     <title>私有导航 - Home Center</title>
-    <link rel="stylesheet" href="/css/app-theme.css?v=20260623-private">
-    <link rel="stylesheet" href="/css/entry.css?v=20260623-private">
-    <script src="/js/app-theme.js?v=20260623-private"></script>
+    <link rel="stylesheet" href="/css/app-theme.css?v=20260626-private">
+    <link rel="stylesheet" href="/css/entry.css?v=20260629-entry">
+    <script src="/js/app-theme.js?v=20260629-private"></script>
     <style>
         /* 私有导航页面私有样式。公共能力（粒子背景、顶栏、页脚、主题切换、共享卡片 .hc-entry-card）
            来自 app-theme.css / entry.css / bg-particles.js。 */
@@ -18,35 +18,49 @@
         }
 
         .pn-shell {
-            width: min(1180px, calc(100% - 28px));
+            width: 100%;
             min-height: 100vh;
-            margin: 0 auto;
-            padding: 20px 0 24px;
+            margin: 0;
+            padding: 20px 24px 8px;
             display: flex;
             flex-direction: column;
             gap: 20px;
         }
 
-        /* 主体半透明大面板，承载搜索、分组与卡片 */
+        /* 主体：透明无框；宽度由内容驱动并居中、不超过屏幕（与公开首页一致） */
         .pn-panel {
-            border: 1px solid var(--hc-line);
-            border-radius: 14px;
-            background: var(--hc-surface);
-            box-shadow: var(--hc-shadow-soft);
-            backdrop-filter: blur(14px) saturate(130%);
-            -webkit-backdrop-filter: blur(14px) saturate(130%);
-            padding: 22px;
+            width: fit-content;
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 0;
         }
 
         /* 搜索：与公开首页一致的工具栏式 */
         .pn-search {
-            margin: 0 0 22px;
+            position: relative;
+            max-width: 480px;
+            margin: 0 auto 22px;
+        }
+
+        .pn-search::before {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 13px;
+            width: 16px;
+            height: 16px;
+            transform: translateY(-50%);
+            background-color: var(--hc-muted);
+            opacity: 0.78;
+            pointer-events: none;
+            mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E") center/contain no-repeat;
+            -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E") center/contain no-repeat;
         }
 
         .pn-search-input {
             width: 100%;
             height: 42px;
-            padding: 0 14px;
+            padding: 0 14px 0 38px;
             border: 1px solid var(--hc-line);
             border-radius: 8px;
             background: var(--hc-surface-strong);
@@ -90,9 +104,21 @@
         }
 
         .pn-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: flex-start;
             gap: 14px;
+        }
+
+        /* 卡片固定宽度（统一、不拉伸）；容器宽度由最宽分组的一行决定（见 .pn-panel fit-content）。
+           用 flex 而非 grid auto-fill：父级不定尺寸时 auto-fill 会塌缩成 1 列。 */
+        .pn-grid > .hc-entry-card {
+            flex: 0 0 150px;
+            box-sizing: border-box;
+        }
+
+        .pn-grid > .pn-empty {
+            flex: 0 0 100%;
         }
 
         .pn-grid > .pn-empty {
@@ -188,7 +214,8 @@
             color: var(--hc-text);
             text-decoration: none;
             font: inherit;
-            font-weight: 600;
+            font-size: 13px;
+            font-weight: 400;
         }
 
         .pn-perm-link:hover {
@@ -212,7 +239,8 @@
             background: var(--hc-surface-strong);
             color: var(--hc-text);
             font: inherit;
-            font-weight: 600;
+            font-size: 13px;
+            font-weight: 400;
             cursor: pointer;
         }
 
@@ -304,16 +332,16 @@
 
         @media (max-width: 640px) {
             .pn-shell {
-                width: min(100% - 24px, 1180px);
-            }
-
-            .pn-panel {
-                padding: 16px;
+                width: 100%;
+                padding: 16px 14px 6px;
             }
 
             .pn-grid {
-                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
                 gap: 12px;
+            }
+
+            .pn-grid > .hc-entry-card {
+                flex: 0 0 120px;
             }
 
             .pn-user-name {
@@ -328,8 +356,11 @@
 <div class="pn-shell hc-entry">
     <header class="hc-entry-topbar">
         <div class="hc-entry-brand">
-            <h1 class="hc-entry-brand-title">Home Center</h1>
-            <p class="hc-entry-brand-sub">内部导航</p>
+            <span class="hc-site-logo" data-site-logo aria-hidden="true">HC</span>
+            <div class="hc-entry-brand-text">
+                <h1 class="hc-entry-brand-title" data-site-name>Home Center</h1>
+                <p class="hc-entry-brand-sub" data-site-tagline>内部导航</p>
+            </div>
         </div>
         <div class="hc-entry-actions">
             <!-- 权限菜单区：由 JS 按当前用户权限注入 -->
@@ -358,7 +389,7 @@
 
     <main class="pn-panel" role="main">
         <div class="pn-search">
-            <input id="pnSearch" class="pn-search-input" type="search" placeholder="搜索私有导航..." aria-label="搜索私有导航">
+            <input id="pnSearch" class="pn-search-input" type="search" placeholder="搜索我的导航..." aria-label="搜索我的导航">
         </div>
         <div id="pnContent" class="pn-content" aria-live="polite">
             <div class="pn-empty">私有导航加载中...</div>
@@ -369,7 +400,8 @@
 </div>
 
 <script src="/js/main.js"></script>
-<script src="/js/private-nav.js?v=20260623-private"></script>
-<script src="/js/bg-particles.js?v=20260623-private"></script>
+<script src="/js/private-nav.js?v=20260629-private"></script>
+<script src="/js/bg-particles.js?v=20260629-private"></script>
+<script src="/js/site-info.js?v=20260626-private"></script>
 </body>
 </html>

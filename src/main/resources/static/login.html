@@ -4,16 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>登录 - Home Center</title>
-    <link rel="stylesheet" href="/css/app-theme.css?v=20260623-login">
-    <link rel="stylesheet" href="/css/entry.css?v=20260623-login">
-    <script src="/js/app-theme.js?v=20260623-login"></script>
+    <link rel="stylesheet" href="/css/app-theme.css?v=20260626-login">
+    <link rel="stylesheet" href="/css/entry.css?v=20260629-entry">
+    <script src="/js/app-theme.js?v=20260626-login"></script>
     <style>
         /* 登录页页面私有样式。公共能力来自 app-theme.css / entry.css。 */
         .login-page {
-            width: min(1180px, calc(100% - 32px));
+            width: 100%;
             min-height: 100vh;
-            margin: 0 auto;
-            padding: 22px 0 24px;
+            margin: 0;
+            padding: 22px 24px 8px;
             display: flex;
             flex-direction: column;
             gap: 0;
@@ -127,7 +127,7 @@
 
         .login-submit {
             margin-top: 6px;
-            width: 100%;
+            min-width: 200px;
         }
 
         /* 返回首页：低强调文字链接，置于面板底部 */
@@ -147,8 +147,7 @@
 
         @media (max-width: 480px) {
             .login-page {
-                width: min(100% - 24px, 1180px);
-                padding: 16px 0 20px;
+                padding: 16px 14px 6px;
             }
 
             .login-panel {
@@ -167,8 +166,11 @@
 <div class="login-page hc-entry">
     <header class="hc-entry-topbar">
         <div class="hc-entry-brand">
-            <h1 class="hc-entry-brand-title">Home Center</h1>
-            <p class="hc-entry-brand-sub">个人服务入口</p>
+            <span class="hc-site-logo" data-site-logo aria-hidden="true">HC</span>
+            <div class="hc-entry-brand-text">
+                <h1 class="hc-entry-brand-title" data-site-name>Home Center</h1>
+                <p class="hc-entry-brand-sub" data-site-tagline>个人服务入口</p>
+            </div>
         </div>
         <div class="hc-entry-actions">
             <button class="hc-theme-toggle" type="button" aria-label="切换深浅色主题">
@@ -329,6 +331,7 @@
         });
     })();
 </script>
-<script src="/js/bg-particles.js?v=20260623-login"></script>
+<script src="/js/bg-particles.js?v=20260626-login"></script>
+<script src="/js/site-info.js?v=20260626-login"></script>
 </body>
 </html>

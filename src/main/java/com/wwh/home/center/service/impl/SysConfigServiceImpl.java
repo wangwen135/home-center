@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.wwh.home.center.common.exception.BusinessException;
 import com.wwh.home.center.dao.mapper.SysConfigMapper;
 import com.wwh.home.center.model.entity.SysConfig;
+import com.wwh.home.center.model.vo.SiteInfoVo;
 import com.wwh.home.center.service.SysConfigService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,14 +36,38 @@ public class SysConfigServiceImpl implements SysConfigService {
     @Override
     public void updateConfig(String key, String value) {
         SysConfig config = getByKey(key);
+        LocalDateTime now = LocalDateTime.now();
         if (config == null) {
-            throw new BusinessException("配置不存在：" + key);
+            // upsert：后台首次维护某配置项时自动创建（如站点名/Logo/描述）
+            SysConfig insert = new SysConfig();
+            insert.setConfigKey(key);
+            insert.setConfigValue(value);
+            insert.setCreateTime(now);
+            insert.setUpdateTime(now);
+            sysConfigMapper.insert(insert);
+            log.info("新增系统配置，key={}", key);
+            return;
         }
         SysConfig update = new SysConfig();
         update.setId(config.getId());
         update.setConfigValue(value);
-        update.setUpdateTime(LocalDateTime.now());
+        update.setUpdateTime(now);
         sysConfigMapper.updateById(update);
         log.info("更新系统配置成功，key={}", key);
+    }
+
+    @Override
+    public SiteInfoVo getPublicSiteInfo() {
+        SiteInfoVo vo = new SiteInfoVo();
+        vo.setName(resolveValue("site.name", "Home Center"));
+        vo.setLogo(resolveValue("site.logo", ""));
+        vo.setTagline(resolveValue("site.tagline", "个人服务入口"));
+        return vo;
+    }
+
+    private String resolveValue(String key, String defaultValue) {
+        SysConfig config = getByKey(key);
+        String value = config == null ? null : config.getConfigValue();
+        return (value == null || value.trim().isEmpty()) ? defaultValue : value;
     }
 }
