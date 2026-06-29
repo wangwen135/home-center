@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Home Center 待办事项">
+    <title>待办事项 - Home Center</title>
+    <link rel="stylesheet" href="/css/app-theme.css?v=20260625-todo">
+    <link rel="stylesheet" href="/css/entry.css?v=20260625-todo">
+    <link rel="stylesheet" href="/css/todo.css?v=20260625-todo">
+    <script src="/js/app-theme.js?v=20260625-todo"></script>
+</head>
+<body class="hc-app">
+<canvas id="bg-canvas" class="hc-bg-canvas" aria-hidden="true"></canvas>
+
+<div class="todo-shell hc-entry">
+    <header class="hc-entry-topbar">
+        <div class="hc-entry-brand">
+            <a class="hc-entry-link" href="/private.html" aria-label="返回内部导航">← 返回导航</a>
+            <div class="hc-entry-brand-text">
+                <h1 class="hc-entry-brand-title">待办事项</h1>
+                <p class="hc-entry-brand-sub" id="todoCount">加载中…</p>
+            </div>
+        </div>
+        <div class="hc-entry-actions">
+            <button class="hc-entry-link" type="button" id="btnNew">+ 新建</button>
+            <button class="hc-entry-link" type="button" id="btnMulti">多选</button>
+            <button class="hc-entry-link" type="button" id="btnClear">清除已完成</button>
+            <button class="hc-entry-link" type="button" id="btnImport">导入</button>
+            <button class="hc-entry-link" type="button" id="btnExport">导出</button>
+            <button class="hc-theme-toggle" type="button" aria-label="切换深浅色主题">
+                <span class="hc-theme-toggle-icon" aria-hidden="true"></span>
+                <span data-theme-toggle-text>深色</span>
+            </button>
+        </div>
+    </header>
+
+    <div class="todo-toolbar">
+        <div class="todo-seg" role="tablist" aria-label="视图">
+            <button class="todo-seg-btn is-active" type="button" data-view="list">列表</button>
+            <button class="todo-seg-btn" type="button" data-view="board">看板</button>
+            <button class="todo-seg-btn" type="button" data-view="calendar">日历</button>
+        </div>
+        <input id="todoSearch" class="todo-search form-control" type="search" placeholder="搜索内容或标签…" aria-label="搜索">
+        <div class="todo-seg" role="group" aria-label="状态">
+            <button class="todo-seg-btn is-active" type="button" data-status="all">全部</button>
+            <button class="todo-seg-btn" type="button" data-status="pending">待办</button>
+            <button class="todo-seg-btn" type="button" data-status="done">已完成</button>
+        </div>
+        <div class="todo-seg" id="prioritySeg" role="group" aria-label="优先级">
+            <button class="todo-seg-btn is-active" type="button" data-priority="all">优先级</button>
+            <button class="todo-seg-btn" type="button" data-priority="high">高</button>
+            <button class="todo-seg-btn" type="button" data-priority="medium">中</button>
+            <button class="todo-seg-btn" type="button" data-priority="low">低</button>
+        </div>
+    </div>
+
+    <div class="todo-body">
+        <aside class="todo-tags" id="tagCloud" aria-label="标签"></aside>
+        <main class="todo-main" id="todoView" aria-live="polite">
+            <div class="todo-empty">加载中…</div>
+        </main>
+    </div>
+
+    <div class="todo-batchbar" id="batchBar" hidden>
+        <span id="batchInfo">已选 0 项</span>
+        <button class="hc-button" type="button" id="btnBatchDone">标记完成</button>
+        <button class="hc-button" type="button" data-batch-priority="high">设为高</button>
+        <button class="hc-button" type="button" data-batch-priority="medium">设为中</button>
+        <button class="hc-button" type="button" data-batch-priority="low">设为低</button>
+        <button class="hc-button hc-button-danger" type="button" id="btnBatchDelete">删除</button>
+        <button class="hc-button" type="button" id="btnBatchCancel">退出多选</button>
+    </div>
+
+    <footer class="hc-entry-footer">© Home Center | By wwh</footer>
+</div>
+
+<!-- 新建 / 编辑弹窗 -->
+<div class="modal fade" id="editModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <form class="modal-content" id="editForm">
+            <div class="modal-header">
+                <h6 class="modal-title" id="editTitle">新建待办</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="关闭"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label" for="editContent">内容</label>
+                    <textarea class="form-control" id="editContent" rows="4" maxlength="500" placeholder="写下你要做的事…"></textarea>
+                    <div class="todo-counter"><span id="editCounter">0</span>/500</div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">优先级</label>
+                    <div class="todo-prio" id="editPriority">
+                        <button type="button" class="todo-prio-btn" data-p="high">高</button>
+                        <button type="button" class="todo-prio-btn is-active" data-p="medium">中</button>
+                        <button type="button" class="todo-prio-btn" data-p="low">低</button>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="editTags">标签</label>
+                    <input class="form-control" id="editTags" type="text" placeholder="回车或逗号分隔，如：工作, 紧急">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="hc-button" data-bs-dismiss="modal">取消</button>
+                <button type="submit" class="hc-button hc-button-primary">保存</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- 详情弹窗 -->
+<div class="modal fade" id="detailModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content" id="detailContent"></div>
+    </div>
+</div>
+
+<!-- 日历某日列表弹窗 -->
+<div class="modal fade" id="dayModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h6 class="modal-title" id="dayTitle"></h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="关闭"></button>
+            </div>
+            <div class="modal-body" id="dayBody"></div>
+        </div>
+    </div>
+</div>
+
+<!-- 导入弹窗 -->
+<div class="modal fade" id="importModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h6 class="modal-title">导入待办</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="关闭"></button>
+            </div>
+            <div class="modal-body">
+                <p class="todo-muted">选择之前导出的 JSON 文件，相同内容的待办会自动跳过。</p>
+                <input class="form-control" id="importFile" type="file" accept="application/json,.json">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="hc-button" data-bs-dismiss="modal">取消</button>
+                <button type="button" class="hc-button hc-button-primary" id="btnImportDo">导入</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="/js/todo.js?v=20260625-todo"></script>
+<script src="/js/bg-particles.js?v=20260625-todo"></script>
+</body>
+</html>
