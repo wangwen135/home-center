@@ -1,0 +1,583 @@
+/*
+ * 待办事项页面样式（仅 todo.html 引用）
+ * 复用 app-theme.css 的主题变量 --hc-*、按钮 .hc-button、表单 .form-control、弹窗 .modal。
+ * 优先级配色：高=--hc-danger（红）、中=--hc-warning（琥珀）、低=--hc-success（绿）。
+ */
+
+.todo-shell {
+    width: 100%;
+    max-width: 1240px;
+    min-height: 100vh;
+    margin: 0 auto;
+    padding: 20px 24px 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+/* ===== 工具条 ===== */
+.todo-toolbar {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.todo-search {
+    flex: 1 1 220px;
+    min-width: 180px;
+    height: 38px;
+}
+
+/* 分段按钮组 */
+.todo-seg {
+    display: inline-flex;
+    border: 1px solid var(--hc-line);
+    border-radius: 8px;
+    overflow: hidden;
+    background: var(--hc-surface-strong);
+}
+
+.todo-seg-btn {
+    min-height: 38px;
+    padding: 0 14px;
+    border: 0;
+    border-right: 1px solid var(--hc-line);
+    background: transparent;
+    color: var(--hc-text);
+    font: inherit;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+}
+
+.todo-seg-btn:last-child {
+    border-right: 0;
+}
+
+.todo-seg-btn:hover {
+    background: var(--hc-soft-accent);
+    color: var(--hc-accent);
+}
+
+.todo-seg-btn.is-active {
+    background: var(--hc-accent);
+    color: #fff;
+}
+
+/* ===== 主体：标签云 + 视图区 ===== */
+.todo-body {
+    display: flex;
+    gap: 18px;
+    align-items: flex-start;
+}
+
+.todo-tags {
+    flex: 0 0 180px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    position: sticky;
+    top: 12px;
+}
+
+.todo-tags-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--hc-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin: 2px 0 6px;
+}
+
+.todo-tag {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 6px 10px;
+    border: 1px solid var(--hc-line);
+    border-radius: 8px;
+    background: var(--hc-surface-strong);
+    color: var(--hc-text);
+    font-size: 13px;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+
+.todo-tag:hover {
+    border-color: rgba(37, 99, 235, 0.32);
+    background: var(--hc-soft-accent);
+}
+
+.todo-tag.is-active {
+    border-color: var(--hc-accent);
+    background: var(--hc-soft-accent);
+    color: var(--hc-accent);
+    font-weight: 600;
+}
+
+.todo-tag-count {
+    font-size: 12px;
+    color: var(--hc-muted);
+}
+
+.todo-main {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+/* ===== 通用：优先级色 / 标签 pill ===== */
+.prio-high { color: var(--hc-danger); }
+.prio-medium { color: var(--hc-warning); }
+.prio-low { color: var(--hc-success); }
+
+.todo-prio-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: currentColor;
+}
+
+.todo-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: var(--hc-soft-accent);
+    color: var(--hc-accent);
+    font-size: 12px;
+    line-height: 1.5;
+    white-space: nowrap;
+}
+
+.todo-tagchip {
+    background: var(--hc-surface);
+    color: var(--hc-muted);
+}
+
+.todo-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 1px 8px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1.6;
+    border: 1px solid currentColor;
+}
+
+/* ===== 列表视图 ===== */
+.todo-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 14px;
+}
+
+.todo-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-height: 132px;
+    padding: 14px 14px 12px 18px;
+    border: 1px solid var(--hc-line);
+    border-radius: 12px;
+    background: var(--hc-surface-strong);
+    transition: border-color 0.16s ease, transform 0.16s ease, box-shadow 0.16s ease;
+}
+
+.todo-card::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 10px;
+    bottom: 10px;
+    width: 4px;
+    border-radius: 0 4px 4px 0;
+    background: var(--hc-muted);
+}
+
+.todo-card.prio-high::before { background: var(--hc-danger); }
+.todo-card.prio-medium::before { background: var(--hc-warning); }
+.todo-card.prio-low::before { background: var(--hc-success); }
+
+.todo-card:hover {
+    border-color: rgba(37, 99, 235, 0.32);
+    transform: translateY(-2px);
+    box-shadow: var(--hc-shadow-soft);
+}
+
+.todo-card.is-done {
+    opacity: 0.58;
+}
+
+.todo-card.is-done .todo-card-content {
+    text-decoration: line-through;
+}
+
+.todo-card.is-selected {
+    border-color: var(--hc-accent);
+    box-shadow: 0 0 0 2px var(--hc-soft-accent);
+}
+
+.todo-card-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.todo-card-content {
+    flex: 1 1 auto;
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--hc-text);
+    overflow-wrap: anywhere;
+}
+
+.todo-card-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.todo-card-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-top: auto;
+}
+
+.todo-card-time {
+    font-size: 12px;
+    color: var(--hc-muted);
+}
+
+.todo-acts {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.todo-iconbtn {
+    width: 28px;
+    height: 28px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid transparent;
+    border-radius: 7px;
+    background: transparent;
+    color: var(--hc-muted);
+    font-size: 13px;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+
+.todo-iconbtn:hover {
+    border-color: var(--hc-line);
+    background: var(--hc-surface);
+    color: var(--hc-text);
+}
+
+.todo-iconbtn.is-done-toggle:hover {
+    color: var(--hc-success);
+}
+
+.todo-iconbtn.is-danger:hover {
+    color: var(--hc-danger);
+}
+
+.todo-check {
+    width: 20px;
+    height: 20px;
+    accent-color: var(--hc-accent);
+    cursor: pointer;
+}
+
+/* ===== 看板视图 ===== */
+.todo-board {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(220px, 1fr));
+    gap: 14px;
+}
+
+.todo-lane {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 10px;
+    border: 1px dashed var(--hc-line);
+    border-radius: 12px;
+    background: var(--hc-surface);
+    min-height: 120px;
+}
+
+.todo-lane-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--hc-text);
+}
+
+.todo-lane-count {
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--hc-muted);
+}
+
+.todo-lane-body {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.todo-mini {
+    padding: 8px 10px;
+    border: 1px solid var(--hc-line);
+    border-left: 3px solid var(--hc-muted);
+    border-radius: 8px;
+    background: var(--hc-surface-strong);
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--hc-text);
+    cursor: pointer;
+    overflow-wrap: anywhere;
+}
+
+.todo-mini.prio-high { border-left-color: var(--hc-danger); }
+.todo-mini.prio-medium { border-left-color: var(--hc-warning); }
+.todo-mini.prio-low { border-left-color: var(--hc-success); }
+.todo-mini.is-done {
+    opacity: 0.55;
+    text-decoration: line-through;
+}
+
+/* ===== 日历视图 ===== */
+.todo-cal-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.todo-cal-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--hc-text);
+}
+
+.todo-cal {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    border: 1px solid var(--hc-line);
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--hc-surface-strong);
+}
+
+.todo-cal-wd {
+    padding: 8px 6px;
+    text-align: center;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--hc-muted);
+    background: var(--hc-surface);
+    border-bottom: 1px solid var(--hc-line);
+}
+
+.todo-cal-cell {
+    min-height: 92px;
+    padding: 6px 6px 4px;
+    border-top: 1px solid var(--hc-line);
+    border-left: 1px solid var(--hc-line);
+    cursor: pointer;
+    transition: background 0.15s ease;
+}
+
+.todo-cal-cell:nth-child(7n + 1) {
+    border-left: 0;
+}
+
+.todo-cal-cell:hover {
+    background: var(--hc-soft-accent);
+}
+
+.todo-cal-cell.is-out {
+    opacity: 0.4;
+}
+
+.todo-cal-cell.is-today .todo-cal-day {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--hc-accent);
+    color: #fff;
+    font-weight: 700;
+}
+
+.todo-cal-day {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--hc-text);
+    margin-bottom: 4px;
+}
+
+.todo-cal-dots {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 3px;
+    align-items: center;
+}
+
+.todo-cal-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+}
+
+.todo-cal-dot.high { background: var(--hc-danger); }
+.todo-cal-dot.medium { background: var(--hc-warning); }
+.todo-cal-dot.low { background: var(--hc-success); }
+
+.todo-cal-more {
+    font-size: 11px;
+    color: var(--hc-muted);
+}
+
+/* ===== 多选操作条 ===== */
+.todo-batchbar {
+    position: sticky;
+    bottom: 12px;
+    margin-top: 8px;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 10px 14px;
+    border: 1px solid var(--hc-line);
+    border-radius: 12px;
+    background: var(--hc-surface-strong);
+    box-shadow: var(--hc-shadow-soft);
+    z-index: 5;
+}
+
+.todo-batchbar[hidden] {
+    display: none;
+}
+
+.todo-batchbar #batchInfo {
+    margin-right: auto;
+    font-size: 13px;
+    color: var(--hc-text);
+    font-weight: 600;
+}
+
+.hc-button.hc-button-danger {
+    color: #fff;
+    background: var(--hc-danger);
+    border-color: var(--hc-danger);
+}
+
+.hc-button.hc-button-danger:hover {
+    filter: brightness(1.08);
+}
+
+/* ===== 杂项 ===== */
+.todo-empty {
+    padding: 48px 16px;
+    border: 1px dashed var(--hc-line);
+    border-radius: 12px;
+    text-align: center;
+    color: var(--hc-muted);
+    font-size: 14px;
+    background: var(--hc-surface);
+}
+
+.todo-muted {
+    color: var(--hc-muted);
+    font-size: 13px;
+}
+
+.todo-counter {
+    margin-top: 4px;
+    text-align: right;
+    font-size: 12px;
+    color: var(--hc-muted);
+}
+
+/* 编辑弹窗里的优先级选择 */
+.todo-prio {
+    display: inline-flex;
+    gap: 8px;
+}
+
+.todo-prio-btn {
+    min-height: 34px;
+    padding: 0 16px;
+    border: 1px solid var(--hc-line);
+    border-radius: 8px;
+    background: var(--hc-surface-strong);
+    color: var(--hc-text);
+    font: inherit;
+    font-size: 13px;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+
+.todo-prio-btn[data-p="high"].is-active { border-color: var(--hc-danger); color: var(--hc-danger); background: rgba(220, 38, 38, 0.08); }
+.todo-prio-btn[data-p="medium"].is-active { border-color: var(--hc-warning); color: var(--hc-warning); background: rgba(217, 119, 6, 0.08); }
+.todo-prio-btn[data-p="low"].is-active { border-color: var(--hc-success); color: var(--hc-success); background: rgba(22, 163, 74, 0.08); }
+
+.todo-detail-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin: 10px 0 14px;
+    font-size: 12px;
+    color: var(--hc-muted);
+}
+
+.todo-detail-content {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    font-size: 15px;
+    line-height: 1.7;
+    color: var(--hc-text);
+}
+
+.todo-detail-content.is-done {
+    text-decoration: line-through;
+    opacity: 0.6;
+}
+
+/* ===== 响应式 ===== */
+@media (max-width: 900px) {
+    .todo-tags {
+        display: none;
+    }
+}
+
+@media (max-width: 760px) {
+    .todo-shell {
+        padding: 16px 14px 6px;
+    }
+
+    .todo-board {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .todo-cal-cell {
+        min-height: 68px;
+    }
+}
